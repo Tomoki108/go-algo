@@ -1,39 +1,28 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
 	var N int
 	fmt.Scan(&N)
 
-	// 数がキー。登場した場所が要素
-	appearMap := make(map[int][]int, N)
-
-	var As []int
-	for i := 0; i < N; i++ {
-		var A int
-		fmt.Scan(&A)
-		As = append(As, A)
-
-		appearMap[A] = append([]int{i}, appearMap[A]...)
-	}
-	fmt.Printf("appearMap: %v\n", appearMap)
+	// 数がキー。最後に登場した場所(index + 1)が要素
+	appearMap := make(map[int]int, N)
 
 	Bs := make([]int, N)
 	for i := 0; i < N; i++ {
-		found := false
+		var A int
+		fmt.Scan(&A)
 
-		for _, appear := range appearMap[As[i]] {
-			if appear < i {
-				Bs[i] = appear + 1
-				found = true
-				break
-			}
-		}
-
-		if !found {
+		if idx, ok := appearMap[A]; ok {
+			Bs[i] = idx
+		} else {
 			Bs[i] = -1
 		}
+
+		appearMap[A] = i + 1
 	}
 
 	// Bsを空白区切りで一行に出力する
