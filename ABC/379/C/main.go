@@ -9,28 +9,32 @@ func main() {
 	var N, M int
 	fmt.Scan(&N, &M)
 
-	xs := make([]int, 0, M)
+	type xa struct {
+		x, a int
+	}
+
+	xas := make([]xa, 0, M)
 	for i := 0; i < M; i++ {
 		var X int
 		fmt.Scan(&X)
 
-		xs = append(xs, X)
+		xas = append(xas, xa{x: X})
 	}
-	sort.Slice(xs, func(i, j int) bool {
-		return xs[i] < xs[j]
-	})
 
-	as := make([]int, 0, M)
 	for i := 0; i < M; i++ {
 		var A int
 		fmt.Scan(&A)
 
-		as = append(as, A)
+		xas[i].a = A
 	}
+
+	sort.Slice(xas, func(i, j int) bool {
+		return xas[i].x < xas[j].x
+	})
 
 	lastEmptyCellNum := N
 	for i := M - 1; i >= 0; i-- {
-		if xs[i] == lastEmptyCellNum {
+		if xas[i].x == lastEmptyCellNum {
 			lastEmptyCellNum--
 		} else {
 			break
@@ -41,7 +45,7 @@ func main() {
 
 	stoneSum := 0
 	for i := 0; i < M; i++ {
-		stoneSum += as[i]
+		stoneSum += xas[i].a
 	}
 	if stoneSum != N {
 		ans = -1
@@ -51,19 +55,16 @@ func main() {
 	}
 
 	for i := M - 1; i >= 0; i-- {
-		cellNum := xs[i]
-		stoneNum := as[i]
+		cellNum := xas[i].x
+		stoneNum := xas[i].a
 
 		if stoneNum > lastEmptyCellNum-cellNum+1 {
 			ans = -1
 			break
 		}
 
-		for j := 0; j < stoneNum; j++ {
-			ans += lastEmptyCellNum - cellNum
-			lastEmptyCellNum--
-		}
-
+		ans += ((lastEmptyCellNum - cellNum + (lastEmptyCellNum - stoneNum - cellNum + 1)) * stoneNum) / 2
+		lastEmptyCellNum = lastEmptyCellNum - stoneNum
 	}
 
 	fmt.Println(ans)
