@@ -32,6 +32,16 @@ func main() {
 		return xas[i].x < xas[j].x
 	})
 
+	stoneSum := 0
+	for i := 0; i < M; i++ {
+		stoneSum += xas[i].a
+	}
+	if stoneSum != N {
+		fmt.Println(-1)
+
+		return
+	}
+
 	lastEmptyCellNum := N
 	for i := M - 1; i >= 0; i-- {
 		if xas[i].x == lastEmptyCellNum {
@@ -41,19 +51,12 @@ func main() {
 		}
 	}
 
-	ans := 0
-
-	stoneSum := 0
-	for i := 0; i < M; i++ {
-		stoneSum += xas[i].a
-	}
-	if stoneSum != N {
-		ans = -1
-		fmt.Println(ans)
-
+	if lastEmptyCellNum == 0 {
+		fmt.Println(0)
 		return
 	}
 
+	ans := 0
 	for i := M - 1; i >= 0; i-- {
 		cellNum := xas[i].x
 		stoneNum := xas[i].a
