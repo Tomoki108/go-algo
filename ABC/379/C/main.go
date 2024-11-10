@@ -61,6 +61,10 @@ func main() {
 		cellNum := xas[i].x
 		stoneNum := xas[i].a
 
+		if cellNum > lastEmptyCellNum {
+			continue
+		}
+
 		if stoneNum > lastEmptyCellNum-cellNum+1 {
 			ans = -1
 			break
