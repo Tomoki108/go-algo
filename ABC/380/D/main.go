@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/bits"
+	"unicode"
 )
 
 func main() {
@@ -11,39 +13,62 @@ func main() {
 	var Q int
 	fmt.Scan(&Q)
 
-	Ks := make([]int, 0, Q)
 	for i := 0; i < Q; i++ {
 		var K int
 		fmt.Scan(&K)
-		Ks = append(Ks, K)
+
+		quotient := K / len(S)
+		remainder := K % len(S)
+
+		setNo := remainder - 1
+		if setNo == -1 {
+			setNo = len(S)
+		}
+
+		var numOfOperation int
+		if quotient == 0 {
+			numOfOperation = 0
+
+			fmt.Println("K:", K, "quotient:", quotient, "remainder:", remainder, "setNo:", setNo, "numOfOperation:", numOfOperation)
+		} else {
+			numOfOperation = bits.Len64(uint64(setNo)) - 1
+
+			bitsWithoutMostLeft := uint64(setNo) << (64 - bits.Len64(uint64(setNo)) + 1)
+			pc := bits.OnesCount64(bitsWithoutMostLeft)
+			if pc > 0 {
+				numOfOperation += 1
+			}
+
+			fmt.Println("K:", K, "quotient:", quotient, "remainder:", remainder, "setNo:", setNo, "numOfOperation:", numOfOperation)
+		}
+
+		var letterIndex int
+		if K <= len(S) {
+			letterIndex = K - 1
+		} else {
+			r := K % len(S)
+			if r == 0 {
+				letterIndex = len(S) - 1
+			} else {
+				letterIndex = r - 1
+			}
+		}
+
+		// fmt.Println("letterIndex:", letterIndex, "original char:", string(rune(S[letterIndex])))
+
+		isUpper := unicode.IsUpper(rune(S[letterIndex]))
+		if numOfOperation%2 != 0 {
+			isUpper = !isUpper
+		}
+
+		if i != 0 {
+			fmt.Print(" ")
+		}
+		if isUpper {
+			fmt.Print(string(unicode.ToUpper(rune(S[letterIndex]))))
+		} else {
+			fmt.Print(string(unicode.ToLower(rune(S[letterIndex]))))
+		}
+
 	}
-
-	// lenS := big.NewInt(int64(len(S)))
-	// numToMultiply := new(big.Int).Exp(big.NewInt(10), big.NewInt(100), nil)
-	// finalLegth := new(big.Int).Mul(lenS, numToMultiply)
-
-	// // remainder := new(big.Int).Mod(finalLegth, lenS)
-
-	// ABQ
-	// ABQ abq
-	// ABQ abq abq ABQ
-	// ABQ abq abq ABQ abq ABQ ABQ abq
-	// ABQ abq abq ABQ abq ABQ ABQ abq abq ABQ ABQ abq ABQ abq abq ABQ
-	// ABQ abq abq ABQ abq ABQ ABQ abq abq ABQ ABQ abq ABQ abq abq ABQ
-
-	s := "ABQ"
-	sb := []byte(s)
-
-	// sbを全部小文字に変更する
-	for i := 0; i < len(sb); i++ {
-		sb[i] = sb[i] + 32
-	}
-	fmt.Println(string(sb))
-
-	// ABQ
-	// ABQ abq(一回反転)
-	// ABQ abq(一回反転) abq(一回反転) ABQ(二回反転)
-	// ABQ abq(一回反転) abq(一回反転) ABQ(二回反転) abq(一回反転) ABQ(二回反転) ABQ(二回反転) abq(三回反転)
-	// ABQ abq(一回反転) abq(一回反転) ABQ(二回反転) abq ABQ ABQ abq abq ABQ ABQ abq ABQ abq abq ABQ
-
 }
