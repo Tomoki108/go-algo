@@ -1,74 +1,104 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math/bits"
+	"os"
+	"strconv"
+	"strings"
 	"unicode"
 )
 
-func main1() {
-	var S string
-	fmt.Scan(&S)
+var reader = bufio.NewReader(os.Stdin)
+var writer = bufio.NewWriter(os.Stdout)
 
-	var Q int
-	fmt.Scan(&Q)
+// Sが一文字の場合を考える。操作後の文字数は、2^Kとなる。
+// 文字数の二進数表記を考える。ただし1文字目を0とする。101は4文字目、111は8文字目。1000は16文字目、1111は32文字目。
+// 二進数の桁数が操作回数に対応する。（1文字目以外。）二進数の最も左側の1を消すと反対側の対応する文字に行ける。(直前の操作でできた塊=全体の半分を消すことに等しいから)
+// 1文字目を0としているのは、1000のような場合に最も左側の1を消した時、反対側の対応する文字に行けるようにするため。
+// 今まで一文字で考えていたが、文字数が増えてもSの塊として考えれば同じことができる。
+func main() {
+	defer writer.Flush()
+
+	S := ReadString(reader)
+	Q := ReadInt(reader)
+	Ks := ReadIntArr(reader)
 
 	for i := 0; i < Q; i++ {
-		var K int
-		fmt.Scan(&K)
+		K := Ks[i]
 
 		quotient := K / len(S)
 		remainder := K % len(S)
 
-		setNo := remainder - 1
-		if setNo == -1 {
-			setNo = len(S)
+		setNo := quotient
+		if remainder == 0 {
+			setNo--
 		}
 
-		var numOfOperation int
-		if quotient == 0 {
-			numOfOperation = 0
+		binSetNo := uint64(setNo)
+		pc := bits.OnesCount64(binSetNo)
 
-			fmt.Println("K:", K, "quotient:", quotient, "remainder:", remainder, "setNo:", setNo, "numOfOperation:", numOfOperation)
-		} else {
-			numOfOperation = bits.Len64(uint64(setNo)) - 1
-
-			bitsWithoutMostLeft := uint64(setNo) << (64 - bits.Len64(uint64(setNo)) + 1)
-			pc := bits.OnesCount64(bitsWithoutMostLeft)
-			if pc > 0 {
-				numOfOperation += 1
-			}
-
-			fmt.Println("K:", K, "quotient:", quotient, "remainder:", remainder, "setNo:", setNo, "numOfOperation:", numOfOperation)
+		originalCharIndex := remainder - 1
+		if originalCharIndex == -1 {
+			originalCharIndex = len(S) - 1
 		}
+		originalChar := rune(S[originalCharIndex])
 
-		var letterIndex int
-		if K <= len(S) {
-			letterIndex = K - 1
-		} else {
-			r := K % len(S)
-			if r == 0 {
-				letterIndex = len(S) - 1
-			} else {
-				letterIndex = r - 1
-			}
-		}
-
-		// fmt.Println("letterIndex:", letterIndex, "original char:", string(rune(S[letterIndex])))
-
-		isUpper := unicode.IsUpper(rune(S[letterIndex]))
-		if numOfOperation%2 != 0 {
+		isUpper := unicode.IsUpper(originalChar)
+		if pc%2 != 0 {
 			isUpper = !isUpper
 		}
 
 		if i != 0 {
-			fmt.Print(" ")
+			fmt.Fprint(writer, " ")
 		}
 		if isUpper {
-			fmt.Print(string(unicode.ToUpper(rune(S[letterIndex]))))
+			// fmt.Printf("K: %d setNo: %d pc: %d binSetNo: %064b originalChar: %s isUpper: %t\n", K, setNo, pc, binSetNo, string(originalChar), isUpper)
+			fmt.Fprint(writer, string(unicode.ToUpper(originalChar)))
 		} else {
-			fmt.Print(string(unicode.ToLower(rune(S[letterIndex]))))
+			//fmt.Printf("K: %d setNo: %d pc: %d binSetNo: %064b originalChar: %s isUpper: %t\n", K, setNo, pc, binSetNo, string(originalChar), isUpper)
+			fmt.Fprint(writer, string(unicode.ToLower(originalChar)))
 		}
-
 	}
+}
+
+// 一行に1文字のみの入力を読み込む
+func ReadString(r *bufio.Reader) string {
+	input, _ := r.ReadString('\n')
+
+	return strings.TrimSpace(input)
+}
+
+// 一行に1つの整数のみの入力を読み込む
+func ReadInt(r *bufio.Reader) int {
+	input, _ := r.ReadString('\n')
+	str := strings.TrimSpace(input)
+	i, _ := strconv.Atoi(str)
+
+	return i
+}
+
+// 一行に複数の文字列が入力される場合、スペース区切りで文字列を読み込む
+func ReadStrArr(r *bufio.Reader) []string {
+	input, _ := r.ReadString('\n')
+	strs := strings.Fields(input)
+	arr := make([]string, len(strs))
+	for i, s := range strs {
+		arr[i] = s
+	}
+
+	return arr
+}
+
+// 一行に複数の整数が入力される場合、スペース区切りで整数を読み込む
+func ReadIntArr(r *bufio.Reader) []int {
+	input, _ := r.ReadString('\n')
+	strs := strings.Fields(input)
+	arr := make([]int, len(strs))
+	for i, s := range strs {
+		arr[i], _ = strconv.Atoi(s)
+	}
+
+	return arr
 }
