@@ -1,5 +1,0 @@
-package out
-
-
-func 
-
