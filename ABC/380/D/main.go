@@ -6,7 +6,7 @@ import (
 	"unicode"
 )
 
-func main() {
+func main1() {
 	var S string
 	fmt.Scan(&S)
 
