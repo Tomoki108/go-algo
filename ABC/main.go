@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-var reader = bufio.NewReader(os.Stdin)
-var writer = bufio.NewWriter(os.Stdout)
+var r = bufio.NewReader(os.Stdin)
+var w = bufio.NewWriter(os.Stdout)
 
 func main() {
-	defer writer.Flush()
+	defer w.Flush()
 
 }
 

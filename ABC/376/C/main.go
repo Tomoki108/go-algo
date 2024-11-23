@@ -2,17 +2,56 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-var reader = bufio.NewReader(os.Stdin)
-var writer = bufio.NewWriter(os.Stdout)
+var r = bufio.NewReader(os.Stdin)
+var w = bufio.NewWriter(os.Stdout)
 
 func main() {
-	defer writer.Flush()
+	defer w.Flush()
 
+	ReadInt(r)          // Nは使わないが行を進めるために読み込む
+	As := ReadIntArr(r) // おもちゃサイズ
+	Bs := ReadIntArr(r) // 箱サイズ
+	// 降順ソート
+	sort.Slice(As, func(i, j int) bool {
+		return As[i] > As[j]
+	})
+	sort.Slice(Bs, func(i, j int) bool {
+		return Bs[i] > Bs[j]
+	})
+
+	var notMatched int // 箱が見つからないおもちゃの大きさ
+	var numOfNotMatched = 0
+
+	for i, a := range As {
+		if i == len(As)-1 && numOfNotMatched == 0 {
+			notMatched = a
+			numOfNotMatched++
+			break
+		}
+
+		if Bs[i-numOfNotMatched] < a {
+			notMatched = a
+			numOfNotMatched++
+			if numOfNotMatched == 2 {
+				break
+			}
+		}
+
+	}
+
+	if numOfNotMatched == 2 {
+		fmt.Fprint(w, "-1")
+		return
+	}
+
+	fmt.Fprint(w, notMatched)
 }
 
 //////////////
