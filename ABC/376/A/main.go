@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -13,6 +14,30 @@ var writer = bufio.NewWriter(os.Stdout)
 func main() {
 	defer writer.Flush()
 
+	strs := ReadIntArr(reader)
+	// N := strs[0]
+	C := strs[1]
+
+	Ts := ReadIntArr(reader)
+
+	waitSec := 0
+	ans := 0
+	for i, T := range Ts {
+		if i == 0 {
+			ans++
+			continue
+		}
+
+		waitSec += T - Ts[i-1]
+		if waitSec < C {
+			continue
+		} else {
+			ans++
+			waitSec = 0
+		}
+	}
+
+	fmt.Fprint(writer, ans)
 }
 
 //////////////
