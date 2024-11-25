@@ -5,6 +5,7 @@ new: .check-no # create dir and files for new contest. NO env var required
 		mkdir -p $(NO)/$$dir; \
 		cp ./main.go $(NO)/$$dir/; \
 	done
+	cd $(NO)
 
 .Phony: new
 
