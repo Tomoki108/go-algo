@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -15,6 +16,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	Q := readInt(r)
+
+	plantedDates := make([]int, 0)
+	date := 0
+	for i := 0; i < Q; i++ {
+		ints := readIntArr(r)
+
+		if ints[0] == 1 {
+			plantedDates = append(plantedDates, date)
+		} else if ints[0] == 2 {
+			date += ints[1]
+		} else if ints[0] == 3 {
+			height := ints[1]
+
+			// 現在日とplantedDateからheightを計算し、指定のheight以上か二分探索する。
+			// plantedDatesが単調非減少性（plantedDate[i]が条件を満たすならplantedDate[i+1]も条件を満たす）を持っていないので、iに対して逆順に探索する。
+			// plantedDatesへの追加の際に先頭に追加すると、Goのスライスの特性上O(N)のコストがかかるため、そうはしていない。
+			idx := sort.Search(len(plantedDates), func(i int) bool {
+				return date-plantedDates[len(plantedDates)-1-i] >= height
+			})
+
+			if idx == len(plantedDates) {
+				fmt.Fprintln(w, 0)
+			} else {
+				idx = len(plantedDates) - 1 - idx
+				fmt.Fprintln(w, idx+1)
+				plantedDates = plantedDates[idx+1:]
+			}
+		}
+	}
 }
 
 //////////////
