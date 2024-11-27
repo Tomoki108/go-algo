@@ -22,54 +22,47 @@ func main() {
 	// 偶数インデックス始まりの1122数列を2づつ伸長することで、すべての偶数インデックス始まりの1122数列を作ることができる。（奇数始まりも同様）
 
 	numIndexes := make(map[int]int, 0)
-	currentLen := 0
 	ans := 0
 
-	// 区間[left, right)を考える index, index
+	// 区間[left, right)を考える
 	left, right := 0, 0
 	for right <= N-2 {
 		right += 2
 		if As[right-2] != As[right-1] {
 			left = right
-			currentLen = 0
 			numIndexes = make(map[int]int, 0)
 		} else {
 			num := As[right-1]
 
 			index, exist := numIndexes[num]
 			if exist {
-				ans = max(ans, currentLen)
+				ans = max(ans, right-left)
 				left = index + 1
-				currentLen = right - left
 			} else {
-				currentLen += 2
 				numIndexes[num] = right - 1
 			}
 		}
 	}
-	ans = max(ans, currentLen)
+	ans = max(ans, right-left)
 
 	left, right = 1, 1
 	for right <= N-2 {
 		right += 2
 		if As[right-1] != As[right-2] {
 			left = right
-			currentLen = 0
 			numIndexes = make(map[int]int, 0)
 		} else {
 			num := As[right-1]
 			index, exist := numIndexes[num]
 			if exist {
-				ans = max(ans, currentLen)
+				ans = max(ans, right-left)
 				left = index + 1
-				currentLen = right - left
 			} else {
-				currentLen += 2
 				numIndexes[num] = right - 1
 			}
 		}
 	}
-	ans = max(ans, currentLen)
+	ans = max(ans, right-left)
 
 	fmt.Fprint(w, ans)
 }
