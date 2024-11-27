@@ -15,56 +15,47 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	N := readInt(r)
+	readInt(r) // N
 	As := readIntArr(r)
 
 	// 1122数列は、偶数インデックス始まりか奇数インデックス始まり。
 	// 偶数インデックス始まりの1122数列を2づつ伸長することで、すべての偶数インデックス始まりの1122数列を作ることができる。（奇数始まりも同様）
 
-	numIndexes := make(map[int]int, 0)
-	ans := 0
-
-	// 区間[left, right)を考える
-	left, right := 0, 0
-	for right <= N-2 {
-		right += 2
-		if As[right-2] != As[right-1] {
-			left = right
-			numIndexes = make(map[int]int, 0)
-		} else {
-			num := As[right-1]
-
-			index, exist := numIndexes[num]
-			if exist {
-				ans = max(ans, right-left)
-				left = index + 1
-			} else {
-				numIndexes[num] = right - 1
-			}
-		}
-	}
-	ans = max(ans, right-left)
-
-	left, right = 1, 1
-	for right <= N-2 {
-		right += 2
-		if As[right-1] != As[right-2] {
-			left = right
-			numIndexes = make(map[int]int, 0)
-		} else {
-			num := As[right-1]
-			index, exist := numIndexes[num]
-			if exist {
-				ans = max(ans, right-left)
-				left = index + 1
-			} else {
-				numIndexes[num] = right - 1
-			}
-		}
-	}
-	ans = max(ans, right-left)
+	ans := max(
+		calcMaxLen(As, 0),
+		calcMaxLen(As, 1),
+	)
 
 	fmt.Fprint(w, ans)
+}
+
+func calcMaxLen(As []int, startIndex int) int {
+	maxLen := 0
+	numLastIndexes := make(map[int]int, 0)
+
+	// 区間[left, right)を考える
+	left := startIndex
+	for right := startIndex + 2; right <= len(As); right += 2 {
+		// fmt.Printf("1. left: %d, right: %d, numLastIndexes: %v, maxLen: %d\n", left, right, numLastIndexes, maxLen)
+
+		if As[right-2] != As[right-1] {
+			left = right
+			numLastIndexes = make(map[int]int, 0)
+		} else {
+			num := As[right-1]
+			index, exist := numLastIndexes[num]
+			if exist {
+				left = index + 1
+			} else {
+				numLastIndexes[num] = right - 1
+				maxLen = max(maxLen, right-left) // 区間が伸びた時だけmaxLenの更新を試みる
+			}
+		}
+
+		// fmt.Printf("2. left: %d, right: %d, numLastIndexes: %v, maxLen: %d\n", left, right, numLastIndexes, maxLen)
+	}
+
+	return maxLen
 }
 
 //////////////
