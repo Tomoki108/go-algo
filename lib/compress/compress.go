@@ -10,26 +10,21 @@ var Delimiter = "_"
 // ランレングス圧縮を行う。[]"数+delimiter+文字種"を返す。
 func RunLength(sl []string) []string {
 	comp := make([]string, 0, len(sl))
+	if len(sl) == 0 {
+		return comp
+	}
 
-	lastChar := ""
+	lastChar := sl[0]
 	currentLen := 0
 	for i := 0; i < len(sl); i++ {
 		s := sl[i]
-
-		if i == 0 {
-			lastChar = s
-			currentLen = 1
-			continue
-		}
-
 		if s == lastChar {
 			currentLen++
-			continue
+		} else {
+			comp = append(comp, strconv.Itoa(currentLen)+Delimiter+lastChar)
+			lastChar = s
+			currentLen = 1
 		}
-
-		comp = append(comp, strconv.Itoa(currentLen)+Delimiter+lastChar)
-		lastChar = s
-		currentLen = 1
 	}
 	comp = append(comp, strconv.Itoa(currentLen)+Delimiter+lastChar) // 最後の一文字
 
