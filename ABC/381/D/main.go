@@ -45,7 +45,15 @@ func calcMaxLen(As []int, startIndex int) int {
 			num := As[right-1]
 			index, exist := numLastIndexes[num]
 			if exist {
+				// TODO: ここが問題！numLastIndexesに余計なものが残っている。
+				// leftからindexまでの区間をループで回してマップから削除してもいいが。
+				// クリアしたかも。でもまだWA、、
+				for i := left; i < index; i += 2 {
+					delete(numLastIndexes, As[i])
+				}
+
 				left = index + 1
+				numLastIndexes[num] = right - 1
 			} else {
 				numLastIndexes[num] = right - 1
 				maxLen = max(maxLen, right-left) // 区間が伸びた時だけmaxLenの更新を試みる
