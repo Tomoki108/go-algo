@@ -82,6 +82,20 @@ func writeGrid(w *bufio.Writer, grid [][]string) {
 	}
 }
 
+func min(i, j int) int {
+	if i < j {
+		return i
+	}
+	return j
+}
+
+func max(i, j int) int {
+	if i > j {
+		return i
+	}
+	return j
+}
+
 // 一辺がnの正方形グリッドのマス目(hight, width)を、時計回りにtime回回転させたときの座標を返す
 func rotateGridCell(n, height, width, time int) (h, w int) {
 	time = time % 4

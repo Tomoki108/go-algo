@@ -15,6 +15,63 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	// 1122数列は、偶数インデックス始まりか奇数インデックス始まり。
+	// 偶数インデックス始まりの1122数列を2づつ伸長することで、すべての偶数インデックス始まりの1122数列を作ることができる。（奇数始まりも同様）
+
+	numIndexes := make(map[int]int, 0)
+	currentLen := 0
+	ans := 0
+
+	// 区間[left, right)を考える index, index
+	left, right := 0, 0
+	for right <= N-2 {
+		right += 2
+		if As[right-2] != As[right-1] {
+			left = right
+			currentLen = 0
+			numIndexes = make(map[int]int, 0)
+		} else {
+			num := As[right-1]
+
+			index, exist := numIndexes[num]
+			if exist {
+				ans = max(ans, currentLen)
+				left = index + 1
+				currentLen = right - left
+			} else {
+				currentLen += 2
+				numIndexes[num] = right - 1
+			}
+		}
+	}
+	ans = max(ans, currentLen)
+
+	left, right = 1, 1
+	for right <= N-2 {
+		right += 2
+		if As[right-1] != As[right-2] {
+			left = right
+			currentLen = 0
+			numIndexes = make(map[int]int, 0)
+		} else {
+			num := As[right-1]
+			index, exist := numIndexes[num]
+			if exist {
+				ans = max(ans, currentLen)
+				left = index + 1
+				currentLen = right - left
+			} else {
+				currentLen += 2
+				numIndexes[num] = right - 1
+			}
+		}
+	}
+	ans = max(ans, currentLen)
+
+	fmt.Fprint(w, ans)
 }
 
 //////////////
@@ -127,4 +184,18 @@ func slReverse[S ~[]E, E any](s S) {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
 	}
+}
+
+func min(i, j int) int {
+	if i < j {
+		return i
+	}
+	return j
+}
+
+func max(i, j int) int {
+	if i > j {
+		return i
+	}
+	return j
 }
