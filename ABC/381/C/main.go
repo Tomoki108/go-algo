@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -15,6 +16,67 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readString(r)
+	sl := strings.Split(S, "")
+
+	compSl := make([]string, 0, N)
+
+	lastChar := ""
+	currentLen := 0
+	for i := 0; i < N; i++ {
+		s := sl[i]
+
+		if i == 0 {
+			lastChar = s
+			currentLen = 1
+			continue
+		}
+
+		if s == lastChar {
+			currentLen++
+			continue
+		}
+
+		compSl = append(compSl, strconv.Itoa(currentLen)+"_"+lastChar)
+		lastChar = s
+		currentLen = 1
+	}
+	compSl = append(compSl, strconv.Itoa(currentLen)+"_"+lastChar) // 最後の一文字
+
+	subStrLens := make([]int, 0, len(S))
+	for i := 0; i <= len(compSl)-3; i++ {
+		left := compSl[i]
+		lstrs := strings.Split(left, "_")
+		leftLen, _ := strconv.Atoi(lstrs[0])
+		leftChar := lstrs[1]
+
+		middle := compSl[i+1]
+		mstrs := strings.Split(middle, "_")
+		middleLen, _ := strconv.Atoi(mstrs[0])
+		middleChar := mstrs[1]
+
+		right := compSl[i+2]
+		rstrs := strings.Split(right, "_")
+		rightLen, _ := strconv.Atoi(rstrs[0])
+		rightChar := rstrs[1]
+
+		if leftChar == "1" && middleChar == "/" && rightChar == "2" && middleLen == 1 {
+			min := int(math.Min(float64(leftLen), float64(rightLen)))
+			subStrLen := min*2 + 1
+
+			subStrLens = append(subStrLens, subStrLen)
+		}
+	}
+
+	sort.Slice(subStrLens, func(i, j int) bool { return subStrLens[i] < subStrLens[j] })
+
+	if len(subStrLens) == 0 {
+		fmt.Fprint(w, 1) //  Sには"/"が1つ以上含まれる。そして"/" は長さ1のsubStrである。
+		return
+	}
+
+	fmt.Fprint(w, subStrLens[len(subStrLens)-1])
 }
 
 //////////////
