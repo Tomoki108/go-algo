@@ -1,14 +1,5 @@
-DIRS := A B C D E
+update-tpl: # update main.go template
+	cp ./main.go /Users/tomoki/Library/Preferences/atcoder-cli-nodejs/go/main.go
 
-new: .check-no # create dir and files for new contest. NO env var required
-	for dir in $(DIRS); do \
-		mkdir -p $(NO)/$$dir; \
-		cp ./main.go $(NO)/$$dir/; \
-	done
 
-.Phony: new
-
-.check-no:
-ifndef NO
-	$(error env var NO is not set)
-endif
+.Phony: update-tpl
