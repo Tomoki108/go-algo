@@ -1,3 +1,5 @@
 module github.com/Tomoki108/go-algo
 
-go 1.22.4
+// atcoderで使われているバージョン
+// https://img.atcoder.jp/file/language-update/language-list.html
+go 1.20.6
