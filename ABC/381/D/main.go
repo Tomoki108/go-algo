@@ -36,7 +36,6 @@ func calcMaxLen(As []int, startIndex int) int {
 	// 区間[left, right)を考える
 	left := startIndex
 	for right := startIndex + 2; right <= len(As); right += 2 {
-		// fmt.Printf("1. left: %d, right: %d, numLastIndexes: %v, maxLen: %d\n", left, right, numLastIndexes, maxLen)
 
 		if As[right-2] != As[right-1] {
 			left = right
@@ -45,9 +44,6 @@ func calcMaxLen(As []int, startIndex int) int {
 			num := As[right-1]
 			index, exist := numLastIndexes[num]
 			if exist {
-				// TODO: ここが問題！numLastIndexesに余計なものが残っている。
-				// leftからindexまでの区間をループで回してマップから削除してもいいが。
-				// クリアしたかも。でもまだWA、、
 				for i := left; i < index; i += 2 {
 					delete(numLastIndexes, As[i])
 				}
@@ -59,8 +55,6 @@ func calcMaxLen(As []int, startIndex int) int {
 				maxLen = max(maxLen, right-left) // 区間が伸びた時だけmaxLenの更新を試みる
 			}
 		}
-
-		// fmt.Printf("2. left: %d, right: %d, numLastIndexes: %v, maxLen: %d\n", left, right, numLastIndexes, maxLen)
 	}
 
 	return maxLen
