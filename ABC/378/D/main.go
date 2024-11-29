@@ -35,7 +35,7 @@ func main() {
 	for h := 0; h < H; h++ {
 		for w := 0; w < W; w++ {
 			if grid[h][w] == "." {
-				exploere(h, w, 0)
+				explore(h, w, 0)
 			}
 		}
 	}
@@ -43,7 +43,7 @@ func main() {
 	fmt.Println(ans)
 }
 
-func exploere(i, j, k int) {
+func explore(i, j, k int) {
 	if k == K {
 		ans++
 		return
@@ -55,7 +55,7 @@ func exploere(i, j, k int) {
 		ni, nj := i+delta[0], j+delta[1]
 
 		if 0 <= ni && ni < H && 0 <= nj && nj < W && grid[ni][nj] == "." && !visited[ni][nj] {
-			exploere(ni, nj, k+1)
+			explore(ni, nj, k+1)
 		}
 
 	}
