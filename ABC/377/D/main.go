@@ -23,43 +23,17 @@ func main() {
 		endMaxStartMap[R] = max(endMaxStartMap[R], L)
 	}
 
-	fmt.Printf("endMaxStartMap: %v\n", endMaxStartMap)
-
 	ans := 0
-	left := 1
-	right := 1
-	for ; right <= M; right++ {
-		fmt.Printf("left: %d, right: %d\n", left, right)
 
+	minLeft := 1
+	for right := 1; right <= M; right++ {
 		ngLeft, ok := endMaxStartMap[right]
-		if !ok {
-			ans++
-			fmt.Println("hello, ans:", ans)
-			continue
+		if ok {
+			minLeft = max(minLeft, ngLeft+1)
 		}
 
-		if left <= ngLeft {
-			left = ngLeft + 1
-			if left <= right {
-				fmt.Println("bar")
-				ans++
-			}
-
-			fmt.Println("hello2, ans:", ans)
-			continue
-		}
-
-		ans++
-		fmt.Println("hello3, ans:", ans)
+		ans += right - minLeft + 1
 	}
-	right-- // 最終イテレートの後に一度余分にインクリメントされているので戻す
-	fmt.Printf("finally, left: %d, right: %d, ans: %d\n", left, right, ans)
-
-	for left = left + 1; left <= M; left++ {
-		ans++
-	}
-	left-- // 最終イテレートの後に一度余分にインクリメントされているので戻す
-	fmt.Printf("finally, left: %d, right: %d, ans: %d\n", left, right, ans)
 
 	fmt.Fprint(w, ans)
 }
