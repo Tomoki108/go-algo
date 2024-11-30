@@ -14,6 +14,13 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readString(r)
+
+	if strings.HasSuffix(S, "san") {
+		fmt.Fprintln(w, "Yes")
+	} else {
+		fmt.Fprintln(w, "No")
+	}
 }
 
 //////////////
@@ -119,4 +126,3 @@ func slReverse[S ~[]E, E any](s S) {
 		s[i], s[j] = s[j], s[i]
 	}
 }
-
