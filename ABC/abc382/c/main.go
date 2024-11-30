@@ -17,74 +17,99 @@ func main() {
 
 	N, M := read2Ints(r)
 
-	type gourmet struct {
+	As := readIntArr(r)
+	// Bs := readIntArr(r)
+
+	type sushi struct {
 		fno int // 寿司のno,
-		pno int // 人のno
 		g   int
 	}
 
-	gourmets := make([]gourmet, 0, N+M)
-
-	as, _ := r.ReadString('\n')
-	ass := strings.Fields(as)
-	for i, s := range ass {
-		a, _ := strconv.Atoi(s)
-
-		gourmets = append(gourmets, gourmet{
-			pno: i + 1,
-			g:   a,
-		})
-	}
-
+	sushis := make([]sushi, 0, M)
 	bs, _ := r.ReadString('\n')
 	bss := strings.Fields(bs)
 	for i, s := range bss {
 		b, _ := strconv.Atoi(s)
 
-		gourmets = append(gourmets, gourmet{
+		sushis = append(sushis, sushi{
 			fno: i + 1,
 			g:   b,
 		})
-
 	}
 
-	sort.Slice(gourmets, func(i, j int) bool {
-		if gourmets[i].g < gourmets[j].g {
-			return true
-		}
-
-		if gourmets[i].g == gourmets[j].g {
-			if gourmets[i].pno != 0 && gourmets[j].fno != 0 {
-				return true
-			}
-
-			if gourmets[i].pno != 0 && gourmets[j].pno != 0 {
-				return gourmets[i].pno > gourmets[j].pno
-			}
-		}
-
-		return false
+	sort.Slice(sushis, func(i, j int) bool {
+		return sushis[i].g < sushis[j].g
 	})
 
-	fmt.Printf("gourmets: %+v", gourmets)
+	// どの寿司を、誰が食べるか
+	eatMap := make(map[int]int, M)
+	for i := 0; i < N; i++ {
+		a := As[i]
 
-	ans := make(map[int]int, M)
-	for i := 0; i < N+M; i++ {
-		fno := gourmets[i].fno
-		if fno != 0 {
-			ans[fno] = -1
-			for j := i - 1; -1 < j; j-- {
-				if gourmets[j].pno != 0 {
-					ans[fno] = gourmets[j].pno
-					break
-				}
+		idx := sort.Search(len(sushis), func(i int) bool {
+			return sushis[i].g >= a
+		})
+		if idx == len(sushis) {
+			continue
+		}
+
+		for j := idx; j < len(sushis); j++ {
+			if _, ate := eatMap[sushis[j].fno]; ate {
+				break
 			}
+
+			eatMap[sushis[j].fno] = i + 1
 		}
 	}
 
 	for i := 1; i <= M; i++ {
-		fmt.Fprintln(w, ans[i])
+		pno, ok := eatMap[i]
+
+		if !ok {
+			fmt.Fprintln(w, -1)
+			continue
+		}
+
+		fmt.Fprintln(w, pno)
 	}
+
+	// sort.Slice(gourmets, func(i, j int) bool {
+	// 	if gourmets[i].g < gourmets[j].g {
+	// 		return true
+	// 	}
+
+	// 	if gourmets[i].g == gourmets[j].g {
+	// 		if gourmets[i].pno != 0 && gourmets[j].fno != 0 {
+	// 			return true
+	// 		}
+
+	// 		if gourmets[i].pno != 0 && gourmets[j].pno != 0 {
+	// 			return gourmets[i].pno > gourmets[j].pno
+	// 		}
+	// 	}
+
+	// 	return false
+	// })
+
+	// fmt.Printf("gourmets: %+v", gourmets)
+
+	// ans := make(map[int]int, M)
+	// for i := 0; i < N+M; i++ {
+	// 	fno := gourmets[i].fno
+	// 	if fno != 0 {
+	// 		ans[fno] = -1
+	// 		for j := i - 1; -1 < j; j-- {
+	// 			if gourmets[j].pno != 0 {
+	// 				ans[fno] = gourmets[j].pno
+	// 				break
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// for i := 1; i <= M; i++ {
+	// 	fmt.Fprintln(w, ans[i])
+	// }
 }
 
 //////////////
