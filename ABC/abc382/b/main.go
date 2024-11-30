@@ -14,6 +14,21 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, D := read2Ints(r)
+	S := readString(r)
+
+	ss := strings.Split(S, "")
+
+	for i := 0; i < D; i++ {
+		for j := 0; j < N; j++ {
+			if ss[len(ss)-1-j] == "@" {
+				ss[len(ss)-1-j] = "."
+				break
+			}
+		}
+	}
+
+	fmt.Fprintln(w, strings.Join(ss, ""))
 }
 
 //////////////
@@ -119,4 +134,3 @@ func slReverse[S ~[]E, E any](s S) {
 		s[i], s[j] = s[j], s[i]
 	}
 }
-
