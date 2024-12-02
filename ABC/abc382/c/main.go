@@ -72,44 +72,6 @@ func main() {
 
 		fmt.Fprintln(w, pno)
 	}
-
-	// sort.Slice(gourmets, func(i, j int) bool {
-	// 	if gourmets[i].g < gourmets[j].g {
-	// 		return true
-	// 	}
-
-	// 	if gourmets[i].g == gourmets[j].g {
-	// 		if gourmets[i].pno != 0 && gourmets[j].fno != 0 {
-	// 			return true
-	// 		}
-
-	// 		if gourmets[i].pno != 0 && gourmets[j].pno != 0 {
-	// 			return gourmets[i].pno > gourmets[j].pno
-	// 		}
-	// 	}
-
-	// 	return false
-	// })
-
-	// fmt.Printf("gourmets: %+v", gourmets)
-
-	// ans := make(map[int]int, M)
-	// for i := 0; i < N+M; i++ {
-	// 	fno := gourmets[i].fno
-	// 	if fno != 0 {
-	// 		ans[fno] = -1
-	// 		for j := i - 1; -1 < j; j-- {
-	// 			if gourmets[j].pno != 0 {
-	// 				ans[fno] = gourmets[j].pno
-	// 				break
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	// for i := 1; i <= M; i++ {
-	// 	fmt.Fprintln(w, ans[i])
-	// }
 }
 
 //////////////
