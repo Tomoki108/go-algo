@@ -11,9 +11,45 @@ import (
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var ans [][]int
+
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r) // N: 数列の長さ, M: 要素の上限値
+
+	maxFisrtNum := M - 10*(N-1)
+
+	for firstNum := 1; firstNum <= maxFisrtNum; firstNum++ {
+		dfs(N, M, []int{firstNum})
+	}
+
+	fmt.Fprintln(w, len(ans))
+	for _, a := range ans {
+		writeSlice(w, a)
+	}
+}
+
+func dfs(N, M int, base []int) {
+	if len(base) == N {
+		ans = append(ans, base)
+		return
+	}
+
+	latestNum := base[len(base)-1]
+	nextNum := latestNum + 10
+
+	for ; nextNum <= M; nextNum++ {
+		new := append(base, nextNum)
+		minLastNum := 10*(N-len(new)) + nextNum
+
+		if minLastNum > M {
+			break
+		}
+
+		dfs(N, M, new)
+	}
+	return
 }
 
 //////////////
@@ -81,6 +117,15 @@ func writeGrid(w *bufio.Writer, grid [][]string) {
 	}
 }
 
+// スライスの中身をスペース区切りで出力する
+func writeSlice[T any](w *bufio.Writer, sl []T) {
+	vs := make([]any, len(sl))
+	for i, v := range sl {
+		vs[i] = v
+	}
+	fmt.Fprintln(w, vs...)
+}
+
 func min(i, j int) int {
 	if i < j {
 		return i
@@ -120,3 +165,11 @@ func slReverse[S ~[]E, E any](s S) {
 	}
 }
 
+func each[T any](sl []T, f func(idx int, v T) T) []T {
+	updated := make([]T, 0, len(sl))
+	for i, v := range sl {
+		updated = append(updated, f(i, v))
+	}
+
+	return updated
+}

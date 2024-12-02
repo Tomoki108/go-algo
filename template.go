@@ -81,6 +81,15 @@ func writeGrid(w *bufio.Writer, grid [][]string) {
 	}
 }
 
+// スライスの中身をスペース区切りで出力する
+func writeSlice[T any](w *bufio.Writer, sl []T) {
+	vs := make([]any, len(sl))
+	for i, v := range sl {
+		vs[i] = v
+	}
+	fmt.Fprintln(w, vs...)
+}
+
 func min(i, j int) int {
 	if i < j {
 		return i
