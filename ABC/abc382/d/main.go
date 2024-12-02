@@ -32,9 +32,7 @@ func main() {
 
 func dfs(N, M int, base []int) {
 	if len(base) == N {
-		var cp = make([]int, N)
-		copy(cp, base)
-		ans = append(ans, cp)
+		ans = append(ans, base)
 		return
 	}
 
@@ -42,8 +40,9 @@ func dfs(N, M int, base []int) {
 	nextNum := latestNum + 10
 
 	for ; nextNum <= M; nextNum++ {
-		// fmt.Fprintln(w, "nextNum:", nextNum)
-		new := append(base, nextNum)
+		new := make([]int, 0, len(base)+1)
+		new = append(new, base...)
+		new = append(new, nextNum)
 		minLastNum := 10*(N-len(new)) + nextNum
 
 		if minLastNum > M {
