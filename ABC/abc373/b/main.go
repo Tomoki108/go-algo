@@ -14,6 +14,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readString(r)
+	ss := strings.Split(S, "")
+	ssmap := make(map[string]int, 26)
+	for i, s := range ss {
+		ssmap[s] = i
+	}
+
+	atoz := strings.Split("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "")
+
+	cost := 0
+	for i, s := range atoz {
+		if i == 0 {
+			continue
+		}
+
+		prev := ssmap[atoz[i-1]]
+		current := ssmap[s]
+
+		c := current - prev
+		if c < 0 {
+			c = c * -1
+		}
+
+		cost += c
+		if s == "Z" {
+			break
+		}
+	}
+
+	fmt.Fprintln(w, cost)
 }
 
 //////////////
