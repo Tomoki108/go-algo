@@ -16,23 +16,31 @@ brew install goenv
 goenv install 1.20.6
 ```
 
+- add alias to `~/.bash_profile` or some file like that
+
+```sh
+# AtCoder
+alias acct='oj t -c "go run main.go"'
+alias accs='actest && acc s'
+```
+
 ## commands
 
-- コンテストの流れ（一部 `~/.bash_profile` の alias を利用）
+- how to solve a contest
 
 ```sh
 cd ABC
 
-acc new {contest_id} # ディレクトリ初期化
+acc new {contest_id} # init dir for the contest
 
-cd a # 解きたい問題のディレクトリに移動
+cd a # move problem dir
 
-acct # サンプルでテスト
+acct # test by samples
 
-accs # サンプルでテスト && 提出
+accs # test by samples && submit
 ```
 
-- go の template ファイルを更新（atocoder-cli に登録しているファイルを `./template.go` と同期）
+- update Go template file (sync file registered atocoder-cli with `./template.go`)
 
 ```sh
 make update-tpl
