@@ -14,6 +14,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	T := readStr(r)
+
+	ss := strings.Split(S, "")
+	ts := strings.Split(T, "")
+
+	min := min(len(ss), len(ts))
+
+	for i := 0; i < min; i++ {
+		if ss[i] != ts[i] {
+			fmt.Fprintln(w, i+1)
+			return
+		}
+	}
+
+	if len(ss) == len(ts) {
+		fmt.Fprintln(w, 0)
+	} else {
+		fmt.Fprintln(w, min+1)
+	}
 }
 
 //////////////
@@ -21,7 +41,7 @@ func main() {
 /////////////
 
 // 一行に1文字のみの入力を読み込む
-func readString(r *bufio.Reader) string {
+func readStr(r *bufio.Reader) string {
 	input, _ := r.ReadString('\n')
 
 	return strings.TrimSpace(input)
@@ -119,4 +139,3 @@ func slReverse[S ~[]E, E any](s S) {
 		s[i], s[j] = s[j], s[i]
 	}
 }
-

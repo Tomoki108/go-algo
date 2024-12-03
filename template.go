@@ -21,7 +21,7 @@ func main() {
 /////////////
 
 // 一行に1文字のみの入力を読み込む
-func readString(r *bufio.Reader) string {
+func readStr(r *bufio.Reader) string {
 	input, _ := r.ReadString('\n')
 
 	return strings.TrimSpace(input)
