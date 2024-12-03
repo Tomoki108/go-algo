@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"os"
 	"strconv"
@@ -14,6 +15,115 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	weightMap := make(map[int]map[int]int, N)
+	for i := 1; i <= N; i++ {
+		weightMap[i] = make(map[int]int, N-1)
+	}
+
+	for i := 0; i < M; i++ {
+		iarr := readIntArr(r)
+
+		from := iarr[0]
+		to := iarr[1]
+		weight := iarr[2]
+
+		weightMap[from][to] = weight
+		weightMap[to][from] = -1 * weight
+	}
+
+	visted := make(map[int]bool, N) // 訪問済みの頂点
+
+	xs := make([]int, N)
+	xs[0] = 1
+
+	queue := NewQueue[int]()
+
+	for i := 1; i <= N; i++ {
+		if visted[i] {
+			continue
+		}
+		queue.Enqueue(i)
+
+		for queue.Size() > 0 {
+			from, _ := queue.Dequeue()
+			visted[from] = true
+
+			adjacents := weightMap[from]
+			for to, weight := range adjacents {
+				if visted[to] {
+					continue
+				}
+
+				// toX - fromX = weight
+				fromX := xs[from-1]
+				toX := weight + fromX
+				xs[to-1] = toX
+
+				visted[to] = true
+				queue.Enqueue(to)
+			}
+		}
+
+	}
+
+	// var builder strings.Builder
+	// for i := 1; i <= N; i++ {
+	// 	if i > 1 {
+	// 		builder.WriteString(" ")
+	// 	}
+	// 	builder.WriteString(strconv.Itoa(xMap[i]))
+	// }
+	// builder.WriteString("\n")
+	// fmt.Fprint(w, builder.String())
+
+	for i, v := range xs {
+		if i != 0 {
+			fmt.Fprint(w, " ")
+		}
+		fmt.Fprint(w, v)
+
+		if i == N {
+			fmt.Fprint(w, "\n")
+		}
+	}
+}
+
+//////////////
+// Queue  //
+/////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
 }
 
 //////////////
