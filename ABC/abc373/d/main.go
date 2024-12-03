@@ -12,7 +12,68 @@ import (
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var xs []int            // DFSの解法で使っている
+var visted map[int]bool // DFSの解法で使っている
+
+// DFSの解法
 func main() {
+	defer w.Flush()
+
+	N, M := read2Ints(r)
+
+	weightMap := make(map[int][][2]int, N)
+
+	for i := 0; i < M; i++ {
+		iarr := readIntArr(r)
+
+		from := iarr[0]
+		to := iarr[1]
+		weight := iarr[2]
+
+		weightMap[from] = append(weightMap[from], [2]int{to, weight})
+		weightMap[to] = append(weightMap[to], [2]int{from, -1 * weight})
+	}
+
+	visted = make(map[int]bool, N) // 訪問済みの頂点
+
+	xs = make([]int, N)
+	xs[0] = 1
+
+	for i := 1; i <= N; i++ {
+		if visted[i] {
+			continue
+		}
+		dfs(i, weightMap)
+	}
+
+	writeSlice(w, xs)
+}
+
+func dfs(from int, weightMap map[int][][2]int) {
+	visted[from] = true
+
+	adjacents := weightMap[from]
+	for _, v := range adjacents {
+		to := v[0]
+		weight := v[1]
+
+		if visted[to] {
+			continue
+		}
+
+		// toX - fromX = weight
+		fromX := xs[from-1]
+		toX := weight + fromX
+		xs[to-1] = toX
+
+		visted[to] = true
+		dfs(to, weightMap)
+	}
+
+}
+
+// BFSの解法
+func alt() {
 	defer w.Flush()
 
 	N, M := read2Ints(r)
