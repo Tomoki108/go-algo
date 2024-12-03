@@ -14,11 +14,52 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Ks := readIntArr(r)
+
+	// N^2 - 1（N桁の最大の二進数 11...11）を作る
+	var tmp = 1
+	for i := 0; i < N; i++ {
+		tmp *= 2
+	}
+	tmp--
+	binMax := uint64(tmp)
+
+	ans := 0
+	for i := uint64(0); i <= binMax; i++ {
+		groupA := 0
+		groupB := 0
+
+		for j := 1; j <= N; j++ {
+			if IsBitPop(i, j) {
+				groupA += Ks[j-1]
+			} else {
+				groupB += Ks[j-1]
+			}
+		}
+
+		bigger := max(groupA, groupB)
+
+		if ans == 0 {
+			ans = bigger
+		} else {
+			ans = min(ans, bigger)
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Hepers  //
 /////////////
+
+// k桁目のビットが1かどうかを判定（一番右を１桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << (k - 1)はビットマスク。1をk - 1桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << (k - 1))) != 0
+}
 
 // 一行に1文字のみの入力を読み込む
 func readString(r *bufio.Reader) string {
@@ -119,4 +160,3 @@ func slReverse[S ~[]E, E any](s S) {
 		s[i], s[j] = s[j], s[i]
 	}
 }
-
