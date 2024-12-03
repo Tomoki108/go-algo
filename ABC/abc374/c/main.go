@@ -17,16 +17,10 @@ func main() {
 	N := readInt(r)
 	Ks := readIntArr(r)
 
-	// N^2 - 1（N桁の最大の二進数 11...11）を作る
-	var tmp = 1
-	for i := 0; i < N; i++ {
-		tmp *= 2
-	}
-	tmp--
-	binMax := uint64(tmp)
-
+	// uint64(1)<<Nは、100..00 (N+1桁)
+	// その手前の数は 11..11（N桁）になり、0からそこまでループすれば全パターン試せる。
 	ans := 0
-	for i := uint64(0); i <= binMax; i++ {
+	for i := uint64(0); i < uint64(1)<<N; i++ {
 		groupA := 0
 		groupB := 0
 
