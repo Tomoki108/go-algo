@@ -17,10 +17,7 @@ func main() {
 
 	N, M := read2Ints(r)
 
-	weightMap := make(map[int]map[int]int, N)
-	for i := 1; i <= N; i++ {
-		weightMap[i] = make(map[int]int, N-1)
-	}
+	weightMap := make(map[int][][2]int, N)
 
 	for i := 0; i < M; i++ {
 		iarr := readIntArr(r)
@@ -29,8 +26,8 @@ func main() {
 		to := iarr[1]
 		weight := iarr[2]
 
-		weightMap[from][to] = weight
-		weightMap[to][from] = -1 * weight
+		weightMap[from] = append(weightMap[from], [2]int{to, weight})
+		weightMap[to] = append(weightMap[to], [2]int{from, -1 * weight})
 	}
 
 	visted := make(map[int]bool, N) // 訪問済みの頂点
@@ -51,7 +48,10 @@ func main() {
 			visted[from] = true
 
 			adjacents := weightMap[from]
-			for to, weight := range adjacents {
+			for _, v := range adjacents {
+				to := v[0]
+				weight := v[1]
+
 				if visted[to] {
 					continue
 				}
@@ -68,26 +68,7 @@ func main() {
 
 	}
 
-	// var builder strings.Builder
-	// for i := 1; i <= N; i++ {
-	// 	if i > 1 {
-	// 		builder.WriteString(" ")
-	// 	}
-	// 	builder.WriteString(strconv.Itoa(xMap[i]))
-	// }
-	// builder.WriteString("\n")
-	// fmt.Fprint(w, builder.String())
-
-	for i, v := range xs {
-		if i != 0 {
-			fmt.Fprint(w, " ")
-		}
-		fmt.Fprint(w, v)
-
-		if i == N {
-			fmt.Fprint(w, "\n")
-		}
-	}
+	writeSlice(w, xs)
 }
 
 //////////////
