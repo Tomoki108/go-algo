@@ -28,19 +28,11 @@ func main() {
 		}
 	}
 
-	// fmt.Printf("abcIndexes: %v\n", abcIndexes)
-	// return
-
 	for i := 0; i < Q; i++ {
-		// fmt.Printf("ss: %v\n", ss)
-		// fmt.Printf("abcIndexes: %v\n", abcIndexes)
-
 		sarr := readStrArr(r)
 		XS := sarr[0]
 		X, _ := strconv.Atoi(XS)
 		C := sarr[1]
-
-		// fmt.Printf("X: %d, C: %s\n", X, C)
 
 		xi := X - 1
 		ss[xi] = C
@@ -77,19 +69,16 @@ func main() {
 		}
 
 		ss[xi] = C
-		if ss[xi] == "A" && ss[xi+1] == "B" && ss[xi+2] == "C" {
+		if xi+2 <= len(ss)-1 && ss[xi] == "A" && ss[xi+1] == "B" && ss[xi+2] == "C" {
 			abcIndexes[abcIndex1] = struct{}{}
-		} else if ss[xi-1] == "A" && ss[xi] == "B" && ss[xi+1] == "C" {
+		} else if xi+1 <= len(ss)-1 && xi-1 >= 0 && ss[xi-1] == "A" && ss[xi] == "B" && ss[xi+1] == "C" {
 			abcIndexes[abcIndex2] = struct{}{}
-		} else if ss[xi-2] == "A" && ss[xi-1] == "B" && ss[xi] == "C" {
+		} else if xi-2 >= 0 && ss[xi-2] == "A" && ss[xi-1] == "B" && ss[xi] == "C" {
 			abcIndexes[abcIndex3] = struct{}{}
 		}
 
 		fmt.Fprintln(w, len(abcIndexes))
 	}
-	// fmt.Printf("ss: %v\n", ss)
-	// fmt.Printf("abcIndexes: %v\n", abcIndexes)
-
 }
 
 //////////////
