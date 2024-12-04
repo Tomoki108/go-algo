@@ -55,15 +55,15 @@ func main() {
 				flipped := IsBitPop(i, j)
 
 				if !flipped {
-					cost += math.Sqrt(float64((toX-lastX)*(toX-lastX)+(toY-lastY)*(toY-lastY))) / float64(S)
-					cost += math.Sqrt(float64((toX-fromX)*(toX-fromX)+(toY-fromY)*(toY-fromY))) / float64(T)
-					lastX = fromX
-					lastY = fromY
-				} else {
-					cost += math.Sqrt(float64((fromX-lastX)*(fromX-lastX)+(fromY-lastY)*(fromY-lastY))) / float64(S)
-					cost += math.Sqrt(float64((fromX-toX)*(fromX-toX)+(fromY-toY)*(fromY-toY))) / float64(T)
+					cost += CalcDistance(lastX, lastY, fromX, fromY) / float64(S)
+					cost += CalcDistance(fromX, fromY, toX, toY) / float64(T)
 					lastX = toX
 					lastY = toY
+				} else {
+					cost += CalcDistance(lastX, lastY, toX, toY) / float64(S)
+					cost += CalcDistance(toX, toY, fromX, fromY) / float64(T)
+					lastX = fromX
+					lastY = fromY
 				}
 			}
 			minCost = math.Min(minCost, cost)
@@ -103,6 +103,10 @@ func IsBitPop(num uint64, k int) bool {
 	// 1 << (k - 1)はビットマスク。1をk - 1桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
 	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
 	return (num & (1 << (k - 1))) != 0
+}
+
+func CalcDistance(fromX, fromY, toX, toY int) float64 {
+	return math.Sqrt(float64((toX-fromX)*(toX-fromX) + (toY-fromY)*(toY-fromY)))
 }
 
 //////////////
