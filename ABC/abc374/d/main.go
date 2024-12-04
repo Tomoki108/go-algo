@@ -47,10 +47,11 @@ func main() {
 			lastY := 0
 
 			for j := 1; j <= N; j++ {
-				toX := p[j-1][0]
-				toY := p[j-1][1]
-				fromX := p[j-1][2]
-				fromY := p[j-1][3]
+				edge := p[j-1]
+				toX := edge[0]
+				toY := edge[1]
+				fromX := edge[2]
+				fromY := edge[3]
 
 				flipped := IsBitPop(i, j)
 
