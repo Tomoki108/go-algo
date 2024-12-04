@@ -14,6 +14,85 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r) // len(S), len(Queries)
+	S := readStr(r)      // 文字列
+
+	ss := strings.Split(S, "")
+
+	type abcIndex [3]int // a, b, cのインデックスを順に保持
+	abcIndexes := make(map[abcIndex]struct{}, len(ss)/3)
+
+	for i := 0; i < N-2; i++ {
+		if ss[i] == "A" && ss[i+1] == "B" && ss[i+2] == "C" {
+			abcIndexes[abcIndex{i, i + 1, i + 2}] = struct{}{}
+		}
+	}
+
+	// fmt.Printf("abcIndexes: %v\n", abcIndexes)
+	// return
+
+	for i := 0; i < Q; i++ {
+		fmt.Printf("ss: %v\n", ss)
+
+		sarr := readStrArr(r)
+		XS := sarr[0]
+		X, _ := strconv.Atoi(XS)
+		C := sarr[1]
+
+		// fmt.Printf("X: %d, C: %s\n", X, C)
+
+		xi := X - 1
+
+		abcIndex1 := abcIndex{xi, xi + 1, xi + 2}
+		abcIndex2 := abcIndex{xi - 1, xi, xi + 1}
+		abcIndex3 := abcIndex{xi - 2, xi - 1, xi}
+
+		if _, ok := abcIndexes[abcIndex1]; ok {
+			if C == "A" {
+				fmt.Fprintln(w, len(abcIndexes))
+			} else {
+				ss[xi] = C
+				delete(abcIndexes, abcIndex1)
+				fmt.Fprintln(w, len(abcIndexes))
+			}
+			continue
+		}
+
+		if _, ok := abcIndexes[abcIndex2]; ok {
+			if C == "B" {
+				fmt.Fprintln(w, len(abcIndexes))
+			} else {
+				ss[xi] = C
+				delete(abcIndexes, abcIndex2)
+				fmt.Fprintln(w, len(abcIndexes))
+			}
+			continue
+		}
+
+		if _, ok := abcIndexes[abcIndex3]; ok {
+			if C == "C" {
+				fmt.Fprintln(w, len(abcIndexes))
+			} else {
+				ss[xi] = C
+				delete(abcIndexes, abcIndex3)
+				fmt.Fprintln(w, len(abcIndexes))
+			}
+			continue
+		}
+
+		ss[xi] = C
+		if ss[xi] == "A" && ss[xi+1] == "B" && ss[xi+2] == "C" {
+			abcIndexes[abcIndex1] = struct{}{}
+		} else if ss[xi-1] == "A" && ss[xi] == "B" && ss[xi+1] == "C" {
+			abcIndexes[abcIndex2] = struct{}{}
+		} else if ss[xi-2] == "A" && ss[xi-1] == "B" && ss[xi] == "C" {
+			abcIndexes[abcIndex3] = struct{}{}
+		}
+
+		fmt.Fprintln(w, len(abcIndexes))
+	}
+	fmt.Printf("ss: %v\n", ss)
+
 }
 
 //////////////
