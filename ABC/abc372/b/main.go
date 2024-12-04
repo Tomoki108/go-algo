@@ -32,9 +32,6 @@ func main() {
 		maxExponent++
 	}
 
-	// fmt.Fprintf(w, "maxExponent: %f\n", maxExponent)
-	// fmt.Fprintf(w, "num: %f\n", num)
-
 	exponents, _ := search(0, m, maxExponent, []float64{})
 	fmt.Fprintln(w, len(exponents))
 	writeSlice(w, exponents)
