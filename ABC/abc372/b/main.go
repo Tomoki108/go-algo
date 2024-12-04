@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -14,6 +15,60 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	M := readInt(r)
+	m := float64(M)
+
+	var maxExponent float64 = 0
+	var num float64
+	for num < m {
+		num = math.Pow(3, maxExponent)
+
+		if num > m {
+			maxExponent--
+			num = math.Pow(3, maxExponent)
+			break
+		}
+
+		maxExponent++
+	}
+
+	// fmt.Fprintf(w, "maxExponent: %f\n", maxExponent)
+	// fmt.Fprintf(w, "num: %f\n", num)
+
+	exponents, _ := search(0, m, maxExponent, []float64{})
+	fmt.Fprintln(w, len(exponents))
+	writeSlice(w, exponents)
+}
+
+var exponents = []float64{}
+
+func search(current, target, maxExponent float64, exponents []float64) (exps []float64, matched bool) {
+	if current == target {
+		return exponents, true
+	}
+
+	if current > target {
+		return nil, false
+	}
+
+	cExponents := append([]float64{}, exponents...)
+
+	for i := maxExponent; i >= 0; i-- {
+		cCurrent := current
+		ccExponents := append([]float64{}, cExponents...)
+
+		cCurrent += math.Pow(3, i)
+		ccExponents = append(ccExponents, i)
+
+		result, matched := search(cCurrent, target, i, ccExponents)
+		if !matched {
+			continue
+		} else {
+			return result, true
+		}
+	}
+
+	return nil, false
 }
 
 //////////////

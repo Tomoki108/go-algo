@@ -29,7 +29,6 @@ func main() {
 		fmt.Fprint(w, s)
 	}
 	fmt.Fprint(w, "\n")
-
 }
 
 //////////////
