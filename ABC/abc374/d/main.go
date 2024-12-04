@@ -36,8 +36,7 @@ func main() {
 	for i := 0; i < N; i++ {
 		options = append(options, edges[i])
 	}
-
-	permute([]edge{}, options)
+	permutaions := Permute([]edge{}, options)
 
 	var minCost float64
 	minCost = 1 << 62
@@ -74,24 +73,29 @@ func main() {
 	fmt.Fprintln(w, minCost)
 }
 
-func permute(current, options []edge) {
-	cc := append([]edge{}, current...)
-	co := append([]edge{}, options...)
+// 順列のパターンを全列挙する
+// ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
+func Permute[T any](current []T, options []T) [][]T {
+	var results [][]T
+
+	cc := append([]T{}, current...)
+	co := append([]T{}, options...)
 
 	if len(co) == 0 {
-		permutaions = append(permutaions, cc)
-		return
+		return [][]T{cc}
 	}
 
 	for i, o := range options {
-		newcc := append([]edge{}, cc...)
+		newcc := append([]T{}, cc...)
 		newcc = append(newcc, o)
+		newco := append([]T{}, co[:i]...)
+		newco = append(newco, co[i+1:]...)
 
-		newco := append([]edge{}, co...)
-		newco = append(newco[:i], newco[i+1:]...)
-
-		permute(newcc, newco)
+		subResults := Permute(newcc, newco)
+		results = append(results, subResults...)
 	}
+
+	return results
 }
 
 // k桁目のビットが1かどうかを判定（一番右を１桁目とする）
