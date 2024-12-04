@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -11,9 +12,93 @@ import (
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+type edge [4]int // fromX, fromY,toX, toY
+
+var permutaions = make([][]edge, 0)
+
+// (O(N! * 2^N))
+// max: O(6! * 2^6)= O(720 * 64) = O(46080)
 func main() {
 	defer w.Flush()
 
+	intarr := readIntArr(r)
+	N := intarr[0] // num of edges
+	S := intarr[1] // move speed
+	T := intarr[2] // print speed
+
+	edges := make([]edge, 0, N)
+	for i := 0; i < N; i++ {
+		arr := readIntArr(r)
+		edges = append(edges, edge{arr[0], arr[1], arr[2], arr[3]})
+	}
+
+	options := make([]edge, 0, N)
+	for i := 0; i < N; i++ {
+		options = append(options, edges[i])
+	}
+
+	permute([]edge{}, options)
+
+	var minCost float64
+	minCost = 1 << 62
+	for _, p := range permutaions {
+		for i := uint64(0); i < 1<<N; i++ {
+			var cost float64
+			lastX := 0
+			lastY := 0
+
+			for j := 1; j <= N; j++ {
+				toX := p[j-1][0]
+				toY := p[j-1][1]
+				fromX := p[j-1][2]
+				fromY := p[j-1][3]
+
+				flipped := IsBitPop(i, j)
+
+				if !flipped {
+					cost += math.Sqrt(float64((toX-lastX)*(toX-lastX)+(toY-lastY)*(toY-lastY))) / float64(S)
+					cost += math.Sqrt(float64((toX-fromX)*(toX-fromX)+(toY-fromY)*(toY-fromY))) / float64(T)
+					lastX = fromX
+					lastY = fromY
+				} else {
+					cost += math.Sqrt(float64((fromX-lastX)*(fromX-lastX)+(fromY-lastY)*(fromY-lastY))) / float64(S)
+					cost += math.Sqrt(float64((fromX-toX)*(fromX-toX)+(fromY-toY)*(fromY-toY))) / float64(T)
+					lastX = toX
+					lastY = toY
+				}
+			}
+			minCost = math.Min(minCost, cost)
+		}
+	}
+
+	fmt.Fprintln(w, minCost)
+}
+
+func permute(current, options []edge) {
+	cc := append([]edge{}, current...)
+	co := append([]edge{}, options...)
+
+	if len(co) == 0 {
+		permutaions = append(permutaions, cc)
+		return
+	}
+
+	for i, o := range options {
+		newcc := append([]edge{}, cc...)
+		newcc = append(newcc, o)
+
+		newco := append([]edge{}, co...)
+		newco = append(newco[:i], newco[i+1:]...)
+
+		permute(newcc, newco)
+	}
+}
+
+// k桁目のビットが1かどうかを判定（一番右を１桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << (k - 1)はビットマスク。1をk - 1桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << (k - 1))) != 0
 }
 
 //////////////
@@ -119,4 +204,3 @@ func slReverse[S ~[]E, E any](s S) {
 		s[i], s[j] = s[j], s[i]
 	}
 }
-
