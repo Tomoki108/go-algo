@@ -32,7 +32,8 @@ func main() {
 	// return
 
 	for i := 0; i < Q; i++ {
-		fmt.Printf("ss: %v\n", ss)
+		// fmt.Printf("ss: %v\n", ss)
+		// fmt.Printf("abcIndexes: %v\n", abcIndexes)
 
 		sarr := readStrArr(r)
 		XS := sarr[0]
@@ -42,6 +43,7 @@ func main() {
 		// fmt.Printf("X: %d, C: %s\n", X, C)
 
 		xi := X - 1
+		ss[xi] = C
 
 		abcIndex1 := abcIndex{xi, xi + 1, xi + 2}
 		abcIndex2 := abcIndex{xi - 1, xi, xi + 1}
@@ -50,34 +52,28 @@ func main() {
 		if _, ok := abcIndexes[abcIndex1]; ok {
 			if C == "A" {
 				fmt.Fprintln(w, len(abcIndexes))
+				continue
 			} else {
-				ss[xi] = C
 				delete(abcIndexes, abcIndex1)
-				fmt.Fprintln(w, len(abcIndexes))
 			}
-			continue
 		}
 
 		if _, ok := abcIndexes[abcIndex2]; ok {
 			if C == "B" {
 				fmt.Fprintln(w, len(abcIndexes))
+				continue
 			} else {
-				ss[xi] = C
 				delete(abcIndexes, abcIndex2)
-				fmt.Fprintln(w, len(abcIndexes))
 			}
-			continue
 		}
 
 		if _, ok := abcIndexes[abcIndex3]; ok {
 			if C == "C" {
 				fmt.Fprintln(w, len(abcIndexes))
+				continue
 			} else {
-				ss[xi] = C
 				delete(abcIndexes, abcIndex3)
-				fmt.Fprintln(w, len(abcIndexes))
 			}
-			continue
 		}
 
 		ss[xi] = C
@@ -91,7 +87,8 @@ func main() {
 
 		fmt.Fprintln(w, len(abcIndexes))
 	}
-	fmt.Printf("ss: %v\n", ss)
+	// fmt.Printf("ss: %v\n", ss)
+	// fmt.Printf("abcIndexes: %v\n", abcIndexes)
 
 }
 
