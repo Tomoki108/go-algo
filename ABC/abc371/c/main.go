@@ -50,7 +50,7 @@ func main() {
 	}
 	permutations := Permute([]int{}, options) // graphGの各点に対して、graphHのどの頂点を対応させるかの順列を全列挙
 
-	minCost := 1 << 60
+	minCost := 1 << 62
 	for _, p := range permutations {
 		HtoGconvertMap := make(map[int]int, N) // graphHの頂点 => graphGの頂点 への変換マップ
 		GtoHconvertMap := make(map[int]int, N) // graphGの頂点 => graphHの頂点 への変換マップ
