@@ -24,10 +24,15 @@ func main() {
 			continue
 		}
 
-		for j := 0; j < i; j++ {
-			if maxMap[j] < h {
-				maxMap[j] = h
-				ansMap[j]++
+		maxMap[i-1] = h
+		ansMap[i-1] = 1
+
+		if h > Hs[i-1] {
+			for j := 0; j < i-1; j++ {
+				if maxMap[j] < h {
+					maxMap[j] = h
+					ansMap[j]++
+				}
 			}
 		}
 	}
