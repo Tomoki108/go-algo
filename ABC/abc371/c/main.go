@@ -14,6 +14,126 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	M_G := readInt(r)
+
+	graphG := make(map[int][]int, N)
+	for i := 0; i < M_G; i++ {
+		u, v := read2Ints(r)
+		graphG[u] = append(graphG[u], v)
+		// graphG[v] = append(graphG[v], u)
+	}
+
+	M_H := readInt(r)
+	graphH := make(map[int][]int, N)
+	for i := 0; i < M_H; i++ {
+		a, b := read2Ints(r)
+		graphH[a] = append(graphH[a], b)
+		// graphH[b] = append(graphH[b], a)
+	}
+
+	type edge struct {
+		u, v int
+	}
+
+	As := make(map[edge]int, 0)
+	for i := 1; i <= N-1; i++ {
+		intarr := readIntArr(r)
+		for idx, val := range intarr {
+			As[edge{i, i + idx + 1}] = val
+		}
+	}
+
+	options := make([]int, 0, N)
+	for i := 1; i <= N; i++ {
+		options = append(options, i)
+	}
+	permutations := Permute([]int{}, options) // graphGの各点に対して、graphHのどの頂点を対応させるかの順列を全列挙
+
+	minCost := 1 << 60
+	for _, p := range permutations {
+		convertMap := make(map[int]int, N)
+		for idx, val := range p {
+			convertMap[val] = idx + 1
+		}
+
+		cost := 0
+		for j := 1; j <= N; j++ {
+			gAdjacents := graphG[j]
+
+			hAdjacents := graphH[p[j-1]]
+			convertedHAdjacents := make([]int, 0, len(hAdjacents))
+			for _, v := range hAdjacents {
+				convertedHAdjacents = append(convertedHAdjacents, convertMap[v])
+			}
+
+			diff := symmetricDifference(gAdjacents, convertedHAdjacents)
+			for _, v := range diff {
+				cost += As[edge{j, v}]
+			}
+		}
+
+		minCost = min(minCost, cost)
+	}
+
+	fmt.Fprintln(w, minCost)
+
+	// fmt.Printf("graphG: %#v\n", graphG)
+	// fmt.Printf("graphH: %#v\n", graphH)
+	// fmt.Printf("len(As): %d\n", len(As))
+
+	// fmt.Printf("As: %#v\n", As)
+
+}
+
+// 順列のパターンを全列挙する
+// ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
+func Permute[T any](current []T, options []T) [][]T {
+	var results [][]T
+
+	cc := append([]T{}, current...)
+	co := append([]T{}, options...)
+
+	if len(co) == 0 {
+		return [][]T{cc}
+	}
+
+	for i, o := range options {
+		newcc := append([]T{}, cc...)
+		newcc = append(newcc, o)
+		newco := append([]T{}, co[:i]...)
+		newco = append(newco, co[i+1:]...)
+
+		subResults := Permute(newcc, newco)
+		results = append(results, subResults...)
+	}
+
+	return results
+}
+
+func symmetricDifference(slice1, slice2 []int) []int {
+	// 要素の出現回数を記録するマップ
+	countMap := make(map[int]int)
+
+	// slice1 の要素をマップに記録
+	for _, v := range slice1 {
+		countMap[v]++
+	}
+
+	// slice2 の要素をマップに記録
+	for _, v := range slice2 {
+		countMap[v]++
+	}
+
+	// 片方にのみ含まれる要素を収集
+	var result []int
+	for k, v := range countMap {
+		if v == 1 { // 1度だけ出現した要素を追加
+			result = append(result, k)
+		}
+	}
+
+	return result
 }
 
 //////////////
