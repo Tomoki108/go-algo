@@ -90,13 +90,6 @@ func main() {
 	}
 
 	fmt.Fprintln(w, minCost/2)
-
-	// fmt.Printf("graphG: %#v\n", graphG)
-	// fmt.Printf("graphH: %#v\n", graphH)
-	// fmt.Printf("len(As): %d\n", len(As))
-
-	// fmt.Printf("As: %#v\n", As)
-
 }
 
 // 順列のパターンを全列挙する
