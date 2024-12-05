@@ -16,6 +16,29 @@ func main() {
 	defer w.Flush()
 
 	M := readInt(r)
+
+	// Mを3進数に変換
+	m3 := strconv.FormatInt(int64(M), 3)
+	m3s := strings.Split(m3, "")
+
+	// 3進数の１桁目から、その数を数える
+	slReverse(m3s)
+	ans := make([]int, 0)
+	for exponent, v := range m3s {
+		vi, _ := strconv.Atoi(v)
+		for j := 0; j < vi; j++ {
+			ans = append(ans, exponent)
+		}
+	}
+	fmt.Fprintln(w, len(ans))
+	writeSlice(w, ans)
+}
+
+// 初見の回答。無駄に複雑な再帰でAC。
+func alt2() {
+	defer w.Flush()
+
+	M := readInt(r)
 	m := float64(M)
 
 	var maxExponent float64 = 0
