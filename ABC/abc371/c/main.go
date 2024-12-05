@@ -48,28 +48,38 @@ func main() {
 	for i := 1; i <= N; i++ {
 		options = append(options, i)
 	}
-	permutations := Permute([]int{}, options) // graphGの各点に対して、graphHのどの頂点を対応させるかの順列を全列挙
+	permutations := Permute([]int{}, options) // graphHの各点に対して、graphGのどの頂点を対応させるかの順列を全列挙
 
 	minCost := 1 << 60
 	for _, p := range permutations {
-		convertMap := make(map[int]int, N)
+		HtoGconvertMap := make(map[int]int, N) // graphHの頂点 => graphGの頂点 への変換マップ
+		GtoHconvertMap := make(map[int]int, N) // graphGの頂点 => graphHの頂点 への変換マップ
 		for idx, val := range p {
-			convertMap[val] = idx + 1
+			HtoGconvertMap[idx+1] = val
+			GtoHconvertMap[val] = idx + 1
 		}
 
 		cost := 0
 		for j := 1; j <= N; j++ {
-			gAdjacents := graphG[j]
+			hAdjacents := graphH[j]
+			gAdjacents := graphG[HtoGconvertMap[j]]
 
-			hAdjacents := graphH[p[j-1]]
-			convertedHAdjacents := make([]int, 0, len(hAdjacents))
-			for _, v := range hAdjacents {
-				convertedHAdjacents = append(convertedHAdjacents, convertMap[v])
+			convertedGAdjacents := make([]int, 0, len(gAdjacents))
+			for _, v := range gAdjacents {
+				convertedGAdjacents = append(convertedGAdjacents, GtoHconvertMap[v])
 			}
 
-			diff := symmetricDifference(gAdjacents, convertedHAdjacents)
+			diff := symmetricDifference(hAdjacents, convertedGAdjacents)
 			for _, v := range diff {
-				cost += As[edge{j, v}]
+				var start, end int
+
+				start, end = min(j, v), max(j, v)
+
+				// cost2 := As[edge{reverseConvertMap[start], reverseConvertMap[end]}]
+
+				// // fmt.Printf("j: %d, v: %d, cost1: %d, cost2: %d\n", j, v, cost1, cost2)
+
+				cost += As[edge{start, end}]
 			}
 		}
 
