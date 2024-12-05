@@ -14,6 +14,27 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	_, M := read2Ints(r)
+
+	taroMap := make(map[int]bool, M)
+
+	for i := 0; i < M; i++ {
+		sarr := readStrArr(r)
+		A, _ := strconv.Atoi(sarr[0])
+		B := sarr[1]
+
+		if B == "M" {
+			_, exists := taroMap[A]
+			if exists {
+				fmt.Fprintln(w, "No")
+			} else {
+				fmt.Fprintln(w, "Yes")
+				taroMap[A] = true
+			}
+		} else {
+			fmt.Fprintln(w, "No")
+		}
+	}
 }
 
 //////////////
