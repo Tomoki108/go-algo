@@ -14,6 +14,32 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Hs := readIntArr(r)
+
+	ansMap := make(map[int]int, N) // あるインデックスのビル以降にある、条件を満たすビルの数
+	maxMap := make(map[int]int, N) // あるインデックスのビル以降にある、最も高いビルの高さ
+	for i, h := range Hs {
+		if i == 0 {
+			continue
+		}
+
+		for j := 0; j < i; j++ {
+			if maxMap[j] < h {
+				maxMap[j] = h
+				ansMap[j]++
+			}
+		}
+	}
+
+	for i := 0; i < N; i++ {
+		if i > 0 {
+			fmt.Fprint(w, " ")
+		}
+		fmt.Fprint(w, ansMap[i])
+	}
+	fmt.Fprintln(w)
+
 }
 
 //////////////
