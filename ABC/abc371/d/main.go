@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -14,6 +15,45 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	Xs := readIntArr(r)
+	Ps := readIntArr(r)
+
+	populationCSum := make(map[int]int, N) // 座標に対する人口の累積和（cumulative sum）
+	csum := 0
+	for i := 0; i < N; i++ {
+		x := Xs[i]
+		p := Ps[i]
+
+		csum += p
+		populationCSum[x] = csum
+	}
+
+	Q := readInt(r)
+	for i := 0; i < Q; i++ {
+		// [L, R]の区間の人口を求めたい
+		L, R := read2Ints(r)
+
+		lxIndex := sort.Search(N, func(i int) bool { return Xs[i] >= L })
+		if lxIndex == N { // Lより大きな座標にある村がなければ、該当範囲の人口は0
+			fmt.Fprintln(w, 0)
+			continue
+		}
+		lx := Xs[lxIndex]
+
+		rxIndex := sort.Search(N, func(i int) bool { return Xs[i] > R })
+		if rxIndex == N { // Rより大きな座標にある村がなければ、最後の村の座標まで含める
+			rxIndex = N - 1
+		} else { // Rより大きな座標にある村があれば、その1つ前の村まで含める
+			rxIndex--
+		}
+		rx := Xs[rxIndex]
+
+		// [lx, rx]の区間の人口を求める
+		sum := populationCSum[rx] - populationCSum[lx]
+		fmt.Fprintln(w, sum)
+	}
 }
 
 //////////////
