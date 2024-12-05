@@ -52,32 +52,29 @@ func main() {
 
 	minCost := 1 << 60
 	for _, p := range permutations {
-		HtoGconvertMap := make(map[int]int, N) // graphHの頂点 => graphGの頂点 への変換マップ
 		GtoHconvertMap := make(map[int]int, N) // graphGの頂点 => graphHの頂点 への変換マップ
 		for idx, val := range p {
-			HtoGconvertMap[idx+1] = val
 			GtoHconvertMap[val] = idx + 1
+		}
+
+		convertedGraphG := make(map[int][]int, N)
+		for i, sl := range graphG {
+			convertedSl := make([]int, 0, len(sl))
+			for _, v := range sl {
+				convertedSl = append(convertedSl, GtoHconvertMap[v])
+			}
+			convertedGraphG[GtoHconvertMap[i]] = convertedSl
 		}
 
 		cost := 0
 		for j := 1; j <= N; j++ {
 			hAdjacents := graphH[j]
-			gAdjacents := graphG[HtoGconvertMap[j]]
+			gAdjacents := convertedGraphG[j]
 
-			convertedGAdjacents := make([]int, 0, len(gAdjacents))
-			for _, v := range gAdjacents {
-				convertedGAdjacents = append(convertedGAdjacents, GtoHconvertMap[v])
-			}
-
-			diff := symmetricDifference(hAdjacents, convertedGAdjacents)
+			diff := symmetricDifference(hAdjacents, gAdjacents)
 			for _, v := range diff {
 				var start, end int
-
 				start, end = min(j, v), max(j, v)
-
-				// cost2 := As[edge{reverseConvertMap[start], reverseConvertMap[end]}]
-
-				// // fmt.Printf("j: %d, v: %d, cost1: %d, cost2: %d\n", j, v, cost1, cost2)
 
 				cost += As[edge{start, end}]
 			}
