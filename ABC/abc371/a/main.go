@@ -14,6 +14,44 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	Ss := readStrArr(r)
+
+	S1 := Ss[0]
+	S2 := Ss[1]
+	S3 := Ss[2]
+
+	if S1 == "<" && S2 == "<" && S3 == "<" { // 1
+		fmt.Fprintln(w, "B")
+	}
+
+	if S1 == "<" && S2 == "<" && S3 == ">" { // 2
+		fmt.Fprintln(w, "C")
+	}
+
+	if S1 == "<" && S2 == ">" && S3 == "<" { // 3
+		panic("contradicted")
+	}
+
+	if S1 == "<" && S2 == ">" && S3 == ">" { // 4
+		fmt.Fprintln(w, "A")
+	}
+
+	if S1 == ">" && S2 == "<" && S3 == "<" { // 5
+		fmt.Fprintln(w, "A")
+	}
+
+	if S1 == ">" && S2 == "<" && S3 == ">" { // 6
+		panic("contradicted")
+	}
+
+	if S1 == ">" && S2 == ">" && S3 == "<" { // 7
+		fmt.Fprintln(w, "C")
+	}
+
+	if S1 == ">" && S2 == ">" && S3 == ">" { // 8
+		fmt.Fprintln(w, "B")
+	}
+
 }
 
 //////////////
