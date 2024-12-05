@@ -12,6 +12,7 @@ import (
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// 「Rまでの人口の累積和」 - 「L-1までの人口の累積和」を求める
 func main() {
 	defer w.Flush()
 
@@ -30,28 +31,40 @@ func main() {
 		populationCSum[x] = csum
 	}
 
+	// fmt.Printf("populationCSum: %v\n", populationCSum)hb
+
 	Q := readInt(r)
 	for i := 0; i < Q; i++ {
 		// [L, R]の区間の人口を求めたい
 		L, R := read2Ints(r)
 
-		lxIndex := sort.Search(N, func(i int) bool { return Xs[i] >= L })
-		if lxIndex == N { // Lより大きな座標にある村がなければ、該当範囲の人口は0
+		var lCsum, rCsum int
+
+		lXsIndex := sort.Search(N, func(i int) bool { return Xs[i] >= L })
+		if lXsIndex == N { // L以上の座標にある村がなければ、該当範囲の人口は0
 			fmt.Fprintln(w, 0)
 			continue
 		}
-		lx := Xs[lxIndex]
 
-		rxIndex := sort.Search(N, func(i int) bool { return Xs[i] > R })
-		if rxIndex == N { // Rより大きな座標にある村がなければ、最後の村の座標まで含める
-			rxIndex = N - 1
-		} else { // Rより大きな座標にある村があれば、その1つ前の村まで含める
-			rxIndex--
+		if lXsIndex == 0 {
+			lCsum = 0
+		} else {
+			lCsum = populationCSum[Xs[lXsIndex-1]]
 		}
-		rx := Xs[rxIndex]
+
+		rXsIndex := sort.Search(N, func(i int) bool { return Xs[i] >= R })
+		if rXsIndex == N { // R以上の座標にある村がなければ、全村の人口の累積和を使う
+			rCsum = csum
+		} else if Xs[rXsIndex] == R || rXsIndex == 0 {
+			rCsum = populationCSum[Xs[rXsIndex]]
+		} else {
+			rCsum = populationCSum[Xs[rXsIndex-1]]
+		}
+
+		// fmt.Printf("lCsum: %d, rCsum: %d\n", lCsum, rCsum)
 
 		// [lx, rx]の区間の人口を求める
-		sum := populationCSum[rx] - populationCSum[lx]
+		sum := rCsum - lCsum
 		fmt.Fprintln(w, sum)
 	}
 }
