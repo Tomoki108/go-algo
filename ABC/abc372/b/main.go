@@ -12,7 +12,27 @@ import (
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// 3の10乗がいくつ入るか、9乗がいくつ入るか、...と調べていく解法。
 func main() {
+	defer w.Flush()
+
+	M := readInt(r)
+
+	var ans []int
+	for i := 10; i >= 0; i-- {
+		num := math.Pow(3, float64(i))
+		for int(num) <= M {
+			M -= int(num)
+			ans = append(ans, i)
+		}
+	}
+
+	fmt.Fprintln(w, len(ans))
+	writeSlice(w, ans)
+}
+
+// 3進数表記を使った解法。
+func alt() {
 	defer w.Flush()
 
 	M := readInt(r)
