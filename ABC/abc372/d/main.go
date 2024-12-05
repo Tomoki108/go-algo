@@ -17,34 +17,32 @@ func main() {
 	N := readInt(r)
 	Hs := readIntArr(r)
 
-	ansMap := make(map[int]int, N) // あるインデックスのビル以降にある、条件を満たすビルの数
-	maxMap := make(map[int]int, N) // あるインデックスのビル以降にある、最も高いビルの高さ
+	ans := make([]int, N)
+
+	maxH := 0
+	numOfMaxHUpdated := 0
 	for i, h := range Hs {
-		if i == 0 {
-			continue
+		if h > maxH {
+			numOfMaxHUpdated++
+			maxH = h
 		}
 
-		maxMap[i-1] = h
-		ansMap[i-1] = 1
-
-		if h > Hs[i-1] {
-			for j := 0; j < i-1; j++ {
-				if maxMap[j] < h {
-					maxMap[j] = h
-					ansMap[j]++
-				}
-			}
-		}
+		ans[i] = -numOfMaxHUpdated
 	}
 
-	for i := 0; i < N; i++ {
+	for i, a := range ans {
 		if i > 0 {
 			fmt.Fprint(w, " ")
 		}
-		fmt.Fprint(w, ansMap[i])
+
+		a += numOfMaxHUpdated
+		if i+1 <= N-1 && Hs[i+1] <= Hs[i] {
+			a++
+		}
+
+		fmt.Fprint(w, a)
 	}
 	fmt.Fprintln(w)
-
 }
 
 //////////////
