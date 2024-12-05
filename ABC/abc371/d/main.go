@@ -55,8 +55,11 @@ func main() {
 		rXsIndex := sort.Search(N, func(i int) bool { return Xs[i] >= R })
 		if rXsIndex == N { // R以上の座標にある村がなければ、全村の人口の累積和を使う
 			rCsum = csum
-		} else if Xs[rXsIndex] == R || rXsIndex == 0 {
+		} else if Xs[rXsIndex] == R {
 			rCsum = populationCSum[Xs[rXsIndex]]
+		} else if rXsIndex == 0 { // R未満の座標にある村がなければ、該当範囲の人口は0
+			fmt.Fprintln(w, 0)
+			continue
 		} else {
 			rCsum = populationCSum[Xs[rXsIndex-1]]
 		}
