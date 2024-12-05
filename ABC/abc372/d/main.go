@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"os"
 	"strconv"
@@ -19,30 +20,68 @@ func main() {
 
 	ans := make([]int, N)
 
-	maxH := 0
-	numOfMaxHUpdated := 0
-	for i, h := range Hs {
-		if h > maxH {
-			numOfMaxHUpdated++
-			maxH = h
+	// 現在のビルから見えるビルの高さ（必然的に単調増加（末尾=>先頭））
+	visibleHights := NewStack[int]()
+	for i := N - 1; 0 <= i; i-- {
+		if i == N-1 {
+			ans[i] = 0
+			continue
 		}
 
-		ans[i] = -numOfMaxHUpdated
+		// 現在のビルの一つ後ろのビルをスタックに追加する。
+		// その前にスタックから一つづつ取り出し、一つ後ろのビルより低いビルを取り除く
+		for visibleHights.Len() > 0 {
+			last, _ := visibleHights.Peek()
+			if last > Hs[i+1] {
+				break
+			}
+
+			visibleHights.Pop()
+		}
+
+		visibleHights.Push(Hs[i+1])
+		ans[i] = visibleHights.Len()
 	}
 
-	for i, a := range ans {
-		if i > 0 {
-			fmt.Fprint(w, " ")
-		}
+	writeSlice(w, ans)
+}
 
-		a += numOfMaxHUpdated
-		if i+1 <= N-1 && Hs[i+1] <= Hs[i] {
-			a++
-		}
+type Stack[T any] struct {
+	list *list.List
+}
 
-		fmt.Fprint(w, a)
+func NewStack[T any]() *Stack[T] {
+	return &Stack[T]{
+		list: list.New(),
 	}
-	fmt.Fprintln(w)
+}
+
+func (s *Stack[T]) Push(value T) {
+	s.list.PushBack(value)
+}
+
+func (s *Stack[T]) Pop() (T, bool) {
+	back := s.list.Back()
+	if back == nil {
+		var zero T
+		return zero, false
+	}
+	s.list.Remove(back)
+	return back.Value.(T), true
+}
+
+// Peek returns the back element without removing it
+func (s *Stack[T]) Peek() (T, bool) {
+	back := s.list.Back()
+	if back == nil {
+		var zero T
+		return zero, false
+	}
+	return back.Value.(T), true
+}
+
+func (s *Stack[T]) Len() int {
+	return s.list.Len()
 }
 
 //////////////
