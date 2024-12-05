@@ -11,7 +11,75 @@ import (
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// 何個のABC文字列が含まれているかをカウントしておき、クエリのたびに周辺のABC文字列の個数の変動をカウントする方法
 func main() {
+	defer w.Flush()
+
+	N, Q := read2Ints(r) // len(S), len(Queries)
+	S := readStr(r)      // 文字列
+
+	ss := strings.Split(S, "")
+
+	count := 0
+	for i := 0; i < N-2; i++ {
+		if ss[i] == "A" && ss[i+1] == "B" && ss[i+2] == "C" {
+			count++
+		}
+	}
+
+	for i := 0; i < Q; i++ {
+		sarr := readStrArr(r)
+		XS := sarr[0]
+		X, _ := strconv.Atoi(XS)
+		Xi := X - 1
+		C := sarr[1]
+
+		p1Exists := Xi <= N-3 && ss[Xi] == "A" && ss[Xi+1] == "B" && ss[Xi+2] == "C"
+		p2Exists := Xi <= N-2 && Xi >= 1 && ss[Xi-1] == "A" && ss[Xi] == "B" && ss[Xi+1] == "C"
+		p3Exists := Xi >= 2 && ss[Xi-2] == "A" && ss[Xi-1] == "B" && ss[Xi] == "C"
+
+		if p1Exists {
+			if C == "A" {
+				fmt.Fprintln(w, count)
+				continue
+			} else {
+				count--
+			}
+		}
+
+		if p2Exists {
+			if C == "B" {
+				fmt.Fprintln(w, count)
+				continue
+			} else {
+				count--
+			}
+		}
+
+		if p3Exists {
+			if C == "C" {
+				fmt.Fprintln(w, count)
+				continue
+			} else {
+				count--
+			}
+		}
+
+		ss[Xi] = C
+		p1Exists = Xi <= N-3 && ss[Xi] == "A" && ss[Xi+1] == "B" && ss[Xi+2] == "C"
+		p2Exists = Xi <= N-2 && Xi >= 1 && ss[Xi-1] == "A" && ss[Xi] == "B" && ss[Xi+1] == "C"
+		p3Exists = Xi >= 2 && ss[Xi-2] == "A" && ss[Xi-1] == "B" && ss[Xi] == "C"
+
+		if p1Exists || p2Exists || p3Exists {
+			count++
+		}
+
+		fmt.Fprintln(w, count)
+	}
+}
+
+// どこにABC文字列があるかをマップに保持しておく解法
+func alt() {
 	defer w.Flush()
 
 	N, Q := read2Ints(r) // len(S), len(Queries)
