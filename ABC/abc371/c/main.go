@@ -21,7 +21,7 @@ func main() {
 	for i := 0; i < M_G; i++ {
 		u, v := read2Ints(r)
 		graphG[u] = append(graphG[u], v)
-		// graphG[v] = append(graphG[v], u)
+		graphG[v] = append(graphG[v], u)
 	}
 
 	M_H := readInt(r)
@@ -29,7 +29,7 @@ func main() {
 	for i := 0; i < M_H; i++ {
 		a, b := read2Ints(r)
 		graphH[a] = append(graphH[a], b)
-		// graphH[b] = append(graphH[b], a)
+		graphH[b] = append(graphH[b], a)
 	}
 
 	type edge struct {
@@ -89,7 +89,7 @@ func main() {
 		minCost = min(minCost, cost)
 	}
 
-	fmt.Fprintln(w, minCost)
+	fmt.Fprintln(w, minCost/2)
 
 	// fmt.Printf("graphG: %#v\n", graphG)
 	// fmt.Printf("graphH: %#v\n", graphH)
