@@ -16,6 +16,30 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	type formula struct {
+		i, j int
+	}
+
+	elmMap := make(map[formula]int, N)
+	for i := 1; i <= N; i++ {
+		iarr := readIntArr(r)
+		for j := 1; j <= i; j++ {
+			elmMap[formula{i, j}] = iarr[j-1]
+		}
+	}
+
+	current := 1
+	for toSynthesize := 1; toSynthesize <= N; toSynthesize++ {
+		if current >= toSynthesize {
+			current = elmMap[formula{current, toSynthesize}]
+		} else {
+			current = elmMap[formula{toSynthesize, current}]
+		}
+	}
+
+	fmt.Fprintln(w, current)
 }
 
 //////////////
