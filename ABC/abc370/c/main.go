@@ -16,6 +16,51 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	ss := strings.Split(S, "")
+
+	T := readStr(r)
+	ts := strings.Split(T, "")
+
+	type change struct {
+		index int    // S上のインデックス
+		char  string // 変更後の文字
+	}
+	priorChanges := make([]change, 0, len(S))
+	inferiorChanges := make([]change, 0, len(S))
+
+	for i := 0; i < len(S); i++ {
+		if ss[i] != ts[i] {
+			if ts[i] < ss[i] {
+				priorChanges = append(priorChanges, change{i, ts[i]})
+			} else {
+				inferiorChanges = append(inferiorChanges, change{i, ts[i]})
+			}
+		}
+	}
+
+	X := make([]string, 0, len(S))
+	for _, c := range priorChanges {
+		ss[c.index] = c.char
+		newS := strings.Join(ss, "")
+		X = append(X, newS)
+	}
+
+	SlRev(inferiorChanges)
+	for _, c := range inferiorChanges {
+		ss[c.index] = c.char
+		newS := strings.Join(ss, "")
+		X = append(X, newS)
+	}
+
+	fmt.Fprintln(w, len(priorChanges)+len(inferiorChanges))
+	writeSliceByLine(w, X)
+}
+
+func SlRev[S ~[]E, E any](s S) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
 }
 
 //////////////
@@ -90,6 +135,13 @@ func writeSlice[T any](w *bufio.Writer, sl []T) {
 		vs[i] = v
 	}
 	fmt.Fprintln(w, vs...)
+}
+
+// スライスの中身を一行づつ出力する
+func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
+	for _, v := range sl {
+		fmt.Fprintln(w, v)
+	}
 }
 
 func min(i, j int) int {
