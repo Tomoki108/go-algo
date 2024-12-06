@@ -2,10 +2,20 @@ package slice
 
 // slices.Reverce() と同じ（Goのバージョンが1.21以前だと使えないため）
 // 計算量: O(n)
-func SlReverse[S ~[]E, E any](s S) {
+func SlRev[S ~[]E, E any](s S) {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
 	}
+}
+
+func RevSl[S ~[]E, E any](s S) S {
+	lenS := len(s)
+	revS := make(S, lenS)
+	for i := 0; i < lenS; i++ {
+		revS[i] = s[lenS-1-i]
+	}
+
+	return revS
 }
 
 // どちらか一方のスライスにのみ含まれる要素で構成されたスライスを返す
