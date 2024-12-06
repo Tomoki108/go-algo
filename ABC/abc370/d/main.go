@@ -25,7 +25,7 @@ func main() {
 		h, w int
 	}
 	type memo struct {
-		td, bd, ld, rd int // （あるcoodinateから）top, bottom, left, right まで最低この距離分、空マスが連続していることを保証する
+		td, bd, ld, rd int // （あるcoodinateから）top, bottom, left, right 方向に最低この距離分、空マスが連続していることを保証する
 	}
 	memos := make(map[coodinate]*memo, H*W)
 
@@ -47,8 +47,6 @@ func main() {
 
 		if grid[ri][ci] {
 			grid[ri][ci] = false
-			// fmt.Printf("grid: %v\n", grid)
-
 			continue
 		}
 
