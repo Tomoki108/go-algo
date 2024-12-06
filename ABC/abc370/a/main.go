@@ -16,6 +16,19 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	L, R := read2Ints(r)
+
+	if L == 0 && R == 0 || L == 1 && R == 1 {
+		fmt.Fprintln(w, "Invalid")
+		return
+	}
+
+	if L == 1 {
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
