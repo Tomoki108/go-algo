@@ -19,6 +19,10 @@ func main() {
 }
 
 //////////////
+// Libs    //
+/////////////
+
+//////////////
 // Hepers  //
 /////////////
 
@@ -90,6 +94,13 @@ func writeSlice[T any](w *bufio.Writer, sl []T) {
 		vs[i] = v
 	}
 	fmt.Fprintln(w, vs...)
+}
+
+// スライスの中身を一行づつ出力する
+func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
+	for _, v := range sl {
+		fmt.Fprintln(w, v)
+	}
 }
 
 func min(i, j int) int {
