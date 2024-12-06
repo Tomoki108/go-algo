@@ -21,7 +21,7 @@ goenv install 1.20.6
 ```sh
 # AtCoder
 alias acct='oj t -c "go run main.go"'
-alias accs='actest && acc s'
+alias accs='acct && acc s'
 ```
 
 ## commands

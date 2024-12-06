@@ -21,20 +21,30 @@ func main() {
 	W := iarr[1]
 	Q := iarr[2]
 
+	type coodinate struct {
+		h, w int
+	}
+	type memo struct {
+		td, bd, ld, rd int // （あるcoodinateから）top, bottom, left, right まで最低この距離分、空マスが連続していることを保証する
+	}
+	memos := make(map[coodinate]*memo, H*W)
+
 	grid := make([][]bool, H)
 	for i := 0; i < H; i++ {
 		grid[i] = make([]bool, W)
 		for j := 0; j < W; j++ {
 			grid[i][j] = true
+			memos[coodinate{i, j}] = &memo{0, 0, 0, 0}
 		}
 	}
-
-	// fmt.Printf("grid: %v\n", grid)
 
 	for i := 0; i < Q; i++ {
 		R, C := read2Ints(r)
 		ri := R - 1
 		ci := C - 1
+
+		memo := memos[coodinate{ri, ci}]
+
 		if grid[ri][ci] {
 			grid[ri][ci] = false
 			// fmt.Printf("grid: %v\n", grid)
@@ -43,38 +53,40 @@ func main() {
 		}
 
 		// 上方向の探索
-		for hd := 1; ri-hd >= 0; hd++ {
+		for hd := memo.td + 1; ri-hd >= 0; hd++ {
 			if grid[ri-hd][ci] {
 				grid[ri-hd][ci] = false
+				memo.td = hd
 				break
 			}
 		}
 
 		// 下方向の探索
-		for hd := 1; ri+hd < H; hd++ {
+		for hd := memo.bd + 1; ri+hd < H; hd++ {
 			if grid[ri+hd][ci] {
 				grid[ri+hd][ci] = false
+				memo.bd = hd
 				break
 			}
 		}
 
 		// 左方向の探索
-		for wd := 1; ci-wd >= 0; wd++ {
+		for wd := memo.ld + 1; ci-wd >= 0; wd++ {
 			if grid[ri][ci-wd] {
 				grid[ri][ci-wd] = false
+				memo.ld = wd
 				break
 			}
 		}
 
 		// 右方向の探索
-		for wd := 1; ci+wd < W; wd++ {
+		for wd := memo.rd + 1; ci+wd < W; wd++ {
 			if grid[ri][ci+wd] {
 				grid[ri][ci+wd] = false
+				memo.rd = wd
 				break
 			}
 		}
-
-		// fmt.Printf("grid: %v\n", grid)
 	}
 
 	ans := 0
