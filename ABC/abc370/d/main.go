@@ -16,6 +16,77 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H := iarr[0]
+	W := iarr[1]
+	Q := iarr[2]
+
+	grid := make([][]bool, H)
+	for i := 0; i < H; i++ {
+		grid[i] = make([]bool, W)
+		for j := 0; j < W; j++ {
+			grid[i][j] = true
+		}
+	}
+
+	// fmt.Printf("grid: %v\n", grid)
+
+	for i := 0; i < Q; i++ {
+		R, C := read2Ints(r)
+		ri := R - 1
+		ci := C - 1
+		if grid[ri][ci] {
+			grid[ri][ci] = false
+			// fmt.Printf("grid: %v\n", grid)
+
+			continue
+		}
+
+		// 上方向の探索
+		for hd := 1; ri-hd >= 0; hd++ {
+			if grid[ri-hd][ci] {
+				grid[ri-hd][ci] = false
+				break
+			}
+		}
+
+		// 下方向の探索
+		for hd := 1; ri+hd < H; hd++ {
+			if grid[ri+hd][ci] {
+				grid[ri+hd][ci] = false
+				break
+			}
+		}
+
+		// 左方向の探索
+		for wd := 1; ci-wd >= 0; wd++ {
+			if grid[ri][ci-wd] {
+				grid[ri][ci-wd] = false
+				break
+			}
+		}
+
+		// 右方向の探索
+		for wd := 1; ci+wd < W; wd++ {
+			if grid[ri][ci+wd] {
+				grid[ri][ci+wd] = false
+				break
+			}
+		}
+
+		// fmt.Printf("grid: %v\n", grid)
+	}
+
+	ans := 0
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] {
+				ans++
+			}
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
