@@ -9,6 +9,7 @@ import (
 )
 
 const intMax = 1 << 62
+const intMin = -1 << 62
 
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
@@ -16,6 +17,32 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	// DPテーブル
+	// 縦：偶数体倒した || 奇数体倒した
+	// 横：何体目まで処理したか
+	// セルの値：X体処理時点の取得済み経験値の最大
+	var table [2][]int
+	table[0] = make([]int, N+1)
+	table[1] = make([]int, N+1)
+
+	table[0][0] = 0
+	table[1][0] = intMin // 0体倒した時に奇数体倒した状態はありえないため、このセルの値が後で（直後の列の計算で）使われないように大きな負の値を入れておく
+
+	for i := 0; i < N; i++ {
+		A := As[i]
+		evenPrev := table[0][i]
+		oddPrev := table[1][i]
+
+		// max(「偶数対倒した状態から、モンスターを逃す処理をする場合」, 「奇数体倒した状態から、モンスターを倒す処理をする場合（偶数回目なのでボーナスあり）」)
+		table[0][i+1] = max(evenPrev, oddPrev+2*A)
+		// max(「奇数対倒した状態から、モンスターを逃す処理をする場合」, 「偶数体倒した状態から、モンスターを倒す処理をする場合（奇数回目なのでボーナスなし」)
+		table[1][i+1] = max(oddPrev, evenPrev+A)
+	}
+
+	fmt.Fprintln(w, max(table[0][N], table[1][N]))
 }
 
 //////////////

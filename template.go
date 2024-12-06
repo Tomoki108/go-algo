@@ -9,6 +9,7 @@ import (
 )
 
 const intMax = 1 << 62
+const intMin = -1 << 62
 
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
