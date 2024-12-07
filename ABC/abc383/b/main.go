@@ -78,8 +78,6 @@ func main() {
 		}
 	}
 
-	// fmt.Printf("effectMap: %+v\n", effectMap)
-
 	maxEffect := 0
 	for _, ef := range effectMap {
 		maxEffect = max(maxEffect, ef)

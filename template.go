@@ -75,7 +75,8 @@ func readIntArr(r *bufio.Reader) []int {
 func readGrid(r *bufio.Reader, height int) [][]string {
 	grid := make([][]string, height)
 	for i := 0; i < height; i++ {
-		grid[i] = readStrArr(r)
+		str := readStr(r)
+		grid[i] = strings.Split(str, "")
 	}
 
 	return grid
@@ -116,4 +117,11 @@ func max(i, j int) int {
 		return i
 	}
 	return j
+}
+
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
 }
