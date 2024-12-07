@@ -14,8 +14,103 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var H, W, D int
+
+var grid [][]string
+
+var effectMap map[coordinate]int
+
+type coordinate struct {
+	h, w int
+}
+
+var visited map[coordinate]bool
+
 func main() {
 	defer w.Flush()
+
+	iarr := readIntArr(r)
+	H = iarr[0]
+	W = iarr[1]
+	D = iarr[2]
+
+	effectMap = make(map[coordinate]int, H*W)
+
+	grid = readGrid(r, H)
+
+	// fmt.Println(grid)
+	// fmt.Println(len(grid[0]))
+	// return
+
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "." {
+				effectMap[coordinate{i, j}] = 1
+			}
+		}
+	}
+
+	visited = make(map[coordinate]bool, H*W)
+
+	for c := range effectMap {
+		visited[c] = true
+		dfs(c.h, c.w, c, 0)
+	}
+
+	fmt.Printf("%+v\n", effectMap)
+
+	maxEffect := 0
+	for _, ef := range effectMap {
+		maxEffect = max(maxEffect, ef)
+	}
+
+	secondEffect := 0
+	for _, ef := range effectMap {
+		if ef == maxEffect {
+			continue
+		}
+		secondEffect = max(maxEffect, ef)
+	}
+
+	fmt.Fprintln(w, maxEffect+secondEffect)
+}
+
+func dfs(i, j int, originalCoordinate coordinate, distanse int) {
+
+	fmt.Printf("i: %d, j: %d, originalCoordinate: %+v, distanse: %d\n", i, j, originalCoordinate, distanse)
+
+	if distanse == D {
+		visited[coordinate{i, j}] = false
+		return
+	}
+
+	adjacents := []coordinate{
+		{i - 1, j}, // 上
+		{i + 1, j}, // 下
+		{i, j - 1}, // 右
+		{i, j + 1}, // 左
+	}
+
+	for _, adj := range adjacents {
+		if visited[adj] {
+			continue
+		}
+
+		if adj.h < 0 || adj.h >= H || adj.w < 0 || adj.w >= W {
+			continue
+		}
+
+		isFloor := grid[adj.h][adj.w] == "."
+		_, isSet := effectMap[adj]
+
+		if isFloor && !isSet {
+			effectMap[originalCoordinate] += 1
+		}
+
+		visited[adj] = true
+
+		dfs(adj.h, adj.w, originalCoordinate, distanse+1)
+	}
 
 }
 
@@ -75,7 +170,8 @@ func readIntArr(r *bufio.Reader) []int {
 func readGrid(r *bufio.Reader, height int) [][]string {
 	grid := make([][]string, height)
 	for i := 0; i < height; i++ {
-		grid[i] = readStrArr(r)
+
+		grid[i] = strings.Split(readStr(r), "")
 	}
 
 	return grid
