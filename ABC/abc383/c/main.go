@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"os"
 	"strconv"
@@ -14,6 +15,8 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var visited map[coordinate]bool
+
 func main() {
 	defer w.Flush()
 
@@ -24,51 +27,95 @@ func main() {
 
 	grid := readGrid(r, H)
 
-	resultGrid := make([][]string, H)
+	type queueItem struct {
+		c   coordinate
+		dep int
+	}
+
+	queue := NewQueue[queueItem]()
+	// visited = make(map[coordinate]bool, H*W)
+
+	ans := 0
 	for i := 0; i < H; i++ {
-		resultGrid[i] = make([]string, W)
-	}
-}
-func dfs(i, j int, distanse int) {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "H" {
+				ans++
+				visited = make(map[coordinate]bool, H*W)
 
-	if distanse == D {
-		visited[coordinate{i, j}] = false
-		return
-	}
+				c := coordinate{i, j}
+				visited[c] = true
 
-	adjacents := []coordinate{
-		{i - 1, j}, // 上
-		{i + 1, j}, // 下
-		{i, j - 1}, // 右
-		{i, j + 1}, // 左
-	}
+				item := queueItem{c, 0}
+				queue.Enqueue(item)
 
-	for _, adj := range adjacents {
-		if visited[adj] {
-			continue
+				for !queue.IsEmpty() {
+					item, _ := queue.Dequeue()
+					if item.dep > D {
+						continue
+					}
+
+					for _, adj := range c.adjacents() {
+						if adj.h < 0 || adj.h >= H || adj.w < 0 || adj.w >= W || visited[adj] || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
+							continue
+						}
+
+						ans++
+						visited[adj] = true
+
+						queue.Enqueue(queueItem{adj, item.dep + 1})
+					}
+				}
+			}
 		}
-
-		if adj.h < 0 || adj.h >= H || adj.w < 0 || adj.w >= W | {
-			continue
-		}
-
-		isFloor := grid[adj.h][adj.w] == "."
-		if isFloor {
-			effectMap[tc] += 1
-		}
-
-		visited[adj] = true
-		dfs(adj.h, adj.w, tc, distanse+1)
 	}
 
-
+	fmt.Fprintln(w, ans)
 }
 
-
- d
-//////////////
+// ////////////
 // Libs    //
-/////////////
+// ///////////
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
 
 //////////////
 // Helpers  //
@@ -116,6 +163,19 @@ func readIntArr(r *bufio.Reader) []int {
 	}
 
 	return arr
+}
+
+type coordinate struct {
+	h, w int
+}
+
+func (c coordinate) adjacents() [4]coordinate {
+	return [4]coordinate{
+		{c.h - 1, c.w},
+		{c.h + 1, c.w},
+		{c.h, c.w - 1},
+		{c.h, c.w + 1},
+	}
 }
 
 // height行の文字列グリッドを読み込む

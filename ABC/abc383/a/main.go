@@ -94,6 +94,10 @@ func readIntArr(r *bufio.Reader) []int {
 	return arr
 }
 
+type coordinate struct {
+	h, w int
+}
+
 // height行の文字列グリッドを読み込む
 func readGrid(r *bufio.Reader, height int) [][]string {
 	grid := make([][]string, height)
