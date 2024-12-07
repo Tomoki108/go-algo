@@ -17,8 +17,55 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H := iarr[0]
+	W := iarr[1]
+	D := iarr[2]
+
+	grid := readGrid(r, H)
+
+	resultGrid := make([][]string, H)
+	for i := 0; i < H; i++ {
+		resultGrid[i] = make([]string, W)
+	}
+}
+func dfs(i, j int, distanse int) {
+
+	if distanse == D {
+		visited[coordinate{i, j}] = false
+		return
+	}
+
+	adjacents := []coordinate{
+		{i - 1, j}, // 上
+		{i + 1, j}, // 下
+		{i, j - 1}, // 右
+		{i, j + 1}, // 左
+	}
+
+	for _, adj := range adjacents {
+		if visited[adj] {
+			continue
+		}
+
+		if adj.h < 0 || adj.h >= H || adj.w < 0 || adj.w >= W | {
+			continue
+		}
+
+		isFloor := grid[adj.h][adj.w] == "."
+		if isFloor {
+			effectMap[tc] += 1
+		}
+
+		visited[adj] = true
+		dfs(adj.h, adj.w, tc, distanse+1)
+	}
+
+
 }
 
+
+ d
 //////////////
 // Libs    //
 /////////////
@@ -75,7 +122,8 @@ func readIntArr(r *bufio.Reader) []int {
 func readGrid(r *bufio.Reader, height int) [][]string {
 	grid := make([][]string, height)
 	for i := 0; i < height; i++ {
-		grid[i] = readStrArr(r)
+
+		grid[i] = strings.Split(readStr(r), "")
 	}
 
 	return grid

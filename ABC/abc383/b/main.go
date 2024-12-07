@@ -18,11 +18,13 @@ var H, W, D int
 
 var grid [][]string
 
-var effectMap map[coordinate]int
+var effectMap map[twoCoordinate]int
 
 type coordinate struct {
 	h, w int
 }
+
+type twoCoordinate [2]coordinate
 
 var visited map[coordinate]bool
 
@@ -34,89 +36,86 @@ func main() {
 	W = iarr[1]
 	D = iarr[2]
 
-	effectMap = make(map[coordinate]int, H*W)
-
 	grid = readGrid(r, H)
 
-	// fmt.Println(grid)
-	// fmt.Println(len(grid[0]))
-	// return
-
+	floors := make([]coordinate, 0, H*W)
 	for i := 0; i < H; i++ {
 		for j := 0; j < W; j++ {
 			if grid[i][j] == "." {
-				effectMap[coordinate{i, j}] = 1
+				floors = append(floors, coordinate{i, j})
 			}
 		}
 	}
 
-	visited = make(map[coordinate]bool, H*W)
+	effectMap = make(map[twoCoordinate]int, H*W)
 
-	for c := range effectMap {
-		visited[c] = true
-		dfs(c.h, c.w, c, 0)
+	for i := 0; i < len(floors); i++ {
+		for j := i + 1; j < len(floors); j++ {
+			effectMap[twoCoordinate{floors[i], floors[j]}] = 2
+
+			i1 := floors[i].h
+			j1 := floors[i].w
+
+			i2 := floors[j].h
+			j2 := floors[j].w
+
+			for p := 0; p < H; p++ {
+				for q := 0; q < W; q++ {
+					if (p == i1 && q == j1) || (p == i2 && q == j2) {
+						continue
+					}
+
+					manhattanDistanse1 := max(i1-p, -1*(i1-p)) + max(j1-q, -1*(j1-q))
+					manhattanDistanse2 := max(i2-p, -1*(i2-p)) + max(j2-q, -1*(j2-q))
+
+					if (manhattanDistanse1 <= D || manhattanDistanse2 <= D) && grid[p][q] == "." {
+						effectMap[twoCoordinate{floors[i], floors[j]}] += 1
+					}
+
+				}
+			}
+
+		}
 	}
 
-	fmt.Printf("%+v\n", effectMap)
+	// fmt.Printf("effectMap: %+v\n", effectMap)
 
 	maxEffect := 0
 	for _, ef := range effectMap {
 		maxEffect = max(maxEffect, ef)
 	}
 
-	secondEffect := 0
-	for _, ef := range effectMap {
-		if ef == maxEffect {
-			continue
-		}
-		secondEffect = max(maxEffect, ef)
-	}
-
-	fmt.Fprintln(w, maxEffect+secondEffect)
-}
-
-func dfs(i, j int, originalCoordinate coordinate, distanse int) {
-
-	fmt.Printf("i: %d, j: %d, originalCoordinate: %+v, distanse: %d\n", i, j, originalCoordinate, distanse)
-
-	if distanse == D {
-		visited[coordinate{i, j}] = false
-		return
-	}
-
-	adjacents := []coordinate{
-		{i - 1, j}, // 上
-		{i + 1, j}, // 下
-		{i, j - 1}, // 右
-		{i, j + 1}, // 左
-	}
-
-	for _, adj := range adjacents {
-		if visited[adj] {
-			continue
-		}
-
-		if adj.h < 0 || adj.h >= H || adj.w < 0 || adj.w >= W {
-			continue
-		}
-
-		isFloor := grid[adj.h][adj.w] == "."
-		_, isSet := effectMap[adj]
-
-		if isFloor && !isSet {
-			effectMap[originalCoordinate] += 1
-		}
-
-		visited[adj] = true
-
-		dfs(adj.h, adj.w, originalCoordinate, distanse+1)
-	}
-
+	fmt.Fprintln(w, maxEffect)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// 順列のパターンを全列挙する
+// ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
+func Permute[T any](current []T, options []T) [][]T {
+	var results [][]T
+
+	cc := append([]T{}, current...)
+	co := append([]T{}, options...)
+
+	if len(co) == 0 {
+		return [][]T{cc}
+	}
+
+	for i, o := range options {
+		newcc := append([]T{}, cc...)
+		newcc = append(newcc, o)
+		newco := append([]T{}, co[:i]...)
+		newco = append(newco, co[i+1:]...)
+
+		subResults := Permute(newcc, newco)
+		results = append(results, subResults...)
+	}
+
+	return results
+}
 
 //////////////
 // Helpers  //
