@@ -44,6 +44,7 @@ func main() {
 
 				c := coordinate{i, j}
 				visited[c] = true
+				// fmt.Println("ok", c)
 
 				item := queueItem{c, 0}
 				queue.Enqueue(item)
@@ -54,13 +55,14 @@ func main() {
 						continue
 					}
 
-					for _, adj := range c.adjacents() {
+					for _, adj := range item.c.adjacents() {
 						if adj.h < 0 || adj.h >= H || adj.w < 0 || adj.w >= W || visited[adj] || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
 							continue
 						}
 
 						ans++
 						visited[adj] = true
+						// fmt.Println("ok", adj)
 
 						queue.Enqueue(queueItem{adj, item.dep + 1})
 					}
@@ -171,10 +173,10 @@ type coordinate struct {
 
 func (c coordinate) adjacents() [4]coordinate {
 	return [4]coordinate{
-		{c.h - 1, c.w},
-		{c.h + 1, c.w},
-		{c.h, c.w - 1},
-		{c.h, c.w + 1},
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
 	}
 }
 
