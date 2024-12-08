@@ -23,11 +23,13 @@ func main() {
 	W := iarr[1]
 	D := iarr[2]
 
-	grid := readGrid(r, H)
-	// 重複カウントしないように、加湿した所をgridで管理しなければならない
-	wateredGrid := make([][]bool, H)
+	grid := make([][]string, H)
+	wateredGrid := make([][]bool, H) // 重複カウントしないように、加湿した所をgridで管理しなければならない
+	visitedGrid := make([][]bool, H)
 	for i := 0; i < H; i++ {
+		grid[i] = strings.Split(readStr(r), "")
 		wateredGrid[i] = make([]bool, W)
+		visitedGrid[i] = make([]bool, W)
 	}
 
 	type queueItem struct {
@@ -36,7 +38,6 @@ func main() {
 	}
 
 	queue := NewQueue[queueItem]()
-	var visited map[Coordinate]bool
 
 	ans := 0
 	for i := 0; i < H; i++ {
@@ -44,10 +45,14 @@ func main() {
 			if grid[i][j] == "H" {
 				ans++
 				wateredGrid[i][j] = true
-				visited = make(map[Coordinate]bool, H*W)
+				var visited [][]bool
+				visited = make([][]bool, H)
+				for i := 0; i < H; i++ {
+					visited[i] = make([]bool, W)
+				}
 
+				visited[i][j] = true
 				c := Coordinate{i, j}
-				visited[c] = true
 
 				item := queueItem{c, 0}
 				queue.Enqueue(item)
@@ -59,7 +64,8 @@ func main() {
 					}
 
 					for _, adj := range item.c.Adjacents() {
-						if !adj.IsValid(H, W) || visited[adj] || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
+						// 別の加湿器が置いてあるノード以降はチェックしなくていい。それ以降の探索範囲はそのノードから開始するBFSに内包されているため。
+						if !adj.IsValid(H, W) || visited[adj.h][adj.w] || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
 							continue
 						}
 
@@ -67,7 +73,7 @@ func main() {
 							ans++
 							wateredGrid[adj.h][adj.w] = true
 						}
-						visited[adj] = true
+						visited[adj.h][adj.w] = true
 
 						queue.Enqueue(queueItem{adj, item.dep + 1})
 					}
