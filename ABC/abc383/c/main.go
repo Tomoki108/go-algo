@@ -67,11 +67,11 @@ func main() {
 							continue
 						}
 
-						if wateredGrid[adj.h][adj.w] == -1 {
+						if wateredGrid[adj.h][adj.w] == -1 { // 未加湿
 							ans++
 							wateredGrid[adj.h][adj.w] = D - (item.dep + 1)
 							queue.Enqueue(queueItem{adj, item.dep + 1})
-						} else if wateredGrid[adj.h][adj.w] < D-(item.dep+1) {
+						} else if wateredGrid[adj.h][adj.w] < D-(item.dep+1) { // 加湿済みだが、より大きな残り移動回数で到達した場合
 							wateredGrid[adj.h][adj.w] = D - (item.dep + 1)
 							queue.Enqueue(queueItem{adj, item.dep + 1})
 						}
