@@ -71,19 +71,6 @@ func readIntArr(r *bufio.Reader) []int {
 	return arr
 }
 
-type coordinate struct {
-	h, w int
-}
-
-func (c coordinate) adjacents() [4]coordinate {
-	return [4]coordinate{
-		{c.h - 1, c.w},
-		{c.h + 1, c.w},
-		{c.h, c.w - 1},
-		{c.h, c.w + 1},
-	}
-}
-
 // height行の文字列グリッドを読み込む
 func readGrid(r *bufio.Reader, height int) [][]string {
 	grid := make([][]string, height)

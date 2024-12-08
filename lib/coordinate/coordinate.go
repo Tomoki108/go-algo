@@ -1,3 +1,4 @@
+// 座標平面の計算を行うパッケージ
 package coordinate
 
 import "math"
