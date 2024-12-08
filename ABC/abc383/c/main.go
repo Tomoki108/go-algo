@@ -24,12 +24,20 @@ func main() {
 	D := iarr[2]
 
 	grid := make([][]string, H)
-	wateredGrid := make([][]bool, H) // 重複カウントしないように、加湿した所をgridで管理しなければならない
 	visitedGrid := make([][]bool, H)
 	for i := 0; i < H; i++ {
 		grid[i] = strings.Split(readStr(r), "")
-		wateredGrid[i] = make([]bool, W)
 		visitedGrid[i] = make([]bool, W)
+	}
+
+	// 重複カウントしないように、加湿した所をgridで管理しなければならない
+	// また、「加湿済みノードから再度探索する必要があるか」をメモ化するために、どこかの加湿器から加湿された時の最大残り移動回数も記録する
+	wateredGrid := make([][]int, H)
+	for i := 0; i < H; i++ {
+		wateredGrid[i] = make([]int, W)
+		for j := 0; j < W; j++ {
+			wateredGrid[i][j] = -1
+		}
 	}
 
 	type queueItem struct {
@@ -44,7 +52,7 @@ func main() {
 		for j := 0; j < W; j++ {
 			if grid[i][j] == "H" {
 				ans++
-				wateredGrid[i][j] = true
+				wateredGrid[i][j] = D
 				var visited [][]bool
 				visited = make([][]bool, H)
 				for i := 0; i < H; i++ {
@@ -53,6 +61,7 @@ func main() {
 
 				visited[i][j] = true
 				c := Coordinate{i, j}
+				// fmt.Printf("Humided: %v\n", c)
 
 				item := queueItem{c, 0}
 				queue.Enqueue(item)
@@ -69,13 +78,18 @@ func main() {
 							continue
 						}
 
-						if !wateredGrid[adj.h][adj.w] {
+						if wateredGrid[adj.h][adj.w] == -1 {
 							ans++
-							wateredGrid[adj.h][adj.w] = true
-						}
-						visited[adj.h][adj.w] = true
+							wateredGrid[adj.h][adj.w] = D - item.dep
+							queue.Enqueue(queueItem{adj, item.dep + 1})
 
-						queue.Enqueue(queueItem{adj, item.dep + 1})
+							// fmt.Printf("Humided: %v\n", adj)
+						} else if wateredGrid[adj.h][adj.w] < D-item.dep {
+							wateredGrid[adj.h][adj.w] = D - item.dep
+							queue.Enqueue(queueItem{adj, item.dep + 1})
+						}
+
+						visited[adj.h][adj.w] = true
 					}
 				}
 			}
