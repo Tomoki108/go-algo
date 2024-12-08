@@ -62,8 +62,7 @@ func main() {
 					}
 
 					for _, adj := range item.c.Adjacents() {
-						// 別の加湿器が置いてあるノード以降はチェックしなくていい。それ以降の探索範囲はそのノードから開始するBFSに内包されているため。
-						if !adj.IsValid(H, W) || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
+						if !adj.IsValid(H, W) || grid[adj.h][adj.w] == "#" {
 							continue
 						}
 
