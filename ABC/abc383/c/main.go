@@ -15,8 +15,6 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
-var visited map[coordinate]bool
-
 func main() {
 	defer w.Flush()
 
@@ -26,43 +24,50 @@ func main() {
 	D := iarr[2]
 
 	grid := readGrid(r, H)
+	// 重複カウントしないように、加湿した所をgridで管理しなければならない
+	wateredGrid := make([][]bool, H)
+	for i := 0; i < H; i++ {
+		wateredGrid[i] = make([]bool, W)
+	}
 
 	type queueItem struct {
-		c   coordinate
+		c   Coordinate
 		dep int
 	}
 
 	queue := NewQueue[queueItem]()
-	// visited = make(map[coordinate]bool, H*W)
+	var visited map[Coordinate]bool
 
 	ans := 0
 	for i := 0; i < H; i++ {
 		for j := 0; j < W; j++ {
 			if grid[i][j] == "H" {
 				ans++
-				visited = make(map[coordinate]bool, H*W)
+				wateredGrid[i][j] = true
+				visited = make(map[Coordinate]bool, H*W)
 
-				c := coordinate{i, j}
+				c := Coordinate{i, j}
 				visited[c] = true
-				// fmt.Println("ok", c)
 
 				item := queueItem{c, 0}
 				queue.Enqueue(item)
 
 				for !queue.IsEmpty() {
 					item, _ := queue.Dequeue()
-					if item.dep > D {
+					if item.dep == D {
 						continue
 					}
 
-					for _, adj := range item.c.adjacents() {
-						if adj.h < 0 || adj.h >= H || adj.w < 0 || adj.w >= W || visited[adj] || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
+					for _, adj := range item.c.Adjacents() {
+						if !adj.IsValid(H, W) || visited[adj] || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
 							continue
 						}
 
-						ans++
+						if !wateredGrid[adj.h][adj.w] {
+							ans++
+							wateredGrid[adj.h][adj.w] = true
+						}
 						visited[adj] = true
-						// fmt.Println("ok", adj)
 
 						queue.Enqueue(queueItem{adj, item.dep + 1})
 					}
@@ -74,9 +79,27 @@ func main() {
 	fmt.Fprintln(w, ans)
 }
 
-// ////////////
+//////////////
 // Libs    //
-// ///////////
+/////////////
+
+type Coordinate struct {
+	h, w int
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
+
 type Queue[T any] struct {
 	list *list.List
 }
