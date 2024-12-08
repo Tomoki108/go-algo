@@ -51,17 +51,8 @@ func main() {
 			if grid[i][j] == "H" {
 				ans++
 				wateredGrid[i][j] = D
-				var visited [][]bool
-				visited = make([][]bool, H)
-				for i := 0; i < H; i++ {
-					visited[i] = make([]bool, W)
-				}
 
-				visited[i][j] = true
-				c := Coordinate{i, j}
-				// fmt.Printf("Humided: %v\n", c)
-
-				item := queueItem{c, 0}
+				item := queueItem{Coordinate{i, j}, 0}
 				queue.Enqueue(item)
 
 				for !queue.IsEmpty() {
@@ -72,7 +63,7 @@ func main() {
 
 					for _, adj := range item.c.Adjacents() {
 						// 別の加湿器が置いてあるノード以降はチェックしなくていい。それ以降の探索範囲はそのノードから開始するBFSに内包されているため。
-						if !adj.IsValid(H, W) || visited[adj.h][adj.w] || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
+						if !adj.IsValid(H, W) || grid[adj.h][adj.w] == "#" || grid[adj.h][adj.w] == "H" {
 							continue
 						}
 
@@ -80,14 +71,10 @@ func main() {
 							ans++
 							wateredGrid[adj.h][adj.w] = D - (item.dep + 1)
 							queue.Enqueue(queueItem{adj, item.dep + 1})
-
-							// fmt.Printf("Humided: %v\n", adj)
 						} else if wateredGrid[adj.h][adj.w] < D-(item.dep+1) {
 							wateredGrid[adj.h][adj.w] = D - (item.dep + 1)
 							queue.Enqueue(queueItem{adj, item.dep + 1})
 						}
-
-						visited[adj.h][adj.w] = true
 					}
 				}
 			}
