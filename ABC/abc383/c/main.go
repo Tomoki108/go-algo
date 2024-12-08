@@ -80,12 +80,12 @@ func main() {
 
 						if wateredGrid[adj.h][adj.w] == -1 {
 							ans++
-							wateredGrid[adj.h][adj.w] = D - item.dep
+							wateredGrid[adj.h][adj.w] = D - (item.dep + 1)
 							queue.Enqueue(queueItem{adj, item.dep + 1})
 
 							// fmt.Printf("Humided: %v\n", adj)
-						} else if wateredGrid[adj.h][adj.w] < D-item.dep {
-							wateredGrid[adj.h][adj.w] = D - item.dep
+						} else if wateredGrid[adj.h][adj.w] < D-(item.dep+1) {
+							wateredGrid[adj.h][adj.w] = D - (item.dep + 1)
 							queue.Enqueue(queueItem{adj, item.dep + 1})
 						}
 
