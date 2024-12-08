@@ -24,18 +24,16 @@ func main() {
 	D := iarr[2]
 
 	grid := make([][]string, H)
-	visitedGrid := make([][]bool, H)
-	for i := 0; i < H; i++ {
-		grid[i] = strings.Split(readStr(r), "")
-		visitedGrid[i] = make([]bool, W)
-	}
-
 	// 重複カウントしないように、加湿した所をgridで管理しなければならない
 	// また、「加湿済みノードから再度探索する必要があるか」をメモ化するために、どこかの加湿器から加湿された時の最大残り移動回数も記録する
 	wateredGrid := make([][]int, H)
 	for i := 0; i < H; i++ {
+		sarr := strings.Split(readStr(r), "")
+		grid[i] = make([]string, W)
 		wateredGrid[i] = make([]int, W)
+
 		for j := 0; j < W; j++ {
+			grid[i][j] = sarr[j]
 			wateredGrid[i][j] = -1
 		}
 	}
