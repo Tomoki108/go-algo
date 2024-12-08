@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -14,73 +15,49 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
-var H, W, D int
-
-var grid [][]string
-
-var effectMap map[twoCoordinate]int
-
-type coordinate struct {
-	h, w int
-}
-
-type twoCoordinate [2]coordinate
-
-var visited map[coordinate]bool
-
 func main() {
 	defer w.Flush()
 
 	iarr := readIntArr(r)
-	H = iarr[0]
-	W = iarr[1]
-	D = iarr[2]
+	H := iarr[0]
+	W := iarr[1]
+	D := iarr[2]
+	grid := readGrid(r, H)
 
-	grid = readGrid(r, H)
-
-	floors := make([]coordinate, 0, H*W)
+	floors := make([]Coordinate, 0, H*W)
 	for i := 0; i < H; i++ {
 		for j := 0; j < W; j++ {
 			if grid[i][j] == "." {
-				floors = append(floors, coordinate{i, j})
+				floors = append(floors, Coordinate{i, j})
 			}
 		}
 	}
 
-	effectMap = make(map[twoCoordinate]int, H*W)
-
+	maxEffect := 2
+	// 「二つの床の組み合わせ」を全探索し、それらに加湿器を置いた場合の加湿範囲も全探索する
 	for i := 0; i < len(floors); i++ {
 		for j := i + 1; j < len(floors); j++ {
-			effectMap[twoCoordinate{floors[i], floors[j]}] = 2
-
-			i1 := floors[i].h
-			j1 := floors[i].w
-
-			i2 := floors[j].h
-			j2 := floors[j].w
+			effect := 2 // 加湿器分
 
 			for p := 0; p < H; p++ {
 				for q := 0; q < W; q++ {
-					if (p == i1 && q == j1) || (p == i2 && q == j2) {
+					current := Coordinate{p, q}
+
+					if (current == floors[i]) || (current == floors[j]) {
 						continue
 					}
 
-					manhattanDistanse1 := max(i1-p, -1*(i1-p)) + max(j1-q, -1*(j1-q))
-					manhattanDistanse2 := max(i2-p, -1*(i2-p)) + max(j2-q, -1*(j2-q))
+					manhattanDistanse1 := floors[i].CalcManhattanDistance(current)
+					manhattanDistanse2 := floors[j].CalcManhattanDistance(current)
 
 					if (manhattanDistanse1 <= D || manhattanDistanse2 <= D) && grid[p][q] == "." {
-						effectMap[twoCoordinate{floors[i], floors[j]}] += 1
+						effect++
 					}
-
 				}
 			}
 
+			maxEffect = max(maxEffect, effect)
 		}
-	}
-
-	maxEffect := 0
-	for _, ef := range effectMap {
-		maxEffect = max(maxEffect, ef)
 	}
 
 	fmt.Fprintln(w, maxEffect)
@@ -90,29 +67,12 @@ func main() {
 // Libs    //
 /////////////
 
-// 順列のパターンを全列挙する
-// ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
-func Permute[T any](current []T, options []T) [][]T {
-	var results [][]T
+type Coordinate struct {
+	h, w int
+}
 
-	cc := append([]T{}, current...)
-	co := append([]T{}, options...)
-
-	if len(co) == 0 {
-		return [][]T{cc}
-	}
-
-	for i, o := range options {
-		newcc := append([]T{}, cc...)
-		newcc = append(newcc, o)
-		newco := append([]T{}, co[:i]...)
-		newco = append(newco, co[i+1:]...)
-
-		subResults := Permute(newcc, newco)
-		results = append(results, subResults...)
-	}
-
-	return results
+func (c Coordinate) CalcManhattanDistance(other Coordinate) int {
+	return int(math.Abs(float64(c.h-other.h)) + math.Abs(float64(c.w-other.w)))
 }
 
 //////////////

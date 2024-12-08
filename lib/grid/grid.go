@@ -19,8 +19,8 @@ func (c Coordinate) IsValid(H, W int) bool {
 	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
 }
 
-func CalcManhattanDistance(c1, c2 Coordinate) int {
-	return int(math.Abs(float64(c1.h-c2.h)) + math.Abs(float64(c1.w-c2.w)))
+func (c Coordinate) CalcManhattanDistance(other Coordinate) int {
+	return int(math.Abs(float64(c.h-other.h)) + math.Abs(float64(c.w-other.w)))
 }
 
 // 一辺がnの正方形グリッドのマス目(hight, width)を、時計回りにtime回回転させたときの座標を返す
