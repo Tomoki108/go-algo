@@ -1,6 +1,6 @@
 package primenum
 
-// エラストテネスの篩でN以下の素数を列挙する
+// エラトステネスの篩でN以下の素数を昇順で列挙する: O(n*log_log_n)
 func Eratos(n int) []int {
 	if n < 2 {
 		return []int{}

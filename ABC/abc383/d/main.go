@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -17,11 +18,69 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	ns := math.Sqrt(float64(N))
+
+	primeNums := Eratos(int(ns))
+
+	ans := 0
+	for _, p := range primeNums {
+		if num := p * p * p * p * p * p * p * p; num <= N {
+			ans++
+		} else {
+			break
+		}
+	}
+
+	for i := 0; i < len(primeNums); i++ {
+		p1 := primeNums[i]
+		for j := i + 1; j < len(primeNums); j++ {
+			p2 := primeNums[j]
+			if float64(p1*p2) > ns {
+				break
+			}
+			ans++
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// エラトステネスの篩でN以下の素数を列挙する（昇順）
+func Eratos(n int) []int {
+	if n < 2 {
+		return []int{}
+	}
+
+	// Create a boolean slice to track prime numbers
+	isPrime := make([]bool, n+1)
+	for i := 2; i <= n; i++ {
+		isPrime[i] = true
+	}
+
+	// Mark non-prime numbers
+	for i := 2; i*i <= n; i++ {
+		if isPrime[i] {
+			for j := i * i; j <= n; j += i {
+				isPrime[j] = false
+			}
+		}
+	}
+
+	// Collect prime numbers
+	primes := []int{}
+	for i := 2; i <= n; i++ {
+		if isPrime[i] {
+			primes = append(primes, i)
+		}
+	}
+
+	return primes
+}
 
 //////////////
 // Helpers  //
