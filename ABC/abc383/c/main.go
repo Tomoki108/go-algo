@@ -15,7 +15,60 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// 多始点BFS
 func main() {
+	defer w.Flush()
+
+	iarr := readIntArr(r)
+	H := iarr[0]
+	W := iarr[1]
+	D := iarr[2]
+
+	grid := readGrid(r, H)
+	visited := make([][]bool, H)
+	for i := 0; i < H; i++ {
+		visited[i] = make([]bool, W)
+	}
+
+	type queueItem struct {
+		c   Coordinate
+		dep int
+	}
+	queue := NewQueue[queueItem]()
+
+	ans := 0
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "H" {
+				ans++
+				queue.Enqueue(queueItem{Coordinate{i, j}, 0})
+				visited[i][j] = true
+			}
+		}
+	}
+
+	for !queue.IsEmpty() {
+		item, _ := queue.Dequeue()
+		if item.dep == D {
+			continue
+		}
+
+		for _, adj := range item.c.Adjacents() {
+			if !adj.IsValid(H, W) || grid[adj.h][adj.w] == "#" || visited[adj.h][adj.w] {
+				continue
+			}
+
+			ans++
+			visited[adj.h][adj.w] = true
+			queue.Enqueue(queueItem{adj, item.dep + 1})
+		}
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+// BFS + メモ化
+func alt() {
 	defer w.Flush()
 
 	iarr := readIntArr(r)
