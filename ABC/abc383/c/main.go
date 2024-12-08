@@ -62,6 +62,8 @@ func main() {
 					}
 
 					for _, adj := range item.c.Adjacents() {
+						// 別の加湿器が置いてあるノード以降はチェックしなくていい。それ以降の探索範囲はそのノードから開始するBFSに内包されているため。
+						// （上記が「加湿済みだが、より大きな残り移動回数で到達した場合」のチェックで賄えないのは、そのノードのwateredGrid[i][j]がまだDで初期化されていない可能性があるため。）
 						if !adj.IsValid(H, W) || grid[adj.h][adj.w] == "#" {
 							continue
 						}
