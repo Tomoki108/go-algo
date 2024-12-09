@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,29 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	ans := 0
+	positiveCount := intMax
+	for positiveCount > 1 {
+		sort.Slice(As, func(i, j int) bool {
+			return As[i] > As[j]
+		})
+		As[0] -= 1
+		As[1] -= 1
+		ans++
+
+		count := 0
+		for i := 0; i < N; i++ {
+			if As[i] > 0 {
+				count++
+			}
+		}
+		positiveCount = count
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
