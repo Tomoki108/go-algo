@@ -16,6 +16,33 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	left := 0
+	right := 0
+	ans := 1
+	diff := 0
+	for right = 1; right < N; right++ {
+		if right-left == 1 {
+			ans += 2
+			diff = As[right] - As[left]
+			// fmt.Printf("hello1, left: %d, right: %d\n", left, right)
+			continue
+		}
+
+		newDiff := As[right] - As[right-1]
+		if newDiff == diff {
+			ans += right - left + 1
+			// fmt.Printf("hello2, left: %d, right: %d\n", left, right)
+		} else {
+			left = right - 1
+			ans += 2
+			// fmt.Printf("hello3, left: %d, right: %d\n", left, right)
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
@@ -115,4 +142,11 @@ func max(i, j int) int {
 		return i
 	}
 	return j
+}
+
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
 }
