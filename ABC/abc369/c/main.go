@@ -38,6 +38,7 @@ func main() {
 		} else {
 			left = right - 1
 			ans += 2
+			diff = As[right] - As[left]
 			// fmt.Printf("hello3, left: %d, right: %d\n", left, right)
 		}
 	}
