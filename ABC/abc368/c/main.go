@@ -17,6 +17,47 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Hs := readIntArr(r)
+
+	T := 0
+	for i := 0; i < N; i++ {
+		quotient := Hs[i] / 5
+		remainder := Hs[i] % 5
+		T += 3 * quotient
+
+		tr := T % 3
+		if tr == 0 {
+			switch remainder {
+			case 0:
+			case 1:
+				T += 1
+			case 2:
+				T += 2
+			case 3, 4:
+				T += 3
+			}
+		} else if tr == 1 {
+			switch remainder {
+			case 0:
+			case 1:
+				T += 1
+			case 2, 3, 4:
+				T += 2
+			}
+		} else {
+			switch remainder {
+			case 0:
+			case 1, 2, 3:
+				T += 1
+			case 4:
+				T += 2
+			}
+		}
+
+	}
+
+	fmt.Fprintln(w, T)
 }
 
 //////////////
