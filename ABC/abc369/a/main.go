@@ -16,6 +16,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	A, B := read2Ints(r)
+
+	var ans int
+	if A != B {
+		// [x, A, B], [A, B, x], [x, B, A], [B, A, x]
+		// 前半と後半のxは等しいので、xは2通り
+		ans = 2
+
+		delta := abs(A - B)
+		if delta%2 == 0 {
+			// [A, x, B], [B, x, A]
+			//  前半と後半のxは等しいので、xは1通り
+			ans += 1
+		}
+	} else {
+		ans = 1 // [A, B, x]
+	}
+
+	fmt.Fprintln(w, ans)
+
 }
 
 //////////////
@@ -115,4 +135,11 @@ func max(i, j int) int {
 		return i
 	}
 	return j
+}
+
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
 }
