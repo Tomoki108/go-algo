@@ -17,6 +17,25 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	A := iarr[0]
+	B := iarr[1]
+	C := iarr[2]
+
+	if C < B {
+		if C < A && A < B {
+			fmt.Fprintln(w, "Yes")
+		} else {
+			fmt.Fprintln(w, "No")
+		}
+
+	} else {
+		if (0 <= A && A < B) || C < A && A <= 23 {
+			fmt.Fprintln(w, "Yes")
+		} else {
+			fmt.Fprintln(w, "No")
+		}
+	}
 }
 
 //////////////
