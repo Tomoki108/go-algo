@@ -17,11 +17,44 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	X := readStr(r)
+
+	Xs := strings.Split(X, ".")
+	aboveDp := Xs[0]
+	aboveDpSl := strings.Split(aboveDp, "")
+
+	belowDp := Xs[1]
+	belowDpSl := strings.Split(belowDp, "")
+
+	for true {
+		if len(belowDpSl) != 0 && belowDpSl[len(belowDpSl)-1] == "0" {
+			belowDpSl = belowDpSl[:len(belowDpSl)-1]
+		} else {
+			break
+		}
+	}
+
+	modXs := make([]string, 0, len(aboveDpSl)+len(belowDpSl))
+	modXs = append(modXs, aboveDpSl...)
+
+	if len(belowDpSl) > 0 {
+		modXs = append(modXs, ".")
+		modXs = append(modXs, belowDpSl...)
+	}
+
+	fmt.Fprintln(w, strings.Join(modXs, ""))
 }
 
-//////////////
+// ////////////
 // Libs    //
-/////////////
+// ///////////
+// slices.Reverce() と同じ（Goのバージョンが1.21以前だと使えないため）
+// 計算量: O(n)
+func SlRev[S ~[]E, E any](s S) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+}
 
 //////////////
 // Helpers  //
