@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -14,9 +15,71 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var N int
+
 func main() {
 	defer w.Flush()
 
+	n, K := read2Ints(r)
+	N = n
+	Rs := readIntArr(r)
+
+	candidateNums := make([][]int, N)
+	for i := 0; i < N; i++ {
+		candidateNums[i] = make([]int, 0, N)
+		for j := 1; j <= Rs[i]; j++ {
+			candidateNums[i] = append(candidateNums[i], j)
+		}
+	}
+
+	// fmt.Printf("candidateNums: %v\n", candidateNums)
+
+	dfs([]int{}, candidateNums)
+
+	sort.Slice(sequences, func(i, j int) bool {
+		for k := 0; k < N; k++ {
+			if sequences[i][k] == sequences[j][k] {
+				continue
+			}
+			return sequences[i][k] < sequences[j][k]
+		}
+
+		panic("unreachable")
+	})
+
+	found := false
+	for _, seq := range sequences {
+		sum := 0
+		for j := 0; j < N; j++ {
+			sum += seq[j]
+		}
+		if sum%K == 0 {
+			found = true
+			writeSlice(w, seq)
+		}
+	}
+
+	if !found {
+		fmt.Fprintln(w)
+	}
+}
+
+var sequences [][]int
+
+func dfs(currentSeq []int, candidateNums [][]int) {
+	if len(currentSeq) == N {
+		sequences = append(sequences, currentSeq)
+		return
+	}
+
+	nextValCandidates := candidateNums[len(currentSeq)]
+	for _, v := range nextValCandidates {
+		copySeq := make([]int, 0, len(currentSeq))
+		copySeq = append(copySeq, currentSeq...)
+		copySeq = append(copySeq, v)
+
+		dfs(copySeq, candidateNums)
+	}
 }
 
 //////////////
