@@ -2,6 +2,7 @@ package permutation
 
 // 順列のパターンを全列挙する
 // ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
+// optionsには全ての要素が異なるものを渡すこと
 func Permute[T any](current []T, options []T) [][]T {
 	var results [][]T
 

@@ -14,9 +14,59 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var tree map[int][]int
+var pickedVertexes map[int]struct{}
+var numOfPicked map[int]int // そのノード以下の階層に、指定された頂点がいくつ含まれているか
+
 func main() {
 	defer w.Flush()
 
+	N, K := read2Ints(r)
+
+	tree = make(map[int][]int, N)
+	for i := 0; i < N-1; i++ {
+		A, B := read2Ints(r)
+		tree[A] = append(tree[A], B)
+		tree[B] = append(tree[B], A)
+	}
+
+	Vs := readIntArr(r)
+	pickedVertexes = make(map[int]struct{}, K)
+	for i := 0; i < K; i++ {
+		pickedVertexes[Vs[i]] = struct{}{}
+	}
+
+	numOfPicked = make(map[int]int, N)
+	dfs(Vs[0], -1, 0) // 任意の指定された頂点からDFSを開始する
+
+	ans := 0
+	for _, v := range numOfPicked {
+		if v != 0 {
+			ans++
+		}
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+func dfs(vertex, parent, numOfFoundPicked int) (nfp int) {
+	found := 0
+	for _, v := range tree[vertex] {
+		if v == parent {
+			continue
+		}
+
+		found += dfs(v, vertex, numOfFoundPicked)
+	}
+
+	_, picked := pickedVertexes[vertex]
+	if picked {
+		numOfPicked[vertex] = numOfFoundPicked + found + 1
+		return numOfFoundPicked + found + 1
+	}
+
+	numOfPicked[vertex] = numOfFoundPicked + found
+	return numOfFoundPicked + found
 }
 
 //////////////
