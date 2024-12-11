@@ -32,8 +32,6 @@ func main() {
 		}
 	}
 
-	// fmt.Printf("candidateNums: %v\n", candidateNums)
-
 	dfs([]int{}, candidateNums)
 
 	sort.Slice(sequences, func(i, j int) bool {

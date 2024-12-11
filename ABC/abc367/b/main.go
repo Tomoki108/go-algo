@@ -34,7 +34,7 @@ func main() {
 		}
 	}
 
-	modXs := make([]string, 0, len(aboveDpSl)+len(belowDpSl))
+	modXs := make([]string, 0, len(aboveDpSl)+len(belowDpSl)+1)
 	modXs = append(modXs, aboveDpSl...)
 
 	if len(belowDpSl) > 0 {

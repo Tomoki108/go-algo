@@ -25,3 +25,23 @@ func Permute[T any](current []T, options []T) [][]T {
 
 	return results
 }
+
+// 要素数 len(options) で、i番目の要素が options[i] であるような順列のパターンを全列挙する
+func Permute2[T any](current []T, options [][]T) [][]T {
+	var results [][]T
+
+	if len(current) == len(options) {
+		results = append(results, current)
+		return results
+	}
+
+	nextVals := options[len(current)]
+	for _, v := range nextVals {
+		copyCurrent := append([]T{}, current...)
+		copyCurrent = append(copyCurrent, v)
+		subResults := Permute2(copyCurrent, options)
+		results = append(results, subResults...)
+	}
+
+	return results
+}
