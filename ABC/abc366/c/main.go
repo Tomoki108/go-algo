@@ -17,6 +17,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	Q := readInt(r)
+
+	m := make(map[int]int, 10*10*10*10*10*10) // key: kind, value: count
+	for i := 0; i < Q; i++ {
+		iarr := readIntArr(r)
+
+		switch iarr[0] {
+		case 1:
+			x := iarr[1]
+			m[x] = m[x] + 1
+		case 2:
+			x := iarr[1]
+			m[x] = m[x] - 1
+			if m[x] == 0 {
+				delete(m, x)
+			}
+		case 3:
+			fmt.Fprintln(w, len(m))
+		}
+	}
 }
 
 //////////////
