@@ -17,11 +17,60 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	cube := make([][][]int, N)
+	sumCube := make([][][]int, N)
+
+	for i := 0; i < N; i++ {
+		cube[i] = make([][]int, N)
+		sumCube[i] = make([][]int, N)
+
+		for j := 0; j < N; j++ {
+
+			iarr := readIntArr(r)
+			cube[i][j] = iarr
+			sumCube[i][j] = PrefixSum(iarr)
+		}
+	}
+
+	Q := readInt(r)
+
+	for i := 0; i < Q; i++ {
+
+		iarr := readIntArr(r)
+		Lx, Rx, Ly, Ry, Lz, Rz := iarr[0], iarr[1], iarr[2], iarr[3], iarr[4], iarr[5]
+
+		sum := 0
+		for j := Lx - 1; j < Rx; j++ {
+			for k := Ly - 1; k < Ry; k++ {
+				// RzIdx := Rz - 1
+				// LzIdx := Lz - 2
+
+				// fmt.Printf("Lx: %d, Rx: %d, Ly: %d, Ry: %d, Lz: %d, Rz: %d\n", Lx, Rx, Ly, Ry, Lz, Rz)
+				// fmt.Printf("sumCube[j][k][RzIdx]: %d, sumCube[j][k][LzIdx]: %d\n", sumCube[j][k][RzIdx], sumCube[j][k][LzIdx])
+
+				sum += sumCube[j][k][Rz] - sumCube[j][k][Lz-1]
+
+			}
+		}
+
+		fmt.Fprintln(w, sum)
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers  //
