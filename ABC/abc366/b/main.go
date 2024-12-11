@@ -17,6 +17,43 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	Ss := make([][]string, 0, N)
+	maxLen := 0
+	for i := 0; i < N; i++ {
+		S := readStr(r)
+		Ss = append(Ss, strings.Split(S, ""))
+
+		maxLen = max(maxLen, len(S))
+	}
+
+	ans := make([][]string, maxLen)
+	for i := 0; i < maxLen; i++ {
+		ans[i] = make([]string, 0, maxLen)
+
+		for j := 0; j < N; j++ {
+			row := Ss[len(Ss)-1-j]
+
+			var char string
+			if len(row) < i+1 {
+				char = "*"
+			} else {
+				char = row[i]
+			}
+
+			ans[i] = append(ans[i], char)
+		}
+	}
+
+	for _, a := range ans {
+		s := strings.Join(a, "")
+		if strings.HasSuffix(s, "*") {
+			s = strings.TrimRight(s, "*")
+		}
+
+		fmt.Fprintln(w, s)
+	}
 }
 
 //////////////
