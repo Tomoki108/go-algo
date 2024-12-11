@@ -17,11 +17,52 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	As := readIntArr(r)
+
+	cumlativeSum := make(map[int]int, N+1)
+	currentSum := 0
+	for i := 0; i < N; i++ {
+		cumlativeSum[i] = currentSum
+		currentSum += As[i]
+	}
+	totalSum := currentSum
+
+	m := make(map[int]int, N) // cout of x that satisfies x ≅ key mod M
+	for i := 0; i < N; i++ {
+		m[i] = 0
+	}
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		// cumlativeSum[l] ≅ cumlativeSum[r] mod M となるような j の個数を数える
+		remainder := Mod(cumlativeSum[i], M)
+		ans += m[remainder]
+
+		// cumlativeSum[l] ≅ cumlativeSum[r]-totalSum mod M となるような j の個数を数える（反対側の経路の距離がMの倍数になるjの個数を数える）
+		remainder2 := Mod(cumlativeSum[i]-totalSum, M)
+		ans += m[remainder2]
+
+		m[remainder]++
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// a割るbの、数学における剰余を返す。
+// a = b * Quotient + RemainderとなるRemainderを返す（Quotientは負でもよく、Remainderは常に0以上という制約がある）
+// goのa%bだと、|a|割るbの剰余にaの符号をつけて返すため、負の数が含まれる場合数学上の剰余とは異なる。
+func Mod(a, b int) int {
+	r := a % b
+	if r < 0 {
+		r += b
+	}
+	return r
+}
 
 //////////////
 // Helpers  //
