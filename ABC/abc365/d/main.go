@@ -17,6 +17,50 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r) // N
+	S := readStr(r)
+
+	ss := strings.Split(S, "")
+
+	ans := 0
+	lastOponentHand := ""
+	lastMyHand := ""
+	for _, s := range ss {
+		if s == lastOponentHand {
+			// fmt.Println("tie1", "s:", s)
+			lastOponentHand = ""
+			lastMyHand = s
+			continue
+		}
+
+		winH := winHand(s)
+		if winH == lastMyHand {
+			// fmt.Println("tie2", "s:", s)
+			lastOponentHand = s
+			lastMyHand = s
+			continue
+		}
+
+		// fmt.Println("win", "s:", s)
+		ans++
+		lastOponentHand = s
+		lastMyHand = winHand(s)
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+func winHand(oppenentHand string) string {
+	switch oppenentHand {
+	case "R":
+		return "P"
+	case "P":
+		return "S"
+	case "S":
+		return "R"
+	}
+
+	panic("invalid hand")
 }
 
 //////////////
