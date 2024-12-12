@@ -17,6 +17,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	lastS := ""
+	for i := 0; i < N; i++ {
+		S := readStr(r)
+		if lastS == "sweet" && S == "sweet" && i != N-1 {
+			fmt.Fprintln(w, "No")
+			return
+		}
+
+		lastS = S
+	}
+
+	fmt.Fprintln(w, "Yes")
 }
 
 //////////////
