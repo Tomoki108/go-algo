@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,11 +18,60 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, X, Y := iarr[0], iarr[1], iarr[2]
+
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	sweets := make([]int, N)
+	spices := make([]int, N)
+	for i := 0; i < N; i++ {
+		sweets[i] = As[i]
+		spices[i] = Bs[i]
+	}
+
+	sort.Slice(sweets, func(i, j int) bool {
+		return sweets[i] > sweets[j]
+	})
+	sort.Slice(spices, func(i, j int) bool {
+		return spices[i] > spices[j]
+	})
+
+	sweetPrefSums := PrefixSum(sweets)
+	spicePrefSums := PrefixSum(spices)
+
+	swIdx := sort.Search(N+1, func(i int) bool {
+		return sweetPrefSums[i] > X
+	})
+	spIdx := sort.Search(N+1, func(i int) bool {
+		return spicePrefSums[i] > Y
+	})
+
+	// どちらもN-1だった場合（いくら食べても甘さもしょっぱさもオーバーしない場合）
+	if swIdx == N+1 && spIdx == N+1 {
+		fmt.Fprintln(w, N)
+		return
+	}
+
+	ans := min(swIdx, spIdx)
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// 一次元配列の累積和を返す
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers  //
