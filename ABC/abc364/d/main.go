@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,60 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r)
+
+	as := readIntArr(r)
+	sort.Slice(as, func(i, j int) bool {
+		return as[i] < as[j]
+	})
+
+	for i := 0; i < Q; i++ {
+		b, k := read2Ints(r)
+
+		dist := search(as, b, 1, N, k)
+		fmt.Fprintln(w, dist)
+	}
+}
+
+// 二分探索
+func search(points []int, base, minDist, maxDist, n int) int {
+	dist := (minDist + maxDist) / 2
+
+	if numOfPointsInDistance(points, base, dist) >= n {
+		newMaxDist := dist
+		if newMaxDist == maxDist {
+			return dist
+		}
+
+		return search(points, base, minDist, newMaxDist, n)
+	} else {
+		newMinDist := dist
+		if newMinDist == minDist {
+			return dist
+		}
+
+		return search(points, base, newMinDist, maxDist, n)
+	}
+}
+
+// currentからdistanceの距離以内にある点の数を返す
+func numOfPointsInDistance(points []int, current, distance int) int {
+	minX := current - distance
+	maxX := current + distance
+
+	num := len(points)
+
+	idx1 := sort.Search(len(points), func(i int) bool {
+		return points[i] >= minX
+	})
+	num -= idx1
+
+	idx2 := sort.Search(len(points), func(i int) bool {
+		return points[i] > maxX
+	})
+	num -= len(points) - idx2
+
+	return num
 }
 
 //////////////
