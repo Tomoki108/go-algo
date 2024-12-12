@@ -19,44 +19,79 @@ func main() {
 
 	N := readInt(r)
 
-	cube := make([][][]int, N)
-	sumCube := make([][][]int, N)
+	cube := make([][][]int, N+1)
+	sumCube := make([][][]int, N+1)
+	for i := 0; i < N+1; i++ {
+		cube[i] = make([][]int, N+1)
+		sumCube[i] = make([][]int, N+1)
+		for j := 0; j < N+1; j++ {
+			cube[i][j] = make([]int, N+1)
+			sumCube[i][j] = make([]int, N+1)
+		}
+	}
 
 	for i := 0; i < N; i++ {
-		cube[i] = make([][]int, N)
-		sumCube[i] = make([][]int, N)
-
 		for j := 0; j < N; j++ {
-
 			iarr := readIntArr(r)
-			cube[i][j] = iarr
-			sumCube[i][j] = PrefixSum(iarr)
+			for k := 0; k < N; k++ {
+				cube[i+1][j+1][k+1] = iarr[k]
+				sumCube[i+1][j+1][k+1] = iarr[k]
+			}
+		}
+	}
+
+	for x := 1; x < N+1; x++ {
+		for y := 1; y < N+1; y++ {
+			for z := 1; z < N+1; z++ {
+				sumCube[x][y][z] += sumCube[x-1][y][z]
+			}
+		}
+	}
+	for x := 1; x < N+1; x++ {
+		for y := 1; y < N+1; y++ {
+			for z := 1; z < N+1; z++ {
+				sumCube[x][y][z] += sumCube[x][y-1][z]
+			}
+		}
+	}
+	for x := 1; x < N+1; x++ {
+		for y := 1; y < N+1; y++ {
+			for z := 1; z < N+1; z++ {
+				sumCube[x][y][z] += sumCube[x][y][z-1]
+			}
 		}
 	}
 
 	Q := readInt(r)
-
 	for i := 0; i < Q; i++ {
-
 		iarr := readIntArr(r)
 		Lx, Rx, Ly, Ry, Lz, Rz := iarr[0], iarr[1], iarr[2], iarr[3], iarr[4], iarr[5]
-
-		sum := 0
-		for j := Lx - 1; j < Rx; j++ {
-			for k := Ly - 1; k < Ry; k++ {
-				// RzIdx := Rz - 1
-				// LzIdx := Lz - 2
-
-				// fmt.Printf("Lx: %d, Rx: %d, Ly: %d, Ry: %d, Lz: %d, Rz: %d\n", Lx, Rx, Ly, Ry, Lz, Rz)
-				// fmt.Printf("sumCube[j][k][RzIdx]: %d, sumCube[j][k][LzIdx]: %d\n", sumCube[j][k][RzIdx], sumCube[j][k][LzIdx])
-
-				sum += sumCube[j][k][Rz] - sumCube[j][k][Lz-1]
-
-			}
-		}
-
+		sum := SumFrom3DPrefixSum(sumCube, Lx, Rx, Ly, Ry, Lz, Rz)
 		fmt.Fprintln(w, sum)
 	}
+}
+
+// 三次元累積和から、任意の範囲の和を求める
+// sumCubには、x, y, z方向に番兵（余分な空の一行）が含まれているものとする
+// Lx, Rxは、その軸における範囲指定 => x方向には、Rxの累積和からLx-1の累積和を引く
+func SumFrom3DPrefixSum(sumCube [][][]int, Lx, Rx, Ly, Ry, Lz, Rz int) int {
+	Lx--
+	Ly--
+	Lz--
+
+	// 包除原理
+	result := sumCube[Rx][Ry][Rz]
+	result -= sumCube[Lx][Ry][Rz]
+	result -= sumCube[Rx][Ly][Rz]
+	result -= sumCube[Rx][Ry][Lz]
+
+	result += sumCube[Lx][Ly][Rz]
+	result += sumCube[Lx][Ry][Lz]
+	result += sumCube[Rx][Ly][Lz]
+
+	result -= sumCube[Lx][Ly][Lz]
+
+	return result
 }
 
 //////////////
