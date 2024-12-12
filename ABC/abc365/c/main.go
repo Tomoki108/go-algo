@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,11 +18,68 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	minX := M / N
+	maxX := M
+
+	As := readIntArr(r)
+	sort.Slice(As, func(i, j int) bool {
+		return As[i] < As[j]
+	})
+	prefSum := PrefixSum(As)
+	totalSum := prefSum[len(prefSum)-1]
+
+	if totalSum <= M {
+		fmt.Println("infinite")
+		return
+	}
+
+	x := search(As, prefSum, minX, maxX, M)
+
+	fmt.Fprintln(w, x)
+}
+
+func search(As, prefSum []int, minX, maxX, M int) int {
+	x := (minX + maxX) / 2
+
+	xIdx := sort.Search(len(As), func(i int) bool {
+		return As[i] >= x
+	})
+
+	cost := prefSum[xIdx]
+	cost += x * (len(As) - xIdx)
+
+	if cost <= M {
+		newMinX := x
+		if newMinX == minX {
+			return x
+		}
+
+		return search(As, prefSum, newMinX, maxX, M)
+	} else {
+		newMaxX := x
+		if newMaxX == maxX {
+			return x
+		}
+
+		return search(As, prefSum, minX, newMaxX, M)
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// 一次元配列の累積和を返す
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers  //
