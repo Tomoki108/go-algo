@@ -17,6 +17,27 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	Y := readInt(r)
+
+	if Y%4 != 0 {
+		fmt.Println("365")
+		return
+	}
+
+	if Y%4 == 0 && Y%100 != 0 {
+		fmt.Println("366")
+		return
+	}
+
+	if Y%100 == 0 && Y%400 != 0 {
+		fmt.Println("365")
+		return
+	}
+
+	if Y%400 == 0 {
+		fmt.Println("366")
+		return
+	}
 }
 
 //////////////

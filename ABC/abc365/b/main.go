@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	As := readIntArr(r)
+
+	type AWithIdx struct {
+		A   int
+		Idx int
+	}
+
+	ais := make([]AWithIdx, 0, N)
+	for i, a := range As {
+		ais = append(ais, AWithIdx{a, i})
+	}
+
+	sort.Slice(ais, func(i, j int) bool {
+		return ais[i].A > ais[j].A
+	})
+
+	ans := ais[1].Idx + 1
+	fmt.Println(ans)
 }
 
 //////////////
