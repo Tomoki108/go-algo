@@ -28,16 +28,28 @@ func main() {
 	for i := 0; i < Q; i++ {
 		b, k := read2Ints(r)
 
-		dist := search(as, b, 1, N, k)
+		minDist := 0
+		maxDist := max(abs(b-as[0]), abs(b-as[N-1]))
+
+		dist := search(as, b, minDist, maxDist, k)
 		fmt.Fprintln(w, dist)
 	}
 }
 
 // 二分探索
 func search(points []int, base, minDist, maxDist, n int) int {
+	if minDist > maxDist {
+		// fmt.Printf("search stopped. minDist: %d, maxDist: %d\n", minDist, maxDist)
+		return minDist
+	}
+
 	dist := (minDist + maxDist) / 2
 
-	if numOfPointsInDistance(points, base, dist) >= n {
+	// fmt.Printf("minDist: %d, maxDist: %d, dist: %d\n", minDist, maxDist, dist)
+
+	result := numOfPointsInDistance(points, base, dist)
+
+	if result >= n {
 		newMaxDist := dist
 		if newMaxDist == maxDist {
 			return dist
@@ -45,7 +57,7 @@ func search(points []int, base, minDist, maxDist, n int) int {
 
 		return search(points, base, minDist, newMaxDist, n)
 	} else {
-		newMinDist := dist
+		newMinDist := dist + 1
 		if newMinDist == minDist {
 			return dist
 		}
@@ -70,6 +82,8 @@ func numOfPointsInDistance(points []int, current, distance int) int {
 		return points[i] > maxX
 	})
 	num -= len(points) - idx2
+
+	// fmt.Printf("current: %d, distance: %d, num: %d\n", current, distance, num)
 
 	return num
 }
