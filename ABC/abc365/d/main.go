@@ -17,35 +17,51 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	readInt(r) // N
+	N := readInt(r)
 	S := readStr(r)
-
 	ss := strings.Split(S, "")
 
-	ans := 0
-	lastOponentHand := ""
-	lastMyHand := ""
-	for _, s := range ss {
-		if s == lastOponentHand {
-			// fmt.Println("tie1", "s:", s)
-			lastOponentHand = ""
-			lastMyHand = s
-			continue
+	// 横：何回目まで終わったか
+	// 縦：この回に [0]勝つ || [1]引き分ける
+	// セル：通算勝利数
+	var table [2][]int
+
+	table[0] = make([]int, N)
+	table[1] = make([]int, N)
+
+	table[0][0] = 1
+	table[1][0] = 0
+	winLastHand := winHand(ss[0])
+	tieLastHand := ss[0]
+
+	for i := 1; i < N; i++ {
+		oponentH := ss[i]
+		winH := winHand(oponentH)
+		tieH := oponentH
+
+		// この回に勝利する場合の最大勝利数
+		if winH != winLastHand && winH != tieLastHand {
+			table[0][i] = max(table[0][i-1], table[1][i-1]) + 1
+		} else if winH == winLastHand {
+			table[0][i] = table[1][i-1] + 1
+		} else {
+			table[0][i] = table[0][i-1] + 1
 		}
 
-		winH := winHand(s)
-		if winH == lastMyHand {
-			// fmt.Println("tie2", "s:", s)
-			lastOponentHand = s
-			lastMyHand = s
-			continue
+		// この回に引き分ける場合の最大勝利数
+		if tieH != winLastHand && tieH != tieLastHand {
+			table[1][i] = max(table[0][i-1], table[1][i-1])
+		} else if tieH == winLastHand {
+			table[1][i] = table[1][i-1]
+		} else {
+			table[1][i] = table[0][i-1]
 		}
 
-		// fmt.Println("win", "s:", s)
-		ans++
-		lastOponentHand = s
-		lastMyHand = winHand(s)
+		winLastHand = winH
+		tieLastHand = tieH
 	}
+
+	ans := max(table[0][N-1], table[1][N-1])
 
 	fmt.Fprintln(w, ans)
 }
