@@ -39,13 +39,10 @@ func main() {
 // 二分探索
 func search(points []int, base, minDist, maxDist, n int) int {
 	if minDist > maxDist {
-		// fmt.Printf("search stopped. minDist: %d, maxDist: %d\n", minDist, maxDist)
 		return minDist
 	}
 
 	dist := (minDist + maxDist) / 2
-
-	// fmt.Printf("minDist: %d, maxDist: %d, dist: %d\n", minDist, maxDist, dist)
 
 	result := numOfPointsInDistance(points, base, dist)
 
@@ -82,8 +79,6 @@ func numOfPointsInDistance(points []int, current, distance int) int {
 		return points[i] > maxX
 	})
 	num -= len(points) - idx2
-
-	// fmt.Printf("current: %d, distance: %d, num: %d\n", current, distance, num)
 
 	return num
 }
