@@ -17,11 +17,61 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H, W := iarr[0], iarr[1]
+
+	iarr2 := readIntArr(r)
+	Si, Sj := iarr2[0], iarr2[1]
+
+	grid := readGrid(r, H)
+
+	X := readStr(r)
+	Xs := strings.Split(X, "")
+
+	current := Coordinate{Si - 1, Sj - 1}
+	for _, x := range Xs {
+		adjacents := current.Adjacents()
+
+		var next Coordinate
+		switch x {
+		case "L":
+			next = adjacents[2]
+		case "R":
+			next = adjacents[3]
+		case "U":
+			next = adjacents[0]
+		case "D":
+			next = adjacents[1]
+		}
+
+		if next.IsValid(H, W) && grid[next.h][next.w] == "." {
+			current = next
+		}
+	}
+
+	fmt.Fprintln(w, current.h+1, current.w+1)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers  //
