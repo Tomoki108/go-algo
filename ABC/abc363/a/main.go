@@ -17,6 +17,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	R := readInt(r)
+
+	ans := 0
+	if R <= 99 {
+		ans = 100 - R
+	} else if R <= 199 {
+		ans = 200 - R
+	} else if R <= 299 {
+		ans = 300 - R
+	} else if R <= 399 {
+		ans = 400 - R
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
