@@ -20,9 +20,6 @@ func main() {
 
 	N, M := read2Ints(r)
 
-	minX := M / N
-	maxX := M
-
 	As := readIntArr(r)
 	sort.Slice(As, func(i, j int) bool {
 		return As[i] < As[j]
@@ -35,36 +32,22 @@ func main() {
 		return
 	}
 
-	x := search(As, prefSum, minX, maxX, M)
+	minX := M / N
+	maxX := M
+
+	f := func(x int) bool {
+		xIdx := sort.Search(len(As), func(i int) bool {
+			return As[i] >= x
+		})
+
+		cost := prefSum[xIdx]
+		cost += x * (len(As) - xIdx)
+
+		return cost <= M
+	}
+	x := DescIntSearch(maxX, minX, f)
 
 	fmt.Fprintln(w, x)
-}
-
-func search(As, prefSum []int, minX, maxX, M int) int {
-	x := (minX + maxX) / 2
-
-	xIdx := sort.Search(len(As), func(i int) bool {
-		return As[i] >= x
-	})
-
-	cost := prefSum[xIdx]
-	cost += x * (len(As) - xIdx)
-
-	if cost <= M {
-		newMinX := x
-		if newMinX == minX {
-			return x
-		}
-
-		return search(As, prefSum, newMinX, maxX, M)
-	} else {
-		newMaxX := x
-		if newMaxX == maxX {
-			return x
-		}
-
-		return search(As, prefSum, minX, newMaxX, M)
-	}
 }
 
 //////////////
@@ -79,6 +62,29 @@ func PrefixSum(sl []int) []int {
 		res[i+1] = res[i] + sl[i]
 	}
 	return res
+}
+
+// high, high-1, ..., lowの範囲で条件を満たす最小の値を二分探索する
+// high~lowは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はhigh+1を返す
+func DescIntSearch(high, low int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための式.
+		// 中央値はhigh側に寄る（+1しているため）
+		mid := low + (high-low+1)/2
+		if f(mid) {
+			low = mid // 条件を満たす場合、よりhigh側の範囲を探索
+		} else {
+			high = mid - 1 // 条件を満たさない場合、よりlow側の範囲を探索
+		}
+	}
+
+	// 最後に high(=low) が条件を満たしているかを確認
+	if f(high) {
+		return high
+	}
+
+	return high + 1 // 条件を満たす値が見つからない場合
 }
 
 //////////////
