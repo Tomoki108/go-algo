@@ -1,5 +1,5 @@
-// 座標平面の計算を行うパッケージ
-package coordinate
+// xy平面のパッケージ
+package xy
 
 import "math"
 

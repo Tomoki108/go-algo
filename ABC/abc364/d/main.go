@@ -31,42 +31,45 @@ func main() {
 		minDist := 0
 		maxDist := max(abs(b-as[0]), abs(b-as[N-1]))
 
-		dist := search(as, b, minDist, maxDist, k)
+		dist := AscIntSearch(minDist, maxDist, func(dist int) bool {
+			return CountPointsInDistance(as, b, dist) >= k
+		})
+
 		fmt.Fprintln(w, dist)
 	}
 }
 
-// 二分探索
-func search(points []int, base, minDist, maxDist, n int) int {
-	if minDist > maxDist {
-		return minDist
+//////////////
+// Libs    //
+/////////////
+
+// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
+// low~highは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はlow-1を返す
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
+		if f(mid) {
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
+		} else {
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
+		}
 	}
 
-	dist := (minDist + maxDist) / 2
-
-	result := numOfPointsInDistance(points, base, dist)
-
-	if result >= n {
-		newMaxDist := dist
-		if newMaxDist == maxDist {
-			return dist
-		}
-
-		return search(points, base, minDist, newMaxDist, n)
-	} else {
-		newMinDist := dist + 1
-		if newMinDist == minDist {
-			return dist
-		}
-
-		return search(points, base, newMinDist, maxDist, n)
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
 	}
+
+	return low - 1 // 条件を満たす値が見つからない場合
 }
 
-// currentからdistanceの距離以内にある点の数を返す
-func numOfPointsInDistance(points []int, current, distance int) int {
-	minX := current - distance
-	maxX := current + distance
+// points（昇順ソートされた数直線上の座標）の中で、baseから距離dist以内にある点の数を返す
+func CountPointsInDistance(points []int, base, dist int) int {
+	minX := base - dist
+	maxX := base + dist
 
 	num := len(points)
 
@@ -82,10 +85,6 @@ func numOfPointsInDistance(points []int, current, distance int) int {
 
 	return num
 }
-
-//////////////
-// Libs    //
-/////////////
 
 //////////////
 // Helpers  //
