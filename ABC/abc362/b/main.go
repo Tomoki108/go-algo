@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -17,11 +18,45 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	type dot struct {
+		x, y int
+	}
+
+	dots := make([]dot, 0, 3)
+	for i := 0; i < 3; i++ {
+		x, y := read2Ints(r)
+		dots = append(dots, dot{x, y})
+	}
+
+	edge1 := CalcDistance(dots[0].x, dots[0].y, dots[1].x, dots[1].y)
+	edge2 := CalcDistance(dots[1].x, dots[1].y, dots[2].x, dots[2].y)
+	edge3 := CalcDistance(dots[2].x, dots[2].y, dots[0].x, dots[0].y)
+
+	if edge1*edge1+edge2*edge2 == edge3*edge3 {
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	if edge2*edge2+edge3*edge3 == edge1*edge1 {
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	if edge3*edge3+edge1*edge1 == edge2*edge2 {
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func CalcDistance(fromX, fromY, toX, toY int) float64 {
+	return math.Sqrt(float64((toX-fromX)*(toX-fromX) + (toY-fromY)*(toY-fromY)))
+}
 
 //////////////
 // Helpers  //
