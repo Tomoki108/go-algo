@@ -17,11 +17,111 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	// digits := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+	if N <= 10 {
+		fmt.Fprintln(w, N-1)
+		return
+	}
+
+	count := 0
+	lastCount := 0
+	numOfDigits := 1
+	for count < N {
+		half := (numOfDigits + 1) / 2
+
+		patterns := 1
+		for i := 0; i < half; i++ {
+			n := 10
+			if numOfDigits != 1 && i == 0 {
+				n = 9
+			}
+			patterns *= n
+		}
+
+		count += patterns
+		lastCount = patterns
+
+		// fmt.Println("numOfDigits:", numOfDigits, "patterns:", patterns, "count:", count)
+
+		numOfDigits++
+	}
+	numOfDigits--
+
+	remainder := count - N
+
+	ansNo := lastCount - remainder
+
+	// fmt.Println("remainder:", remainder)
+	// fmt.Println("ansNo:", ansNo)
+
+	minPalindromeLeft := 1
+	for i := 0; i < ((numOfDigits+1)/2)-1; i++ {
+		minPalindromeLeft *= 10
+	}
+
+	// fmt.Printf("minPalindromeLeft: %d\n", minPalindromeLeft)
+
+	ansLeft := minPalindromeLeft + ansNo - 1
+	ansLeftStr := strconv.Itoa(ansLeft)
+	ansSl := strings.Split(ansLeftStr, "")
+
+	// fmt.Printf("ansLeft: %d\n", ansLeft)
+	// fmt.Printf("ansLeftStr: %v\n", ansLeftStr)
+	// fmt.Printf("ansSl: %v\n", ansSl)
+
+	if numOfDigits%2 == 0 {
+		length := len(ansSl)
+		for i := 0; i < length; i++ {
+			ansSl = append(ansSl, ansSl[length-1-i])
+		}
+	} else {
+		length := len(ansSl)
+		for i := 0; i < length-1; i++ {
+			ansSl = append(ansSl, ansSl[length-2-i])
+		}
+	}
+
+	for idx, v := range ansSl {
+		fmt.Fprint(w, v)
+		if idx == len(ansSl)-1 {
+			fmt.Fprint(w, "\n")
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// 要素数 len(options) で、i番目の要素が options[i] であるような順列のパターンを全列挙する
+// options[i]に重複した要素が含まれていても、あらかじめソートしておけば重複パターンは除かれる
+func Permute2[T comparable](current []T, options [][]T) [][]T {
+	var results [][]T
+
+	if len(current) == len(options) {
+		results = append(results, current)
+		return results
+	}
+
+	nextVals := options[len(current)]
+	// var lastV T
+	for _, v := range nextVals {
+		// if v == lastV {
+		// 	continue
+		// }
+		// lastV = v
+
+		copyCurrent := append([]T{}, current...)
+		copyCurrent = append(copyCurrent, v)
+		subResults := Permute2(copyCurrent, options)
+		results = append(results, subResults...)
+	}
+
+	return results
+}
 
 //////////////
 // Helpers  //
