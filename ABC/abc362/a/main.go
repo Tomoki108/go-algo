@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,33 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+
+	R, G, B := iarr[0], iarr[1], iarr[2]
+	C := readStr(r)
+
+	type color struct {
+		c     string
+		price int
+	}
+
+	colors := []color{
+		{"Red", R},
+		{"Green", G},
+		{"Blue", B},
+	}
+	sort.Slice(colors, func(i, j int) bool {
+		return colors[i].price < colors[j].price
+	})
+
+	for _, color := range colors {
+		if color.c != C {
+			fmt.Fprintln(w, color.price)
+			return
+		}
+	}
+
+	fmt.Fprintln(w, colors[0].price+colors[1].price)
 }
 
 //////////////
