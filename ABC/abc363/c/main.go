@@ -26,35 +26,15 @@ func main() {
 		return ss[i] < ss[j]
 	})
 
-	permitations := Permute([]string{}, ss)
-
-	// fmt.Printf("permitations: %v\n", permitations)
-
-	// done := make(map[string]bool, len(permitations))
 	ans := 0
+	if !ContainsPallindrome(ss, K) {
+		ans++
+	}
 
-	// fmt.Printf("permitations: %v\n", permitations)
-
-Outer:
-	for _, p := range permitations {
-		// if done[strings.Join(p, "")] {
-		// 	continue
-		// }
-		// done[strings.Join(p, "")] = true
-
-	Middle:
-		for i := 0; i <= len(p)-K; i++ { // K文字ずつチェック、インデックスを一個ずつずらす
-			toCheck := p[i : i+K]
-
-			for j := 0; j < K/2; j++ {
-				if toCheck[j] != toCheck[len(toCheck)-1-j] {
-					continue Middle
-				}
-			}
-
-			continue Outer
+	for NextPermutation(ss) {
+		if ContainsPallindrome(ss, K) {
+			continue
 		}
-
 		ans++
 	}
 
@@ -65,53 +45,63 @@ Outer:
 // Libs    //
 /////////////
 
-// 順列のパターンを全列挙する
-// ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
-// optionsには全ての要素が異なるものを渡すこと
-func Permute[T comparable](current []T, options []T) [][]T {
-	var results [][]T
-
-	cc := append([]T{}, current...)
-	co := append([]T{}, options...)
-
-	if len(co) == 0 {
-		return [][]T{cc}
-	}
-
-	var lastO T
-	// usedMap := make(map[T]bool, len(co))
-	for i, o := range options {
-		// if usedMap[o] {
-		// 	continue
-		// }
-		// usedMap[o] = true
-
-		if o == lastO {
-			continue
-		}
-		lastO = o
-
-		newcc := append([]T{}, cc...)
-		newcc = append(newcc, o)
-		newco := append([]T{}, co[:i]...)
-		newco = append(newco, co[i+1:]...)
-
-		subResults := Permute(newcc, newco)
-		results = append(results, subResults...)
-	}
-
-	return results
+type Ordered interface {
+	~int | ~string
 }
 
-// func RevSl[S ~[]E, E any](s S) S {
-// 	lenS := len(s)
-// 	revS := make(S, lenS)
-// 	for i := 0; i < lenS; i++ {
-// 		revS[i] = s[lenS-1-i]
-// 	}
+// sl の要素を並び替えて、次の辞書順の順列にする
+// O(len(sl)*len(sl)!)
+func NextPermutation[T Ordered](sl []T) bool {
+	n := len(sl)
+	i := n - 2
 
-// 	return revS
-// }
+	// Step1: 右から左に探索して、「スイッチポイント」を見つける:
+	// 　「スイッチポイント」とは、右から見て初めて「リストの値が減少する場所」です。
+	// 　例: [1, 2, 3, 6, 5, 4] の場合、3 がスイッチポイント。
+	for i >= 0 && sl[i] >= sl[i+1] {
+		i--
+	}
+
+	//　スイッチポイントが見つからない場合、最後の順列に到達しています。
+	if i < 0 {
+		return false
+	}
+
+	// Step2: スイッチポイントの右側の要素から、スイッチポイントより少しだけ大きい値を見つけ、交換します。
+	// 　例: 3 を右側で最小の大きい値 4 と交換。
+	j := n - 1
+	for sl[j] <= sl[i] {
+		j--
+	}
+	sl[i], sl[j] = sl[j], sl[i]
+
+	// Step3: スイッチポイントの右側を反転して、辞書順に次の順列を作ります。
+	// 　例: [1, 2, 4, 6, 5, 3] → [1, 2, 4, 3, 5, 6]。
+	reverse(sl[i+1:])
+	return true
+}
+
+func reverse[T Ordered](sl []T) {
+	for i, j := 0, len(sl)-1; i < j; i, j = i+1, j-1 {
+		sl[i], sl[j] = sl[j], sl[i]
+	}
+}
+func ContainsPallindrome(ss []string, K int) bool {
+Outer:
+	for i := 0; i <= len(ss)-K; i++ { // K文字ずつチェック、インデックスを一個ずつずらす
+		toCheck := ss[i : i+K]
+
+		for j := 0; j < K/2; j++ {
+			if toCheck[j] != toCheck[len(toCheck)-1-j] {
+				continue Outer
+			}
+		}
+
+		return true
+	}
+
+	return false
+}
 
 //////////////
 // Helpers  //
@@ -214,4 +204,11 @@ func abs(a int) int {
 		return -a
 	}
 	return a
+}
+
+func factorial(n int) int {
+	if n == 0 {
+		return 1
+	}
+	return n * factorial(n-1)
 }
