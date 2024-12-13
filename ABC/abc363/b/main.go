@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,30 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, T, P := iarr[0], iarr[1], iarr[2]
+
+	Ls := readIntArr(r)
+	sort.Slice(Ls, func(i, j int) bool {
+		return Ls[i] < Ls[j]
+	})
+
+	idxOfEnough := sort.Search(N, func(i int) bool {
+		return Ls[i] >= T
+	})
+	numOfEnough := N - idxOfEnough
+
+	if numOfEnough >= P {
+		fmt.Fprintln(w, 0)
+		return
+	}
+
+	lastPersonToBeEnoughIdx := idxOfEnough - (P - numOfEnough)
+	lastPersonToBeEnoughLen := Ls[lastPersonToBeEnoughIdx]
+
+	ans := T - lastPersonToBeEnoughLen
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
