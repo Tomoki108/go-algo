@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,8 +22,13 @@ func main() {
 
 	S := readStr(r)
 	ss := strings.Split(S, "")
+	sort.Slice(ss, func(i, j int) bool {
+		return ss[i] < ss[j]
+	})
 
 	permitations := Permute([]string{}, ss)
+
+	// fmt.Printf("permitations: %v\n", permitations)
 
 	// done := make(map[string]bool, len(permitations))
 	ans := 0
@@ -36,19 +42,17 @@ Outer:
 		// }
 		// done[strings.Join(p, "")] = true
 
-		for i := 0; i <= len(p)-K; i++ {
+	Middle:
+		for i := 0; i <= len(p)-K; i++ { // K文字ずつチェック、インデックスを一個ずつずらす
 			toCheck := p[i : i+K]
 
-			isPalindrome := true
 			for j := 0; j < K/2; j++ {
 				if toCheck[j] != toCheck[len(toCheck)-1-j] {
-					isPalindrome = false
+					continue Middle
 				}
 			}
 
-			if isPalindrome {
-				continue Outer
-			}
+			continue Outer
 		}
 
 		ans++
@@ -74,12 +78,18 @@ func Permute[T comparable](current []T, options []T) [][]T {
 		return [][]T{cc}
 	}
 
-	usedMap := make(map[T]bool, len(co))
+	var lastO T
+	// usedMap := make(map[T]bool, len(co))
 	for i, o := range options {
-		if usedMap[o] {
+		// if usedMap[o] {
+		// 	continue
+		// }
+		// usedMap[o] = true
+
+		if o == lastO {
 			continue
 		}
-		usedMap[o] = true
+		lastO = o
 
 		newcc := append([]T{}, cc...)
 		newcc = append(newcc, o)
