@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"reflect"
 	"strconv"
 	"strings"
 )
@@ -40,13 +39,14 @@ Outer:
 		for i := 0; i <= len(p)-K; i++ {
 			toCheck := p[i : i+K]
 
-			reversed := make([]string, len(toCheck))
-			copy(reversed, toCheck)
-			reversed = RevSl(reversed)
+			isPalindrome := true
+			for j := 0; j < K/2; j++ {
+				if toCheck[j] != toCheck[len(toCheck)-1-j] {
+					isPalindrome = false
+				}
+			}
 
-			// fmt.Printf("permutation: %v, toCheck: %v, reversed: %v\n", p, toCheck, reversed)
-
-			if reflect.DeepEqual(toCheck, reversed) {
+			if isPalindrome {
 				continue Outer
 			}
 		}
@@ -93,15 +93,15 @@ func Permute[T comparable](current []T, options []T) [][]T {
 	return results
 }
 
-func RevSl[S ~[]E, E any](s S) S {
-	lenS := len(s)
-	revS := make(S, lenS)
-	for i := 0; i < lenS; i++ {
-		revS[i] = s[lenS-1-i]
-	}
+// func RevSl[S ~[]E, E any](s S) S {
+// 	lenS := len(s)
+// 	revS := make(S, lenS)
+// 	for i := 0; i < lenS; i++ {
+// 		revS[i] = s[lenS-1-i]
+// 	}
 
-	return revS
-}
+// 	return revS
+// }
 
 //////////////
 // Helpers  //
