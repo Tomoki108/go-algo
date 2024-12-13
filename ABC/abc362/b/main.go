@@ -28,21 +28,21 @@ func main() {
 		dots = append(dots, dot{x, y})
 	}
 
-	edge1 := CalcDistance(dots[0].x, dots[0].y, dots[1].x, dots[1].y)
-	edge2 := CalcDistance(dots[1].x, dots[1].y, dots[2].x, dots[2].y)
-	edge3 := CalcDistance(dots[2].x, dots[2].y, dots[0].x, dots[0].y)
+	edge1Square := CalcDistanceSquare(dots[0].x, dots[0].y, dots[1].x, dots[1].y)
+	edge2Square := CalcDistanceSquare(dots[1].x, dots[1].y, dots[2].x, dots[2].y)
+	edge3Square := CalcDistanceSquare(dots[2].x, dots[2].y, dots[0].x, dots[0].y)
 
-	if edge1*edge1+edge2*edge2 == edge3*edge3 {
+	if edge1Square == edge2Square+edge3Square {
 		fmt.Fprintln(w, "Yes")
 		return
 	}
 
-	if edge2*edge2+edge3*edge3 == edge1*edge1 {
+	if edge2Square == edge1Square+edge3Square {
 		fmt.Fprintln(w, "Yes")
 		return
 	}
 
-	if edge3*edge3+edge1*edge1 == edge2*edge2 {
+	if edge3Square == edge1Square+edge2Square {
 		fmt.Fprintln(w, "Yes")
 		return
 	}
@@ -56,6 +56,10 @@ func main() {
 
 func CalcDistance(fromX, fromY, toX, toY int) float64 {
 	return math.Sqrt(float64((toX-fromX)*(toX-fromX) + (toY-fromY)*(toY-fromY)))
+}
+
+func CalcDistanceSquare(fromX, fromY, toX, toY int) int {
+	return (toX-fromX)*(toX-fromX) + (toY-fromY)*(toY-fromY)
 }
 
 //////////////
