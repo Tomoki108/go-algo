@@ -25,17 +25,17 @@ func main() {
 
 	permitations := Permute([]string{}, ss)
 
-	done := make(map[string]bool, len(permitations))
+	// done := make(map[string]bool, len(permitations))
 	ans := 0
 
 	// fmt.Printf("permitations: %v\n", permitations)
 
 Outer:
 	for _, p := range permitations {
-		if done[strings.Join(p, "")] {
-			continue
-		}
-		done[strings.Join(p, "")] = true
+		// if done[strings.Join(p, "")] {
+		// 	continue
+		// }
+		// done[strings.Join(p, "")] = true
 
 		for i := 0; i <= len(p)-K; i++ {
 			toCheck := p[i : i+K]
@@ -64,7 +64,7 @@ Outer:
 // 順列のパターンを全列挙する
 // ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
 // optionsには全ての要素が異なるものを渡すこと
-func Permute[T any](current []T, options []T) [][]T {
+func Permute[T comparable](current []T, options []T) [][]T {
 	var results [][]T
 
 	cc := append([]T{}, current...)
@@ -74,7 +74,13 @@ func Permute[T any](current []T, options []T) [][]T {
 		return [][]T{cc}
 	}
 
+	usedMap := make(map[T]bool, len(co))
 	for i, o := range options {
+		if usedMap[o] {
+			continue
+		}
+		usedMap[o] = true
+
 		newcc := append([]T{}, cc...)
 		newcc = append(newcc, o)
 		newco := append([]T{}, co[:i]...)
