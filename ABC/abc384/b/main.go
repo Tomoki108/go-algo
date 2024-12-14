@@ -17,6 +17,33 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, R := read2Ints(r)
+
+	// current := R
+	for i := 0; i < N; i++ {
+		D, A := read2Ints(r)
+
+		rated := false
+		if D == 1 {
+			if R >= 1600 && R <= 2799 {
+				rated = true
+			} else {
+				rated = false
+			}
+		} else {
+			if R >= 1200 && R <= 2399 {
+				rated = true
+			} else {
+				rated = false
+			}
+		}
+
+		if rated {
+			R += A
+		}
+	}
+
+	fmt.Fprintln(w, R)
 }
 
 //////////////
