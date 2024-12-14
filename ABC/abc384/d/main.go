@@ -47,7 +47,9 @@ func main() {
 	right := 1
 	currentSum := 0
 	for ; right <= N; right++ {
+
 		currentSum += As[right-1]
+
 		// fmt.Println("currentSum", currentSum)
 
 		if currentSum < toFind {
@@ -59,11 +61,16 @@ func main() {
 			return
 		}
 
-		for currentSum > toFind && left <= right {
+		for currentSum > toFind {
 			currentSum -= As[left]
 			left++
 
 			// fmt.Println("hey, currentSum", currentSum)
+
+			if left == right {
+				currentSum = 0
+				break
+			}
 
 			if currentSum == toFind {
 				fmt.Fprintln(w, "Yes")
