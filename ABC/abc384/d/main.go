@@ -17,6 +17,62 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, S := read2Ints(r)
+	As := readIntArr(r)
+
+	sum := 0
+	minA := intMax
+	for i := 0; i < N; i++ {
+		sum += As[i]
+		minA = min(minA, As[i])
+	}
+
+	if minA > S {
+		fmt.Fprintln(w, "No")
+		return
+	}
+
+	// quotient := S / sum
+	remainder := S % sum
+	if remainder == 0 {
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	toFind := remainder
+
+	// fmt.Println("toFind", toFind)
+
+	left := 0
+	right := 1
+	currentSum := 0
+	for ; right <= N; right++ {
+		currentSum += As[right-1]
+		// fmt.Println("currentSum", currentSum)
+
+		if currentSum < toFind {
+			continue
+		}
+
+		if currentSum == toFind {
+			fmt.Fprintln(w, "Yes")
+			return
+		}
+
+		for currentSum > toFind && left <= right {
+			currentSum -= As[left]
+			left++
+
+			// fmt.Println("hey, currentSum", currentSum)
+
+			if currentSum == toFind {
+				fmt.Fprintln(w, "Yes")
+				return
+			}
+		}
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
