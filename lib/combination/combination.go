@@ -1,6 +1,7 @@
 package combination
 
-// nCrの計算 O(r)
+// O(r)
+// nCrの計算
 // (n * (n-1) ... * (n-r+1)) / r!
 func CombinationNum(n, r int) int {
 	if r > n {
@@ -17,9 +18,9 @@ func CombinationNum(n, r int) int {
 	return result
 }
 
+// O(nCr) n: len(options), r: n
 // optionsから N個選ぶ組み合わせを全列挙する
 // optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
-// O(nCr)
 func PickN[T comparable](current, options []T, n int) [][]T {
 	var results [][]T
 
