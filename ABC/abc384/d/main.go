@@ -43,12 +43,16 @@ func main() {
 
 	// fmt.Println("toFind", toFind)
 
+	wAs := append(As, As...)
+
+	// fmt.Println("wAs", wAs)
+
 	left := 0
 	right := 1
 	currentSum := 0
-	for ; right <= N; right++ {
+	for ; right <= 2*N; right++ {
 
-		currentSum += As[right-1]
+		currentSum += wAs[right-1]
 
 		// fmt.Println("currentSum", currentSum)
 
@@ -62,7 +66,7 @@ func main() {
 		}
 
 		for currentSum > toFind {
-			currentSum -= As[left]
+			currentSum -= wAs[left]
 			left++
 
 			// fmt.Println("hey, currentSum", currentSum)
