@@ -32,7 +32,6 @@ func main() {
 		return
 	}
 
-	// quotient := S / sum
 	remainder := S % sum
 	if remainder == 0 {
 		fmt.Fprintln(w, "Yes")
@@ -41,20 +40,13 @@ func main() {
 
 	toFind := remainder
 
-	// fmt.Println("toFind", toFind)
-
 	wAs := append(As, As...)
-
-	// fmt.Println("wAs", wAs)
 
 	left := 0
 	right := 1
 	currentSum := 0
 	for ; right <= 2*N; right++ {
-
 		currentSum += wAs[right-1]
-
-		// fmt.Println("currentSum", currentSum)
 
 		if currentSum < toFind {
 			continue
@@ -68,8 +60,6 @@ func main() {
 		for currentSum > toFind {
 			currentSum -= wAs[left]
 			left++
-
-			// fmt.Println("hey, currentSum", currentSum)
 
 			if left == right {
 				currentSum = 0
