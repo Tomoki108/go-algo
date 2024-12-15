@@ -1,5 +1,7 @@
 package slice
 
+import "sort"
+
 // slices.Reverce() と同じ（Goのバージョンが1.21以前だと使えないため）
 // 計算量: O(n)
 func SlRev[S ~[]E, E any](s S) {
@@ -42,4 +44,20 @@ func SlDiff[T comparable](slice1, slice2 []T) []T {
 	}
 
 	return result
+}
+
+// O(n log n)
+func SortAndDeduplicate[T ~string | ~int](sl []T) []T {
+	m := map[T]bool{}
+	for _, v := range sl {
+		m[v] = true
+	}
+
+	var deduped []T
+	for k := range m {
+		deduped = append(deduped, k)
+	}
+	sort.Slice(deduped, func(i, j int) bool { return deduped[i] < deduped[j] })
+
+	return deduped
 }
