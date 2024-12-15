@@ -19,7 +19,6 @@ func main() {
 
 	N, R := read2Ints(r)
 
-	// current := R
 	for i := 0; i < N; i++ {
 		D, A := read2Ints(r)
 
