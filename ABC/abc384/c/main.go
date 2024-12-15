@@ -32,6 +32,19 @@ func main() {
 		patterns = append(patterns, PickN([]string{}, []string{"A", "B", "C", "D", "E"}, i)...)
 	}
 
+	// bit全探索でpatternsを列挙する方法
+	// abcde := []string{"A", "B", "C", "D", "E"}
+	// bitMax := 1<<5 - 1
+	// for bit := bitMax; bit > 0; bit-- {
+	// 	pattern := []string{}
+	// 	for i := 1; i <= 5; i++ {
+	// 		if IsBitPop(uint64(bit), i) {
+	// 			pattern = append(pattern, abcde[i-1])
+	// 		}
+	// 	}
+	// 	patterns = append(patterns, pattern)
+	// }
+
 	sort.Slice(patterns, func(i, j int) bool {
 		p1 := patterns[i]
 		p2 := patterns[j]
@@ -100,6 +113,13 @@ func PickN[T comparable](current, options []T, n int) [][]T {
 	}
 
 	return results
+}
+
+// k桁目のビットが1かどうかを判定（一番右を１桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << (k - 1)はビットマスク。1をk - 1桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << (k - 1))) != 0
 }
 
 //////////////
