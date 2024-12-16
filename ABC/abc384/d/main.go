@@ -14,7 +14,50 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// 円環の性質を利用した解法（A=>B: x, then B=>A: 全周-x）
 func main() {
+	defer w.Flush()
+
+	N, S := read2Ints(r)
+	As := readIntArr(r)
+
+	cSum := make([]int, 0, N+1)
+	cSum = append(cSum, 0)
+	totalSum := 0
+	for i := 0; i < N; i++ {
+		totalSum += As[i]
+		cSum = append(cSum, totalSum)
+	}
+
+	remainder := S % totalSum
+
+	// cSum[i] - cSum[j] == remainder or totalSum - remainder
+	cSumMap := make(map[int]struct{}, N+1)
+	for i := 0; i < N+1; i++ {
+		cSum_i := cSum[i]
+
+		toFind1 := cSum_i - remainder
+		toFind2 := cSum_i - (totalSum - remainder)
+
+		_, exisits1 := cSumMap[toFind1]
+		if exisits1 {
+			fmt.Fprintln(w, "Yes")
+			return
+		}
+		_, exisits2 := cSumMap[toFind2]
+		if exisits2 {
+			fmt.Fprintln(w, "Yes")
+			return
+		}
+
+		cSumMap[cSum[i]] = struct{}{}
+	}
+
+	fmt.Fprintln(w, "No")
+}
+
+// 配列を２倍にし、そこを尺取する方法での解法
+func alt() {
 	defer w.Flush()
 
 	N, S := read2Ints(r)
