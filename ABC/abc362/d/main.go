@@ -38,6 +38,7 @@ func main() {
 
 	type queueItem struct {
 		node, weightSum int
+		visited         map[int]bool
 	}
 	queue := NewQueue[queueItem]()
 
@@ -45,20 +46,31 @@ func main() {
 
 	for goal := 2; goal <= N; goal++ {
 		ansMap[goal] = intMax
-		queue.Enqueue(queueItem{node: 1, weightSum: nodeWeights[1]})
+		visited := make(map[int]bool, N)
+		visited[1] = true
+
+		queue.Enqueue(queueItem{node: 1, weightSum: nodeWeights[1], visited: visited})
+		visited[1] = true
 
 		for !queue.IsEmpty() {
 			item, _ := queue.Dequeue()
-			node, weightSum := item.node, item.weightSum
-
-			if weightSum >= ansMap[goal] {
-				continue
-			}
+			node, weightSum, visited := item.node, item.weightSum, item.visited
+			// fmt.Printf("node: %d, weightSum: %d\n", node, weightSum)
 
 			for _, next := range graph[node] {
-				nextNode, nextWeight := next[0], next[1]
+				nextNode, edgeWeight := next[0], next[1]
+				// fmt.Printf("nextNode: %d, edgeWeight: %d, visited[nextNode]: %v, nodeWeights[nextNode]: %d\n", nextNode, edgeWeight, visited[nextNode], nodeWeights[nextNode])
+				if visited[nextNode] {
+					continue
+				}
 
-				ws := weightSum + nextWeight + nodeWeights[nextNode]
+				copyVisited := make(map[int]bool, N)
+				for k, v := range visited {
+					copyVisited[k] = v
+				}
+				copyVisited[nextNode] = true
+
+				ws := weightSum + edgeWeight + nodeWeights[nextNode]
 				if ws >= ansMap[goal] {
 					continue
 				}
@@ -68,7 +80,7 @@ func main() {
 					continue
 				}
 
-				queue.Enqueue(queueItem{node: nextNode, weightSum: ws})
+				queue.Enqueue(queueItem{node: nextNode, weightSum: ws, visited: copyVisited})
 			}
 		}
 	}
