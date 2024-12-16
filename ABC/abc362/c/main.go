@@ -19,34 +19,74 @@ func main() {
 
 	N := readInt(r)
 
+	type LR struct {
+		L, R int
+	}
+	lrs := make([]LR, N)
+
 	roomOfPlus, roomOfMinus := 0, 0
-	sumOfAvg := 0
+	ans := make([]int, N)
+	sum := 0
 	for i := 0; i < N; i++ {
 		L, R := read2Ints(r)
+		lrs[i] = LR{L, R}
 
 		avg := (L + R) / 2
-		sumOfAvg += avg
+		ans[i] = avg
+		sum += avg
 
 		roomOfPlus += R - avg
 		roomOfMinus += avg - L
 	}
 
-	if sumOfAvg == 0 {
+	if sum == 0 {
 		fmt.Fprintln(w, "Yes")
+		writeSlice(w, ans)
 		return
-	}
+	} else if sum < 0 && roomOfPlus >= abs(sum) {
+		for i := 0; i < N; i++ {
+			prev := ans[i]
+			ans[i] = lrs[i].R
 
-	if sumOfAvg < 0 && roomOfPlus >= abs(sumOfAvg) {
+			delta := ans[i] - prev
+			sum += delta
+
+			if sum == 0 {
+				break
+			}
+			if sum > 0 {
+				ans[i] -= sum
+				break
+			}
+		}
+
 		fmt.Fprintln(w, "Yes")
+		writeSlice(w, ans)
 		return
-	}
+	} else if sum > 0 && roomOfMinus >= sum {
+		for i := 0; i < N; i++ {
+			prev := ans[i]
+			ans[i] = lrs[i].L
 
-	if sumOfAvg > 0 && roomOfMinus >= sumOfAvg {
+			delta := prev - ans[i]
+			sum -= delta
+
+			if sum == 0 {
+				break
+			}
+			if sum < 0 {
+				ans[i] -= sum
+				break
+			}
+		}
+
 		fmt.Fprintln(w, "Yes")
+		writeSlice(w, ans)
 		return
 	}
 
 	fmt.Fprintln(w, "No")
+	return
 }
 
 //////////////
