@@ -17,6 +17,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	roomOfPlus, roomOfMinus := 0, 0
+	sumOfAvg := 0
+	for i := 0; i < N; i++ {
+		L, R := read2Ints(r)
+
+		avg := (L + R) / 2
+		sumOfAvg += avg
+
+		roomOfPlus += R - avg
+		roomOfMinus += avg - L
+	}
+
+	if sumOfAvg == 0 {
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	if sumOfAvg < 0 && roomOfPlus >= abs(sumOfAvg) {
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	if sumOfAvg > 0 && roomOfMinus >= sumOfAvg {
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
