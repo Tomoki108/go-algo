@@ -75,13 +75,11 @@ func alt() {
 		return
 	}
 
-	remainder := S % sum
-	if remainder == 0 {
+	toFind := S % sum
+	if toFind == 0 {
 		fmt.Fprintln(w, "Yes")
 		return
 	}
-
-	toFind := remainder
 
 	wAs := append(As, As...)
 
