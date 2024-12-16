@@ -15,7 +15,7 @@ var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
 // 円環の性質を利用した解法（A=>B: x, then B=>A: 全周-x）
-func main() {
+func alt() {
 	defer w.Flush()
 
 	N, S := read2Ints(r)
@@ -57,7 +57,7 @@ func main() {
 }
 
 // 配列を２倍にし、そこを尺取する方法での解法
-func alt() {
+func main() {
 	defer w.Flush()
 
 	N, S := read2Ints(r)
@@ -83,11 +83,12 @@ func alt() {
 
 	wAs := append(As, As...)
 
-	left := 0
-	right := 1
+	// (left, right]の区間で尺取
+	left, right := 0, 0
 	currentSum := 0
-	for ; right <= 2*N; right++ {
-		currentSum += wAs[right-1]
+	for right < len(wAs) {
+		currentSum += wAs[right]
+		right++
 
 		if currentSum < toFind {
 			continue
@@ -112,6 +113,7 @@ func alt() {
 				return
 			}
 		}
+
 	}
 
 	fmt.Fprintln(w, "No")
