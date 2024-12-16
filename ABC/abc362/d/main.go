@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,11 +18,105 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	As := readIntArr(r)
+
+	nodeWeights := make(map[int]int, N)
+	for i := 0; i < N; i++ {
+		nodeWeights[i+1] = As[i]
+	}
+
+	graph := make(map[int][][2]int, N) // from => [to, weight]
+	for i := 0; i < M; i++ {
+		iarr := readIntArr(r)
+		U, V, B := iarr[0], iarr[1], iarr[2]
+
+		graph[U] = append(graph[U], [2]int{V, B})
+		graph[V] = append(graph[V], [2]int{U, B})
+	}
+
+	type queueItem struct {
+		node, weightSum int
+	}
+	queue := NewQueue[queueItem]()
+
+	ansMap := make(map[int]int, N-1)
+
+	for goal := 2; goal <= N; goal++ {
+		ansMap[goal] = intMax
+		queue.Enqueue(queueItem{node: 1, weightSum: nodeWeights[1]})
+
+		for !queue.IsEmpty() {
+			item, _ := queue.Dequeue()
+			node, weightSum := item.node, item.weightSum
+
+			if weightSum >= ansMap[goal] {
+				continue
+			}
+
+			for _, next := range graph[node] {
+				nextNode, nextWeight := next[0], next[1]
+
+				ws := weightSum + nextWeight + nodeWeights[nextNode]
+				if ws >= ansMap[goal] {
+					continue
+				}
+
+				if nextNode == goal {
+					ansMap[goal] = ws
+					continue
+				}
+
+				queue.Enqueue(queueItem{node: nextNode, weightSum: ws})
+			}
+		}
+	}
+
+	for i := 2; i <= N; i++ {
+		if i != 2 {
+			fmt.Fprint(w, " ")
+		}
+
+		fmt.Fprint(w, ansMap[i])
+
+		if i == N {
+			fmt.Fprintln(w)
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
 
 //////////////
 // Helpers  //
