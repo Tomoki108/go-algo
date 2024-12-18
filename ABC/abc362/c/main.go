@@ -24,19 +24,17 @@ func main() {
 	}
 	lrs := make([]LR, N)
 
-	roomOfPlus, roomOfMinus := 0, 0
+	roomOfPlus := 0
 	ans := make([]int, N)
 	sum := 0
 	for i := 0; i < N; i++ {
 		L, R := read2Ints(r)
 		lrs[i] = LR{L, R}
 
-		avg := (L + R) / 2
-		ans[i] = avg
-		sum += avg
+		ans[i] = L
+		sum += L
 
-		roomOfPlus += R - avg
-		roomOfMinus += avg - L
+		roomOfPlus += R - L
 	}
 
 	if sum == 0 {
@@ -55,26 +53,6 @@ func main() {
 				break
 			}
 			if sum > 0 {
-				ans[i] -= sum
-				break
-			}
-		}
-
-		fmt.Fprintln(w, "Yes")
-		writeSlice(w, ans)
-		return
-	} else if sum > 0 && roomOfMinus >= sum {
-		for i := 0; i < N; i++ {
-			prev := ans[i]
-			ans[i] = lrs[i].L
-
-			delta := prev - ans[i]
-			sum -= delta
-
-			if sum == 0 {
-				break
-			}
-			if sum < 0 {
 				ans[i] -= sum
 				break
 			}
