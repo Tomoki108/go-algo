@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"container/list"
+	"container/heap"
 	"fmt"
 	"os"
 	"strconv"
@@ -36,98 +36,89 @@ func main() {
 		graph[V] = append(graph[V], [2]int{U, B})
 	}
 
-	type queueItem struct {
-		node, weightSum int
-		visited         map[int]bool
-	}
-	queue := NewQueue[queueItem]()
+	ans := make(map[int]int, N-1)
+	ans[1] = nodeWeights[1]
 
-	ansMap := make(map[int]int, N-1)
+	pq := &Heap[pqItem]{}
+	pq.Push(pqItem{nodeWeights[1], 1})
 
-	for goal := 2; goal <= N; goal++ {
-		ansMap[goal] = intMax
-		visited := make(map[int]bool, N)
-		visited[1] = true
+	isFixed := make(map[int]bool, N)
 
-		queue.Enqueue(queueItem{node: 1, weightSum: nodeWeights[1], visited: visited})
-		visited[1] = true
+	for pq.Len() > 0 {
+		item := heap.Pop(pq).(pqItem)
+		node, weightSum := item.node, item.weightSum
 
-		for !queue.IsEmpty() {
-			item, _ := queue.Dequeue()
-			node, weightSum, visited := item.node, item.weightSum, item.visited
-			// fmt.Printf("node: %d, weightSum: %d\n", node, weightSum)
+		if isFixed[node] {
+			continue
+		}
+		isFixed[node] = true
 
-			for _, next := range graph[node] {
-				nextNode, edgeWeight := next[0], next[1]
-				// fmt.Printf("nextNode: %d, edgeWeight: %d, visited[nextNode]: %v, nodeWeights[nextNode]: %d\n", nextNode, edgeWeight, visited[nextNode], nodeWeights[nextNode])
-				if visited[nextNode] {
-					continue
-				}
+		for _, adj := range graph[node] {
+			nextNode := adj[0]
+			edgeWeight := adj[1]
 
-				copyVisited := make(map[int]bool, N)
-				for k, v := range visited {
-					copyVisited[k] = v
-				}
-				copyVisited[nextNode] = true
-
-				ws := weightSum + edgeWeight + nodeWeights[nextNode]
-				if ws >= ansMap[goal] {
-					continue
-				}
-
-				if nextNode == goal {
-					ansMap[goal] = ws
-					continue
-				}
-
-				queue.Enqueue(queueItem{node: nextNode, weightSum: ws, visited: copyVisited})
+			if isFixed[nextNode] {
+				continue
 			}
+
+			ws := weightSum + edgeWeight + nodeWeights[nextNode]
+
+			if ans[nextNode] != 0 {
+				ans[nextNode] = min(ans[nextNode], ws)
+			} else {
+				ans[nextNode] = ws
+			}
+
+			heap.Push(pq, pqItem{ws, nextNode})
 		}
 	}
 
 	for i := 2; i <= N; i++ {
-		if i != 2 {
+		fmt.Fprint(w, ans[i])
+
+		if i != N {
 			fmt.Fprint(w, " ")
-		}
-
-		fmt.Fprint(w, ansMap[i])
-
-		if i == N {
-			fmt.Fprintln(w)
+		} else {
+			fmt.Fprint(w, "\n")
 		}
 	}
+}
+
+type pqItem struct {
+	weightSum int
+	node      int
+}
+
+func (i pqItem) Priority() int {
+	return i.weightSum
 }
 
 //////////////
 // Libs    //
 /////////////
 
-type Queue[T any] struct {
-	list *list.List
+type HeapItem interface {
+	Priority() int
 }
 
-func NewQueue[T any]() *Queue[T] {
-	return &Queue[T]{
-		list: list.New(),
-	}
+type Heap[T HeapItem] []T
+
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	*h = append(*h, x.(T))
 }
 
-func (q *Queue[T]) Enqueue(value T) {
-	q.list.PushBack(value)
-}
-
-func (q *Queue[T]) Dequeue() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	q.list.Remove(front)
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) IsEmpty() bool {
-	return q.list.Len() == 0
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
 }
 
 //////////////
