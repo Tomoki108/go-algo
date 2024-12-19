@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, K := read2Ints(r)
+	As := readIntArr(r)
+
+	sort.Ints(As)
+
+	ans := intMax
+	for i := 0; i < K+1; i++ {
+		tmp := As[N-K-1+i] - As[i]
+		ans = min(ans, tmp)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
