@@ -17,6 +17,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr1 := readIntArr(r)
+	a, b, c := iarr1[0], iarr1[1], iarr1[2]
+	d, e, f := iarr1[3], iarr1[4], iarr1[5]
+
+	iarr2 := readIntArr(r)
+	g, h, i := iarr2[0], iarr2[1], iarr2[2]
+	j, k, l := iarr2[3], iarr2[4], iarr2[5]
+
+	xBoundCheck := !(d <= g || j <= a)
+	yBoundCheck := !(e <= h || k <= b)
+	zBoundCheck := !(f <= i || l <= c)
+
+	if xBoundCheck && yBoundCheck && zBoundCheck {
+		fmt.Fprintln(w, "Yes")
+	} else {
+		fmt.Fprintln(w, "No")
+	}
 }
 
 //////////////
