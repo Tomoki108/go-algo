@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,11 +18,122 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	T := readStr(r)
+
+	Ss := strings.Split(S, "")
+	Ss = append(Ss, ".")
+	Ss = append(Ss, ".")
+	Ts := strings.Split(T, "")
+	Ts = append(Ts, ".")
+	Ts = append(Ts, ".")
+
+	visited := make(map[string]bool)
+
+	q := NewQueue[status]()
+	q.Enqueue(status{N, N + 1, Ss, 0})
+
+	for !q.IsEmpty() {
+		st, _ := q.Dequeue()
+
+		if visited[st.str()] {
+			continue
+		}
+		visited[st.str()] = true
+
+		sis := st.swappableIndexs()
+		for _, si := range sis {
+			sl := st.swap(si[0], si[1])
+
+			if strings.Join(sl, "") == strings.Join(Ts, "") {
+				fmt.Fprintln(w, st.gen+1)
+				return
+			}
+
+			q.Enqueue(status{si[0], si[1], sl, st.gen + 1})
+		}
+	}
+
+	fmt.Fprintln(w, -1)
+}
+
+type status struct {
+	i, j int      // 空マスのインデックス
+	sl   []string // 盤面（空マス含む）
+	gen  int      // 何手目か
+}
+
+func (s status) str() string {
+	return strings.Join(s.sl, "")
+}
+
+func (s status) swappableIndexs() [][2]int {
+	result := [][2]int{}
+	for i := 0; i < len(s.sl)-1; i++ {
+		if i != s.i && i != s.j && i+1 != s.i {
+			result = append(result, [2]int{i, i + 1})
+		}
+	}
+
+	return result
+}
+
+func (s status) swap(ni, nj int) []string {
+	copySl := make([]string, len(s.sl))
+	copy(copySl, s.sl)
+
+	copySl[s.i], copySl[s.j] = copySl[ni], copySl[nj]
+	copySl[ni], copySl[nj] = ".", "."
+
+	return copySl
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
 
 //////////////
 // Helpers  //
