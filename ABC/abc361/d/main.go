@@ -29,6 +29,11 @@ func main() {
 	Ts = append(Ts, ".")
 	Ts = append(Ts, ".")
 
+	if strings.Join(Ss, "") == strings.Join(Ts, "") {
+		fmt.Fprintln(w, 0)
+		return
+	}
+
 	visited := make(map[string]bool)
 
 	q := NewQueue[status]()
@@ -36,6 +41,7 @@ func main() {
 
 	for !q.IsEmpty() {
 		st, _ := q.Dequeue()
+		// fmt.Printf("st: %+v\n", st)
 
 		if visited[st.str()] {
 			continue
