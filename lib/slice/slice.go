@@ -86,3 +86,29 @@ func SplitToChunks[T any](sl []T, numOfChunks int) [][]T {
 
 	return SplitByChunks(sl, chunkSize)
 }
+
+func Verticalize[T any](sl [][]T) [][]T {
+	maxLen := 0
+	for _, s := range sl {
+		if len(s) > maxLen {
+			maxLen = len(s)
+		}
+	}
+
+	verticalized := make([][]T, maxLen)
+	for i := 0; i < maxLen; i++ {
+		verticalized[i] = make([]T, maxLen)
+	}
+
+	for rowI := 0; rowI < len(sl); rowI++ {
+		for columnI := 0; columnI < maxLen; columnI++ {
+			if columnI >= len(sl[rowI]) {
+				break
+			}
+
+			verticalized[columnI][rowI] = sl[rowI][columnI]
+		}
+	}
+
+	return verticalized
+}
