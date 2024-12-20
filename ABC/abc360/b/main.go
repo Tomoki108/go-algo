@@ -17,6 +17,57 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	sarr := readStrArr(r)
+
+	S := sarr[0]
+	T := sarr[1]
+
+	Ss := strings.Split(S, "")
+	Ts := strings.Split(T, "")
+
+	for W := 1; W < len(Ss)-1; W++ {
+		// fmt.Printf("W: %v\n", W)
+		chunksLen := len(Ss) / W
+		remainder := len(Ss) % W
+		if remainder != 0 {
+			chunksLen++
+		}
+
+		if chunksLen < len(Ts) {
+			continue
+		}
+
+		// add buffer
+		SsWithBuff := make([]string, len(Ss))
+		copy(SsWithBuff, Ss)
+		for i := 0; i < remainder; i++ {
+			SsWithBuff = append(SsWithBuff, "")
+		}
+
+		chunks := make([][]string, 0, chunksLen)
+		for chunkNo := 0; chunkNo < chunksLen; chunkNo++ {
+			chunk := make([]string, W)
+			startIdx := chunkNo * W
+			endIdx := startIdx + W
+			copy(chunk, SsWithBuff[startIdx:endIdx])
+
+			chunks = append(chunks, chunk)
+		}
+
+		for i := 0; i < W; i++ {
+			vReading := make([]string, 0, chunksLen)
+			for _, chunk := range chunks {
+				vReading = append(vReading, chunk[i])
+			}
+
+			if strings.Join(vReading, "") == T {
+				fmt.Fprintln(w, "Yes")
+				return
+			}
+		}
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
