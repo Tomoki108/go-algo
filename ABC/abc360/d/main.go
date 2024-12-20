@@ -15,7 +15,57 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// 始点のみを管理する。x_j - x_i <= 2T となるような組み合わせを二分探索で見つける。
 func main() {
+	defer w.Flush()
+
+	N, T := read2Ints(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	Xs := readIntArr(r)
+
+	xsForward := make([]int, 0, N)
+	xsBackward := make([]int, 0, N)
+
+	for i := 0; i < N; i++ {
+		if Ss[i] == "1" {
+			xsForward = append(xsForward, Xs[i])
+		} else {
+			xsBackward = append(xsBackward, Xs[i])
+		}
+	}
+
+	sort.Ints(xsForward)
+	sort.Ints(xsBackward)
+
+	ans := 0
+	for _, x := range xsForward {
+		idx := sort.Search(len(xsBackward), func(i int) bool {
+			return x < xsBackward[i]
+		})
+		if idx == len(xsBackward) {
+			continue
+		}
+		possiblePartners := xsBackward[idx:]
+		partnerLimit := x + 2*T
+
+		idx2 := sort.Search(len(possiblePartners), func(i int) bool {
+			return partnerLimit < possiblePartners[i]
+		})
+		// non shortcut version:
+		// overLimit := len(possiblePartners) - idx2
+		// numOfPartners := len(possiblePartners) - overLimit
+		numOfPartners := idx2
+
+		ans += numOfPartners
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+// 最初に考えた解法。start-endの区間を管理する。重なり合う有効な区間を二分探索で見つける。
+// 点の管理より区間の管理は複雑なため、mainの解法の方が優れている。
+func alt() {
 	defer w.Flush()
 
 	N, T := read2Ints(r)
