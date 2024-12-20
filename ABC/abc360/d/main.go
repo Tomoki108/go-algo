@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,50 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, T := read2Ints(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	Xs := readIntArr(r)
+
+	forwardRanges := make([][2]int, 0, N)  // [start, end] (start == end - T)
+	backwardRanges := make([][2]int, 0, N) // [end, start] (end == start - T)
+
+	for i := 0; i < N; i++ {
+		start := Xs[i]
+		if Ss[i] == "1" {
+			forwardRanges = append(forwardRanges, [2]int{start, start + T})
+		} else {
+			backwardRanges = append(backwardRanges, [2]int{start - T, start})
+		}
+	}
+
+	sort.Slice(forwardRanges, func(i, j int) bool {
+		return forwardRanges[i][0] < forwardRanges[j][0]
+	})
+	sort.Slice(backwardRanges, func(i, j int) bool {
+		return backwardRanges[i][0] < backwardRanges[j][0]
+	})
+
+	// fmt.Printf("forwardRanges: %v\n", forwardRanges)
+	// fmt.Printf("backwardRanges: %v\n", backwardRanges)
+
+	ans := 0
+	for _, fRange := range forwardRanges {
+		left := fRange[0]
+		right := fRange[1]
+
+		// 「クロスしない」区間を二分探索（「クロスしないこと」は単調増加）
+		idx := sort.Search(len(backwardRanges), func(i int) bool {
+			left2 := backwardRanges[i][0]
+			right2 := backwardRanges[i][1]
+
+			return right < left2 || right2 < left
+		})
+
+		ans += idx
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
