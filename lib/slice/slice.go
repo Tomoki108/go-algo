@@ -19,6 +19,7 @@ func RevSl[S ~[]E, E any](s S) S {
 	return revS
 }
 
+// O(n + m) n, m: 各スライスの長さ
 // どちらか一方のスライスにのみ含まれる要素で構成されたスライスを返す
 func SlDiff[T comparable](slice1, slice2 []T) []T {
 	// 要素の出現回数を記録するマップ
@@ -60,7 +61,7 @@ func Deduplicate[T comparable](sl []T) []T {
 	return deduped
 }
 
-// O(n/size)
+// O(n/chunkSize)
 // スライスを指定したサイズで分割する
 func SplitByChunks[T any](sl []T, chunkSize int) [][]T {
 	if len(sl) == 0 {
@@ -87,6 +88,8 @@ func SplitToChunks[T any](sl []T, numOfChunks int) [][]T {
 	return SplitByChunks(sl, chunkSize)
 }
 
+// O(n + maxLen^2 + n * maxLen)
+// 2次元スライスを縦に並べ替える
 func Verticalize[T any](sl [][]T) [][]T {
 	maxLen := 0
 	for _, s := range sl {
