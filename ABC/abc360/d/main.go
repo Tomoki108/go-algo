@@ -49,7 +49,7 @@ func main() {
 		right := fRange[1]
 
 		tooLeftIdx := sort.Search(len(revbackwardRange), func(i int) bool {
-			right2 := backwardRanges[i][1]
+			right2 := revbackwardRange[i][1]
 			return right2 < left
 		})
 		tooLeftCount := len(revbackwardRange) - tooLeftIdx
