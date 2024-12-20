@@ -14,6 +14,7 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// 純粋な、wとcの組み合わせの全探索
 func main() {
 	defer w.Flush()
 
@@ -70,38 +71,17 @@ func alt() {
 	Ts := strings.Split(T, "")
 
 	for W := 1; W < len(Ss)-1; W++ {
-		// fmt.Printf("W: %v\n", W)
-		chunksLen := len(Ss) / W
-		remainder := len(Ss) % W
-		if remainder != 0 {
-			chunksLen++
+		chunks := SplitByChunks(Ss, W)
+		if len(chunks) < len(Ts) {
+			break
 		}
 
-		if chunksLen < len(Ts) {
-			continue
-		}
-
-		// add buffer
-		SsWithBuff := make([]string, len(Ss))
-		copy(SsWithBuff, Ss)
-		for i := 0; i < remainder; i++ {
-			SsWithBuff = append(SsWithBuff, "")
-		}
-
-		chunks := make([][]string, 0, chunksLen)
-		for chunkNo := 0; chunkNo < chunksLen; chunkNo++ {
-			chunk := make([]string, W)
-			startIdx := chunkNo * W
-			endIdx := startIdx + W
-			copy(chunk, SsWithBuff[startIdx:endIdx])
-
-			chunks = append(chunks, chunk)
-		}
-
-		for i := 0; i < W; i++ {
-			vReading := make([]string, 0, chunksLen)
+		for c := 1; c <= W; c++ {
+			vReading := make([]string, 0, len(chunks))
 			for _, chunk := range chunks {
-				vReading = append(vReading, chunk[i])
+				if c <= len(chunk) {
+					vReading = append(vReading, chunk[c-1])
+				}
 			}
 
 			if strings.Join(vReading, "") == T {
@@ -114,9 +94,24 @@ func alt() {
 	fmt.Fprintln(w, "No")
 }
 
-//////////////
+// ////////////
 // Libs    //
-/////////////
+// ///////////
+
+// O(n/size)
+func SplitByChunks[T any](sl []T, chunkSize int) [][]T {
+	if len(sl) == 0 {
+		return [][]T{}
+	}
+
+	chunks := make([][]T, 0, (len(sl)+chunkSize-1)/chunkSize) // 余りを考慮したlengthの計算
+	for chunkSize < len(sl) {
+		chunks = append(chunks, sl[0:chunkSize])
+		sl = sl[chunkSize:]
+	}
+
+	return append(chunks, sl)
+}
 
 //////////////
 // Helpers  //
