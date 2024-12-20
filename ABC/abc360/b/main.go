@@ -25,6 +25,50 @@ func main() {
 	Ss := strings.Split(S, "")
 	Ts := strings.Split(T, "")
 
+	for W := 1; W < len(Ss); W++ {
+		numOfChunks := len(Ss) / W
+		remainder := len(Ss) % W
+		if remainder != 0 {
+			numOfChunks++
+		}
+
+		if numOfChunks < len(Ts) {
+			break
+		}
+
+		for c := 1; c <= W; c++ {
+			chars := make([]string, 0, len(Ts))
+			for i := 0; i < numOfChunks; i++ {
+				idx := (c - 1) + W*i
+
+				if idx > len(Ss)-1 {
+					break
+				}
+
+				chars = append(chars, Ss[idx])
+			}
+
+			if strings.Join(chars, "") == T {
+				fmt.Fprintln(w, "Yes")
+				return
+			}
+		}
+	}
+
+	fmt.Fprintln(w, "No")
+}
+
+func alt() {
+	defer w.Flush()
+
+	sarr := readStrArr(r)
+
+	S := sarr[0]
+	T := sarr[1]
+
+	Ss := strings.Split(S, "")
+	Ts := strings.Split(T, "")
+
 	for W := 1; W < len(Ss)-1; W++ {
 		// fmt.Printf("W: %v\n", W)
 		chunksLen := len(Ss) / W
