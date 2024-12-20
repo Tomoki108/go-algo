@@ -50,15 +50,22 @@ func main() {
 		left := fRange[0]
 		right := fRange[1]
 
-		// 「クロスしない」区間を二分探索（「クロスしないこと」は単調増加）
 		idx := sort.Search(len(backwardRanges), func(i int) bool {
-			left2 := backwardRanges[i][0]
 			right2 := backwardRanges[i][1]
+			return left <= right2
+		})
+		if idx == len(backwardRanges) {
+			break
+		}
 
-			return right < left2 || right2 < left
+		idx2 := sort.Search(len(backwardRanges), func(i int) bool {
+			left2 := backwardRanges[i][0]
+			return left2 > right
 		})
 
-		ans += idx
+		possibleBRanges := backwardRanges[idx:idx2]
+
+		ans += len(possibleBRanges)
 	}
 
 	fmt.Fprintln(w, ans)
