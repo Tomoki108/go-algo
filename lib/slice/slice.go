@@ -61,6 +61,7 @@ func Deduplicate[T comparable](sl []T) []T {
 }
 
 // O(n/size)
+// スライスを指定したサイズで分割する
 func SplitByChunks[T any](sl []T, chunkSize int) [][]T {
 	if len(sl) == 0 {
 		return [][]T{}
@@ -73,4 +74,15 @@ func SplitByChunks[T any](sl []T, chunkSize int) [][]T {
 	}
 
 	return append(chunks, sl)
+}
+
+// O(n/caliculated_chunkSize)
+// スライスを指定した数のチャンクに分割する
+func SplitToChunks[T any](sl []T, numOfChunks int) [][]T {
+	chunkSize := len(sl) / numOfChunks
+	if len(sl)%numOfChunks != 0 {
+		chunkSize++
+	}
+
+	return SplitByChunks(sl, chunkSize)
 }

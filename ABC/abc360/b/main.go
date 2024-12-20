@@ -19,10 +19,8 @@ func main() {
 	defer w.Flush()
 
 	sarr := readStrArr(r)
-
 	S := sarr[0]
 	T := sarr[1]
-
 	Ss := strings.Split(S, "")
 	Ts := strings.Split(T, "")
 
@@ -59,14 +57,14 @@ func main() {
 	fmt.Fprintln(w, "No")
 }
 
+// wを全探索し、チャンクリストを実際に作る。
+// そのチャンクリストに対して可能な縦読みを全て試す。
 func alt() {
 	defer w.Flush()
 
 	sarr := readStrArr(r)
-
 	S := sarr[0]
 	T := sarr[1]
-
 	Ss := strings.Split(S, "")
 	Ts := strings.Split(T, "")
 
