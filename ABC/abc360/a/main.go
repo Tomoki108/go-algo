@@ -17,6 +17,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	misoAppear := false
+	for _, s := range Ss {
+		if s == "R" && !misoAppear {
+			fmt.Fprintln(w, "Yes")
+			return
+		}
+
+		if s == "M" {
+			misoAppear = true
+		}
+	}
+
+	fmt.Fprintln(w, "No")
+
 }
 
 //////////////
