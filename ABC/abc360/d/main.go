@@ -42,9 +42,6 @@ func main() {
 		return backwardRanges[i][0] < backwardRanges[j][0]
 	})
 
-	// fmt.Printf("forwardRanges: %v\n", forwardRanges)
-	// fmt.Printf("backwardRanges: %v\n", backwardRanges)
-
 	ans := 0
 	for _, fRange := range forwardRanges {
 		left := fRange[0]
@@ -64,7 +61,6 @@ func main() {
 		})
 
 		possibleBRanges := backwardRanges[idx:idx2]
-
 		ans += len(possibleBRanges)
 	}
 
