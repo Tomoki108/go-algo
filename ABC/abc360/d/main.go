@@ -41,18 +41,19 @@ func main() {
 	sort.Slice(backwardRanges, func(i, j int) bool {
 		return backwardRanges[i][0] < backwardRanges[j][0]
 	})
-	revbackwardRange := RevSl(backwardRanges)
+
+	revBackwardRanges := RevSl(backwardRanges)
 
 	ans := 0
 	for _, fRange := range forwardRanges {
 		left := fRange[0]
 		right := fRange[1]
 
-		tooLeftIdx := sort.Search(len(revbackwardRange), func(i int) bool {
-			right2 := revbackwardRange[i][1]
+		tooLeftIdx := sort.Search(len(revBackwardRanges), func(i int) bool {
+			right2 := revBackwardRanges[i][1]
 			return right2 < left
 		})
-		tooLeftCount := len(revbackwardRange) - tooLeftIdx
+		tooLeftCount := len(revBackwardRanges) - tooLeftIdx
 
 		tooRightIdx := sort.Search(len(backwardRanges), func(i int) bool {
 			left2 := backwardRanges[i][0]
