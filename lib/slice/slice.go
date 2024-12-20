@@ -2,14 +2,15 @@ package slice
 
 import "sort"
 
+// O(n)
 // slices.Reverce() と同じ（Goのバージョンが1.21以前だと使えないため）
-// 計算量: O(n)
 func SlRev[S ~[]E, E any](s S) {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
 	}
 }
 
+// O(n)
 func RevSl[S ~[]E, E any](s S) S {
 	lenS := len(s)
 	revS := make(S, lenS)

@@ -41,27 +41,26 @@ func main() {
 	sort.Slice(backwardRanges, func(i, j int) bool {
 		return backwardRanges[i][0] < backwardRanges[j][0]
 	})
+	revbackwardRange := RevSl(backwardRanges)
 
 	ans := 0
 	for _, fRange := range forwardRanges {
 		left := fRange[0]
 		right := fRange[1]
 
-		idx := sort.Search(len(backwardRanges), func(i int) bool {
+		tooLeftIdx := sort.Search(len(revbackwardRange), func(i int) bool {
 			right2 := backwardRanges[i][1]
-			return left <= right2
+			return right2 < left
 		})
-		if idx == len(backwardRanges) {
-			break
-		}
+		tooLeftCount := len(revbackwardRange) - tooLeftIdx
 
-		idx2 := sort.Search(len(backwardRanges), func(i int) bool {
+		tooRightIdx := sort.Search(len(backwardRanges), func(i int) bool {
 			left2 := backwardRanges[i][0]
-			return left2 > right
+			return right < left2
 		})
+		tooRightCount := len(backwardRanges) - tooRightIdx
 
-		possibleBRanges := backwardRanges[idx:idx2]
-		ans += len(possibleBRanges)
+		ans += len(backwardRanges) - tooLeftCount - tooRightCount
 	}
 
 	fmt.Fprintln(w, ans)
@@ -70,6 +69,16 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+func RevSl[S ~[]E, E any](s S) S {
+	lenS := len(s)
+	revS := make(S, lenS)
+	for i := 0; i < lenS; i++ {
+		revS[i] = s[lenS-1-i]
+	}
+
+	return revS
+}
 
 //////////////
 // Helpers  //
