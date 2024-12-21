@@ -44,9 +44,10 @@ func main() {
 		goRight = true
 	}
 
+	isAtLeft := isLeftAtTile(Sx, Sy)
+
 	if yDelta == 0 {
 		cost := 0
-		isAtLeft := isLeftAtTile(Sx, Sy)
 
 		if goRight {
 			if isAtLeft {
@@ -54,8 +55,8 @@ func main() {
 			} else {
 				cost = xDelta/2 + xDelta%2
 			}
-		} else {
-			if !isAtLeft {
+		} else { // goLeft
+			if !isAtLeft { // isAtRight
 				cost = xDelta / 2
 			} else {
 				cost = xDelta/2 + xDelta%2
@@ -66,7 +67,43 @@ func main() {
 		return
 	} else {
 		cost := yDelta
-		cost += (xDelta - yDelta) / 2
+		costsXDelta := 0 // Xの差分のうちの、コストがかかる部分
+
+		if goRight {
+			if isAtLeft {
+				costsXDelta = xDelta - yDelta
+			} else {
+				cost += xDelta - (yDelta - 1)
+			}
+		} else { // goLeft
+			if !isAtLeft { // isAtRight
+				costsXDelta = xDelta - yDelta
+			} else {
+				cost += xDelta - (yDelta - 1)
+			}
+		}
+
+		xBeforeLastStrait := Tx
+		if goRight {
+			Tx -= costsXDelta
+		} else {
+			Tx += costsXDelta
+		}
+		isAtLeftBeforeLastStrait := isLeftAtTile(xBeforeLastStrait, Ty)
+
+		if goRight {
+			if isAtLeftBeforeLastStrait {
+				cost += costsXDelta / 2
+			} else {
+				cost += costsXDelta/2 + costsXDelta%2
+			}
+		} else { // goLeft
+			if !isAtLeftBeforeLastStrait { // isAtRight
+				cost += costsXDelta / 2
+			} else {
+				cost += costsXDelta/2 + costsXDelta%2
+			}
+		}
 
 		fmt.Fprintln(w, cost)
 		return
