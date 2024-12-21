@@ -17,11 +17,78 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H, W, X, Y := iarr[0], iarr[1], iarr[2], iarr[3]
+
+	grid := readGrid(r, H)
+
+	// fmt.Println(grid)
+	// fmt.Println()
+
+	T := readStr(r)
+	Ts := strings.Split(T, "")
+
+	visitedHouse := make(map[Coordinate]struct{}, H*W)
+
+	current := Coordinate{X, Y}
+	count := 0
+	for _, t := range Ts {
+		adjacents := current.Adjacents()
+
+		var next Coordinate
+		switch t {
+		case "U":
+			next = adjacents[0]
+		case "D":
+			next = adjacents[1]
+		case "L":
+			next = adjacents[2]
+		case "R":
+			next = adjacents[3]
+		}
+
+		// fmt.Println(next)
+
+		if next.IsValid(H, W) && grid[next.h-1][next.w-1] != "#" {
+			_, visited := visitedHouse[next]
+			if grid[next.h-1][next.w-1] == "@" && !visited {
+				// fmt.Println("hi1")
+
+				count++
+				visitedHouse[next] = struct{}{}
+			}
+			// fmt.Println("hi2")
+
+			current = next
+		} else {
+			// fmt.Println("hi3")
+			continue
+		}
+	}
+
+	fmt.Fprintf(w, "%d %d %d\n", current.h, current.w, count)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers  //
