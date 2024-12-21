@@ -31,8 +31,8 @@ func main() {
 		sort.Ints(houseXYMap[x])
 	}
 
-	xPaths := make([][2][2]int, M) // from, to 横の移動
-	yPaths := make([][2][2]int, M) // from, to　縦の移動
+	xPaths := make([][2][2]int, 0, M) // from, to 横の移動
+	yPaths := make([][2][2]int, 0, M) // from, to　縦の移動
 
 	current := [2]int{Sx, Sy}
 	for i := 0; i < M; i++ {
@@ -132,7 +132,6 @@ func main() {
 			})
 
 			passedHouses := len(houseXs[idx1:idx2])
-
 			count += passedHouses
 
 			newHouseXs := houseXs[:idx1]
