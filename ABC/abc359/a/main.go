@@ -17,6 +17,19 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	count := 0
+
+	for i := 0; i < N; i++ {
+		S := readStr(r)
+
+		if S == "Takahashi" {
+			count++
+		}
+	}
+
+	fmt.Fprintln(w, count)
+
 }
 
 //////////////
