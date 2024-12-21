@@ -67,7 +67,7 @@ func main() {
 		return
 	} else {
 		cost := yDelta
-		cost += xDelta / 2
+		cost += (xDelta - yDelta) / 2
 
 		fmt.Fprintln(w, cost)
 		return
