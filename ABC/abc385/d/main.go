@@ -22,7 +22,6 @@ func main() {
 	N, M, Sx, Sy := iarr[0], iarr[1], iarr[2], iarr[3]
 
 	houseXYMap := make(map[int][]int, N)
-
 	for i := 0; i < N; i++ {
 		X, Y := read2Ints(r)
 		houseXYMap[X] = append(houseXYMap[X], Y)
@@ -69,8 +68,10 @@ func main() {
 
 		x := from[0]
 
-		fromY := from[1]
-		toY := to[1]
+		fy := from[1]
+		ty := to[1]
+		fromY := min(fy, ty)
+		toY := max(fy, ty)
 
 		houseYs := houseXYMap[x]
 
@@ -108,8 +109,10 @@ func main() {
 
 		y := from[1]
 
-		fromX := from[0]
-		toX := to[0]
+		fx := from[0]
+		tx := to[0]
+		fromX := min(fx, tx)
+		toX := max(fx, tx)
 
 		houseXs := housYXMap[y]
 
