@@ -14,11 +14,6 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
-// タイルを通る：現在中（枠線を含まない）にいるタイルから、別のタイルの中に入った時に、元いたタイルを通ったとみなす。
-//
-// 5.5, 0.5 =>  math.Ceil(5.5), math.Ceil(0.5)の正方形に属する =>（5, 0）
-// 4.5. 0.5 => (4, 0)
-// xが小さい方の正方形の、xyの和が偶数かつ、xの差が1である場合に、同じタイルに属する
 func main() {
 	defer w.Flush()
 
@@ -36,85 +31,6 @@ func main() {
 	if yDelta >= xDelta {
 		fmt.Fprintln(w, yDelta)
 		return
-	}
-
-	// xが同じ場合はすでにここまででリターン済み
-	var goRight bool
-	if Sx < Tx {
-		goRight = true
-	}
-
-	isAtLeft := isLeftAtTile(Sx, Sy)
-
-	if yDelta == 0 {
-		cost := 0
-
-		if goRight {
-			if isAtLeft {
-				cost = xDelta / 2
-			} else {
-				cost = xDelta/2 + xDelta%2
-			}
-		} else { // goLeft
-			if !isAtLeft { // isAtRight
-				cost = xDelta / 2
-			} else {
-				cost = xDelta/2 + xDelta%2
-			}
-		}
-
-		fmt.Fprintln(w, cost)
-		return
-	} else {
-		cost := yDelta
-		costsXDelta := 0 // Xの差分のうちの、コストがかかる部分
-
-		if goRight {
-			if isAtLeft {
-				costsXDelta = xDelta - yDelta
-			} else {
-				cost += xDelta - (yDelta - 1)
-			}
-		} else { // goLeft
-			if !isAtLeft { // isAtRight
-				costsXDelta = xDelta - yDelta
-			} else {
-				cost += xDelta - (yDelta - 1)
-			}
-		}
-
-		xBeforeLastStrait := Tx
-		if goRight {
-			Tx -= costsXDelta
-		} else {
-			Tx += costsXDelta
-		}
-		isAtLeftBeforeLastStrait := isLeftAtTile(xBeforeLastStrait, Ty)
-
-		if goRight {
-			if isAtLeftBeforeLastStrait {
-				cost += costsXDelta / 2
-			} else {
-				cost += costsXDelta/2 + costsXDelta%2
-			}
-		} else { // goLeft
-			if !isAtLeftBeforeLastStrait { // isAtRight
-				cost += costsXDelta / 2
-			} else {
-				cost += costsXDelta/2 + costsXDelta%2
-			}
-		}
-
-		fmt.Fprintln(w, cost)
-		return
-	}
-}
-
-func isLeftAtTile(x, y int) bool {
-	if y%2 == 0 {
-		return x%2 == 0
-	} else {
-		return x%2 == 1
 	}
 }
 
