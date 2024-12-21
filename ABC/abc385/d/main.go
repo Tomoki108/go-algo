@@ -84,11 +84,12 @@ func main() {
 			})
 
 			passedHouses := len(houseYs[idx1:idx2])
-
 			count += passedHouses
 
 			newHouseYs := houseYs[:idx1]
-			newHouseYs = append(newHouseYs, houseYs[idx2:]...)
+			if idx2 != len(houseYs) {
+				newHouseYs = append(newHouseYs, houseYs[idx2:]...)
+			}
 			houseXYMap[x] = newHouseYs
 		}
 	}
@@ -129,7 +130,9 @@ func main() {
 			count += passedHouses
 
 			newHouseXs := houseXs[:idx1]
-			newHouseXs = append(newHouseXs, houseXs[idx2:]...)
+			if idx2 != len(houseXs) {
+				newHouseXs = append(newHouseXs, houseXs[idx2:]...)
+			}
 			housYXMap[y] = newHouseXs
 		}
 	}
