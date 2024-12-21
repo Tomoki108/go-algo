@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -17,77 +16,72 @@ var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
 // タイルを通る：現在中（枠線を含まない）にいるタイルから、別のタイルの中に入った時に、元いたタイルを通ったとみなす。
+//
+// 5.5, 0.5 =>  math.Ceil(5.5), math.Ceil(0.5)の正方形に属する =>（5, 0）
+// 4.5. 0.5 => (4, 0)
+// xが小さい方の正方形の、xyの和が偶数かつ、xの差が1である場合に、同じタイルに属する
 func main() {
 	defer w.Flush()
 
-	sx, sy := read2Ints(r)
-	Sx, Sy := float64(sx)+0.5, float64(sy)+0.5
+	Sx, Sy := read2Ints(r)
+	Tx, Ty := read2Ints(r)
 
-	tx, ty := read2Ints(r)
-	Tx, Ty := float64(tx)+0.5, float64(ty)+0.5
+	if Sx == Tx && Sy == Ty {
+		fmt.Fprintln(w, 0)
+		return
+	}
 
+	xDelta := abs(Tx - Sx)
+	yDelta := abs(Ty - Sy)
+
+	if yDelta >= xDelta {
+		fmt.Fprintln(w, yDelta)
+		return
+	}
+
+	// xが同じ場合はすでにここまででリターン済み
 	var goRight bool
 	if Sx < Tx {
 		goRight = true
 	}
-	// ゴールのx座標が同じまたは前にある場合、右にはいかない。
-
 	var goLeft bool
 	if Sx > Tx {
 		goLeft = true
 	}
-	// ゴールのx座標が同じまたは後ろにある場合、左にはいかない。
 
-	var goUp bool
-	if Sy < Ty {
-		goUp = true
-	}
-	// ゴールのy座標が同じまたは前にある場合、上にはいかない。
+	if yDelta == 0 {
+		cost := 0
 
-	var goDown bool
-	if Sy > Ty {
-		goDown = true
-	}
-	// ゴールのy座標が同じまたは後ろにある場合、下にはいかない。
-
-	q := NewQueue[qItem]()
-	q.Enqueue(qItem{Sx, Sy, 0})
-
-	prevX := Sx
-	prevY := Sy
-	cost := 0
-	for !q.IsEmpty() {
-		item, _ := q.Dequeue()
-		x := item.x
-		y := item.y
-		cost := item.cost
-
-		if x == Tx && y == Ty {
-			break
+		isAtLeft := isLeftAtTile(Sx, Sy)
+		if goRight && isAtLeft {
+			cost = xDelta / 2
+		} else if goRight && !isAtLeft {
+			cost = xDelta/2 + 1
+		} else if goLeft && isAtLeft {
+			cost = xDelta/2 + 1
+		} else if goLeft && !isAtLeft {
+			cost = xDelta / 2
 		}
 
-		adjs := getAdjacents(x, y, goRight, goLeft, goUp, goDown)
-		for _, adj := range adjs {
-			c := cost
-			if !withinSameTile(prevX, prevY, x, y) {
-				c++
-			}
+		fmt.Fprintln(w, cost)
+		return
+	} else {
+		cost := yDelta
+		cost += xDelta / 2
 
-			q.Enqueue(qItem{adj[0], adj[1], c})
-		}
+		fmt.Fprintln(w, cost)
+		return
 	}
-
-	fmt.Fprintln(w, cost)
 }
 
-type qItem struct {
-	x, y float64
-	cost int
+func isLeftAtTile(x, y int) bool {
+	if y%2 == 0 {
+		return x%2 == 0
+	} else {
+		return x%2 == 1
+	}
 }
 
-// 5.5, 0.5 =>  math.Ceil(5.5), math.Ceil(0.5)の正方形に属する =>（5, 0）
-// 4.5. 0.5 => (4, 0)
-// xが小さい方の正方形の、xyの和が偶数かつ、xの差が1である場合に、同じタイルに属する
 func withinSameTile(x1, y1, x2, y2 float64) bool {
 	i1, j1 := int(math.Ceil(x1)), int(math.Ceil(float64(y1)))
 	i2, j2 := int(math.Ceil(x2)), int(math.Ceil(float64(y2)))
@@ -104,74 +98,9 @@ func withinSameTile(x1, y1, x2, y2 float64) bool {
 	}
 }
 
-func getAdjacents(x, y float64, goRight, goLeft, goUp, goDown bool) [][2]float64 {
-	right := [2]float64{x + 1, y}
-	left := [2]float64{x - 1, y}
-	up := [2]float64{x, y + 1}
-	down := [2]float64{x, y - 1}
-
-	adjacents := [][2]float64{}
-	if goRight {
-		adjacents = append(adjacents, right)
-	}
-	if goLeft {
-		adjacents = append(adjacents, left)
-	}
-	if goUp {
-		adjacents = append(adjacents, up)
-	}
-	if goDown {
-		adjacents = append(adjacents, down)
-	}
-
-	return adjacents
-}
-
 //////////////
 // Libs    //
 /////////////
-
-type Queue[T any] struct {
-	list *list.List
-}
-
-func NewQueue[T any]() *Queue[T] {
-	return &Queue[T]{
-		list: list.New(),
-	}
-}
-
-func (q *Queue[T]) Enqueue(value T) {
-	q.list.PushBack(value)
-}
-
-func (q *Queue[T]) Dequeue() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	q.list.Remove(front)
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) IsEmpty() bool {
-	return q.list.Len() == 0
-}
-
-func (q *Queue[T]) Size() int {
-	return q.list.Len()
-}
-
-// Peek returns the front element without removing it
-func (q *Queue[T]) Peek() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	return front.Value.(T), true
-}
 
 //////////////
 // Helpers  //
