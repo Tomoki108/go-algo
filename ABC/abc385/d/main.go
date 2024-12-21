@@ -73,7 +73,10 @@ func main() {
 		fromY := min(fy, ty)
 		toY := max(fy, ty)
 
-		houseYs := houseXYMap[x]
+		houseYs, ok := houseXYMap[x]
+		if !ok {
+			continue
+		}
 
 		idx1 := sort.Search(len(houseYs), func(i int) bool {
 			return houseYs[i] >= fromY
@@ -115,7 +118,10 @@ func main() {
 		fromX := min(fx, tx)
 		toX := max(fx, tx)
 
-		houseXs := housYXMap[y]
+		houseXs, ok := housYXMap[y]
+		if !ok {
+			continue
+		}
 
 		idx1 := sort.Search(len(houseXs), func(i int) bool {
 			return houseXs[i] >= fromX
