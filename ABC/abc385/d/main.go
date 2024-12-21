@@ -60,26 +60,6 @@ func main() {
 		}
 
 		current = next
-
-		// if toSearchXYMap {
-		// 	houseYs := houseXYMap[current[0]]
-
-		// 	idx1 := sort.Search(len(houseYs), func(i int) bool {
-		// 		return houseYs[i] >= current[1]
-		// 	})
-		// 	if idx1 != len(houseYs) {
-		// 		idx2 := sort.Search(len(houseYs), func(i int) bool {
-		// 			return houseYs[i] > next[1]
-		// 		})
-
-		// 		passedHouses := len(houseYs[idx1:idx2])
-
-		// 		count += passedHouses
-
-		// 		newHouseYs := houseYs
-		// 	}
-
-		// }
 	}
 
 	count := 0
