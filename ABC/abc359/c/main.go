@@ -56,9 +56,9 @@ func main() {
 		if goRight && isAtLeft {
 			cost = xDelta / 2
 		} else if goRight && !isAtLeft {
-			cost = xDelta/2 + 1
+			cost = xDelta/2 + xDelta%2
 		} else if goLeft && isAtLeft {
-			cost = xDelta/2 + 1
+			cost = xDelta/2 + xDelta%2
 		} else if goLeft && !isAtLeft {
 			cost = xDelta / 2
 		}
