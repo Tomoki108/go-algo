@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -44,23 +43,23 @@ func main() {
 	if Sx < Tx {
 		goRight = true
 	}
-	var goLeft bool
-	if Sx > Tx {
-		goLeft = true
-	}
 
 	if yDelta == 0 {
 		cost := 0
-
 		isAtLeft := isLeftAtTile(Sx, Sy)
-		if goRight && isAtLeft {
-			cost = xDelta / 2
-		} else if goRight && !isAtLeft {
-			cost = xDelta/2 + xDelta%2
-		} else if goLeft && isAtLeft {
-			cost = xDelta/2 + xDelta%2
-		} else if goLeft && !isAtLeft {
-			cost = xDelta / 2
+
+		if goRight {
+			if isAtLeft {
+				cost = xDelta / 2
+			} else {
+				cost = xDelta/2 + xDelta%2
+			}
+		} else {
+			if !isAtLeft {
+				cost = xDelta / 2
+			} else {
+				cost = xDelta/2 + xDelta%2
+			}
 		}
 
 		fmt.Fprintln(w, cost)
@@ -79,22 +78,6 @@ func isLeftAtTile(x, y int) bool {
 		return x%2 == 0
 	} else {
 		return x%2 == 1
-	}
-}
-
-func withinSameTile(x1, y1, x2, y2 float64) bool {
-	i1, j1 := int(math.Ceil(x1)), int(math.Ceil(float64(y1)))
-	i2, j2 := int(math.Ceil(x2)), int(math.Ceil(float64(y2)))
-
-	if j1 != j2 {
-		return false
-	}
-
-	// 同じx軸（全く同じ座標）は考慮しない
-	if i1 > i2 {
-		return i1-i2 == 1 && i2+j2%2 == 0
-	} else {
-		return i2-i1 == 1 && i1+j1%2 == 0
 	}
 }
 
