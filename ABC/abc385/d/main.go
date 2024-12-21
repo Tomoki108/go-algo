@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,140 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, M, Sx, Sy := iarr[0], iarr[1], iarr[2], iarr[3]
+
+	houseXYMap := make(map[int][]int, N)
+
+	for i := 0; i < N; i++ {
+		X, Y := read2Ints(r)
+		houseXYMap[X] = append(houseXYMap[X], Y)
+	}
+
+	for x, _ := range houseXYMap {
+		sort.Ints(houseXYMap[x])
+	}
+
+	xPaths := make([][2][2]int, M) // from, to 横の移動
+	yPaths := make([][2][2]int, M) // from, to　縦の移動
+
+	current := [2]int{Sx, Sy}
+	for i := 0; i < M; i++ {
+		sarr := readStrArr(r)
+		D := sarr[0]
+		CS := sarr[1]
+		C, _ := strconv.Atoi(CS)
+
+		var next [2]int
+
+		switch D {
+		case "U":
+			next = [2]int{current[0], current[1] + C}
+			yPaths = append(yPaths, [2][2]int{current, next})
+		case "D":
+			next = [2]int{current[0], current[1] - C}
+			yPaths = append(yPaths, [2][2]int{current, next})
+		case "L":
+			next = [2]int{current[0] - C, current[1]}
+			xPaths = append(xPaths, [2][2]int{current, next})
+		case "R":
+			next = [2]int{current[0] + C, current[1]}
+			xPaths = append(xPaths, [2][2]int{current, next})
+		}
+
+		current = next
+
+		// if toSearchXYMap {
+		// 	houseYs := houseXYMap[current[0]]
+
+		// 	idx1 := sort.Search(len(houseYs), func(i int) bool {
+		// 		return houseYs[i] >= current[1]
+		// 	})
+		// 	if idx1 != len(houseYs) {
+		// 		idx2 := sort.Search(len(houseYs), func(i int) bool {
+		// 			return houseYs[i] > next[1]
+		// 		})
+
+		// 		passedHouses := len(houseYs[idx1:idx2])
+
+		// 		count += passedHouses
+
+		// 		newHouseYs := houseYs
+		// 	}
+
+		// }
+	}
+
+	count := 0
+	for _, yPath := range yPaths {
+		from := yPath[0]
+		to := yPath[1]
+
+		x := from[0]
+
+		fromY := from[1]
+		toY := to[1]
+
+		houseYs := houseXYMap[x]
+
+		idx1 := sort.Search(len(houseYs), func(i int) bool {
+			return houseYs[i] >= fromY
+		})
+		if idx1 != len(houseYs) {
+			idx2 := sort.Search(len(houseYs), func(i int) bool {
+				return houseYs[i] > toY
+			})
+
+			passedHouses := len(houseYs[idx1:idx2])
+
+			count += passedHouses
+
+			newHouseYs := houseYs[:idx1]
+			newHouseYs = append(newHouseYs, houseYs[idx2:]...)
+			houseXYMap[x] = newHouseYs
+		}
+	}
+
+	housYXMap := make(map[int][]int, N)
+	for X, Ys := range houseXYMap {
+		for _, Y := range Ys {
+			housYXMap[Y] = append(housYXMap[Y], X)
+		}
+	}
+	for y, _ := range housYXMap {
+		sort.Ints(housYXMap[y])
+	}
+
+	for _, xPath := range xPaths {
+		from := xPath[0]
+		to := xPath[1]
+
+		y := from[1]
+
+		fromX := from[0]
+		toX := to[0]
+
+		houseXs := housYXMap[y]
+
+		idx1 := sort.Search(len(houseXs), func(i int) bool {
+			return houseXs[i] >= fromX
+		})
+		if idx1 != len(houseXs) {
+			idx2 := sort.Search(len(houseXs), func(i int) bool {
+				return houseXs[i] > toX
+			})
+
+			passedHouses := len(houseXs[idx1:idx2])
+
+			count += passedHouses
+
+			newHouseXs := houseXs[:idx1]
+			newHouseXs = append(newHouseXs, houseXs[idx2:]...)
+			housYXMap[y] = newHouseXs
+		}
+	}
+
+	fmt.Fprintf(w, "%d %d %d\n", current[0], current[1], count)
 }
 
 //////////////
