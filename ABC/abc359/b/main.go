@@ -17,6 +17,29 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	colorIndexes := make(map[int][]int, N)
+	for i, a := range As {
+		colorIndexes[a] = append(colorIndexes[a], i)
+	}
+
+	ans := 0
+	for _, indexes := range colorIndexes {
+		matched := false
+
+		i1, i2 := indexes[0], indexes[1]
+		if i2-i1 == 2 {
+			matched = true
+		}
+
+		if matched {
+			ans++
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
