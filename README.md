@@ -16,12 +16,13 @@ brew install goenv
 goenv install 1.20.6
 ```
 
-- add alias to `~/.bash_profile` or some file like that
+- add alias to a file like `~/.bash_profile`
 
 ```sh
 # AtCoder
 alias acct='oj t -c "go run main.go"'
-alias accs='acct && acc s'
+alias accs='acct && acc s -s -- -y'
+alias accss='acc s -s -- -y'
 ```
 
 ## commands
@@ -38,6 +39,8 @@ cd a # move problem dir
 acct # test by samples
 
 accs # test by samples && submit
+
+accss # just submit
 ```
 
 - update Go template file (sync file registered atocoder-cli with `./template.go`)
