@@ -22,6 +22,15 @@ func main() {
 
 	maxProgressionLen := 1
 	for dist := 1; dist <= N-1; dist++ {
+		maxPossibleLen := N / dist
+		if N%dist != 0 {
+			maxPossibleLen++
+		}
+
+		if maxPossibleLen <= maxProgressionLen {
+			break
+		}
+
 		for start := 0; start < dist; start++ {
 			currenProgressionLens := make(map[int]int, N)
 			prevHeight := -1
