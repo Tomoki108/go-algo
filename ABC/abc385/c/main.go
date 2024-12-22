@@ -20,7 +20,7 @@ func main() {
 	N := readInt(r)
 	Hs := readIntArr(r)
 
-	maxProgressionLens := make(map[int]int, N)
+	maxProgressionLen := 1
 	for dist := 1; dist <= N-1; dist++ {
 		for start := 0; start < dist; start++ {
 			currenProgressionLens := make(map[int]int, N)
@@ -30,7 +30,7 @@ func main() {
 				height := Hs[i]
 				if prevHeight == height || prevHeight == -1 {
 					currenProgressionLens[height] += 1
-					maxProgressionLens[height] = max(maxProgressionLens[height], currenProgressionLens[height])
+					maxProgressionLen = max(maxProgressionLen, currenProgressionLens[height])
 				} else {
 					currenProgressionLens[height] = 1
 				}
@@ -40,12 +40,7 @@ func main() {
 		}
 	}
 
-	ans := 1
-	for _, v := range maxProgressionLens {
-		ans = max(ans, v)
-	}
-
-	fmt.Fprintln(w, ans)
+	fmt.Fprintln(w, maxProgressionLen)
 }
 
 //////////////
