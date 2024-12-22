@@ -21,27 +21,18 @@ func main() {
 	Hs := readIntArr(r)
 
 	maxProgressionLen := 1
-	for dist := 1; dist <= N-1; dist++ {
-		maxPossibleLen := N / dist
-		if N%dist != 0 {
-			maxPossibleLen++
-		}
-
-		if maxPossibleLen <= maxProgressionLen {
-			break
-		}
-
+	for dist := 1; dist < N-1; dist++ {
 		for start := 0; start < dist; start++ {
-			currenProgressionLens := make(map[int]int, N)
+			currenProgressionLen := 0
 			prevHeight := -1
 
 			for i := start; i < N; i += dist {
 				height := Hs[i]
 				if prevHeight == height || prevHeight == -1 {
-					currenProgressionLens[height] += 1
-					maxProgressionLen = max(maxProgressionLen, currenProgressionLens[height])
+					currenProgressionLen++
+					maxProgressionLen = max(maxProgressionLen, currenProgressionLen)
 				} else {
-					currenProgressionLens[height] = 1
+					currenProgressionLen = 1
 				}
 
 				prevHeight = height
