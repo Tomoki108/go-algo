@@ -17,6 +17,35 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Hs := readIntArr(r)
+
+	maxProgressionLens := make(map[int]int, N)
+	for dist := 1; dist <= N-1; dist++ {
+		for start := 0; start < dist; start++ {
+			currenProgressionLens := make(map[int]int, N)
+			prevHeight := -1
+
+			for i := start; i < N; i += dist {
+				height := Hs[i]
+				if prevHeight == height || prevHeight == -1 {
+					currenProgressionLens[height] += 1
+					maxProgressionLens[height] = max(maxProgressionLens[height], currenProgressionLens[height])
+				} else {
+					currenProgressionLens[height] = 1
+				}
+
+				prevHeight = height
+			}
+		}
+	}
+
+	ans := 1
+	for _, v := range maxProgressionLens {
+		ans = max(ans, v)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
