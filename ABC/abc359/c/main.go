@@ -36,7 +36,7 @@ func main() {
 	if yDelta >= xDelta {
 		cost = yDelta
 	} else {
-		cost = xDelta/2 + yDelta
+		cost = (xDelta + yDelta) / 2
 	}
 
 	fmt.Fprintln(w, cost)
