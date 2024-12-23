@@ -15,7 +15,148 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// ordered setを使った解法
 func main() {
+	defer w.Flush()
+
+	iarr := readIntArr(r)
+	N, M, Sx, Sy := iarr[0], iarr[1], iarr[2], iarr[3]
+
+	houseXYMap := make(map[int]*LinkedHashSet[int], N)
+	houseYXMap := make(map[int]*LinkedHashSet[int], N)
+
+	for i := 0; i < N; i++ {
+		X, Y := read2Ints(r)
+		if _, ok := houseXYMap[X]; !ok {
+			houseXYMap[X] = NewLinkedHashSet[int]()
+		}
+		if _, ok := houseYXMap[Y]; !ok {
+			houseYXMap[Y] = NewLinkedHashSet[int]()
+		}
+		houseXYMap[X].Add(Y)
+		houseXYMap[Y].Add(X)
+	}
+
+	for x, _ := range houseXYMap {
+		sort.Ints(houseXYMap[x])
+	}
+
+	xPaths := make([][2][2]int, 0, M) // from, to 横の移動
+	yPaths := make([][2][2]int, 0, M) // from, to　縦の移動
+
+	current := [2]int{Sx, Sy}
+	for i := 0; i < M; i++ {
+		sarr := readStrArr(r)
+		D := sarr[0]
+		CS := sarr[1]
+		C, _ := strconv.Atoi(CS)
+
+		var next [2]int
+
+		switch D {
+		case "U":
+			next = [2]int{current[0], current[1] + C}
+			yPaths = append(yPaths, [2][2]int{current, next})
+		case "D":
+			next = [2]int{current[0], current[1] - C}
+			yPaths = append(yPaths, [2][2]int{current, next})
+		case "L":
+			next = [2]int{current[0] - C, current[1]}
+			xPaths = append(xPaths, [2][2]int{current, next})
+		case "R":
+			next = [2]int{current[0] + C, current[1]}
+			xPaths = append(xPaths, [2][2]int{current, next})
+		}
+
+		current = next
+	}
+
+	count := 0
+	for _, yPath := range yPaths {
+		from := yPath[0]
+		to := yPath[1]
+
+		x := from[0]
+
+		fy := from[1]
+		ty := to[1]
+		fromY := min(fy, ty)
+		toY := max(fy, ty)
+
+		houseYs, ok := houseXYMap[x]
+		if !ok {
+			continue
+		}
+
+		idx1 := sort.Search(len(houseYs), func(i int) bool {
+			return houseYs[i] >= fromY
+		})
+		if idx1 != len(houseYs) {
+			idx2 := sort.Search(len(houseYs), func(i int) bool {
+				return houseYs[i] > toY
+			})
+
+			passedHouses := len(houseYs[idx1:idx2])
+			count += passedHouses
+
+			newHouseYs := houseYs[:idx1]
+			if idx2 != len(houseYs) {
+				newHouseYs = append(newHouseYs, houseYs[idx2:]...)
+			}
+			houseXYMap[x] = newHouseYs
+		}
+	}
+
+	housYXMap := make(map[int][]int, N)
+	for X, Ys := range houseXYMap {
+		for _, Y := range Ys {
+			housYXMap[Y] = append(housYXMap[Y], X)
+		}
+	}
+	for y, _ := range housYXMap {
+		sort.Ints(housYXMap[y])
+	}
+
+	for _, xPath := range xPaths {
+		from := xPath[0]
+		to := xPath[1]
+
+		y := from[1]
+
+		fx := from[0]
+		tx := to[0]
+		fromX := min(fx, tx)
+		toX := max(fx, tx)
+
+		houseXs, ok := housYXMap[y]
+		if !ok {
+			continue
+		}
+
+		idx1 := sort.Search(len(houseXs), func(i int) bool {
+			return houseXs[i] >= fromX
+		})
+		if idx1 != len(houseXs) {
+			idx2 := sort.Search(len(houseXs), func(i int) bool {
+				return houseXs[i] > toX
+			})
+
+			passedHouses := len(houseXs[idx1:idx2])
+			count += passedHouses
+
+			newHouseXs := houseXs[:idx1]
+			if idx2 != len(houseXs) {
+				newHouseXs = append(newHouseXs, houseXs[idx2:]...)
+			}
+			housYXMap[y] = newHouseXs
+		}
+	}
+
+	fmt.Fprintf(w, "%d %d %d\n", current[0], current[1], count)
+}
+
+//lint:ignore U1000 unused
+func alt() {
 	defer w.Flush()
 
 	iarr := readIntArr(r)
@@ -145,9 +286,86 @@ func main() {
 	fmt.Fprintf(w, "%d %d %d\n", current[0], current[1], count)
 }
 
-//////////////
+// ////////////
 // Libs    //
-/////////////
+// ///////////
+type Node[T any] struct {
+	value T
+	prev  *Node[T]
+	next  *Node[T]
+}
+
+type LinkedHashSet[T comparable] struct {
+	elements map[T]*Node[T]
+	head     *Node[T] // GetAllに必要
+	tail     *Node[T] // Add, Remove に必要
+}
+
+func NewLinkedHashSet[T comparable]() *LinkedHashSet[T] {
+	return &LinkedHashSet[T]{
+		elements: make(map[T]*Node[T]),
+	}
+}
+
+// O(1)
+func (s *LinkedHashSet[T]) Add(value T) {
+	if _, exists := s.elements[value]; exists {
+		return // Element already exists, do nothing.
+	}
+	// Create a new node.
+	newNode := &Node[T]{value: value}
+	// Add the node to the end of the list.
+	if s.tail == nil {
+		// First element in the list.
+		s.head = newNode
+		s.tail = newNode
+	} else {
+		// Append to the tail.
+		s.tail.next = newNode
+		newNode.prev = s.tail
+		s.tail = newNode
+	}
+	// Add to the map.
+	s.elements[value] = newNode
+}
+
+// O(1)
+func (s *LinkedHashSet[T]) Remove(value T) {
+	node, exists := s.elements[value]
+	if !exists {
+		return // Element not found, do nothing.
+	}
+	// Remove the node from the list.
+	if node.prev != nil {
+		node.prev.next = node.next
+	} else {
+		// Node is the head.
+		s.head = node.next
+	}
+	if node.next != nil {
+		node.next.prev = node.prev
+	} else {
+		// Node is the tail.
+		s.tail = node.prev
+	}
+	// Remove from the map.
+	delete(s.elements, value)
+}
+
+// O(1)
+func (s *LinkedHashSet[T]) Contains(value T) bool {
+	_, exists := s.elements[value]
+	return exists
+}
+
+// O(N)
+func (s *LinkedHashSet[T]) GetAll() []T {
+	var result []T
+	for node := s.head; node != nil; node = node.next {
+		result = append(result, node.value)
+	}
+	return result
+}
 
 //////////////
 // Helpers  //

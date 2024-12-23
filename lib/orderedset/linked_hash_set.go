@@ -80,8 +80,7 @@ func (s *LinkedHashSet[T]) GetAll() []T {
 	return result
 }
 
-//lint:ignore U1000 unused
-func example() {
+func ExampleForLinkedHashSet() {
 	// Example usage
 	set := NewLinkedHashSet[string]()
 	set.Add("apple")
