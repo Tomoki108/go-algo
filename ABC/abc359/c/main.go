@@ -45,14 +45,14 @@ func main() {
 // 任意の座標がタイルの右側だった場合、そのタイルの左側の座標を返す。
 // 任意の座標がタイルの左側だった場合、そのままの座標を返す。
 func floatLeft(x, y int) (int, int) { // 制約より、x, yは正の数なので、goの%演算（負の数の場合、数学のmoduro演算と挙動が違う）でも大丈夫
-	if y%2 == 1 {
-		if x%2 == 1 {
+	if y%2 == 0 {
+		if x%2 == 0 {
 			return x, y
 		} else {
 			return x - 1, y
 		}
 	} else {
-		if x%2 == 1 {
+		if x%2 == 0 {
 			return x - 1, y
 		} else {
 			return x, y
