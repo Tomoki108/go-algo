@@ -16,34 +16,29 @@ var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
 // ordered setを使った解法
+// 家の、x座標ごとのy座標、y座標ごとのx座標について、ordered set（AVLを使った平衡二分木で実装）で管理する
 func main() {
 	defer w.Flush()
 
 	iarr := readIntArr(r)
 	N, M, Sx, Sy := iarr[0], iarr[1], iarr[2], iarr[3]
 
-	houseXYMap := make(map[int]*LinkedHashSet[int], N)
-	houseYXMap := make(map[int]*LinkedHashSet[int], N)
+	houseXYMap := make(map[int]*TreeSet[int], N)
+	houseYXMap := make(map[int]*TreeSet[int], N)
 
 	for i := 0; i < N; i++ {
 		X, Y := read2Ints(r)
 		if _, ok := houseXYMap[X]; !ok {
-			houseXYMap[X] = NewLinkedHashSet[int]()
+			houseXYMap[X] = NewTreeSet[int]()
 		}
 		if _, ok := houseYXMap[Y]; !ok {
-			houseYXMap[Y] = NewLinkedHashSet[int]()
+			houseYXMap[Y] = NewTreeSet[int]()
 		}
 		houseXYMap[X].Add(Y)
-		houseXYMap[Y].Add(X)
+		houseYXMap[Y].Add(X)
 	}
 
-	for x, _ := range houseXYMap {
-		sort.Ints(houseXYMap[x])
-	}
-
-	xPaths := make([][2][2]int, 0, M) // from, to 横の移動
-	yPaths := make([][2][2]int, 0, M) // from, to　縦の移動
-
+	ans := 0
 	current := [2]int{Sx, Sy}
 	for i := 0; i < M; i++ {
 		sarr := readStrArr(r)
@@ -56,107 +51,86 @@ func main() {
 		switch D {
 		case "U":
 			next = [2]int{current[0], current[1] + C}
-			yPaths = append(yPaths, [2][2]int{current, next})
+
+			x := current[0]
+			fromY := current[1]
+			toY := next[1]
+
+			yTree, ok := houseXYMap[x]
+			if ok {
+				houseYs := yTree.Range(fromY, toY)
+				ans += len(houseYs)
+
+				for _, y := range houseYs {
+					yTree.Remove(y)
+					houseYXMap[y].Remove(x)
+				}
+			}
 		case "D":
 			next = [2]int{current[0], current[1] - C}
-			yPaths = append(yPaths, [2][2]int{current, next})
+
+			x := current[0]
+			fromY := next[1]
+			toY := current[1]
+
+			yTree, ok := houseXYMap[x]
+			if ok {
+				houseYs := yTree.Range(fromY, toY)
+				ans += len(houseYs)
+
+				for _, y := range houseYs {
+					yTree.Remove(y)
+					houseYXMap[y].Remove(x)
+				}
+			}
 		case "L":
 			next = [2]int{current[0] - C, current[1]}
-			xPaths = append(xPaths, [2][2]int{current, next})
+
+			y := current[1]
+			fromX := next[0]
+			toX := current[0]
+
+			xTree, ok := houseYXMap[y]
+			if ok {
+				houseXs := xTree.Range(fromX, toX)
+				ans += len(houseXs)
+
+				for _, x := range houseXs {
+					xTree.Remove(x)
+					houseXYMap[x].Remove(y)
+				}
+			}
 		case "R":
 			next = [2]int{current[0] + C, current[1]}
-			xPaths = append(xPaths, [2][2]int{current, next})
+
+			y := current[1]
+			fromX := current[0]
+			toX := next[0]
+
+			xTree, ok := houseYXMap[y]
+			if ok {
+				houseXs := xTree.Range(fromX, toX)
+				ans += len(houseXs)
+
+				for _, x := range houseXs {
+					xTree.Remove(x)
+					houseXYMap[x].Remove(y)
+				}
+			}
 		}
 
 		current = next
 	}
 
-	count := 0
-	for _, yPath := range yPaths {
-		from := yPath[0]
-		to := yPath[1]
-
-		x := from[0]
-
-		fy := from[1]
-		ty := to[1]
-		fromY := min(fy, ty)
-		toY := max(fy, ty)
-
-		houseYs, ok := houseXYMap[x]
-		if !ok {
-			continue
-		}
-
-		idx1 := sort.Search(len(houseYs), func(i int) bool {
-			return houseYs[i] >= fromY
-		})
-		if idx1 != len(houseYs) {
-			idx2 := sort.Search(len(houseYs), func(i int) bool {
-				return houseYs[i] > toY
-			})
-
-			passedHouses := len(houseYs[idx1:idx2])
-			count += passedHouses
-
-			newHouseYs := houseYs[:idx1]
-			if idx2 != len(houseYs) {
-				newHouseYs = append(newHouseYs, houseYs[idx2:]...)
-			}
-			houseXYMap[x] = newHouseYs
-		}
-	}
-
-	housYXMap := make(map[int][]int, N)
-	for X, Ys := range houseXYMap {
-		for _, Y := range Ys {
-			housYXMap[Y] = append(housYXMap[Y], X)
-		}
-	}
-	for y, _ := range housYXMap {
-		sort.Ints(housYXMap[y])
-	}
-
-	for _, xPath := range xPaths {
-		from := xPath[0]
-		to := xPath[1]
-
-		y := from[1]
-
-		fx := from[0]
-		tx := to[0]
-		fromX := min(fx, tx)
-		toX := max(fx, tx)
-
-		houseXs, ok := housYXMap[y]
-		if !ok {
-			continue
-		}
-
-		idx1 := sort.Search(len(houseXs), func(i int) bool {
-			return houseXs[i] >= fromX
-		})
-		if idx1 != len(houseXs) {
-			idx2 := sort.Search(len(houseXs), func(i int) bool {
-				return houseXs[i] > toX
-			})
-
-			passedHouses := len(houseXs[idx1:idx2])
-			count += passedHouses
-
-			newHouseXs := houseXs[:idx1]
-			if idx2 != len(houseXs) {
-				newHouseXs = append(newHouseXs, houseXs[idx2:]...)
-			}
-			housYXMap[y] = newHouseXs
-		}
-	}
-
-	fmt.Fprintf(w, "%d %d %d\n", current[0], current[1], count)
+	fmt.Fprintf(w, "%d %d %d\n", current[0], current[1], ans)
 }
 
-//lint:ignore U1000 unused
-func alt() {
+// 工夫で家の重複カウントを防ぐ解法
+// サンタの移動を線分として記録する。
+// 家の、x座標ごとのy座標について、スライスで管理する。
+// 垂直なサンタの移動線のみ処理し、スライスから家を削除する。
+// スライスから残った家の、y座標ごとのx座標のスライスを作成し、水平なサンタの移動線を処理する。
+func Alt() {
 	defer w.Flush()
 
 	iarr := readIntArr(r)
@@ -289,82 +263,210 @@ func alt() {
 // ////////////
 // Libs    //
 // ///////////
-type Node[T any] struct {
-	value T
-	prev  *Node[T]
-	next  *Node[T]
+type Ordered interface {
+	~int | ~float64 | ~string
 }
 
-type LinkedHashSet[T comparable] struct {
-	elements map[T]*Node[T]
-	head     *Node[T] // GetAllに必要
-	tail     *Node[T] // Add, Remove に必要
+// TreeNode represents a node in the AVL tree.
+type TreeNode[T Ordered] struct {
+	value  T
+	left   *TreeNode[T]
+	right  *TreeNode[T]
+	height int
 }
 
-func NewLinkedHashSet[T comparable]() *LinkedHashSet[T] {
-	return &LinkedHashSet[T]{
-		elements: make(map[T]*Node[T]),
-	}
+// TreeSet is a generic AVL tree-based set. It is alwways sorted automatically.
+// can Add, Remove, Contains in O(log n), GetAll in O(n).
+type TreeSet[T Ordered] struct {
+	root *TreeNode[T]
+	size int
 }
 
-// O(1)
-func (s *LinkedHashSet[T]) Add(value T) {
-	if _, exists := s.elements[value]; exists {
-		return // Element already exists, do nothing.
-	}
-	// Create a new node.
-	newNode := &Node[T]{value: value}
-	// Add the node to the end of the list.
-	if s.tail == nil {
-		// First element in the list.
-		s.head = newNode
-		s.tail = newNode
-	} else {
-		// Append to the tail.
-		s.tail.next = newNode
-		newNode.prev = s.tail
-		s.tail = newNode
-	}
-	// Add to the map.
-	s.elements[value] = newNode
+func NewTreeSet[T Ordered]() *TreeSet[T] {
+	return &TreeSet[T]{}
 }
 
 // O(1)
-func (s *LinkedHashSet[T]) Remove(value T) {
-	node, exists := s.elements[value]
-	if !exists {
-		return // Element not found, do nothing.
+func (t *TreeSet[T]) Height(node *TreeNode[T]) int {
+	if node == nil {
+		return 0
 	}
-	// Remove the node from the list.
-	if node.prev != nil {
-		node.prev.next = node.next
-	} else {
-		// Node is the head.
-		s.head = node.next
-	}
-	if node.next != nil {
-		node.next.prev = node.prev
-	} else {
-		// Node is the tail.
-		s.tail = node.prev
-	}
-	// Remove from the map.
-	delete(s.elements, value)
+	return node.height
 }
 
-// O(1)
-func (s *LinkedHashSet[T]) Contains(value T) bool {
-	_, exists := s.elements[value]
-	return exists
+// O(log n)
+func (t *TreeSet[T]) Add(value T) {
+	t.root = t.add(t.root, value)
 }
 
-// O(N)
-func (s *LinkedHashSet[T]) GetAll() []T {
+// O(log n)
+func (t *TreeSet[T]) Remove(value T) {
+	t.root = t.remove(t.root, value)
+}
+
+// O(log n)
+func (t *TreeSet[T]) Contains(value T) bool {
+	return t.contains(t.root, value)
+}
+
+// O(n)
+func (t *TreeSet[T]) GetAll() []T {
 	var result []T
-	for node := s.head; node != nil; node = node.next {
-		result = append(result, node.value)
-	}
+	t.inOrderTraversal(t.root, &result)
 	return result
+}
+
+// O(k + log n)　k: num of nodes in the range
+func (t *TreeSet[T]) Range(min, max T) []T {
+	var result []T
+	t.rangeQuery(t.root, min, max, &result)
+	return result
+}
+
+// add recursively adds a value to the AVL tree and balances it.
+func (t *TreeSet[T]) add(node *TreeNode[T], value T) *TreeNode[T] {
+	if node == nil {
+		t.size++
+		return &TreeNode[T]{value: value, height: 1}
+	}
+	if value < node.value {
+		node.left = t.add(node.left, value)
+	} else if value > node.value {
+		node.right = t.add(node.right, value)
+	} else {
+		// Value already exists, do nothing.
+		return node
+	}
+
+	// Update height and balance the tree.
+	node.height = 1 + max(t.Height(node.left), t.Height(node.right))
+	return t.balance(node)
+}
+
+// remove recursively deletes a value from the AVL tree and balances it.
+func (t *TreeSet[T]) remove(node *TreeNode[T], value T) *TreeNode[T] {
+	if node == nil {
+		return nil
+	}
+	if value < node.value {
+		node.left = t.remove(node.left, value)
+	} else if value > node.value {
+		node.right = t.remove(node.right, value)
+	} else {
+		// Node to be removed found.
+		t.size--
+		if node.left == nil {
+			return node.right
+		} else if node.right == nil {
+			return node.left
+		}
+		// Replace with the in-order successor.
+		minNode := t.findMin(node.right)
+		node.value = minNode.value
+		node.right = t.remove(node.right, minNode.value)
+	}
+
+	// Update height and balance the tree.
+	node.height = 1 + max(t.Height(node.left), t.Height(node.right))
+	return t.balance(node)
+}
+
+// findMin finds the node with the smallest value in a subtree.
+func (t *TreeSet[T]) findMin(node *TreeNode[T]) *TreeNode[T] {
+	for node.left != nil {
+		node = node.left
+	}
+	return node
+}
+
+// contains recursively checks for the existence of a value in the AVL tree.
+func (t *TreeSet[T]) contains(node *TreeNode[T], value T) bool {
+	if node == nil {
+		return false
+	}
+	if value < node.value {
+		return t.contains(node.left, value)
+	} else if value > node.value {
+		return t.contains(node.right, value)
+	}
+	return true
+}
+
+// inOrderTraversal performs an in-order traversal of the AVL tree.
+func (t *TreeSet[T]) inOrderTraversal(node *TreeNode[T], result *[]T) {
+	if node == nil {
+		return
+	}
+	t.inOrderTraversal(node.left, result)
+	*result = append(*result, node.value)
+	t.inOrderTraversal(node.right, result)
+}
+
+// balance balances the AVL tree.
+func (t *TreeSet[T]) balance(node *TreeNode[T]) *TreeNode[T] {
+	balanceFactor := t.Height(node.left) - t.Height(node.right)
+
+	// Left heavy
+	if balanceFactor > 1 {
+		if t.Height(node.left.left) >= t.Height(node.left.right) {
+			node = t.rotateRight(node)
+		} else {
+			node.left = t.rotateLeft(node.left)
+			node = t.rotateRight(node)
+		}
+	}
+
+	// Right heavy
+	if balanceFactor < -1 {
+		if t.Height(node.right.right) >= t.Height(node.right.left) {
+			node = t.rotateLeft(node)
+		} else {
+			node.right = t.rotateRight(node.right)
+			node = t.rotateLeft(node)
+		}
+	}
+
+	return node
+}
+
+// rotateLeft performs a left rotation.
+func (t *TreeSet[T]) rotateLeft(node *TreeNode[T]) *TreeNode[T] {
+	right := node.right
+	node.right = right.left
+	right.left = node
+
+	// Update heights
+	node.height = 1 + max(t.Height(node.left), t.Height(node.right))
+	right.height = 1 + max(t.Height(right.left), t.Height(right.right))
+	return right
+}
+
+// rotateRight performs a right rotation.
+func (t *TreeSet[T]) rotateRight(node *TreeNode[T]) *TreeNode[T] {
+	left := node.left
+	node.left = left.right
+	left.right = node
+
+	// Update heights
+	node.height = 1 + max(t.Height(node.left), t.Height(node.right))
+	left.height = 1 + max(t.Height(left.left), t.Height(left.right))
+	return left
+}
+
+// rangeQuery recursively collects all values within the range [min, max].
+func (t *TreeSet[T]) rangeQuery(node *TreeNode[T], min, max T, result *[]T) {
+	if node == nil {
+		return
+	}
+	if min < node.value {
+		t.rangeQuery(node.left, min, max, result)
+	}
+	if min <= node.value && node.value <= max {
+		*result = append(*result, node.value)
+	}
+	if max > node.value {
+		t.rangeQuery(node.right, min, max, result)
+	}
 }
 
 //////////////

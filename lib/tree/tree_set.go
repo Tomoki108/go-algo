@@ -14,7 +14,7 @@ type TreeNode[T Ordered] struct {
 	height int
 }
 
-// TreeSet is a generic AVL tree-based set.
+// TreeSet is a generic AVL tree-based set. It is alwways sorted automatically.
 // can Add, Remove, Contains in O(log n), GetAll in O(n).
 type TreeSet[T Ordered] struct {
 	root *TreeNode[T]
