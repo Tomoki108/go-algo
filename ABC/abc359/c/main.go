@@ -20,6 +20,10 @@ func main() {
 	Sx, Sy := read2Ints(r)
 	Tx, Ty := read2Ints(r)
 
+	// 座標をタイルの左側に統一する
+	Sx, Sy = floatLeft(Sx, Sy)
+	Tx, Ty = floatLeft(Tx, Ty)
+
 	if Sx == Tx && Sy == Ty {
 		fmt.Fprintln(w, 0)
 		return
@@ -28,9 +32,31 @@ func main() {
 	xDelta := abs(Tx - Sx)
 	yDelta := abs(Ty - Sy)
 
+	var cost int
 	if yDelta >= xDelta {
-		fmt.Fprintln(w, yDelta)
-		return
+		cost = yDelta
+	} else {
+		cost = xDelta/2 + yDelta
+	}
+
+	fmt.Fprintln(w, cost)
+}
+
+// 任意の座標がタイルの右側だった場合、そのタイルの左側の座標を返す。
+// 任意の座標がタイルの左側だった場合、そのままの座標を返す。
+func floatLeft(x, y int) (int, int) { // 制約より、x, yは正の数なので、goの%演算（負の数の場合、数学のmoduro演算と挙動が違う）でも大丈夫
+	if y%2 == 1 {
+		if x%2 == 1 {
+			return x, y
+		} else {
+			return x - 1, y
+		}
+	} else {
+		if x%2 == 1 {
+			return x - 1, y
+		} else {
+			return x, y
+		}
 	}
 }
 
