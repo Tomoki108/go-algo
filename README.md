@@ -13,7 +13,9 @@ npm install -g atcoder-cli
 brew update
 brew install goenv
 
-goenv install 1.20.6
+# actual atcoder's go version is 1.20.6, but using 1.20.14 to use statick check
+# https://img.atcoder.jp/file/language-update/language-list.html
+goenv install 1.20.14
 ```
 
 - add alias to a file like `~/.bash_profile`

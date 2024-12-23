@@ -47,23 +47,18 @@ func main() {
 			next = adjacents[3]
 		}
 
-		// fmt.Println(next)
-
 		if next.IsValid(H, W) && grid[next.h-1][next.w-1] != "#" {
 			_, visited := visitedHouse[next]
 			if grid[next.h-1][next.w-1] == "@" && !visited {
-				// fmt.Println("hi1")
-
 				count++
 				visitedHouse[next] = struct{}{}
 			}
-			// fmt.Println("hi2")
 
 			current = next
 		} else {
-			// fmt.Println("hi3")
 			continue
 		}
+
 	}
 
 	fmt.Fprintf(w, "%d %d %d\n", current.h, current.w, count)
@@ -102,6 +97,8 @@ func readStr(r *bufio.Reader) string {
 }
 
 // 一行に1つの整数のみの入力を読み込む
+//
+//lint:ignore U1000 unused
 func readInt(r *bufio.Reader) int {
 	input, _ := r.ReadString('\n')
 	str := strings.TrimSpace(input)
