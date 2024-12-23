@@ -1,7 +1,5 @@
 package tree
 
-import "fmt"
-
 type Ordered interface {
 	~int | ~float64 | ~string
 }
@@ -208,25 +206,67 @@ func (t *TreeSet[T]) rangeQuery(node *TreeNode[T], min, max T, result *[]T) {
 	}
 }
 
+// MultiSet is a multiset that allows duplicate elements, implemented with a TreeSet.
+type MultiSet[T Ordered] struct {
+	elements map[T]int // Value to count mapping
+	order    *TreeSet[T]
+}
+
+func NewMultiSet[T Ordered]() *MultiSet[T] {
+	return &MultiSet[T]{
+		elements: make(map[T]int),
+		order:    NewTreeSet[T](),
+	}
+}
+
+// O(log N) if new value
+// O(1) if already exists
+func (ms *MultiSet[T]) Add(value T) {
+	if ms.elements[value] == 0 {
+		ms.order.Add(value)
+	}
+	ms.elements[value]++
+}
+
+// O(log N) if last value of the value
+// O(1) if not last value of the value
+func (ms *MultiSet[T]) Remove(value T) {
+	if ms.elements[value] == 0 {
+		return
+	}
+	ms.elements[value]--
+	if ms.elements[value] == 0 {
+		delete(ms.elements, value)
+		ms.order.Remove(value)
+	}
+}
+
+// O(1)
+func (ms *MultiSet[T]) Contains(value T) bool {
+	return ms.elements[value] > 0
+}
+
+// O(1)
+func (ms *MultiSet[T]) Count(value T) int {
+	return ms.elements[value]
+}
+
+// O(k + log n) n: the num of unique elements, k: the total num of elements in the range.
+func (ms *MultiSet[T]) Range(min, max T) []T {
+	uniqueValues := ms.order.Range(min, max) // Get unique values in range from TreeSet.
+	var result []T
+	for _, value := range uniqueValues {
+		count := ms.Count(value)
+		for i := 0; i < count; i++ {
+			result = append(result, value)
+		}
+	}
+	return result
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a
 	}
 	return b
-}
-
-func ExampleForTreeSet() {
-	set := NewTreeSet[int]()
-	set.Add(3)
-	set.Add(1)
-	set.Add(4)
-	set.Add(2)
-
-	fmt.Println("TreeSet contents:", set.GetAll()) // Output: [1 2 3 4]
-
-	set.Remove(3)
-	fmt.Println("After removing 3:", set.GetAll()) // Output: [1 2 4]
-
-	fmt.Println("Contains 2:", set.Contains(2)) // Output: true
-	fmt.Println("Contains 3:", set.Contains(3)) // Output: false
 }
