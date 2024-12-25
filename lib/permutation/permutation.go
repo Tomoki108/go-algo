@@ -1,7 +1,9 @@
 package permutation
 
-// sl の要素を並び替えて、次の辞書順の順列にする
+import "fmt"
+
 // O(len(sl)*len(sl)!)
+// sl の要素を並び替えて、次の辞書順の順列にする
 func NextPermutation[T ~int | ~string](sl []T) bool {
 	n := len(sl)
 	i := n - 2
@@ -38,18 +40,19 @@ func reverse[T ~int | ~string](sl []T) {
 	}
 }
 
+// NOTE: スライスのcopyが多く、n = 10 程度で致命的に遅い。NetxPermutationを推奨。
+//
 // O(n!) n: len(options)
-// 順列のパターンを全列挙する. (スライスの操作が多いため、NetxPermutation のほうが早く、一度に全列挙せずに済むそちらを使う)
+// 順列のパターンを全列挙する
 // ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
 // options[i]に重複した要素が含まれていても、あらかじめソートしておけば重複パターンは除かれる
 func Permute[T comparable](current []T, options []T) [][]T {
+	fmt.Printf("current: %v, options: %v\n", current, options)
+
 	var results [][]T
 
-	cc := append([]T{}, current...)
-	co := append([]T{}, options...)
-
-	if len(co) == 0 {
-		return [][]T{cc}
+	if len(options) == 0 {
+		return [][]T{current}
 	}
 
 	var lastO T
@@ -59,18 +62,23 @@ func Permute[T comparable](current []T, options []T) [][]T {
 		}
 		lastO = o
 
-		newcc := append([]T{}, cc...)
-		newcc = append(newcc, o)
-		newco := append([]T{}, co[:i]...)
-		newco = append(newco, co[i+1:]...)
+		newCurrent := make([]T, len(current))
+		copy(newCurrent, current)
+		newCurrent = append(newCurrent, o)
 
-		subResults := Permute(newcc, newco)
+		newOptions := make([]T, 0, len(options)-1)
+		newOptions = append(newOptions, options[:i]...)
+		newOptions = append(newOptions, options[i+1:]...)
+
+		subResults := Permute(newCurrent, newOptions)
 		results = append(results, subResults...)
 	}
 
 	return results
 }
 
+// NOTE: スライスのcopyが多く、m*n = 10 程度で致命的に遅い。
+//
 // O(m^n * n) m: len(options), n: 各サブスライスの平均長
 // 要素数 len(options) で、i番目の要素が options[i] であるような順列のパターンを全列挙する
 // options[i]に重複した要素が含まれていても、あらかじめソートしておけば重複パターンは除かれる
