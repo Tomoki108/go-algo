@@ -61,21 +61,13 @@ func paintCenterWithWhiteRecursively(grid [][]*string, size int) {
 		blockGrid := make([][]*string, 0, blockSize)
 		wIdx := ((no + 2) % 3) * blockSize
 
-		//	fmt.Fprintf(w, "no: %d, blockSize: %d, wIdx: %d, rowIdx: %d\n", no, blockSize, wIdx, rowIdx)
-
 		for i := 0; i < blockSize; i++ {
 			blockGrid = append(blockGrid, grid[rowIdx+i][wIdx:wIdx+blockSize])
 		}
 
 		if no == 5 {
-			// fmt.Fprintf(w, "hey! blockSize: %d, no: %d\n", blockSize, no)
-			// writeGrid2(w, blockGrid)
-			// fmt.Fprintln(w)
-
 			for _, row := range blockGrid {
 				for _, cell := range row {
-					// fmt.Fprintf(w, "no: %d, blockSize: %d\n", no, blockSize)
-
 					*cell = "."
 				}
 			}
@@ -83,25 +75,12 @@ func paintCenterWithWhiteRecursively(grid [][]*string, size int) {
 			paintCenterWithWhiteRecursively(blockGrid, blockSize)
 		}
 
-		// writeGrid2(w, blockGrid)
-		// fmt.Fprintln(w)
-
 		if no%3 == 0 {
 			rowIdx += blockSize
 		}
 	}
 
 }
-
-// func isCenterBlock(size, h, w int) bool {
-// 	blockSize := size / 3
-
-// 	if h > blockSize && h <= blockSize*2 && w > blockSize && w <= blockSize*2 {
-// 		return true
-// 	}
-
-// 	return false
-// }
 
 //////////////
 // Libs    //
