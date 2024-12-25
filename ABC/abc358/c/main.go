@@ -46,37 +46,28 @@ func main() {
 	minAns := intMax
 	completeFlavors := 1<<M - 1
 
+	minAns = min(minAns, calcVisitCounters(counters, counterBits, completeFlavors))
+	for NextPermutation(counters) {
+		minAns = min(minAns, calcVisitCounters(counters, counterBits, completeFlavors))
+	}
+
+	fmt.Fprintln(w, minAns)
+}
+
+func calcVisitCounters(counters, counterBits []int, completeFlavors int) int {
 	flavors := 0
 	visit := 0
+
 	for _, counter := range counters {
 		visit++
 		flavors = flavors | counterBits[counter-1]
 
 		if flavors == completeFlavors {
-			ans := visit
-			minAns = min(minAns, ans)
-			break
+			return visit
 		}
 	}
 
-Outer:
-	for NextPermutation(counters) {
-		flavors := 0
-		visit := 0
-
-		for _, counter := range counters {
-			visit++
-			flavors = flavors | counterBits[counter-1]
-
-			if flavors == completeFlavors {
-				ans := visit
-				minAns = min(minAns, ans)
-				continue Outer
-			}
-		}
-	}
-
-	fmt.Fprintln(w, minAns)
+	panic("can't reach here")
 }
 
 //////////////
