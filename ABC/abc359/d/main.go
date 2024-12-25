@@ -25,7 +25,7 @@ func main() {
 
 	firstKs := eunumeratePatterns(Ss, []string{}, K-1)
 
-	// (N) * 512(=2^9)のテーブル
+	// N * 512(=2^9)のテーブル
 	// 列：index(i)まで埋めている
 	// 行：index(i-K+1) ~ index(i) 文字目の文字列
 	// セル：(K文字の部分列回文を含まずに）その状況に到達するパターン数
@@ -37,18 +37,11 @@ func main() {
 		table[K-2][str] = 1
 	}
 
-	// fmt.Printf("table:%v\n", table)
-
 	for i := K - 2; i < N-1; i++ {
 		table[i+1] = make(map[string]int) // 次の列を初期化
 		char := Ss[i+1]
-		// fmt.Println("char", char)
 
 		for str, count := range table[i] { // i列を元にi+1列を埋める
-			// str = str[1:]
-
-			// fmt.Printf("str: %s, count: %d, char %s\n", str, count, char)
-
 			if char == "A" || char == "B" {
 				str += char
 				if !IsPallindromeStr(str) {
@@ -71,8 +64,6 @@ func main() {
 		}
 	}
 
-	fmt.Printf("table:%v\n", table)
-
 	ans := 0
 	for _, count := range table[N-1] {
 		ans += count % MOD
@@ -89,9 +80,18 @@ func eunumeratePatterns(Ss, current []string, k int) [][]string {
 	nextIdx := len(current)
 	var result [][]string
 	if Ss[nextIdx] == "?" {
-		result = append(eunumeratePatterns(Ss, append(current, "A"), k), eunumeratePatterns(Ss, append(current, "B"), k)...)
+		copyCurrent1 := make([]string, len(current))
+		copy(copyCurrent1, current)
+
+		copyCurrent2 := make([]string, len(current))
+		copy(copyCurrent2, current)
+
+		result = append(eunumeratePatterns(Ss, append(copyCurrent1, "A"), k), eunumeratePatterns(Ss, append(copyCurrent2, "B"), k)...)
 	} else {
-		result = eunumeratePatterns(Ss, append(current, Ss[nextIdx]), k)
+		copyCurrent := make([]string, len(current))
+		copy(copyCurrent, current)
+
+		result = eunumeratePatterns(Ss, append(copyCurrent, Ss[nextIdx]), k)
 	}
 
 	return result
@@ -110,43 +110,6 @@ func IsPallindromeStr(s string) bool {
 	}
 
 	return true
-}
-
-// O(log(exp))
-// 繰り返し二乗法で x^y を計算する関数
-func Pow(base, exp int) int {
-	// 繰り返し二乗法
-	// 2^8 = 4^2^2
-	// 2^9 = 4^2^2 * 2
-	// この性質を利用して、基数を2乗しつつ指数を1/2にしていく
-
-	result := 1
-	for exp > 0 {
-		if exp%2 == 1 {
-			result *= base
-		}
-		base *= base
-		exp /= 2
-	}
-	return result
-}
-
-// O(log(exp))
-// Calc (base^exp) % mod efficiently
-func ModExponentiation(base, exp, mod int) int {
-	result := 1
-	base = base % mod // 基数を mod で割った余りに変換
-
-	for exp > 0 {
-		// exp の最下位ビットが 1 なら結果に base を掛ける
-		if exp%2 == 1 {
-			result = (result * base) % mod
-		}
-		// base を二乗し、exp を半分にする
-		base = (base * base) % mod
-		exp /= 2
-	}
-	return result
 }
 
 //////////////
