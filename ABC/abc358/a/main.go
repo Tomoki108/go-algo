@@ -20,6 +20,15 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	sarr := readStrArr(r)
+	S := sarr[0]
+	T := sarr[1]
+
+	if S == "AtCoder" && T == "Land" {
+		fmt.Fprintln(w, "Yes")
+	} else {
+		fmt.Fprintln(w, "No")
+	}
 }
 
 //////////////
