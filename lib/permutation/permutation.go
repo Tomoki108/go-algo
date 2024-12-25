@@ -1,5 +1,7 @@
 package permutation
 
+// NOTE: 全パターンに何らかの処理を適用したいとき、オリジナルのslに対しては別途処理を記述する
+//
 // O(len(sl)*len(sl)!)
 // sl の要素を並び替えて、次の辞書順の順列にする
 func NextPermutation[T ~int | ~string](sl []T) bool {

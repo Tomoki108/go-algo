@@ -140,39 +140,6 @@ func reverse[T ~int | ~string](sl []T) {
 	}
 }
 
-// O(n!) n: len(options)
-// 順列のパターンを全列挙する. (スライスの操作が多いため、NetxPermutation のほうが早く、一度に全列挙せずに済むそちらを使う)
-// ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
-// options[i]に重複した要素が含まれていても、あらかじめソートしておけば重複パターンは除かれる
-func Permute[T comparable](current []T, options []T) [][]T {
-	var results [][]T
-
-	cc := append([]T{}, current...)
-	co := append([]T{}, options...)
-
-	if len(co) == 0 {
-		return [][]T{cc}
-	}
-
-	var lastO T
-	for i, o := range options {
-		if o == lastO {
-			continue
-		}
-		lastO = o
-
-		newcc := append([]T{}, cc...)
-		newcc = append(newcc, o)
-		newco := append([]T{}, co[:i]...)
-		newco = append(newco, co[i+1:]...)
-
-		subResults := Permute(newcc, newco)
-		results = append(results, subResults...)
-	}
-
-	return results
-}
-
 //////////////
 // Helpers  //
 /////////////
