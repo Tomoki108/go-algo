@@ -20,6 +20,29 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	lowCount := 0
+	for i := 0; i < len(Ss); i++ {
+		if 'a' <= S[i] && S[i] <= 'z' {
+			lowCount++
+		}
+	}
+	upCount := len(S) - lowCount
+
+	ans := make([]string, len(Ss))
+	if lowCount < upCount {
+		for i := 0; i < len(Ss); i++ {
+			ans = append(ans, strings.ToUpper(Ss[i]))
+		}
+	} else {
+		for i := 0; i < len(Ss); i++ {
+			ans = append(ans, strings.ToLower(Ss[i]))
+		}
+	}
+
+	fmt.Fprintln(w, strings.Join(ans, ""))
 }
 
 //////////////
