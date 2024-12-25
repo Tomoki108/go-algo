@@ -5,6 +5,22 @@ import (
 	"testing"
 )
 
+func BenchmarkPermute(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Permute([]int{}, []int{1, 2, 3})
+	}
+}
+
+func BenchmarkNextPermutation(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		loop := true
+		permutation := []int{1, 2, 3}
+		for loop {
+			loop = NextPermutation(permutation)
+		}
+	}
+}
+
 func TestPermute(t *testing.T) {
 	tests := []struct {
 		name     string

@@ -1,7 +1,5 @@
 package permutation
 
-import "fmt"
-
 // O(len(sl)*len(sl)!)
 // sl の要素を並び替えて、次の辞書順の順列にする
 func NextPermutation[T ~int | ~string](sl []T) bool {
@@ -47,12 +45,13 @@ func reverse[T ~int | ~string](sl []T) {
 // ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
 // options[i]に重複した要素が含まれていても、あらかじめソートしておけば重複パターンは除かれる
 func Permute[T comparable](current []T, options []T) [][]T {
-	fmt.Printf("current: %v, options: %v\n", current, options)
-
 	var results [][]T
 
 	if len(options) == 0 {
-		return [][]T{current}
+		ccrrent := make([]T, len(current))
+		copy(ccrrent, current)
+
+		return [][]T{ccrrent}
 	}
 
 	var lastO T
@@ -62,16 +61,15 @@ func Permute[T comparable](current []T, options []T) [][]T {
 		}
 		lastO = o
 
-		newCurrent := make([]T, len(current))
-		copy(newCurrent, current)
-		newCurrent = append(newCurrent, o)
-
+		current = append(current, o)
 		newOptions := make([]T, 0, len(options)-1)
 		newOptions = append(newOptions, options[:i]...)
 		newOptions = append(newOptions, options[i+1:]...)
 
-		subResults := Permute(newCurrent, newOptions)
+		subResults := Permute(current, newOptions)
 		results = append(results, subResults...)
+
+		current = current[:len(current)-1]
 	}
 
 	return results
