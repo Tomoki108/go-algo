@@ -20,11 +20,21 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-}
+	_, A := read2Ints(r)
+	Ts := readIntArr(r)
 
-//////////////
-// Libs    //
-/////////////
+	lastFinished := 0
+	for _, T := range Ts {
+
+		if lastFinished <= T {
+			fmt.Fprintln(w, T+A)
+			lastFinished = T + A
+		} else {
+			fmt.Fprintln(w, lastFinished+A)
+			lastFinished += A
+		}
+	}
+}
 
 //////////////
 // Helpers  //
