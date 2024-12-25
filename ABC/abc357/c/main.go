@@ -34,14 +34,11 @@ func main() {
 func createGrid(size int) [][]*string {
 	grid := make([][]*string, size)
 	for i := 0; i < size; i++ {
-		str := strings.Repeat("#", size)
-		strs := strings.Split(str, "")
-		strPtrs := make([]*string, 0, size)
-		for _, s := range strs {
-			strPtrs = append(strPtrs, &s)
+		grid[i] = make([]*string, size)
+		for j := 0; j < size; j++ {
+			str := "#"
+			grid[i][j] = &str
 		}
-
-		grid[i] = strPtrs
 	}
 
 	return grid
@@ -62,15 +59,13 @@ func paintCenterWithWhiteRecursively(grid [][]*string, size int) {
 	rowIdx := 0
 	for no := 1; no <= 9; no++ {
 		blockGrid := make([][]*string, 0, blockSize)
-		wIdx := (no % 3) * blockSize
+		wIdx := ((no + 2) % 3) * blockSize
 
-		// fmt.Fprintf(w, "no: %d, blockSize: %d, wIdx: %d, rowIdx: %d\n", no, blockSize, wIdx, rowIdx)
+		//	fmt.Fprintf(w, "no: %d, blockSize: %d, wIdx: %d, rowIdx: %d\n", no, blockSize, wIdx, rowIdx)
 
 		for i := 0; i < blockSize; i++ {
 			blockGrid = append(blockGrid, grid[rowIdx+i][wIdx:wIdx+blockSize])
 		}
-		// blockGrid = append(blockGrid, grid[rowIdx+1][wIdx:wIdx+blockSize])
-		// blockGrid = append(blockGrid, grid[rowIdx+2][wIdx:wIdx+blockSize])
 
 		if no == 5 {
 			// fmt.Fprintf(w, "hey! blockSize: %d, no: %d\n", blockSize, no)
@@ -79,6 +74,8 @@ func paintCenterWithWhiteRecursively(grid [][]*string, size int) {
 
 			for _, row := range blockGrid {
 				for _, cell := range row {
+					// fmt.Fprintf(w, "no: %d, blockSize: %d\n", no, blockSize)
+
 					*cell = "."
 				}
 			}
@@ -86,8 +83,6 @@ func paintCenterWithWhiteRecursively(grid [][]*string, size int) {
 			paintCenterWithWhiteRecursively(blockGrid, blockSize)
 		}
 
-		//		fmt.Fprintf(w, "blockSize: %d, no: %d\n", blockSize, no)
-		// fmt.Fprintf(w, "len(blockGrid[0]): %d\n", len(blockGrid[0]))
 		// writeGrid2(w, blockGrid)
 		// fmt.Fprintln(w)
 
