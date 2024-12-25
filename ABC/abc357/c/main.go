@@ -41,6 +41,20 @@ func createGrid(size int) [][]*string {
 		}
 	}
 
+	// NOTE:
+	// 以下の方法だと、各行の各要素が同じポインタを指してしまう。
+	// go 1.22 より前だと、for行で宣言される変数は最初のイテレートでメモリが確保され、以降は値のみ更新される仕様のため
+	//
+	// for i := 0; i < size; i++ {
+	// 	str := strings.Repeat(".", size)
+	// 	strs := strings.Split(str, "")
+	// 	strPtrs := make([]*string, 0, size)
+	// 	for _, s := range strs {
+	// 		strPtrs = append(strPtrs, &s)
+	// 	}
+	// 	grid[i] = strPtrs
+	// }
+
 	return grid
 }
 
@@ -59,6 +73,8 @@ func paintCenterWithWhiteRecursively(grid [][]*string, size int) {
 	rowIdx := 0
 	for no := 1; no <= 9; no++ {
 		blockGrid := make([][]*string, 0, blockSize)
+		// ex, blockSize3, no1 => 0, no2 => 1, bn3 => 2
+		// +2をしているのは、no1 => 2, no2 => 1, bn3 => 0 となってしまうため
 		wIdx := ((no + 2) % 3) * blockSize
 
 		for i := 0; i < blockSize; i++ {
