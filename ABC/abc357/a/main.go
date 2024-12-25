@@ -20,6 +20,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	_, M := read2Ints(r)
+	Hs := readIntArr(r)
+
+	ans := 0
+	for _, H := range Hs {
+		M -= H
+		if M < 0 {
+			break
+		}
+
+		ans++
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
