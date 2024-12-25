@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -20,6 +21,45 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, _ := read2Ints(r)
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	sort.Ints(As)
+	sort.Ints(Bs)
+
+	cost := 0
+	AsIndexDelta := 0
+	for i, B := range Bs {
+		aIndex := i + AsIndexDelta
+		if aIndex > N-1 {
+			fmt.Fprintln(w, "-1")
+			return
+		}
+
+		A := As[i+AsIndexDelta]
+		if A >= B {
+			cost += A
+			continue
+		}
+
+		for {
+			AsIndexDelta++
+			aIndex = i + AsIndexDelta
+			if aIndex > N-1 {
+				fmt.Fprintln(w, "-1")
+				return
+			}
+
+			A = As[i+AsIndexDelta]
+			if A >= B {
+				cost += A
+				break
+			}
+		}
+	}
+
+	fmt.Fprintln(w, cost)
 }
 
 //////////////
