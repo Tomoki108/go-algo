@@ -20,11 +20,116 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	size := Pow(3, N)
+
+	grid := createGrid(size)
+
+	paintCenterWithWhiteRecursively(grid, size)
+
+	writeGrid2(w, grid)
 }
+
+func createGrid(size int) [][]*string {
+	grid := make([][]*string, size)
+	for i := 0; i < size; i++ {
+		str := strings.Repeat("#", size)
+		strs := strings.Split(str, "")
+		strPtrs := make([]*string, 0, size)
+		for _, s := range strs {
+			strPtrs = append(strPtrs, &s)
+		}
+
+		grid[i] = strPtrs
+	}
+
+	return grid
+}
+
+func writeGrid2(w *bufio.Writer, grid [][]*string) {
+	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[i]); j++ {
+			fmt.Fprint(w, *grid[i][j])
+		}
+		fmt.Fprintln(w)
+	}
+}
+
+func paintCenterWithWhiteRecursively(grid [][]*string, size int) {
+	blockSize := size / 3
+
+	rowIdx := 0
+	for no := 1; no <= 9; no++ {
+		blockGrid := make([][]*string, 0, blockSize)
+		wIdx := (no % 3) * blockSize
+
+		// fmt.Fprintf(w, "no: %d, blockSize: %d, wIdx: %d, rowIdx: %d\n", no, blockSize, wIdx, rowIdx)
+
+		for i := 0; i < blockSize; i++ {
+			blockGrid = append(blockGrid, grid[rowIdx+i][wIdx:wIdx+blockSize])
+		}
+		// blockGrid = append(blockGrid, grid[rowIdx+1][wIdx:wIdx+blockSize])
+		// blockGrid = append(blockGrid, grid[rowIdx+2][wIdx:wIdx+blockSize])
+
+		if no == 5 {
+			// fmt.Fprintf(w, "hey! blockSize: %d, no: %d\n", blockSize, no)
+			// writeGrid2(w, blockGrid)
+			// fmt.Fprintln(w)
+
+			for _, row := range blockGrid {
+				for _, cell := range row {
+					*cell = "."
+				}
+			}
+		} else if blockSize > 1 {
+			paintCenterWithWhiteRecursively(blockGrid, blockSize)
+		}
+
+		//		fmt.Fprintf(w, "blockSize: %d, no: %d\n", blockSize, no)
+		// fmt.Fprintf(w, "len(blockGrid[0]): %d\n", len(blockGrid[0]))
+		// writeGrid2(w, blockGrid)
+		// fmt.Fprintln(w)
+
+		if no%3 == 0 {
+			rowIdx += blockSize
+		}
+	}
+
+}
+
+// func isCenterBlock(size, h, w int) bool {
+// 	blockSize := size / 3
+
+// 	if h > blockSize && h <= blockSize*2 && w > blockSize && w <= blockSize*2 {
+// 		return true
+// 	}
+
+// 	return false
+// }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log(exp))
+// 繰り返し二乗法で x^y を計算する関数
+func Pow(base, exp int) int {
+	// 繰り返し二乗法
+	// 2^8 = 4^2^2
+	// 2^9 = 4^2^2 * 2
+	// この性質を利用して、基数を2乗しつつ指数を1/2にしていく
+
+	result := 1
+	for exp > 0 {
+		if exp%2 == 1 {
+			result *= base
+		}
+		base *= base
+		exp /= 2
+	}
+	return result
+}
 
 //////////////
 // Helpers  //
