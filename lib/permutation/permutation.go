@@ -98,8 +98,10 @@ func Permute2[T comparable](current []T, options [][]T) [][]T {
 		}
 		lastV = v
 
-		copyCurrent := append([]T{}, current...)
+		copyCurrent := make([]T, len(current))
+		copy(copyCurrent, current)
 		copyCurrent = append(copyCurrent, v)
+
 		subResults := Permute2(copyCurrent, options)
 		results = append(results, subResults...)
 	}
