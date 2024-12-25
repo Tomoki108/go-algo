@@ -38,27 +38,33 @@ func main() {
 		counterBits = append(counterBits, bit)
 	}
 
-	// for _, cb := range counterBits {
-	// 	fmt.Println(strconv.FormatInt(cb, 2))
-	// }
-
 	counters := make([]int, 0, N)
 	for i := 1; i <= N; i++ {
 		counters = append(counters, i)
 	}
 
-	ps := Permute([]int{}, counters)
-
 	minAns := intMax
-
 	completeFlavors := 1<<M - 1
 
+	flavors := 0
+	visit := 0
+	for _, counter := range counters {
+		visit++
+		flavors = flavors | counterBits[counter-1]
+
+		if flavors == completeFlavors {
+			ans := visit
+			minAns = min(minAns, ans)
+			break
+		}
+	}
+
 Outer:
-	for _, p := range ps {
+	for NextPermutation(counters) {
 		flavors := 0
 		visit := 0
 
-		for _, counter := range p {
+		for _, counter := range counters {
 			visit++
 			flavors = flavors | counterBits[counter-1]
 
@@ -94,6 +100,44 @@ func Pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+// sl の要素を並び替えて、次の辞書順の順列にする
+// O(len(sl)*len(sl)!)
+func NextPermutation[T ~int | ~string](sl []T) bool {
+	n := len(sl)
+	i := n - 2
+
+	// Step1: 右から左に探索して、「スイッチポイント」を見つける:
+	// 　「スイッチポイント」とは、右から見て初めて「リストの値が減少する場所」です。
+	// 　例: [1, 2, 3, 6, 5, 4] の場合、3 がスイッチポイント。
+	for i >= 0 && sl[i] >= sl[i+1] {
+		i--
+	}
+
+	//　スイッチポイントが見つからない場合、最後の順列に到達しています。
+	if i < 0 {
+		return false
+	}
+
+	// Step2: スイッチポイントの右側の要素から、スイッチポイントより少しだけ大きい値を見つけ、交換します。
+	// 　例: 3 を右側で最小の大きい値 4 と交換。
+	j := n - 1
+	for sl[j] <= sl[i] {
+		j--
+	}
+	sl[i], sl[j] = sl[j], sl[i]
+
+	// Step3: スイッチポイントの右側を反転して、辞書順に次の順列を作ります。
+	// 　例: [1, 2, 4, 6, 5, 3] → [1, 2, 4, 3, 5, 6]。
+	reverse(sl[i+1:])
+	return true
+}
+
+func reverse[T ~int | ~string](sl []T) {
+	for i, j := 0, len(sl)-1; i < j; i, j = i+1, j-1 {
+		sl[i], sl[j] = sl[j], sl[i]
+	}
 }
 
 // O(n!) n: len(options)
