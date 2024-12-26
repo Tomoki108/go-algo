@@ -14,17 +14,57 @@ const intMax = 1 << 62
 //lint:ignore U1000 unused
 const intMin = -1 << 62
 
+const M = 998244353
+
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer w.Flush()
 
+	// K: Nの桁数
+	// V_N = N*K^0 + N*K^1 + N*K^2 + ... + N*K^N
+	// V_N = N(K^N-1)/(K-1)
+	// N(K^N-1)/(K-1) ≡ x (mod M)　// このxを求めたい
+	// N(K^N-1) * (K-1)^-1 ≡ x (mod M)  // (K-1)^-1 は(K-1)の逆元（1/(K-1)ではない！）
+	// GCD((K-1), M) = 1 // Mは素数なので。よってフェルマーの小定理が使える
+	// (K-1)^(M-1) ≡ 1 (mod M)
+	// (K-1)*(K-1)^(M-2) ≡ 1 (mod M)
+	// よって、(K-1)の逆元は(K-1)^(M-2)となる
+	// N(K^N-1) * (K-1)^{M-2} ≡ x (Mod M)
+	// N((K^N)%M-1) * ((K-1)^{M-2})%M ≡ x (Mod M)
+	// x = (N((K^N)%M-1) * ((K-1)^{M-2})%M)%M
+
+	N := readInt(r)
+
+	K := len(strconv.Itoa(N))
+
+	x := (N * (ModExponentiation(K, N, M) - 1) * ModExponentiation(K-1, M-2, M)) % M
+
+	fmt.Fprintln(w, x)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log(exp))
+// Calc (base^exp) % mod efficiently
+func ModExponentiation(base, exp, mod int) int {
+	result := 1
+	base = base % mod // 基数を mod で割った余りに変換
+
+	for exp > 0 {
+		// exp の最下位ビットが 1 なら結果に base を掛ける
+		if exp%2 == 1 {
+			result = (result * base) % mod
+		}
+		// base を二乗し、exp を半分にする
+		base = (base * base) % mod
+		exp /= 2
+	}
+	return result
+}
 
 //////////////
 // Helpers  //
