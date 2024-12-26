@@ -23,23 +23,25 @@ func main() {
 	defer w.Flush()
 
 	// K: Nの桁数
-	// V_N = N*K^0 + N*K^1 + N*K^2 + ... + N*K^N
-	// V_N = N(K^N-1)/(K-1)
-	// N(K^N-1)/(K-1) ≡ x (mod M)　// このxを求めたい
-	// N(K^N-1) * (K-1)^-1 ≡ x (mod M)  // (K-1)^-1 は(K-1)の逆元（1/(K-1)ではない！）
-	// GCD((K-1), M) = 1 // Mは素数なので。よってフェルマーの小定理が使える
-	// (K-1)^(M-1) ≡ 1 (mod M)
-	// (K-1)*(K-1)^(M-2) ≡ 1 (mod M)
-	// よって、(K-1)の逆元は(K-1)^(M-2)となる
-	// N(K^N-1) * (K-1)^{M-2} ≡ x (Mod M)
-	// N((K^N)%M-1) * ((K-1)^{M-2})%M ≡ x (Mod M)
-	// x = (N((K^N)%M-1) * ((K-1)^{M-2})%M)%M
+	// R: 10^K
+	// V_N = N*R^0 + N*R^1 + N*R^2 + ... + N*R^N
+	// V_N = N(R^N-1)/(R-1)
+	// N(R^N-1)/(R-1) ≡ x (mod M)　// このxを求めたい
+	// N(R^N-1) * (R-1)^-1 ≡ x (mod M)  // (R-1)^-1 は(R-1)の逆元（1/(R-1)ではない！）
+	// GCD((R-1), M) = 1 // Mは素数なので。よってフェルマーの小定理が使える
+	// (R-1)^(M-1) ≡ 1 (mod M)
+	// (R-1)*(R-1)^(M-2) ≡ 1 (mod M)
+	// よって、(R-1)の逆元は(R-1)^(M-2)となる
+	// N(R^N-1) * (R-1)^{M-2} ≡ x (Mod M)
+	// N((R^N)%M-1) * ((R-1)^{M-2})%M ≡ x (Mod M)
+	// x = N((R^N)%M-1) * ((R-1)^{M-2})%M
 
 	N := readInt(r)
 
 	K := len(strconv.Itoa(N))
+	R := ModExponentiation(10, K, M)
 
-	x := (N * (ModExponentiation(K, N, M) - 1) * ModExponentiation(K-1, M-2, M)) % M
+	x := (N % M * ((ModExponentiation(R, N, M) - 1) * ModExponentiation(R-1, M-2, M) % M)) % M
 
 	fmt.Fprintln(w, x)
 }
