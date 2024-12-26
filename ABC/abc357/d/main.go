@@ -41,7 +41,7 @@ func main() {
 	K := len(strconv.Itoa(N))
 	R := ModExponentiation(10, K, M)
 
-	x := (N % M * ((ModExponentiation(R, N, M) - 1) * ModExponentiation(R-1, M-2, M) % M)) % M
+	x := (N % M * (((ModExponentiation(R, N, M) - 1) * InverseElm(R-1, M)) % M)) % M
 
 	fmt.Fprintln(w, x)
 }
@@ -66,6 +66,17 @@ func ModExponentiation(base, exp, mod int) int {
 		exp /= 2
 	}
 	return result
+}
+
+// O(log(m))
+// mが素数かつaがmの倍数でない前提で、aのmod mにおける逆元を計算する
+//
+// フェルマーの小定理より以下が成り立つ。
+// a^(m-1) ≡ 1 (mod m)
+// a * a^(m-2) ≡ 1 (mod m)
+// よってa^(m-2)がaのmod mにおける逆元となる
+func InverseElm(a, m int) int {
+	return ModExponentiation(a, m-2, m)
 }
 
 //////////////

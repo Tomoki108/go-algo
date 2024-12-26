@@ -29,6 +29,17 @@ func ModExponentiation(base, exp, mod int) int {
 	return result
 }
 
+// O(log(m))
+// mが素数かつaがmの倍数でない前提で、aのmod mにおける逆元を計算する
+//
+// フェルマーの小定理より以下が成り立つ。
+// a^(m-1) ≡ 1 (mod m)
+// a * a^(m-2) ≡ 1 (mod m)
+// よってa^(m-2)がaのmod mにおける逆元となる
+func InverseElm(a, m int) int {
+	return ModExponentiation(a, m-2, m)
+}
+
 // O(log(exp))
 // 繰り返し二乗法で x^y を計算する関数
 func Pow(base, exp int) int {
