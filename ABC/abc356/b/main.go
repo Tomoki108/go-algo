@@ -20,6 +20,34 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	As := readIntArr(r)
+
+	remainMap := make(map[int]int, M)
+	for idx, a := range As {
+		remainMap[idx+1] = a
+	}
+
+	for i := 0; i < N; i++ {
+		Xs := readIntArr(r)
+		for idx, x := range Xs {
+			remainMap[idx+1] -= x
+		}
+	}
+
+	enough := true
+	for _, v := range remainMap {
+		if v > 0 {
+			enough = false
+			break
+		}
+	}
+
+	if enough {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
 
 //////////////
