@@ -29,9 +29,12 @@ func PickN[T comparable](current, options []T, n int) [][]T {
 	}
 
 	for i, o := range options {
-		newCurrent := append([]T{}, current...)
+		newCurrent := make([]T, len(current), len(current)+1)
+		copy(newCurrent, current)
 		newCurrent = append(newCurrent, o)
-		newOptions := append([]T{}, options[i+1:]...)
+
+		newOptions := make([]T, len(options[i+1:]))
+		copy(newOptions, options[i+1:])
 
 		results = append(results, PickN(newCurrent, newOptions, n-1)...)
 	}

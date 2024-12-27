@@ -19,6 +19,31 @@ func RevSl[S ~[]E, E any](s S) S {
 	return revS
 }
 
+func SlCommon[T comparable](slice1, slice2 []T) []T {
+	// 要素の出現回数を記録するマップ
+	countMap := make(map[T]int)
+
+	// slice1 の要素をマップに記録
+	for _, v := range slice1 {
+		countMap[v]++
+	}
+
+	// slice2 の要素をマップに記録
+	for _, v := range slice2 {
+		countMap[v]++
+	}
+
+	// 両方に含まれる要素を収集
+	var result []T
+	for k, v := range countMap {
+		if v == 2 { // 2度出現した要素を追加
+			result = append(result, k)
+		}
+	}
+
+	return result
+}
+
 // O(n + m) n, m: 各スライスの長さ
 // どちらか一方のスライスにのみ含まれる要素で構成されたスライスを返す
 func SlDiff[T comparable](slice1, slice2 []T) []T {

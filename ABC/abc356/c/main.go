@@ -20,11 +20,102 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, M, K := iarr[0], iarr[1], iarr[2]
+
+	keys := make([]int, 0, N)
+	for i := 1; i <= N; i++ {
+		keys = append(keys, i)
+	}
+	patterns := PickN([]int{}, keys, K)
+
+	caseOpened := make([]map[int]struct{}, 0, M)
+	caseNotOpened := make([]map[int]struct{}, 0, M)
+	for i := 0; i < M; i++ {
+		sarr := readStrArr(r)
+
+		CS := sarr[0]
+		C, _ := strconv.Atoi(CS)
+
+		ASs := sarr[1 : C+1]
+		As := make(map[int]struct{}, C)
+		for _, AS := range ASs {
+			A, _ := strconv.Atoi(AS)
+			As[A] = struct{}{}
+		}
+
+		R := sarr[C+1]
+
+		if R == "o" {
+			caseOpened = append(caseOpened, As)
+		} else {
+			caseNotOpened = append(caseNotOpened, As)
+		}
+	}
+
+	ans := len(patterns)
+
+Outer:
+	for _, p := range patterns {
+		m := make(map[int]struct{}, len(p))
+		for _, key := range p {
+			m[key] = struct{}{}
+		}
+
+		for _, co := range caseOpened {
+			for key := range m {
+				_, exist := co[key]
+				if !exist {
+					ans--
+					continue Outer
+				}
+			}
+		}
+
+	Middle:
+		for _, cno := range caseNotOpened {
+			for key := range m {
+				_, exist := cno[key]
+				if !exist {
+					continue Middle
+				}
+			}
+
+			ans--
+			continue Outer
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(nCr) n: len(options), r: n
+// optionsから N個選ぶ組み合わせを全列挙する
+// optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
+func PickN[T comparable](current, options []T, n int) [][]T {
+	var results [][]T
+
+	if n == 0 {
+		return [][]T{current}
+	}
+
+	for i, o := range options {
+		newCurrent := make([]T, len(current), len(current)+1)
+		copy(newCurrent, current)
+		newCurrent = append(newCurrent, o)
+
+		newOptions := make([]T, len(options[i+1:]))
+		copy(newOptions, options[i+1:])
+
+		results = append(results, PickN(newCurrent, newOptions, n-1)...)
+	}
+
+	return results
+}
 
 //////////////
 // Helpers  //
