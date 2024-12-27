@@ -33,22 +33,105 @@ func main() {
 	// (R-1)*(R-1)^(M-2) ≡ 1 (mod M)
 	// よって、(R-1)の逆元は(R-1)^(M-2)となる
 	// N(R^N-1) * (R-1)^{M-2} ≡ x (Mod M)
-	// N((R^N)%M-1) * ((R-1)^{M-2})%M ≡ x (Mod M)
-	// x = N((R^N)%M-1) * ((R-1)^{M-2})%M
+	// x = (N*(R^N -1) * (R-1)^{M-2}) % M
 
 	N := readInt(r)
-
 	K := len(strconv.Itoa(N))
 	R := ModExponentiation(10, K, M)
 
-	x := (N % M * (((ModExponentiation(R, N, M) - 1) * InverseElm(R-1, M)) % M)) % M
+	mN := NewModInt(N, M)
+	mR := NewModInt(R, M)
 
-	fmt.Fprintln(w, x)
+	x := mN.Mul(mR.Pow(mN).SubI(1)).Mul(mR.SubI(1).PowI(M - 2))
+
+	// x := (N % M * (((ModExponentiation(R, N, M) - 1) * InverseElm(R-1, M)) % M)) % M
+
+	fmt.Fprintln(w, x.Val())
 }
 
-//////////////
+// ////////////
 // Libs    //
-/////////////
+// ///////////
+type ModInt struct {
+	val, modulo int
+}
+
+func NewModInt(v, m int) ModInt {
+	return ModInt{val: Mod(v, m), modulo: m}
+}
+
+func (mi ModInt) Val() int {
+	return mi.val
+}
+
+func (mi ModInt) Add(a ModInt) ModInt {
+	if mi.modulo != a.modulo {
+		panic("different modulo")
+	}
+	return NewModInt(mi.val+a.val, mi.modulo)
+}
+
+func (mi ModInt) AddI(a int) ModInt {
+	return mi.Add(NewModInt(a, mi.modulo))
+}
+
+func (mi ModInt) Sub(a ModInt) ModInt {
+	if mi.modulo != a.modulo {
+		panic("different modulo")
+	}
+	return NewModInt(mi.val-a.val, mi.modulo)
+}
+
+func (mi ModInt) SubI(a int) ModInt {
+	return mi.Sub(NewModInt(a, mi.modulo))
+}
+
+func (mi ModInt) Mul(a ModInt) ModInt {
+	if mi.modulo != a.modulo {
+		panic("different modulo")
+	}
+	return NewModInt(mi.val*a.val, mi.modulo)
+}
+
+func (mi ModInt) MulI(a int) ModInt {
+	return mi.Mul(NewModInt(a, mi.modulo))
+}
+
+// mod mi.moduloでのaの逆元を求め、mi.valに掛ける。逆元が存在するaを渡すこと
+func (mi ModInt) Div(a ModInt) ModInt {
+	if mi.modulo != a.modulo {
+		panic("different modulo")
+	}
+	inverseElm := InverseElm(a.val, mi.modulo)
+	return NewModInt(mi.val*inverseElm, mi.modulo)
+}
+
+// mod mi.moduloでのaの逆元を求め、mi.valに掛ける。逆元が存在するaを渡すこと
+func (mi ModInt) DivI(a int) ModInt {
+	return mi.Div(NewModInt(a, mi.modulo))
+}
+
+func (mi ModInt) Pow(exp ModInt) ModInt {
+	if mi.modulo != exp.modulo {
+		panic("different modulo")
+	}
+	return NewModInt(ModExponentiation(mi.val, exp.val, mi.modulo), mi.modulo)
+}
+
+func (mi ModInt) PowI(exp int) ModInt {
+	return mi.Pow(NewModInt(exp, mi.modulo))
+}
+
+// a割るbの、数学における剰余を返す。
+// a = b * Quotient + RemainderとなるRemainderを返す（Quotientは負でもよく、Remainderは常に0以上という制約がある）
+// goのa%bだと、|a|割るbの剰余にaの符号をつけて返すため、負の数が含まれる場合数学上の剰余とは異なる。
+func Mod(a, b int) int {
+	r := a % b
+	if r < 0 {
+		r += b
+	}
+	return r
+}
 
 // O(log(exp))
 // Calc (base^exp) % mod efficiently
