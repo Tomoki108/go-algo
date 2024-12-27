@@ -20,11 +20,57 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	ans := 0
+	for i := 1; i <= 60; i++ {
+		if IsBitPop(uint64(M), i) {
+			cycle := Pow(2, i)
+
+			numOfCycle := N / cycle
+
+			// fmt.Printf("i: %d, numOfCycle: %d\n", i, numOfCycle)
+			ans += cycle / 2 * numOfCycle
+
+			remainder := N % cycle
+			if remainder >= cycle/2 {
+				ans += remainder - cycle/2
+			}
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// k桁目のビットが1かどうかを判定（一番右を１桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << (k - 1)はビットマスク。1をk - 1桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << (k - 1))) != 0
+}
+
+// O(log(exp))
+// 繰り返し二乗法で x^y を計算する関数
+func Pow(base, exp int) int {
+	// 繰り返し二乗法
+	// 2^8 = 4^2^2
+	// 2^9 = 4^2^2 * 2
+	// この性質を利用して、基数を2乗しつつ指数を1/2にしていく
+
+	result := 1
+	for exp > 0 {
+		if exp%2 == 1 {
+			result *= base
+		}
+		base *= base
+		exp /= 2
+	}
+	return result
+}
 
 //////////////
 // Helpers  //
