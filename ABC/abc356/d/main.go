@@ -17,6 +17,8 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+const MOD = 998244353
+
 func main() {
 	defer w.Flush()
 
@@ -27,19 +29,18 @@ func main() {
 		if IsBitPop(uint64(M), i) {
 			cycle := Pow(2, i)
 
-			numOfCycle := N / cycle
+			numOfCycle := (N + 1) / cycle
 
-			// fmt.Printf("i: %d, numOfCycle: %d\n", i, numOfCycle)
-			ans += cycle / 2 * numOfCycle
+			ans += ((cycle / 2) * (numOfCycle)) % MOD
 
-			remainder := N % cycle
+			remainder := (N + 1) % cycle
 			if remainder >= cycle/2 {
-				ans += remainder - cycle/2
+				ans += (remainder - cycle/2) % MOD
 			}
 		}
 	}
 
-	fmt.Fprintln(w, ans)
+	fmt.Fprintln(w, ans%MOD)
 }
 
 //////////////
