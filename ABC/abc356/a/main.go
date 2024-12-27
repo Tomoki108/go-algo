@@ -20,11 +20,37 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, L, R := iarr[0], iarr[1], iarr[2]
+
+	As := make([]int, 0, N)
+	for i := 1; i <= N; i++ {
+		As = append(As, i)
+	}
+
+	target := As[L-1 : R]
+	target = RevSl(target)
+
+	ans := append(As[:L-1], target...)
+	ans = append(ans, As[R:]...)
+
+	writeSlice(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+func RevSl[S ~[]E, E any](s S) S {
+	lenS := len(s)
+	revS := make(S, lenS)
+	for i := 0; i < lenS; i++ {
+		revS[i] = s[lenS-1-i]
+	}
+
+	return revS
+}
 
 //////////////
 // Helpers  //
