@@ -59,15 +59,9 @@ func (mi ModInt) DivI(a int) ModInt {
 	return mi.Div(NewModInt(a, mi.modulo))
 }
 
-func (mi ModInt) Pow(exp ModInt) ModInt {
-	if mi.modulo != exp.modulo {
-		panic("different modulo")
-	}
-	return NewModInt(ModExponentiation(mi.val, exp.val, mi.modulo), mi.modulo)
-}
-
-func (mi ModInt) PowI(exp int) ModInt {
-	return mi.Pow(NewModInt(exp, mi.modulo))
+// 指数expはexp mod Mに置き換えられないので、int型のまま受け取る
+func (mi ModInt) Pow(exp int) ModInt {
+	return NewModInt(ModExponentiation(mi.val, exp, mi.modulo), mi.modulo)
 }
 
 // a割るbの、数学における剰余を返す。

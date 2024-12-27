@@ -42,9 +42,8 @@ func main() {
 	mN := NewModInt(N, M)
 	mR := NewModInt(R, M)
 
-	x := mN.Mul(mR.Pow(mN).SubI(1)).Mul(mR.SubI(1).PowI(M - 2))
-
-	// x := (N % M * (((ModExponentiation(R, N, M) - 1) * InverseElm(R-1, M)) % M)) % M
+	// 指数は元々の数字をそのまま使うことに注意
+	x := mN.Mul(mR.Pow(N).SubI(1)).Mul(mR.SubI(1).Pow(M - 2))
 
 	fmt.Fprintln(w, x.Val())
 }
@@ -111,15 +110,8 @@ func (mi ModInt) DivI(a int) ModInt {
 	return mi.Div(NewModInt(a, mi.modulo))
 }
 
-func (mi ModInt) Pow(exp ModInt) ModInt {
-	if mi.modulo != exp.modulo {
-		panic("different modulo")
-	}
-	return NewModInt(ModExponentiation(mi.val, exp.val, mi.modulo), mi.modulo)
-}
-
-func (mi ModInt) PowI(exp int) ModInt {
-	return mi.Pow(NewModInt(exp, mi.modulo))
+func (mi ModInt) Pow(exp int) ModInt {
+	return NewModInt(ModExponentiation(mi.val, exp, mi.modulo), mi.modulo)
 }
 
 // a割るbの、数学における剰余を返す。
