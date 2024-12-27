@@ -101,7 +101,11 @@ func (mi ModInt) Div(a ModInt) ModInt {
 	if mi.modulo != a.modulo {
 		panic("different modulo")
 	}
-	inverseElm := InverseElm(a.val, mi.modulo)
+	inverseElm, err := InverseElmByGCD(a.val, mi.modulo)
+	if err != nil {
+		panic(err)
+	}
+
 	return NewModInt(mi.val*inverseElm, mi.modulo)
 }
 
@@ -110,6 +114,7 @@ func (mi ModInt) DivI(a int) ModInt {
 	return mi.Div(NewModInt(a, mi.modulo))
 }
 
+// 指数expはexp mod Mに置き換えられないので、int型のまま受け取る
 func (mi ModInt) Pow(exp int) ModInt {
 	return NewModInt(ModExponentiation(mi.val, exp, mi.modulo), mi.modulo)
 }
@@ -152,6 +157,32 @@ func ModExponentiation(base, exp, mod int) int {
 // よってa^(m-2)がaのmod mにおける逆元となる
 func InverseElm(a, m int) int {
 	return ModExponentiation(a, m-2, m)
+}
+
+// O(log(min(a,m)))
+// 拡張ユークリッドの互除法で、aのmにおける逆元を求める（aとmが互いに素でなければエラーを返す）
+// a*x + m*y = 1 となるx, yがわかる。
+// a*x + m*y ≡ 1 (Mod m)
+// a*x ≡ 1 (Mod m)
+// よってxがaのmにおける逆元となる （ただし拡張ユークリッドの互除法で求まるxは負の数の場合もあるので、調整する）
+func InverseElmByGCD(a, m int) (int, error) {
+	gcd, x, _ := extendedGCD(a, m)
+	if gcd != 1 {
+		return 0, fmt.Errorf("逆元は存在しません (gcd(%d, %d) = %d)", a, m, gcd)
+	}
+	return Mod(x, m), nil
+}
+
+// 拡張ユークリッドの互除法で、最大公約数を求める
+// （ax + by = gcd(a, b) となるx, yも返す）
+func extendedGCD(a, b int) (gcd, x, y int) {
+	if b == 0 {
+		return a, 1, 0
+	}
+	gcd, x1, y1 := extendedGCD(b, a%b)
+	x2 := y1
+	y2 := x1 - (a/b)*y1
+	return gcd, x2, y2
 }
 
 //////////////
