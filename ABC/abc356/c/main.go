@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math/bits"
 	"os"
 	"strconv"
 	"strings"
@@ -23,66 +24,47 @@ func main() {
 	iarr := readIntArr(r)
 	N, M, K := iarr[0], iarr[1], iarr[2]
 
-	keys := make([]int, 0, N)
-	for i := 1; i <= N; i++ {
-		keys = append(keys, i)
-	}
-	patterns := PickN([]int{}, keys, K)
-
-	caseOpened := make([]map[int]struct{}, 0, M)
-	caseNotOpened := make([]map[int]struct{}, 0, M)
+	caseOpened := make([]int, 0, M)
+	caseNotOpened := make([]int, 0, M)
 	for i := 0; i < M; i++ {
 		sarr := readStrArr(r)
 
 		CS := sarr[0]
 		C, _ := strconv.Atoi(CS)
 
+		bit := 0
 		ASs := sarr[1 : C+1]
-		As := make(map[int]struct{}, C)
 		for _, AS := range ASs {
 			A, _ := strconv.Atoi(AS)
-			As[A] = struct{}{}
+			bit += Pow(2, A-1)
 		}
 
 		R := sarr[C+1]
-
 		if R == "o" {
-			caseOpened = append(caseOpened, As)
+			caseOpened = append(caseOpened, bit)
 		} else {
-			caseNotOpened = append(caseNotOpened, As)
+			caseNotOpened = append(caseNotOpened, bit)
 		}
 	}
 
-	ans := len(patterns)
+	ans := Pow(2, N)
 
 Outer:
-	for _, p := range patterns {
-		m := make(map[int]struct{}, len(p))
-		for _, key := range p {
-			m[key] = struct{}{}
-		}
-
+	for i := 0; i <= (1<<N)-1; i++ {
 		for _, co := range caseOpened {
-			for key := range m {
-				_, exist := co[key]
-				if !exist {
-					ans--
-					continue Outer
-				}
+			conjunction := i & co
+			if bits.OnesCount64(uint64(conjunction)) < K { // "使っている" "正しい" 鍵の数がK本より少ないと、開いてはいけない
+				ans--
+				continue Outer
 			}
 		}
 
-	Middle:
 		for _, cno := range caseNotOpened {
-			for key := range m {
-				_, exist := cno[key]
-				if !exist {
-					continue Middle
-				}
+			conjunction := i & cno
+			if bits.OnesCount64(uint64(conjunction)) >= K { // "使っている" "正しい" 鍵の数がK本より多いと、開かなくてはいけない
+				ans--
+				continue Outer
 			}
-
-			ans--
-			continue Outer
 		}
 	}
 
@@ -93,28 +75,23 @@ Outer:
 // Libs    //
 /////////////
 
-// O(nCr) n: len(options), r: n
-// optionsから N個選ぶ組み合わせを全列挙する
-// optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
-func PickN[T comparable](current, options []T, n int) [][]T {
-	var results [][]T
+// O(log(exp))
+// 繰り返し二乗法で x^y を計算する関数
+func Pow(base, exp int) int {
+	// 繰り返し二乗法
+	// 2^8 = 4^2^2
+	// 2^9 = 4^2^2 * 2
+	// この性質を利用して、基数を2乗しつつ指数を1/2にしていく
 
-	if n == 0 {
-		return [][]T{current}
+	result := 1
+	for exp > 0 {
+		if exp%2 == 1 {
+			result *= base
+		}
+		base *= base
+		exp /= 2
 	}
-
-	for i, o := range options {
-		newCurrent := make([]T, len(current), len(current)+1)
-		copy(newCurrent, current)
-		newCurrent = append(newCurrent, o)
-
-		newOptions := make([]T, len(options[i+1:]))
-		copy(newOptions, options[i+1:])
-
-		results = append(results, PickN(newCurrent, newOptions, n-1)...)
-	}
-
-	return results
+	return result
 }
 
 //////////////
