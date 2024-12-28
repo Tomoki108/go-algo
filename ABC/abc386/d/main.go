@@ -39,6 +39,7 @@ func main() {
 			// 横の矛盾チェック
 			mostLeftWhiteW := mostLeftWhiteWs[X-1]
 			if mostLeftWhiteW != 0 && mostLeftWhiteW < Y { // 最も左にある白より右にある（数字が大きい）黒があるとだめ
+				fmt.Fprintln(w, "hey1")
 				fmt.Fprintln(w, "No")
 				return
 			}
@@ -48,6 +49,7 @@ func main() {
 			// 縦の矛盾チェック
 			mostTopWhiteH := mostTopWhiteHs[Y-1]
 			if mostTopWhiteH != 0 && mostTopWhiteH < X { // 最も上にある白より下にある（数字が大きい）黒があるとだめ
+				fmt.Fprintln(w, "hey2")
 				fmt.Fprintln(w, "No")
 				return
 			}
@@ -57,6 +59,7 @@ func main() {
 			// 横の矛盾チェック
 			mostRightBlackW := mostRightBlackWs[X-1]
 			if mostRightBlackW != 0 && mostRightBlackW > Y { // 最も右にある黒より左にある（数字が小さい）白があるとだめ
+				fmt.Fprintln(w, "hey3")
 				fmt.Fprintln(w, "No")
 				return
 			}
@@ -70,6 +73,7 @@ func main() {
 			// 縦の矛盾チェック
 			mostBottomBlackH := mostBottomBlackHs[Y-1]
 			if mostBottomBlackH != 0 && mostBottomBlackH > X { // 最も下にある黒より上にある（数字が小さい）白があるとだめ
+				fmt.Fprintln(w, "hey4")
 				fmt.Fprintln(w, "No")
 				return
 			}
@@ -81,11 +85,11 @@ func main() {
 			}
 		}
 
-		// fmt.Printf("mostRightBlackWs: %v\n", mostRightBlackWs)
-		// fmt.Printf("mostLeftWhiteWs: %v\n", mostLeftWhiteWs)
-		// fmt.Printf("mostBottomBlackHs: %v\n", mostBottomBlackHs)
-		// fmt.Printf("mostTopWhiteHs: %v\n", mostTopWhiteHs)
-		// fmt.Println()
+		fmt.Printf("mostRightBlackWs: %v\n", mostRightBlackWs)
+		fmt.Printf("mostLeftWhiteWs: %v\n", mostLeftWhiteWs)
+		fmt.Printf("mostBottomBlackHs: %v\n", mostBottomBlackHs)
+		fmt.Printf("mostTopWhiteHs: %v\n", mostTopWhiteHs)
+		fmt.Println()
 	}
 
 	fmt.Fprintln(w, "Yes")
