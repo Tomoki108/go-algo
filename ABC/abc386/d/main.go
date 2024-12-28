@@ -61,7 +61,11 @@ func main() {
 				return
 			}
 			mostLeftWhiteW := mostLeftWhiteWs[X-1]
-			mostLeftWhiteWs[X-1] = min(mostLeftWhiteW, Y)
+			if mostLeftWhiteW == 0 {
+				mostLeftWhiteWs[X-1] = Y
+			} else {
+				mostLeftWhiteWs[X-1] = min(mostLeftWhiteW, Y)
+			}
 
 			// 縦の矛盾チェック
 			mostBottomBlackH := mostBottomBlackHs[Y-1]
@@ -70,8 +74,18 @@ func main() {
 				return
 			}
 			mostTopWhiteH := mostTopWhiteHs[Y-1]
-			mostTopWhiteHs[Y-1] = min(mostTopWhiteH, X)
+			if mostTopWhiteH == 0 {
+				mostTopWhiteHs[Y-1] = X
+			} else {
+				mostTopWhiteHs[Y-1] = min(mostTopWhiteH, X)
+			}
 		}
+
+		// fmt.Printf("mostRightBlackWs: %v\n", mostRightBlackWs)
+		// fmt.Printf("mostLeftWhiteWs: %v\n", mostLeftWhiteWs)
+		// fmt.Printf("mostBottomBlackHs: %v\n", mostBottomBlackHs)
+		// fmt.Printf("mostTopWhiteHs: %v\n", mostTopWhiteHs)
+		// fmt.Println()
 	}
 
 	fmt.Fprintln(w, "Yes")
