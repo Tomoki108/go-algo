@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -20,6 +21,47 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	type segment struct {
+		l, r int
+	}
+
+	segments := make([]segment, 0, N)
+	starts := make([]int, 0, N)
+
+	for i := 0; i < N; i++ {
+		l, r := read2Ints(r)
+		segments = append(segments, segment{l, r})
+		starts = append(starts, l)
+	}
+
+	sort.Slice(segments, func(i, j int) bool {
+		if segments[i].l == segments[j].l {
+			return segments[i].r < segments[j].r
+		}
+		return segments[i].l < segments[j].l
+	})
+	sort.Slice(starts, func(i, j int) bool {
+		return starts[i] > starts[j]
+	})
+
+	ans := 0
+	for _, seg := range segments {
+		starts = starts[:len(starts)-1]
+
+		idx := sort.Search(len(starts), func(j int) bool {
+			return starts[j] <= seg.r
+		})
+
+		// fmt.Printf("seg: %v, idx: %v\n", seg, idx)
+		// fmt.Printf("starts: %v\n", starts)
+
+		ans += len(starts) - idx
+
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
