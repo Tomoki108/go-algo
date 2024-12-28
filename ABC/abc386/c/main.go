@@ -20,6 +20,67 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r) // K=1
+
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	T := readStr(r)
+	Ts := strings.Split(T, "")
+
+	// SとTの長さが同じで、1文字違い
+	// Sの長さがTより1多く、他が一致
+	// Sの長さがTより1少なく、他が一致
+
+	ldiff := len(S) - len(T)
+
+	if ldiff == 0 {
+		notMatchedCount := 0
+		for i := 0; i < len(Ts); i++ {
+			if Ts[i] != Ss[i] {
+				notMatchedCount++
+				if notMatchedCount > 1 {
+					fmt.Fprintln(w, "No")
+					return
+				}
+			}
+		}
+
+		fmt.Fprintln(w, "Yes")
+		return
+	} else if ldiff == 1 {
+		notMatchedCount := 0
+		for i := 0; i < len(Ts); i++ {
+			if Ts[i] != Ss[i+notMatchedCount] {
+				notMatchedCount++
+
+				if notMatchedCount > 1 {
+					fmt.Fprintln(w, "No")
+					return
+				}
+			}
+		}
+
+		fmt.Fprintln(w, "Yes")
+		return
+	} else if ldiff == -1 {
+		notMatchedCount := 0
+		for i := 0; i < len(Ss); i++ {
+			if Ss[i] != Ts[i+notMatchedCount] {
+				notMatchedCount++
+
+				if notMatchedCount > 1 {
+					fmt.Fprintln(w, "No")
+					return
+				}
+			}
+		}
+
+		fmt.Fprintln(w, "Yes")
+		return
+	} else {
+		fmt.Fprintln(w, "No")
+		return
+	}
 }
 
 //////////////
