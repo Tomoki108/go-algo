@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -20,6 +21,35 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	read2Ints(r)
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	Am := make(map[int]struct{})
+	for _, a := range As {
+		Am[a] = struct{}{}
+	}
+
+	Cs := append(As, Bs...)
+	sort.Ints(Cs)
+
+	prevItemIsA := false
+	for _, C := range Cs {
+		_, currentItemIsA := Am[C]
+
+		if prevItemIsA && currentItemIsA {
+			fmt.Fprintln(w, "Yes")
+			return
+		}
+
+		if currentItemIsA {
+			prevItemIsA = true
+		} else {
+			prevItemIsA = false
+		}
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
