@@ -34,12 +34,31 @@ func main() {
 	}
 
 	cross1 := make([]int, 0, N) // 左上から右下
-	cross1 = append(cross1, 1)
-	lastCross1Elm := 1
+	cross1map := make(map[int]struct{})
+	cross1map[1] = struct{}{}
+	lastCross1 := 1
+	for i := 1; i <= N*N; i++ {
+		if i == lastCross1+N+1 {
+			cross1map[i] = struct{}{}
+			lastCross1 = i
+		}
+	}
 
 	cross2 := make([]int, 0, N) // 右上から左下
-	cross2 = append(cross2, N)
-	lastCross2Elm := N
+	cross2map := make(map[int]struct{})
+	cross2map[N] = struct{}{}
+	lastCross2 := N
+	for i := 1; i < N*N; i++ { // <= N*NだとN*Nがマップに入ってしまう
+		if i == lastCross2+N-1 {
+			cross2map[i] = struct{}{}
+			lastCross2 = i
+		}
+	}
+
+	// fmt.Printf("rpws: %v\n", rows)
+	// fmt.Printf("columns: %v\n", columns)
+	// fmt.Printf("cross1map: %v\n", cross1map)
+	// fmt.Printf("cross2map: %v\n", cross2map)
 
 	for i, A := range As {
 		rowIdx := (A - 1) / N
@@ -61,9 +80,8 @@ func main() {
 			return
 		}
 
-		if A == lastCross1Elm+N+1 {
+		if _, ok := cross1map[A]; ok {
 			cross1 = append(cross1, A)
-			lastCross1Elm = A
 			if len(cross1) == N {
 				// fmt.Fprintln(w, "hi3")
 				fmt.Fprintln(w, i+1)
@@ -71,9 +89,8 @@ func main() {
 			}
 		}
 
-		if A == lastCross2Elm+N-1 {
+		if _, ok := cross2map[A]; ok {
 			cross2 = append(cross2, A)
-			lastCross2Elm = A
 			if len(cross2) == N {
 				// fmt.Fprintln(w, "hi4")
 				fmt.Fprintln(w, i+1)
