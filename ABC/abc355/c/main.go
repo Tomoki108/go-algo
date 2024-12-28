@@ -20,6 +20,76 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, _ := read2Ints(r)
+	As := readIntArr(r)
+
+	rows := make([][]int, 0, N)
+	for i := 0; i < N; i++ {
+		rows = append(rows, make([]int, 0, N))
+	}
+
+	columns := make([][]int, 0, N)
+	for i := 0; i < N; i++ {
+		columns = append(columns, make([]int, 0, N))
+	}
+
+	cross1 := make([]int, 0, N) // 左上から右下
+	cross1 = append(cross1, 1)
+	lastCross1Elm := 1
+
+	cross2 := make([]int, 0, N) // 右上から左下
+	cross2 = append(cross2, N)
+	lastCross2Elm := N
+
+	for i, A := range As {
+		rowIdx := (A - 1) / N
+		colIdx := (A - 1) % N
+
+		// fmt.Printf("A: %d, rowIdx: %d, colIdx: %d\n", A, rowIdx, colIdx)
+
+		rows[rowIdx] = append(rows[rowIdx], A)
+		if len(rows[rowIdx]) == N {
+			// fmt.Fprintln(w, "hi1")
+			fmt.Fprintln(w, i+1)
+			return
+		}
+
+		columns[colIdx] = append(columns[colIdx], A)
+		if len(columns[colIdx]) == N {
+			// fmt.Fprintln(w, "hi2")
+			fmt.Fprintln(w, i+1)
+			return
+		}
+
+		if A == lastCross1Elm+N+1 {
+			cross1 = append(cross1, A)
+			lastCross1Elm = A
+			if len(cross1) == N {
+				// fmt.Fprintln(w, "hi3")
+				fmt.Fprintln(w, i+1)
+				return
+			}
+		}
+
+		if A == lastCross2Elm+N-1 {
+			cross2 = append(cross2, A)
+			lastCross2Elm = A
+			if len(cross2) == N {
+				// fmt.Fprintln(w, "hi4")
+				fmt.Fprintln(w, i+1)
+				return
+			}
+		}
+
+		// fmt.Printf("rows: %v\n", rows)
+		// fmt.Printf("columns: %v\n", columns)
+		// fmt.Printf("cross1: %v\n", cross1)
+		// fmt.Printf("cross2: %v\n", cross2)
+		// fmt.Println("----")
+	}
+
+	fmt.Fprintln(w, "-1")
+
 }
 
 //////////////
