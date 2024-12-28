@@ -20,6 +20,61 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	mostRightBlackWs := make([]int, N) // 数字が大きいほど右
+	mostLeftWhiteWs := make([]int, N)  // 数字が小さいほど左
+
+	mostBottomBlackHs := make([]int, N) // 数字が大きいほど下
+	mostTopWhiteHs := make([]int, N)    //  数字が小さいほど上
+
+	for i := 0; i < M; i++ {
+		sarr := readStrArr(r)
+		XS, YS, C := sarr[0], sarr[1], sarr[2]
+
+		X, _ := strconv.Atoi(XS) // hight
+		Y, _ := strconv.Atoi(YS) // width
+
+		if C == "B" {
+			// 横の矛盾チェック
+			mostLeftWhiteW := mostLeftWhiteWs[X-1]
+			if mostLeftWhiteW != 0 && mostLeftWhiteW < Y { // 最も左にある白より右にある（数字が大きい）黒があるとだめ
+				fmt.Fprintln(w, "No")
+				return
+			}
+			mostRightBlackW := mostRightBlackWs[X-1]
+			mostRightBlackWs[X-1] = max(mostRightBlackW, Y)
+
+			// 縦の矛盾チェック
+			mostTopWhiteH := mostTopWhiteHs[Y-1]
+			if mostTopWhiteH != 0 && mostTopWhiteH < X { // 最も上にある白より下にある（数字が大きい）黒があるとだめ
+				fmt.Fprintln(w, "No")
+				return
+			}
+			mostBottomBlackH := mostBottomBlackHs[Y-1]
+			mostBottomBlackHs[Y-1] = max(mostBottomBlackH, X)
+		} else {
+			// 横の矛盾チェック
+			mostRightBlackW := mostRightBlackWs[X-1]
+			if mostRightBlackW != 0 && mostRightBlackW > Y { // 最も右にある黒より左にある（数字が小さい）白があるとだめ
+				fmt.Fprintln(w, "No")
+				return
+			}
+			mostLeftWhiteW := mostLeftWhiteWs[X-1]
+			mostLeftWhiteWs[X-1] = min(mostLeftWhiteW, Y)
+
+			// 縦の矛盾チェック
+			mostBottomBlackH := mostBottomBlackHs[Y-1]
+			if mostBottomBlackH != 0 && mostBottomBlackH > X { // 最も下にある黒より上にある（数字が小さい）白があるとだめ
+				fmt.Fprintln(w, "No")
+				return
+			}
+			mostTopWhiteH := mostTopWhiteHs[Y-1]
+			mostTopWhiteHs[Y-1] = min(mostTopWhiteH, X)
+		}
+	}
+
+	fmt.Fprintln(w, "Yes")
 }
 
 //////////////
