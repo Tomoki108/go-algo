@@ -20,6 +20,29 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	A, B := read2Ints(r)
+
+	whiteList := make(map[int]bool)
+	for i := 1; i <= 3; i++ {
+		whiteList[i] = false
+	}
+
+	whiteList[A] = true
+	whiteList[B] = true
+
+	suspects := make([]int, 0)
+	for k, v := range whiteList {
+		if !v {
+			suspects = append(suspects, k)
+		}
+	}
+
+	if len(suspects) == 1 {
+		fmt.Fprintln(w, suspects[0])
+	} else {
+		fmt.Fprintln(w, -1)
+	}
+
 }
 
 //////////////
