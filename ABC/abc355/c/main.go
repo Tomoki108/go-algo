@@ -34,75 +34,39 @@ func main() {
 	}
 
 	cross1 := make([]int, 0, N) // 左上から右下
-	cross1map := make(map[int]struct{})
-	cross1map[1] = struct{}{}
-	lastCross1 := 1
-	for i := 1; i <= N*N; i++ {
-		if i == lastCross1+N+1 {
-			cross1map[i] = struct{}{}
-			lastCross1 = i
-		}
-	}
-
 	cross2 := make([]int, 0, N) // 右上から左下
-	cross2map := make(map[int]struct{})
-	cross2map[N] = struct{}{}
-	lastCross2 := N
-	for i := 1; i < N*N; i++ { // <= N*NだとN*Nがマップに入ってしまう
-		if i == lastCross2+N-1 {
-			cross2map[i] = struct{}{}
-			lastCross2 = i
-		}
-	}
-
-	// fmt.Printf("rpws: %v\n", rows)
-	// fmt.Printf("columns: %v\n", columns)
-	// fmt.Printf("cross1map: %v\n", cross1map)
-	// fmt.Printf("cross2map: %v\n", cross2map)
 
 	for i, A := range As {
 		rowIdx := (A - 1) / N
 		colIdx := (A - 1) % N
 
-		// fmt.Printf("A: %d, rowIdx: %d, colIdx: %d\n", A, rowIdx, colIdx)
-
 		rows[rowIdx] = append(rows[rowIdx], A)
 		if len(rows[rowIdx]) == N {
-			// fmt.Fprintln(w, "hi1")
 			fmt.Fprintln(w, i+1)
 			return
 		}
 
 		columns[colIdx] = append(columns[colIdx], A)
 		if len(columns[colIdx]) == N {
-			// fmt.Fprintln(w, "hi2")
 			fmt.Fprintln(w, i+1)
 			return
 		}
 
-		if _, ok := cross1map[A]; ok {
+		if rowIdx == colIdx {
 			cross1 = append(cross1, A)
 			if len(cross1) == N {
-				// fmt.Fprintln(w, "hi3")
 				fmt.Fprintln(w, i+1)
 				return
 			}
 		}
 
-		if _, ok := cross2map[A]; ok {
+		if rowIdx+colIdx == N-1 {
 			cross2 = append(cross2, A)
 			if len(cross2) == N {
-				// fmt.Fprintln(w, "hi4")
 				fmt.Fprintln(w, i+1)
 				return
 			}
 		}
-
-		// fmt.Printf("rows: %v\n", rows)
-		// fmt.Printf("columns: %v\n", columns)
-		// fmt.Printf("cross1: %v\n", cross1)
-		// fmt.Printf("cross2: %v\n", cross2)
-		// fmt.Println("----")
 	}
 
 	fmt.Fprintln(w, "-1")
