@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -18,6 +19,51 @@ var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
 func main() {
+	defer w.Flush()
+
+	_, M := read2Ints(r)
+
+	type xyc struct {
+		X int // hight
+		Y int // width
+		C string
+	}
+
+	xycs := make([]xyc, 0, M)
+	for i := 0; i < M; i++ {
+		sarr := readStrArr(r)
+		XS, YS, C := sarr[0], sarr[1], sarr[2]
+
+		X, _ := strconv.Atoi(XS) // hight
+		Y, _ := strconv.Atoi(YS) // width
+
+		xycs = append(xycs, xyc{X, Y, C})
+	}
+
+	sort.Slice(xycs, func(i, j int) bool {
+		if xycs[i].X == xycs[j].X {
+			return xycs[i].Y < xycs[j].Y
+		}
+		return xycs[i].X > xycs[j].X
+	})
+
+	mostRightBlackW := intMin
+	for _, xyc := range xycs {
+		if xyc.C == "B" {
+			mostRightBlackW = max(mostRightBlackW, xyc.Y)
+			continue
+		}
+
+		if xyc.Y <= mostRightBlackW {
+			fmt.Fprintln(w, "No")
+			return
+		}
+	}
+
+	fmt.Fprintln(w, "Yes")
+}
+
+func wrongSolution() {
 	defer w.Flush()
 
 	N, M := read2Ints(r)
@@ -39,7 +85,6 @@ func main() {
 			// 横の矛盾チェック
 			mostLeftWhiteW := mostLeftWhiteWs[X-1]
 			if mostLeftWhiteW != 0 && mostLeftWhiteW < Y { // 最も左にある白より右にある（数字が大きい）黒があるとだめ
-				fmt.Fprintln(w, "hey1")
 				fmt.Fprintln(w, "No")
 				return
 			}
@@ -49,7 +94,6 @@ func main() {
 			// 縦の矛盾チェック
 			mostTopWhiteH := mostTopWhiteHs[Y-1]
 			if mostTopWhiteH != 0 && mostTopWhiteH < X { // 最も上にある白より下にある（数字が大きい）黒があるとだめ
-				fmt.Fprintln(w, "hey2")
 				fmt.Fprintln(w, "No")
 				return
 			}
@@ -59,7 +103,6 @@ func main() {
 			// 横の矛盾チェック
 			mostRightBlackW := mostRightBlackWs[X-1]
 			if mostRightBlackW != 0 && mostRightBlackW > Y { // 最も右にある黒より左にある（数字が小さい）白があるとだめ
-				fmt.Fprintln(w, "hey3")
 				fmt.Fprintln(w, "No")
 				return
 			}
@@ -73,7 +116,6 @@ func main() {
 			// 縦の矛盾チェック
 			mostBottomBlackH := mostBottomBlackHs[Y-1]
 			if mostBottomBlackH != 0 && mostBottomBlackH > X { // 最も下にある黒より上にある（数字が小さい）白があるとだめ
-				fmt.Fprintln(w, "hey4")
 				fmt.Fprintln(w, "No")
 				return
 			}
@@ -84,12 +126,6 @@ func main() {
 				mostTopWhiteHs[Y-1] = min(mostTopWhiteH, X)
 			}
 		}
-
-		fmt.Printf("mostRightBlackWs: %v\n", mostRightBlackWs)
-		fmt.Printf("mostLeftWhiteWs: %v\n", mostLeftWhiteWs)
-		fmt.Printf("mostBottomBlackHs: %v\n", mostBottomBlackHs)
-		fmt.Printf("mostTopWhiteHs: %v\n", mostTopWhiteHs)
-		fmt.Println()
 	}
 
 	fmt.Fprintln(w, "Yes")
