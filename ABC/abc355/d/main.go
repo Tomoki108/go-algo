@@ -21,7 +21,7 @@ var w = bufio.NewWriter(os.Stdout)
 // 全組み合わせから、重ならない区間の数を引く方法。
 // Aの右端 < Bの左端　となる区間A,Bは重ならない。
 // 右端、左端を数直線上にならべ、ある右端の前に何個左端の座標があるかを順に数えていくと、重ならない区間の組み合わせの数が分かる。
-func main() {
+func alt() {
 	defer w.Flush()
 
 	N := readInt(r)
@@ -59,7 +59,7 @@ func main() {
 }
 
 // 区間スライスと始点スライスを二つ作り二分探索する方法。
-func alt() {
+func main() {
 	defer w.Flush()
 
 	N := readInt(r)
@@ -83,19 +83,17 @@ func alt() {
 		}
 		return segments[i].l < segments[j].l
 	})
-	sort.Slice(starts, func(i, j int) bool {
-		return starts[i] > starts[j]
-	})
+	sort.Ints(starts)
 
 	ans := 0
 	for _, seg := range segments {
-		starts = starts[:len(starts)-1]
+		starts = starts[1:]
 
 		idx := sort.Search(len(starts), func(j int) bool {
-			return starts[j] <= seg.r
+			return starts[j] > seg.r
 		})
 
-		ans += len(starts) - idx
+		ans += idx
 	}
 
 	fmt.Fprintln(w, ans)
