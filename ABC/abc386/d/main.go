@@ -42,8 +42,9 @@ func main() {
 
 	sort.Slice(xycs, func(i, j int) bool {
 		if xycs[i].X == xycs[j].X {
-			return xycs[i].Y < xycs[j].Y
+			return xycs[i].C == "B"
 		}
+
 		return xycs[i].X > xycs[j].X
 	})
 
