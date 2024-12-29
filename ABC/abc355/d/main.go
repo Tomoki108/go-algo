@@ -18,7 +18,48 @@ const intMin = -1 << 62
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// 全組み合わせから、重ならない区間の数を引く方法。
+// Aの右端 < Bの左端　となる区間A,Bは重ならない。
+// 右端、左端を数直線上にならべ、ある右端の前に何個左端の座標があるかを順に数えていくと、重ならない区間の組み合わせの数が分かる。
 func main() {
+	defer w.Flush()
+
+	N := readInt(r)
+
+	type xWithType struct {
+		x int // x座標
+		t int // 0: start, 1: end
+	}
+
+	xs := make([]xWithType, 0, N)
+	for i := 0; i < N; i++ {
+		l, r := read2Ints(r)
+		xs = append(xs, xWithType{l, 0})
+		xs = append(xs, xWithType{r, 1})
+	}
+
+	sort.Slice(xs, func(i, j int) bool {
+		if xs[i].x == xs[j].x {
+			return xs[i].t < xs[j].t
+		}
+		return xs[i].x < xs[j].x
+	})
+
+	ans := N * (N - 1) / 2
+	numOfEndsPassed := 0
+	for i := 0; i < len(xs); i++ {
+		if xs[i].t == 1 {
+			numOfEndsPassed++
+		} else {
+			ans -= numOfEndsPassed
+		}
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+// 区間スライスと始点スライスを二つ作り二分探索する方法。
+func alt() {
 	defer w.Flush()
 
 	N := readInt(r)
@@ -54,11 +95,7 @@ func main() {
 			return starts[j] <= seg.r
 		})
 
-		// fmt.Printf("seg: %v, idx: %v\n", seg, idx)
-		// fmt.Printf("starts: %v\n", starts)
-
 		ans += len(starts) - idx
-
 	}
 
 	fmt.Fprintln(w, ans)
