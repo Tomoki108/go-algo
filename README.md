@@ -4,7 +4,7 @@ solve Atcoder Beginer Contests
 
 ## pre-requisists
 
-- install oj, acc, goenv, atcoder's go version, and so on.
+- install oj, acc, goenv, atcoder's go version, etc.
 
 ```sh
 pip3 install online-judge-tools
