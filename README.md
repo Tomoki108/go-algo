@@ -34,7 +34,7 @@ vi template.json # then copy and paste ./template.json
 vi main.go # then copy and paste ./template.go
 ```
 
-- add alias to `~/.bash_profile` or `~/.zprofile`
+- add alias to `~/.bashrc` or `~/.zshrc`
 
 ```sh
 # AtCoder
