@@ -4,7 +4,7 @@ solve Atcoder Beginer Contests
 
 ## pre-requisists
 
-- install oj, acc, goenv and atcoder's go version
+- install oj, acc, goenv, atcoder's go version, and so on.
 
 ```sh
 pip3 install online-judge-tools
@@ -16,6 +16,9 @@ brew install goenv
 # actual atcoder's go version is 1.20.6, but using 1.20.14 to use statick check
 # https://img.atcoder.jp/file/language-update/language-list.html
 goenv install 1.20.14
+
+# install gopls for old go version
+go install golang.org/x/tools/gopls@v0.15.3
 ```
 
 - setup atcoder-cli
