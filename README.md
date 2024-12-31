@@ -18,7 +18,20 @@ brew install goenv
 goenv install 1.20.14
 ```
 
-- add alias to a file like `~/.bash_profile`
+- setup atcoder-cli
+
+```sh
+# to download all tasks for acc new
+acc config default-task-choice all
+
+# language setting
+cd `acc config-dir`
+mkdir go && cd go
+vi template.json # then copy and paste ./template.json
+vi main.go # then copy and paste ./template.go
+```
+
+- add alias to `~/.bash_profile` or `~/.zprofile`
 
 ```sh
 # AtCoder
