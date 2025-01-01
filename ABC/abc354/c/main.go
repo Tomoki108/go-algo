@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -20,6 +21,67 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	type AC struct {
+		No, A, C int
+	}
+
+	ACsOrderByA := make([]AC, 0, N)
+	for i := 1; i <= N; i++ {
+		A, C := read2Ints(r)
+		ACsOrderByA = append(ACsOrderByA, AC{i, A, C})
+	}
+	sort.Slice(ACsOrderByA, func(i, j int) bool {
+		return ACsOrderByA[i].A < ACsOrderByA[j].A
+	})
+
+	// fmt.Printf("ACsOrderByA: %#v\n", ACsOrderByA)
+
+	deletedNos := make(map[int]struct{}, N)
+	for i := 0; i < N-1; i++ {
+		ac := ACsOrderByA[i]
+
+		copyAc := make([]AC, N-(i+1))
+		copy(copyAc, ACsOrderByA[i+1:])
+		sort.Slice(copyAc, func(i, j int) bool {
+			return copyAc[i].C > copyAc[j].C
+		})
+		// fmt.Printf("copyAc: %#v\n", copyAc)
+
+		idx := sort.Search(len(copyAc), func(j int) bool {
+			return copyAc[j].C < ac.C
+		})
+
+		// fmt.Printf("idx: %d\n", idx)
+
+		if idx != len(copyAc) {
+			deletedNos[ac.No] = struct{}{}
+		}
+	}
+
+	// fmt.Printf("deleted: %d\n", deleted)
+	// fmt.Printf("ACsOrderByA[deleted:]: %#v\n", ACsOrderByA[deleted:])
+
+	ans := ACsOrderByA
+	sort.Slice(ans, func(i, j int) bool {
+		return ans[i].No < ans[j].No
+	})
+
+	fmt.Fprintln(w, len(ans)-len(deletedNos))
+	for i := 0; i < len(ans); i++ {
+		_, deleted := deletedNos[ans[i].No]
+		if deleted {
+			continue
+		}
+
+		fmt.Fprint(w, ans[i].No)
+		if i != len(ans)-1 {
+			fmt.Fprint(w, " ")
+		} else {
+			fmt.Fprintln(w)
+		}
+	}
 }
 
 //////////////
