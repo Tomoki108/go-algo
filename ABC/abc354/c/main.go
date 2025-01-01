@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/emirpasic/gods/sets/treeset"
 )
 
 //lint:ignore U1000 unused
@@ -28,13 +30,18 @@ func main() {
 	}
 
 	ACsOrderByA := make([]AC, 0, N)
+	Cs := make([]int, 0, N)
 	for i := 1; i <= N; i++ {
 		A, C := read2Ints(r)
 		ACsOrderByA = append(ACsOrderByA, AC{i, A, C})
+
+		Cs = append(Cs, C)
 	}
 	sort.Slice(ACsOrderByA, func(i, j int) bool {
 		return ACsOrderByA[i].A < ACsOrderByA[j].A
 	})
+
+	ts := treeset.NewWithIntComparator()
 
 	// fmt.Printf("ACsOrderByA: %#v\n", ACsOrderByA)
 
