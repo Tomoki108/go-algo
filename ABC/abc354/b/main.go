@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -20,11 +21,53 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	Sss := make([][]string, 0, N)
+	rateSum := 0
+
+	for i := 0; i < N; i++ {
+		sarr := readStrArr(r)
+		S := sarr[0]
+		Ss := strings.Split(S, "")
+		Sss = append(Sss, Ss)
+
+		CS := sarr[1]
+		C, _ := strconv.Atoi(CS)
+		rateSum += C
+	}
+	AscSortSlicesByDict(Sss)
+
+	rem := rateSum % N
+
+	fmt.Fprintln(w, strings.Join(Sss[rem], ""))
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func AscSortSlicesByDict[T ~int | ~string](sl [][]T) {
+	sort.Slice(sl, func(i, j int) bool {
+		one := sl[i]
+		another := sl[j]
+
+		length := len(one)
+		if len(another) < length {
+			length = len(another)
+		}
+
+		for k := 0; k < length; k++ {
+			if one[k] == another[k] {
+				continue
+			}
+
+			return one[k] < another[k]
+		}
+
+		return len(one) < len(another)
+	})
+}
 
 //////////////
 // Helpers  //

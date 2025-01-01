@@ -4,6 +4,7 @@ import (
 	"sort"
 )
 
+// O(N)
 func AscSortSlicesByDict[T ~int | ~string](sl [][]T) {
 	sort.Slice(sl, func(i, j int) bool {
 		one := sl[i]
@@ -26,6 +27,7 @@ func AscSortSlicesByDict[T ~int | ~string](sl [][]T) {
 	})
 }
 
+// O(N)
 func DescSortSlicesByDict[T ~int | ~string](sl [][]T) {
 	sort.Slice(sl, func(i, j int) bool {
 		one := sl[i]
