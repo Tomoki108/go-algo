@@ -30,18 +30,16 @@ func main() {
 	}
 
 	ACsOrderByA := make([]AC, 0, N)
-	Cs := make([]int, 0, N)
+	cSet := treeset.NewWith(compareDescending)
 	for i := 1; i <= N; i++ {
 		A, C := read2Ints(r)
 		ACsOrderByA = append(ACsOrderByA, AC{i, A, C})
 
-		Cs = append(Cs, C)
+		cSet.Add(C)
 	}
 	sort.Slice(ACsOrderByA, func(i, j int) bool {
 		return ACsOrderByA[i].A < ACsOrderByA[j].A
 	})
-
-	ts := treeset.NewWithIntComparator()
 
 	// fmt.Printf("ACsOrderByA: %#v\n", ACsOrderByA)
 
@@ -49,22 +47,15 @@ func main() {
 	for i := 0; i < N-1; i++ {
 		ac := ACsOrderByA[i]
 
-		copyAc := make([]AC, N-(i+1))
-		copy(copyAc, ACsOrderByA[i+1:])
-		sort.Slice(copyAc, func(i, j int) bool {
-			return copyAc[i].C > copyAc[j].C
-		})
-		// fmt.Printf("copyAc: %#v\n", copyAc)
-
-		idx := sort.Search(len(copyAc), func(j int) bool {
-			return copyAc[j].C < ac.C
+		idx, _ := cSet.Find(func(index int, value interface{}) bool {
+			return value.(int) < ac.C
 		})
 
 		// fmt.Printf("idx: %d\n", idx)
-
-		if idx != len(copyAc) {
+		if idx != -1 {
 			deletedNos[ac.No] = struct{}{}
 		}
+		cSet.Remove(ac.C)
 	}
 
 	// fmt.Printf("deleted: %d\n", deleted)
@@ -94,6 +85,19 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+var compareDescending = func(a, b interface{}) int {
+	intA := a.(int)
+	intB := b.(int)
+	switch {
+	case intA > intB:
+		return -1 // a が b より大きい場合、降順では a が先
+	case intA < intB:
+		return 1 // a が b より小さい場合、降順では b が先
+	default:
+		return 0 // a == b の場合
+	}
+}
 
 //////////////
 // Helpers  //
