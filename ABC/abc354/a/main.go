@@ -25,8 +25,8 @@ func main() {
 	ph := 0
 
 	ans := 0
-	for ph >= H {
-		H += pow(2, ans)
+	for ph <= H {
+		ph += pow(2, ans)
 		ans++
 	}
 
