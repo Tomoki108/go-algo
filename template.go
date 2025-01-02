@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-//lint:ignore U1000 unused 9223372036854775808 19 digits, equiv 2^63
+//lint:ignore U1000 unused 9223372036854775808, 19 digits, equiv 2^63
 const INT_MAX = math.MaxInt
 
-//lint:ignore U1000 unused -9223372036854775808 19 digits, equiv -1 * 2^63
+//lint:ignore U1000 unused -9223372036854775808, 19 digits, equiv -1 * 2^63
 const INT_MIN = math.MinInt
 
 var r = bufio.NewReader(os.Stdin)
