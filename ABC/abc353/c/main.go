@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+	sort.Ints(As)
+
+	M := pow(10, 8)
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		ans += As[i] * (N - 1)
+
+		partners := As[i+1:]
+		idx := sort.Search(len(partners), func(j int) bool {
+			return As[i]+partners[j] >= M
+		})
+		overCombCount := len(partners) - idx
+
+		ans -= M * overCombCount
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
