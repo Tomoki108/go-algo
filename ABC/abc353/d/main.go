@@ -21,11 +21,49 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	As := readIntArr(r)
+
+	psum := PrefixSum(As)
+
+	M := 998244353
+
+	ans := 0
+	for i, A := range As {
+		digits := getDigists(A)
+
+		// ans += pow(10, digits) * psum[i]
+		// ans += A * i
+
+		ans += pow(10, digits)%M*psum[i]%M + A*i%M
+	}
+
+	fmt.Fprintln(w, ans%M)
+
 }
 
-//////////////
+func getDigists(num int) int {
+	digits := 0
+	for num > 0 {
+		num /= 10
+		digits++
+	}
+	return digits
+}
+
+// ////////////
 // Libs    //
-/////////////
+// ///////////
+
+// 一次元配列の累積和を返す
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers  //

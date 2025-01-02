@@ -1,6 +1,7 @@
 package prefsum
 
-// 一次元配列の累積和を返す
+// O(n)
+// 一次元配列の累積和を返す（index0には0を入れる。）
 func PrefixSum(sl []int) []int {
 	n := len(sl)
 	res := make([]int, n+1)
