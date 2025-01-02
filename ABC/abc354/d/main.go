@@ -20,6 +20,51 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	A, B, C, D := iarr[0], iarr[1], iarr[2], iarr[3]
+
+	adj := pow(10, 9)
+	A, B, C, D = A+adj, B+adj, C+adj, D+adj
+
+	ans := calcSquare(C, D) - calcSquare(A, D) - calcSquare(C, B) + calcSquare(A, B)
+
+	fmt.Fprintln(w, ans)
+}
+
+func calcSquare(x, y int) int {
+	remX := x % 4
+	remY := y % 2
+	x -= remX
+	y -= remY
+
+	fmt.Printf("x: %d, y: %d\n", x, y)
+	fmt.Printf("remX: %d, remY: %d\n", remX, remY)
+
+	ret := x * y * (1 / 2) * 2
+
+	if remY == 1 {
+		ret += x * 1 * (1 / 2) * 2
+	}
+
+	if remX >= 1 {
+		ret += (3 / 4) * (y / 2) * 2
+		if remY == 1 {
+			ret += 1 * 2
+		}
+	}
+	if remX >= 2 {
+		ret += (3 / 4) * (y / 2) * 2
+		if remY == 1 {
+			ret += (1 / 2) * 2
+		}
+	}
+	if remX == 3 {
+		ret += (1 / 4) * (y / 2) * 2
+	}
+
+	fmt.Printf("ret: %d\n", ret)
+
+	return ret
 }
 
 //////////////
@@ -160,4 +205,23 @@ func abs(a int) int {
 		return -a
 	}
 	return a
+}
+
+// O(log(exp))
+// 繰り返し二乗法で x^y を計算する関数
+func pow(base, exp int) int {
+	// 繰り返し二乗法
+	// 2^8 = 4^2^2
+	// 2^9 = 4^2^2 * 2
+	// この性質を利用して、基数を2乗しつつ指数を1/2にしていく
+
+	result := 1
+	for exp > 0 {
+		if exp%2 == 1 {
+			result *= base
+		}
+		base *= base
+		exp /= 2
+	}
+	return result
 }
