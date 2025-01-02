@@ -37,32 +37,47 @@ func calcSquare(x, y int) int {
 	x -= remX
 	y -= remY
 
-	fmt.Printf("x: %d, y: %d\n", x, y)
-	fmt.Printf("remX: %d, remY: %d\n", remX, remY)
+	// fmt.Printf("x: %d, y: %d\n", x, y)
+	// fmt.Printf("remX: %d, remY: %d\n", remX, remY)
 
-	ret := x * y * (1 / 2) * 2
+	// fmt.Printf("x * y: %d\n", x*y)
+
+	// ret := x * y * (1 / 2) * 2
+	ret := x * y
 
 	if remY == 1 {
-		ret += x * 1 * (1 / 2) * 2
+		// ret += x * 1 * (1 / 2) * 2
+		ret += x
 	}
+	//	fmt.Printf("ret: %d\n", ret)
 
 	if remX >= 1 {
-		ret += (3 / 4) * (y / 2) * 2
+		// ret += (3 / 2) * (y / 2) * 2
+		ret += 3 * (y / 2)
 		if remY == 1 {
 			ret += 1 * 2
 		}
 	}
+	// fmt.Printf("ret: %d\n", ret)
+
 	if remX >= 2 {
-		ret += (3 / 4) * (y / 2) * 2
+		// ret += (3 / 4) * (y / 2) * 2
+		ret += 3 * (y / 2)
 		if remY == 1 {
-			ret += (1 / 2) * 2
+			// ret += (1 / 2) * 2
+			ret += 1
 		}
 	}
+	// fmt.Printf("ret: %d\n", ret)
+
 	if remX == 3 {
-		ret += (1 / 4) * (y / 2) * 2
+		// ret += (1 / 2) * (y / 2) * 2
+		ret += y / 2
 	}
 
-	fmt.Printf("ret: %d\n", ret)
+	// fmt.Printf("ret: %d\n", ret)
+
+	// panic("end")
 
 	return ret
 }
