@@ -21,6 +21,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	Hs := readIntArr(r)
+
+	base := Hs[0]
+	ans := -1
+	for i := 1; i < N; i++ {
+		if Hs[i] > base {
+			ans = i + 1
+			break
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
