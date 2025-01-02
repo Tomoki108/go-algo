@@ -3,16 +3,17 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
 )
 
-//lint:ignore U1000 unused
-const intMax = 1 << 62
+//lint:ignore U1000 unused 9223372036854775808 19 digits, 2^63
+const INT_MAX = math.MaxInt
 
-//lint:ignore U1000 unused
-const intMin = -1 << 62
+//lint:ignore U1000 unused -9223372036854775808 19 digits, -1 * 2^63
+const INT_MIN = math.MinInt
 
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
@@ -37,11 +38,6 @@ func calcSquare(x, y int) int {
 	x -= remX
 	y -= remY
 
-	// fmt.Printf("x: %d, y: %d\n", x, y)
-	// fmt.Printf("remX: %d, remY: %d\n", remX, remY)
-
-	// fmt.Printf("x * y: %d\n", x*y)
-
 	// ret := x * y * (1 / 2) * 2
 	ret := x * y
 
@@ -49,7 +45,6 @@ func calcSquare(x, y int) int {
 		// ret += x * 1 * (1 / 2) * 2
 		ret += x
 	}
-	//	fmt.Printf("ret: %d\n", ret)
 
 	if remX >= 1 {
 		// ret += (3 / 2) * (y / 2) * 2
@@ -58,7 +53,6 @@ func calcSquare(x, y int) int {
 			ret += 1 * 2
 		}
 	}
-	// fmt.Printf("ret: %d\n", ret)
 
 	if remX >= 2 {
 		// ret += (3 / 4) * (y / 2) * 2
@@ -68,16 +62,11 @@ func calcSquare(x, y int) int {
 			ret += 1
 		}
 	}
-	// fmt.Printf("ret: %d\n", ret)
 
 	if remX == 3 {
 		// ret += (1 / 2) * (y / 2) * 2
 		ret += y / 2
 	}
-
-	// fmt.Printf("ret: %d\n", ret)
-
-	// panic("end")
 
 	return ret
 }
