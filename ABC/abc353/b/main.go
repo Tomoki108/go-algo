@@ -21,6 +21,28 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	_, K := read2Ints(r)
+	As := readIntArr(r)
+
+	ans := 0
+	seated := 0
+	for _, A := range As {
+		if seated+A < K {
+			seated += A
+		} else if seated+A == K {
+			ans++
+			seated = 0
+		} else {
+			ans++
+			seated = A
+		}
+	}
+
+	if seated > 0 {
+		ans++
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
