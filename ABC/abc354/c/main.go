@@ -7,8 +7,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/emirpasic/gods/sets/treeset"
 )
 
 //lint:ignore U1000 unused
@@ -29,57 +27,28 @@ func main() {
 		No, A, C int
 	}
 
-	ACsOrderByA := make([]AC, 0, N)
-	cSet := treeset.NewWith(compareDescending)
+	acs := make([]AC, 0, N)
 	for i := 1; i <= N; i++ {
 		A, C := read2Ints(r)
-		ACsOrderByA = append(ACsOrderByA, AC{i, A, C})
-
-		cSet.Add(C)
+		acs = append(acs, AC{i, A, C})
 	}
-	sort.Slice(ACsOrderByA, func(i, j int) bool {
-		return ACsOrderByA[i].A < ACsOrderByA[j].A
+
+	sort.Slice(acs, func(i, j int) bool {
+		return acs[i].C < acs[j].C
 	})
 
-	// fmt.Printf("ACsOrderByA: %#v\n", ACsOrderByA)
-
-	deletedNos := make(map[int]struct{}, N)
-	for i := 0; i < N-1; i++ {
-		ac := ACsOrderByA[i]
-
-		idx, _ := cSet.Find(func(index int, value interface{}) bool {
-			return value.(int) < ac.C
-		})
-
-		// fmt.Printf("idx: %d\n", idx)
-		if idx != -1 {
-			deletedNos[ac.No] = struct{}{}
-		}
-		cSet.Remove(ac.C)
-	}
-
-	// fmt.Printf("deleted: %d\n", deleted)
-	// fmt.Printf("ACsOrderByA[deleted:]: %#v\n", ACsOrderByA[deleted:])
-
-	ans := ACsOrderByA
-	sort.Slice(ans, func(i, j int) bool {
-		return ans[i].No < ans[j].No
-	})
-
-	fmt.Fprintln(w, len(ans)-len(deletedNos))
-	for i := 0; i < len(ans); i++ {
-		_, deleted := deletedNos[ans[i].No]
-		if deleted {
-			continue
-		}
-
-		fmt.Fprint(w, ans[i].No)
-		if i != len(ans)-1 {
-			fmt.Fprint(w, " ")
-		} else {
-			fmt.Fprintln(w)
+	ans := make([]int, 0, N)
+	minA := 0
+	for _, ac := range acs {
+		if minA <= ac.A {
+			minA = ac.A
+			ans = append(ans, ac.No)
 		}
 	}
+	sort.Ints(ans)
+
+	fmt.Fprintln(w, len(ans))
+	writeSlice(w, ans)
 }
 
 //////////////
