@@ -32,10 +32,11 @@ func main() {
 	for i, A := range As {
 		digits := getDigists(A)
 
-		// ans += pow(10, digits) * psum[i]
-		// ans += A * i
+		ans += ((pow(10, digits) % M) * (psum[i] % M)) % M
+		ans += (A * i) % M
+		ans %= M
 
-		ans += pow(10, digits)%M*psum[i]%M + A*i%M
+		//	ans += pow(10, digits)%M*psum[i]%M + A*i%M
 	}
 
 	fmt.Fprintln(w, ans%M)
