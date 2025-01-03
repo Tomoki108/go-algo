@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -25,63 +24,40 @@ func main() {
 	defer w.Flush()
 
 	N, K := read2Ints(r)
-	Ps := readIntArr(r)
 
 	if K == 1 {
 		fmt.Fprintln(w, 0)
 		return
 	}
 
-	type PN struct {
-		P  int
-		No int
+	input, _ := r.ReadString('\n')
+	strs := strings.Fields(input)
+	PNs := make([]int, len(strs)+1) // idx: P, value: NO
+	for i := 0; i < N; i++ {
+		P, _ := strconv.Atoi(strs[i])
+		PNs[P] = i + 1
 	}
-	PNs := make([]PN, 0, N)
-	for i, P := range Ps {
-		PNs = append(PNs, PN{P, i + 1})
-	}
-
-	sort.Slice(PNs, func(i, j int) bool {
-		return PNs[i].P < PNs[j].P
-	})
-
-	// fmt.Printf("PNs: %v\n", PNs)
 
 	ans := INT_MAX
 
-	current := treeset.NewWith(
-		func(a, b interface{}) int {
-			pn1 := a.(PN)
-			pn2 := b.(PN)
-
-			if pn1.No < pn2.No {
-				return -1
-			} else if pn1.No > pn2.No {
-				return 1
-			}
-			return 0
-		},
-	)
-
-	for i := 0; i < K; i++ {
-		current.Add(PNs[i])
+	currentNos := treeset.NewWithIntComparator()
+	for i := 1; i <= K; i++ {
+		currentNos.Add(PNs[i])
 	}
 
-	// fmt.Printf("current: %v\n", current)
-
-	right := K - 1
-	left := 0
-	for right < len(PNs) {
-		values := current.Values()
-		minPN := values[0].(PN)
-		maxPN := values[K-1].(PN)
-		ans = min(ans, maxPN.No-minPN.No)
+	right := K
+	left := 1
+	for right < N {
+		values := currentNos.Values()
+		minNo := values[0].(int)
+		maxNo := values[K-1].(int)
+		ans = min(ans, maxNo-minNo)
 
 		right++
 		left++
 		if right != len(PNs) {
-			current.Remove(PNs[left-1])
-			current.Add(PNs[right])
+			currentNos.Remove(PNs[left-1])
+			currentNos.Add(PNs[right])
 		}
 	}
 
