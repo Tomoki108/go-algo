@@ -49,34 +49,39 @@ func main() {
 
 	ans := INT_MAX
 
-	current := make([]PN, 0, K)
-	nos := treeset.NewWithIntComparator()
+	current := treeset.NewWith(
+		func(a, b interface{}) int {
+			pn1 := a.(PN)
+			pn2 := b.(PN)
+
+			if pn1.No < pn2.No {
+				return -1
+			} else if pn1.No > pn2.No {
+				return 1
+			}
+			return 0
+		},
+	)
+
 	for i := 0; i < K; i++ {
-		current = append(current, PNs[i])
-		nos.Add(PNs[i].No)
+		current.Add(PNs[i])
 	}
 
 	// fmt.Printf("current: %v\n", current)
 
 	right := K - 1
+	left := 0
 	for right < len(PNs) {
-		// sort.Slice(current, func(i, j int) bool {
-		// 	return current[i].No < current[j].No
-		// })
-
-		// fmt.Printf("current: %+v\n", current)
-		// fmt.Printf("nos: %v\n", nos.Values())
-
-		minNo := nos.Values()[0].(int)
-		maxNo := nos.Values()[nos.Size()-1].(int)
+		values := current.Values()
+		minNo := values[0].(PN).No
+		maxNo := values[K-1].(PN).No
 		ans = min(ans, maxNo-minNo)
 
 		right++
+		left++
 		if right != len(PNs) {
-			nos.Remove(current[0].No)
-			nos.Add(PNs[right].No)
-
-			current = append(current[1:], PNs[right])
+			current.Remove(PNs[left])
+			current.Add(PNs[right])
 		}
 	}
 
