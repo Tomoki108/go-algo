@@ -21,6 +21,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	A := readGrid(r, N)
+	B := readGrid(r, N)
+
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if A[i][j] != B[i][j] {
+				fmt.Fprintf(w, "%d %d\n", i+1, j+1)
+				return
+			}
+		}
+	}
+
 }
 
 //////////////
