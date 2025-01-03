@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -24,40 +25,50 @@ func main() {
 	defer w.Flush()
 
 	N, K := read2Ints(r)
+	Ps := readIntArr(r)
 
 	if K == 1 {
 		fmt.Fprintln(w, 0)
 		return
 	}
 
-	input, _ := r.ReadString('\n')
-	strs := strings.Fields(input)
-	PNs := make([]int, len(strs)+1) // idx: P, value: NO
-	for i := 0; i < N; i++ {
-		P, _ := strconv.Atoi(strs[i])
-		PNs[P] = i + 1
+	type PN struct {
+		P  int
+		No int
 	}
+	PNs := make([]PN, 0, N)
+	for i, P := range Ps {
+		PNs = append(PNs, PN{P: P, No: i + 1})
+	}
+	sort.Slice(PNs, func(i, j int) bool {
+		return PNs[i].P < PNs[j].P
+	})
 
 	ans := INT_MAX
 
 	currentNos := treeset.NewWithIntComparator()
-	for i := 1; i <= K; i++ {
-		currentNos.Add(PNs[i])
+	for i := 0; i < K; i++ {
+		currentNos.Add(PNs[i].No)
 	}
 
-	right := K
-	left := 1
+	right := K - 1
+	left := 0
 	for right < N {
-		values := currentNos.Values()
-		minNo := values[0].(int)
-		maxNo := values[K-1].(int)
+		it := currentNos.Iterator()
+		it.Begin()
+		it.Next()
+		minNo := it.Value().(int)
+
+		it.End()
+		it.Prev()
+		maxNo := it.Value().(int)
 		ans = min(ans, maxNo-minNo)
 
 		right++
 		left++
 		if right != len(PNs) {
-			currentNos.Remove(PNs[left-1])
-			currentNos.Add(PNs[right])
+			currentNos.Remove(PNs[left-1].No)
+			currentNos.Add(PNs[right].No)
 		}
 	}
 
