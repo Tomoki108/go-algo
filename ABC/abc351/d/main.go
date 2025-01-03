@@ -27,10 +27,10 @@ func main() {
 
 	grid := readGrid(r, H)
 
-	ansGrid := make([][]int, H)
-	for i := 0; i < H; i++ {
-		ansGrid[i] = make([]int, W)
-	}
+	// ansGrid := make([][]int, H)
+	// for i := 0; i < H; i++ {
+	// 	ansGrid[i] = make([]int, W)
+	// }
 
 	globalVisitedGrid := make([][]bool, H)
 	for i := 0; i < H; i++ {
@@ -46,9 +46,8 @@ func main() {
 					visitedGrid[i] = make([]bool, W)
 				}
 				// fmt.Println("\nhi")
-				moveCount := dfs(grid, ansGrid, visitedGrid, globalVisitedGrid, Coordinate{h, w})
+				moveCount := dfs(grid, visitedGrid, globalVisitedGrid, Coordinate{h, w})
 				ans = max(ans, moveCount)
-				ansGrid[h][w] = moveCount
 			}
 		}
 	}
@@ -61,7 +60,7 @@ func main() {
 	// }
 }
 
-func dfs(grid [][]string, ansGrid [][]int, visitedGrid, globalVisitedGrid [][]bool, cell Coordinate) int {
+func dfs(grid [][]string, visitedGrid, globalVisitedGrid [][]bool, cell Coordinate) int {
 	// fmt.Printf("cell: %+v\n", cell)
 
 	visitedGrid[cell.h][cell.w] = true
@@ -88,7 +87,7 @@ func dfs(grid [][]string, ansGrid [][]int, visitedGrid, globalVisitedGrid [][]bo
 			continue
 		}
 
-		moveCount += dfs(grid, ansGrid, visitedGrid, globalVisitedGrid, adj)
+		moveCount += dfs(grid, visitedGrid, globalVisitedGrid, adj)
 	}
 
 	return moveCount
