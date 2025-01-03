@@ -21,6 +21,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	T := readStr(r)
+	Ts := strings.Split(T, "")
+
+	ans := make([]int, 0, len(Ss))
+	diff := 0
+	for i := 0; i < len(Ss); i++ {
+		for Ss[i] != Ts[i+diff] {
+			diff++
+		}
+
+		ans = append(ans, i+diff+1)
+	}
+
+	writeSlice(w, ans)
 }
 
 //////////////
