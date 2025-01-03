@@ -54,6 +54,7 @@ func dfs(grid [][]string, visitedGrid [][]int, visitedMark int, cell Coordinate)
 
 	visitedGrid[cell.h][cell.w] = visitedMark
 
+	// NOTE: 先に前処理で磁石の周囲をxで埋めておく、ここでループせずにxかどうかの判定で済む。全体としてセルのcanMove判定が効率化される。
 	canMove := true
 	for _, adj := range cell.Adjacents() {
 		if !adj.IsValid(H, W) {
