@@ -27,8 +27,7 @@ func main() {
 
 	st := NewStack[int]()
 	for i := 0; i < N; i++ {
-		ballSize := pow(2, As[i])
-		proces(ballSize, st)
+		proces(As[i], st)
 	}
 
 	fmt.Println(st.Len())
@@ -47,7 +46,7 @@ func proces(toPush int, st *Stack[int]) {
 	}
 
 	st.Pop()
-	proces(toPush+peek, st)
+	proces(toPush+1, st)
 }
 
 //////////////
