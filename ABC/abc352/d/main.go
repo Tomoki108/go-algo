@@ -73,14 +73,14 @@ func main() {
 	left := 0
 	for right < len(PNs) {
 		values := current.Values()
-		minNo := values[0].(PN).No
-		maxNo := values[K-1].(PN).No
-		ans = min(ans, maxNo-minNo)
+		minPN := values[0].(PN)
+		maxPN := values[K-1].(PN)
+		ans = min(ans, maxPN.No-minPN.No)
 
 		right++
 		left++
 		if right != len(PNs) {
-			current.Remove(PNs[left])
+			current.Remove(PNs[left-1])
 			current.Add(PNs[right])
 		}
 	}
