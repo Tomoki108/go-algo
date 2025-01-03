@@ -32,16 +32,16 @@ func main() {
 		ansGrid[i] = make([]int, W)
 	}
 
-	visitedGrid := make([][]bool, H)
-	for i := 0; i < H; i++ {
-		visitedGrid[i] = make([]bool, W)
-	}
-
 	ans := INT_MIN
 	for h := 0; h < H; h++ {
 		for w := 0; w < W; w++ {
 			if grid[h][w] != "#" {
-				fmt.Println("\nhi")
+				// fmt.Println("\nhi")
+
+				visitedGrid := make([][]bool, H)
+				for i := 0; i < H; i++ {
+					visitedGrid[i] = make([]bool, W)
+				}
 
 				moveCount := dfs(grid, ansGrid, visitedGrid, Coordinate{h, w})
 				ans = max(ans, moveCount)
@@ -52,20 +52,20 @@ func main() {
 
 	fmt.Fprintln(w, ans)
 
-	fmt.Println("ansGrid:")
-	for _, row := range ansGrid {
-		fmt.Fprintln(w, row)
-	}
+	// fmt.Println("ansGrid:")
+	// for _, row := range ansGrid {
+	// 	fmt.Fprintln(w, row)
+	// }
 }
 
 func dfs(grid [][]string, ansGrid [][]int, visitedGrid [][]bool, cell Coordinate) int {
-	fmt.Printf("cell: %+v\n", cell)
+	// fmt.Printf("cell: %+v\n", cell)
 
 	visitedGrid[cell.h][cell.w] = true
 
-	if ansGrid[cell.h][cell.w] != 0 {
-		return ansGrid[cell.h][cell.w]
-	}
+	// if ansGrid[cell.h][cell.w] != 0 {
+	// 	return ansGrid[cell.h][cell.w]
+	// }
 
 	canMove := true
 	for _, adj := range cell.Adjacents() {
