@@ -54,14 +54,8 @@ func main() {
 	right := K - 1
 	left := 0
 	for right < N {
-		it := currentNos.Iterator()
-		it.Begin()
-		it.Next()
-		minNo := it.Value().(int)
-
-		it.End()
-		it.Prev()
-		maxNo := it.Value().(int)
+		minNo := First[int](currentNos)
+		maxNo := Last[int](currentNos)
 		ans = min(ans, maxNo-minNo)
 
 		right++
@@ -78,6 +72,34 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+// O(1)
+func First[T any](set *treeset.Set) T {
+	it := set.Iterator()
+	it.Begin()
+	it.Next()
+
+	val, ok := it.Value().(T)
+	if !ok {
+		panic("Type assertion failed")
+	}
+
+	return val
+}
+
+// O(1)
+func Last[T any](set *treeset.Set) T {
+	it := set.Iterator()
+	it.End()
+	it.Prev()
+
+	val, ok := it.Value().(T)
+	if !ok {
+		panic("Type assertion failed")
+	}
+
+	return val
+}
 
 //////////////
 // Helpers  //
