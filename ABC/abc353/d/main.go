@@ -36,7 +36,6 @@ func main() {
 		ans += (A * i) % M
 		ans %= M
 
-		//	ans += pow(10, digits)%M*psum[i]%M + A*i%M
 	}
 
 	fmt.Fprintln(w, ans%M)
