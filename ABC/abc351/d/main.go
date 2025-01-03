@@ -26,9 +26,9 @@ func main() {
 	H, W = read2Ints(r)
 	grid := readGrid(r, H)
 
-	globalVisitedGrid := make([][]int, H)
+	visitedGrid := make([][]int, H)
 	for i := 0; i < H; i++ {
-		globalVisitedGrid[i] = make([]int, W)
+		visitedGrid[i] = make([]int, W)
 	}
 
 	ans := INT_MIN
@@ -36,8 +36,8 @@ func main() {
 	for h := 0; h < H; h++ {
 		for w := 0; w < W; w++ {
 			visitedMark++
-			if grid[h][w] != "#" && globalVisitedGrid[h][w] == 0 {
-				moveCount := dfs(grid, globalVisitedGrid, visitedMark, Coordinate{h, w})
+			if grid[h][w] != "#" && visitedGrid[h][w] == 0 {
+				moveCount := dfs(grid, visitedGrid, visitedMark, Coordinate{h, w})
 				ans = max(ans, moveCount)
 			}
 		}
@@ -46,13 +46,13 @@ func main() {
 	fmt.Fprintln(w, ans)
 }
 
-func dfs(grid [][]string, globalVisitedGrid [][]int, visitedMark int, cell Coordinate) int {
-	if globalVisitedGrid[cell.h][cell.w] != 0 {
-		globalVisitedGrid[cell.h][cell.w] = visitedMark
+func dfs(grid [][]string, visitedGrid [][]int, visitedMark int, cell Coordinate) int {
+	if visitedGrid[cell.h][cell.w] != 0 {
+		visitedGrid[cell.h][cell.w] = visitedMark
 		return 1
 	}
 
-	globalVisitedGrid[cell.h][cell.w] = visitedMark
+	visitedGrid[cell.h][cell.w] = visitedMark
 
 	canMove := true
 	for _, adj := range cell.Adjacents() {
@@ -71,10 +71,10 @@ func dfs(grid [][]string, globalVisitedGrid [][]int, visitedMark int, cell Coord
 
 	moveCount := 1
 	for _, adj := range cell.Adjacents() {
-		if !adj.IsValid(H, W) || globalVisitedGrid[adj.h][adj.w] == visitedMark {
+		if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == visitedMark {
 			continue
 		}
-		moveCount += dfs(grid, globalVisitedGrid, visitedMark, adj)
+		moveCount += dfs(grid, visitedGrid, visitedMark, adj)
 	}
 
 	return moveCount
