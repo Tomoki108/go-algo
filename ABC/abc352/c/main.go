@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,34 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	type AB struct {
+		A, B int
+	}
+
+	abs := make([]AB, 0, N)
+	for i := 0; i < N; i++ {
+		A, B := read2Ints(r)
+		abs = append(abs, AB{A, B})
+	}
+	sort.Slice(abs, func(i, j int) bool {
+		diff1 := abs[i].B - abs[i].A
+		diff2 := abs[j].B - abs[j].A
+
+		return diff1 < diff2
+	})
+
+	ans := 0
+	for i, A := range abs {
+		if i == N-1 {
+			ans += A.B
+		} else {
+			ans += A.A
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
