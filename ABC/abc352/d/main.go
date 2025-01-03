@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,52 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, K := read2Ints(r)
+	Ps := readIntArr(r)
+
+	if K == 1 {
+		fmt.Fprintln(w, 0)
+		return
+	}
+
+	type PN struct {
+		P  int
+		No int
+	}
+	PNs := make([]PN, 0, N)
+	for i, P := range Ps {
+		PNs = append(PNs, PN{P, i + 1})
+	}
+
+	sort.Slice(PNs, func(i, j int) bool {
+		return PNs[i].P < PNs[j].P
+	})
+
+	ans := INT_MAX
+
+	current := make([]int, 0, K)
+	for i := 0; i < K; i++ {
+		current = append(current, PNs[i].No)
+	}
+
+	// fmt.Printf("current: %v\n", current)
+
+	// [lefgt, right] の範囲を考える
+	left := 0
+	right := K - 1
+	for right < len(PNs) {
+		sort.Ints(current)
+		ans = min(ans, current[K-1]-current[0])
+
+		right++
+		left++
+
+		if right != len(PNs) {
+			current = append(current[1:], PNs[right].No)
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
