@@ -165,6 +165,8 @@ func abs(a int) int {
 
 // O(log(exp))
 // 繰り返し二乗法で x^y を計算する関数
+//
+//lint:ignore U1000 unused
 func pow(base, exp int) int {
 	// 繰り返し二乗法
 	// 2^8 = 4^2^2
