@@ -32,17 +32,16 @@ func main() {
 		ansGrid[i] = make([]int, W)
 	}
 
+	visitedGrid := make([][]bool, H)
+	for i := 0; i < H; i++ {
+		visitedGrid[i] = make([]bool, W)
+	}
+
 	ans := INT_MIN
 	for h := 0; h < H; h++ {
 		for w := 0; w < W; w++ {
-			if grid[h][w] != "#" {
+			if grid[h][w] != "#" && !visitedGrid[h][w] {
 				// fmt.Println("\nhi")
-
-				visitedGrid := make([][]bool, H)
-				for i := 0; i < H; i++ {
-					visitedGrid[i] = make([]bool, W)
-				}
-
 				moveCount := dfs(grid, ansGrid, visitedGrid, Coordinate{h, w})
 				ans = max(ans, moveCount)
 				ansGrid[h][w] = moveCount
