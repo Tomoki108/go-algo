@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/emirpasic/gods/sets/treeset"
 )
 
 //lint:ignore U1000 unused 9223372036854775808, 19 digits, equiv 2^63
@@ -48,27 +50,32 @@ func main() {
 	ans := INT_MAX
 
 	current := make([]PN, 0, K)
+	nos := treeset.NewWithIntComparator()
 	for i := 0; i < K; i++ {
 		current = append(current, PNs[i])
+		nos.Add(PNs[i].No)
 	}
 
 	// fmt.Printf("current: %v\n", current)
 
 	right := K - 1
 	for right < len(PNs) {
-		sort.Slice(current, func(i, j int) bool {
-			return current[i].No < current[j].No
-		})
+		// sort.Slice(current, func(i, j int) bool {
+		// 	return current[i].No < current[j].No
+		// })
 
 		// fmt.Printf("current: %+v\n", current)
+		// fmt.Printf("nos: %v\n", nos.Values())
 
-		ans = min(ans, current[K-1].No-current[0].No)
+		minNo := nos.Values()[0].(int)
+		maxNo := nos.Values()[nos.Size()-1].(int)
+		ans = min(ans, maxNo-minNo)
 
 		right++
 		if right != len(PNs) {
-			sort.Slice(current, func(i, j int) bool {
-				return current[i].P < current[j].P
-			})
+			nos.Remove(current[0].No)
+			nos.Add(PNs[right].No)
+
 			current = append(current[1:], PNs[right])
 		}
 	}
