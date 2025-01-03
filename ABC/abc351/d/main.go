@@ -27,6 +27,10 @@ func main() {
 
 	grid := readGrid(r, H)
 
+	// for _, row := range grid {
+	// 	fmt.Println(row)
+	// }
+
 	// ansGrid := make([][]int, H)
 	// for i := 0; i < H; i++ {
 	// 	ansGrid[i] = make([]int, W)
@@ -45,7 +49,10 @@ func main() {
 				for i := 0; i < H; i++ {
 					visitedGrid[i] = make([]bool, W)
 				}
-				// fmt.Println("\nhi")
+
+				// fmt.Println("h:", h, "w:", w)
+				// fmt.Println(grid[h][w])
+
 				moveCount := dfs(grid, visitedGrid, globalVisitedGrid, Coordinate{h, w})
 				ans = max(ans, moveCount)
 			}
