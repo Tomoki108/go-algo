@@ -43,27 +43,33 @@ func main() {
 		return PNs[i].P < PNs[j].P
 	})
 
+	// fmt.Printf("PNs: %v\n", PNs)
+
 	ans := INT_MAX
 
-	current := make([]int, 0, K)
+	current := make([]PN, 0, K)
 	for i := 0; i < K; i++ {
-		current = append(current, PNs[i].No)
+		current = append(current, PNs[i])
 	}
 
 	// fmt.Printf("current: %v\n", current)
 
-	// [lefgt, right] の範囲を考える
-	left := 0
 	right := K - 1
 	for right < len(PNs) {
-		sort.Ints(current)
-		ans = min(ans, current[K-1]-current[0])
+		sort.Slice(current, func(i, j int) bool {
+			return current[i].No < current[j].No
+		})
+
+		// fmt.Printf("current: %+v\n", current)
+
+		ans = min(ans, current[K-1].No-current[0].No)
 
 		right++
-		left++
-
 		if right != len(PNs) {
-			current = append(current[1:], PNs[right].No)
+			sort.Slice(current, func(i, j int) bool {
+				return current[i].P < current[j].P
+			})
+			current = append(current[1:], PNs[right])
 		}
 	}
 
