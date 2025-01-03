@@ -35,11 +35,7 @@ func main() {
 	for h := 0; h < H; h++ {
 		for w := 0; w < W; w++ {
 			if grid[h][w] != "#" && !globalVisitedGrid[h][w] {
-				visitedGrid := make([][]bool, H)
-				for i := 0; i < H; i++ {
-					visitedGrid[i] = make([]bool, W)
-				}
-
+				visitedGrid := make(map[Coordinate]bool)
 				// fmt.Println("h:", h, "w:", w)
 
 				moveCount := dfs(grid, visitedGrid, globalVisitedGrid, Coordinate{h, w})
@@ -51,14 +47,14 @@ func main() {
 	fmt.Fprintln(w, ans)
 }
 
-func dfs(grid [][]string, visitedGrid, globalVisitedGrid [][]bool, cell Coordinate) int {
+func dfs(grid [][]string, visitedGrid map[Coordinate]bool, globalVisitedGrid [][]bool, cell Coordinate) int {
 	// fmt.Printf("cell: %+v\n", cell)
 	if globalVisitedGrid[cell.h][cell.w] {
-		visitedGrid[cell.h][cell.w] = true
+		visitedGrid[cell] = true
 		return 1
 	}
 
-	visitedGrid[cell.h][cell.w] = true
+	visitedGrid[cell] = true
 	globalVisitedGrid[cell.h][cell.w] = true
 
 	canMove := true
@@ -78,7 +74,7 @@ func dfs(grid [][]string, visitedGrid, globalVisitedGrid [][]bool, cell Coordina
 
 	moveCount := 1
 	for _, adj := range cell.Adjacents() {
-		if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] {
+		if !adj.IsValid(H, W) || visitedGrid[adj] {
 			continue
 		}
 		moveCount += dfs(grid, visitedGrid, globalVisitedGrid, adj)
