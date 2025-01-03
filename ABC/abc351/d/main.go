@@ -41,7 +41,6 @@ func main() {
 				}
 
 				// fmt.Println("h:", h, "w:", w)
-				// fmt.Println(grid[h][w])
 
 				moveCount := dfs(grid, visitedGrid, globalVisitedGrid, Coordinate{h, w})
 				ans = max(ans, moveCount)
