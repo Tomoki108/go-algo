@@ -26,16 +26,21 @@ func main() {
 	H, W = read2Ints(r)
 	grid := readGrid(r, H)
 
-	globalVisitedGrid := make(map[Coordinate]bool, H*W)
+	globalVisitedGrid := make([][]int, H)
+	for i := 0; i < H; i++ {
+		globalVisitedGrid[i] = make([]int, W)
+	}
 
 	ans := INT_MIN
+	visitedMark := 0
 	for h := 0; h < H; h++ {
 		for w := 0; w < W; w++ {
-			if grid[h][w] != "#" && !globalVisitedGrid[Coordinate{h, w}] {
-				visitedGrid := make(map[Coordinate]bool, H*W)
+			visitedMark++
+			if grid[h][w] != "#" && globalVisitedGrid[h][w] == 0 {
+				// visitedGrid := make(map[Coordinate]bool, H*W)
 				// fmt.Println("h:", h, "w:", w)
 
-				moveCount := dfs(grid, visitedGrid, globalVisitedGrid, Coordinate{h, w})
+				moveCount := dfs(grid, globalVisitedGrid, visitedMark, Coordinate{h, w})
 				ans = max(ans, moveCount)
 			}
 		}
@@ -44,15 +49,14 @@ func main() {
 	fmt.Fprintln(w, ans)
 }
 
-func dfs(grid [][]string, visitedGrid, globalVisitedGrid map[Coordinate]bool, cell Coordinate) int {
+func dfs(grid [][]string, globalVisitedGrid [][]int, visitedMark int, cell Coordinate) int {
 	// fmt.Printf("cell: %+v\n", cell)
-	if globalVisitedGrid[cell] {
-		visitedGrid[cell] = true
+	if globalVisitedGrid[cell.h][cell.w] != 0 {
+		globalVisitedGrid[cell.h][cell.w] = visitedMark
 		return 1
 	}
 
-	visitedGrid[cell] = true
-	globalVisitedGrid[cell] = true
+	globalVisitedGrid[cell.h][cell.w] = visitedMark
 
 	canMove := true
 	for _, adj := range cell.Adjacents() {
@@ -71,10 +75,10 @@ func dfs(grid [][]string, visitedGrid, globalVisitedGrid map[Coordinate]bool, ce
 
 	moveCount := 1
 	for _, adj := range cell.Adjacents() {
-		if !adj.IsValid(H, W) || visitedGrid[adj] {
+		if !adj.IsValid(H, W) || globalVisitedGrid[adj.h][adj.w] == visitedMark {
 			continue
 		}
-		moveCount += dfs(grid, visitedGrid, globalVisitedGrid, adj)
+		moveCount += dfs(grid, globalVisitedGrid, visitedMark, adj)
 	}
 
 	return moveCount
