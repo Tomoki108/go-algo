@@ -4,11 +4,11 @@ import (
 	"github.com/emirpasic/gods/sets/treeset"
 )
 
-// O(1)
+// O(logN)
 func First[T any](set *treeset.Set) T {
 	it := set.Iterator()
 	it.Begin()
-	it.Next()
+	it.Next() // ここでO(logN)かかる。ルートノードまで遡ってから、もっとも左の最小ノードまで降りていく
 
 	val, ok := it.Value().(T)
 	if !ok {
@@ -18,11 +18,11 @@ func First[T any](set *treeset.Set) T {
 	return val
 }
 
-// O(1)
+// O(logN)
 func Last[T any](set *treeset.Set) T {
 	it := set.Iterator()
 	it.End()
-	it.Prev()
+	it.Prev() // ここでO(logN)かかる。ルートノードまで遡ってから、もっとも右の最大ノードまで降りていく
 
 	val, ok := it.Value().(T)
 	if !ok {
