@@ -21,6 +21,21 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	aSum := 0
+	for _, a := range As {
+		aSum += a
+	}
+
+	bSum := 0
+	for _, b := range Bs {
+		bSum += b
+	}
+
+	fmt.Fprintln(w, aSum-bSum+1)
+
 }
 
 //////////////
