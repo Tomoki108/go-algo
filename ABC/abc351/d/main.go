@@ -24,17 +24,7 @@ func main() {
 	defer w.Flush()
 
 	H, W = read2Ints(r)
-
 	grid := readGrid(r, H)
-
-	// for _, row := range grid {
-	// 	fmt.Println(row)
-	// }
-
-	// ansGrid := make([][]int, H)
-	// for i := 0; i < H; i++ {
-	// 	ansGrid[i] = make([]int, W)
-	// }
 
 	globalVisitedGrid := make([][]bool, H)
 	for i := 0; i < H; i++ {
@@ -60,15 +50,14 @@ func main() {
 	}
 
 	fmt.Fprintln(w, ans)
-
-	// fmt.Println("ansGrid:")
-	// for _, row := range ansGrid {
-	// 	fmt.Fprintln(w, row)
-	// }
 }
 
 func dfs(grid [][]string, visitedGrid, globalVisitedGrid [][]bool, cell Coordinate) int {
 	// fmt.Printf("cell: %+v\n", cell)
+	if globalVisitedGrid[cell.h][cell.w] {
+		visitedGrid[cell.h][cell.w] = true
+		return 1
+	}
 
 	visitedGrid[cell.h][cell.w] = true
 	globalVisitedGrid[cell.h][cell.w] = true
@@ -90,10 +79,9 @@ func dfs(grid [][]string, visitedGrid, globalVisitedGrid [][]bool, cell Coordina
 
 	moveCount := 1
 	for _, adj := range cell.Adjacents() {
-		if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] || grid[adj.h][adj.w] == "#" {
+		if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] {
 			continue
 		}
-
 		moveCount += dfs(grid, visitedGrid, globalVisitedGrid, adj)
 	}
 
