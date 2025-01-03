@@ -18,14 +18,88 @@ const INT_MIN = math.MinInt
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var H, W int
+
 func main() {
 	defer w.Flush()
 
+	H, W = read2Ints(r)
+
+	grid := readGrid(r, H)
+
+	ansGrid := make([][]int, H)
+	for i := 0; i < H; i++ {
+		ansGrid[i] = make([]int, W)
+	}
+
+	ans := INT_MIN
+	for h := 0; h < H; h++ {
+		for w := 0; w < W; w++ {
+			if grid[h][w] != "#" {
+				ans = max(ans, dfs(grid, ansGrid, Coordinate{h, w}))
+			}
+		}
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+func dfs(grid [][]string, ansGrid [][]int, cell Coordinate) int {
+	if ansGrid[cell.h][cell.w] != 0 {
+		return ansGrid[cell.h][cell.w]
+	}
+
+	canMove := true
+	for _, adj := range cell.Adjacents() {
+		if !adj.IsValid(H, W) {
+			continue
+		}
+		if grid[adj.h][adj.w] == "#" {
+			canMove = false
+		}
+	}
+
+	if !canMove {
+		ansGrid[cell.h][cell.w] = 1
+		return 1
+	}
+
+	moveCount := 1
+	for _, adj := range cell.Adjacents() {
+		if !adj.IsValid(H, W) {
+			continue
+		}
+
+		moveCount += dfs(grid, ansGrid, adj)
+	}
+	ansGrid[cell.h][cell.w] = moveCount
+	return moveCount
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
+
+func (c Coordinate) CalcManhattanDistance(other Coordinate) int {
+	return int(math.Abs(float64(c.h-other.h)) + math.Abs(float64(c.w-other.w)))
+}
 
 //////////////
 // Helpers  //
