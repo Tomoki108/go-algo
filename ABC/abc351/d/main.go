@@ -37,9 +37,6 @@ func main() {
 		for w := 0; w < W; w++ {
 			visitedMark++
 			if grid[h][w] != "#" && globalVisitedGrid[h][w] == 0 {
-				// visitedGrid := make(map[Coordinate]bool, H*W)
-				// fmt.Println("h:", h, "w:", w)
-
 				moveCount := dfs(grid, globalVisitedGrid, visitedMark, Coordinate{h, w})
 				ans = max(ans, moveCount)
 			}
@@ -50,7 +47,6 @@ func main() {
 }
 
 func dfs(grid [][]string, globalVisitedGrid [][]int, visitedMark int, cell Coordinate) int {
-	// fmt.Printf("cell: %+v\n", cell)
 	if globalVisitedGrid[cell.h][cell.w] != 0 {
 		globalVisitedGrid[cell.h][cell.w] = visitedMark
 		return 1
