@@ -90,14 +90,14 @@ func main() {
 			}
 
 			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
-			if visitedGrid[item.c.h][item.c.w] == NOT_VISITED {
+			if visitedGrid[adj.h][adj.w] == NOT_VISITED {
 				if item.lastMoveVertical {
-					visitedGrid[item.c.h][item.c.w] = VISITED_BY_HORIZONTAL
+					visitedGrid[adj.h][adj.w] = VISITED_BY_HORIZONTAL
 				} else {
-					visitedGrid[item.c.h][item.c.w] = VISITED_BY_VERTICAL
+					visitedGrid[adj.h][adj.w] = VISITED_BY_VERTICAL
 				}
 			} else {
-				visitedGrid[item.c.h][item.c.w] = VISITED_BY_BOTH
+				visitedGrid[adj.h][adj.w] = VISITED_BY_BOTH
 			}
 		}
 	}
