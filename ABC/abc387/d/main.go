@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -43,21 +44,27 @@ func main() {
 	}
 	firstAns := bfs(start, true, grid, visitedGrid)
 
-	visitedGrid = make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
-	for i := 0; i < H; i++ {
-		visitedGrid[i] = make([]int, W)
-	}
+	// visitedGrid = make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
+	// for i := 0; i < H; i++ {
+	// 	visitedGrid[i] = make([]int, W)
+	// }
 	secondAns := bfs(start, false, grid, visitedGrid)
 
-	ans := -1
+	var candidates []int
 	if firstAns != -1 {
-		ans = firstAns
+		candidates = append(candidates, firstAns)
 	}
 	if secondAns != -1 {
-		ans = min(ans, secondAns)
+		candidates = append(candidates, secondAns)
 	}
 
-	fmt.Fprintln(w, ans)
+	if len(candidates) == 0 {
+		fmt.Fprintln(w, -1)
+		return
+	}
+
+	sort.Ints(candidates)
+	fmt.Fprintln(w, candidates[0])
 }
 
 func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [][]int) int {
@@ -66,6 +73,7 @@ func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [
 
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
+		// fmt.Printf("item: %v\n", item)
 
 		if visitedGrid[item.c.h][item.c.w] == 0 {
 			if item.lastMoveVertical {
