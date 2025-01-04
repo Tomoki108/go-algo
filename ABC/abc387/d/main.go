@@ -62,20 +62,11 @@ func main() {
 	q := NewQueue[qItem]()
 	q.Enqueue(qItem{start, 0, true})
 	q.Enqueue(qItem{start, 0, false})
+	visitedGrid[start.h][start.w] = VISITED_BY_BOTH
 
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
 		// fmt.Printf("item: %v\n", item)
-
-		if visitedGrid[item.c.h][item.c.w] == NOT_VISITED {
-			if item.lastMoveVertical {
-				visitedGrid[item.c.h][item.c.w] = VISITED_BY_VERTICAL
-			} else {
-				visitedGrid[item.c.h][item.c.w] = VISITED_BY_HORIZONTAL
-			}
-		} else {
-			visitedGrid[item.c.h][item.c.w] = VISITED_BY_BOTH
-		}
 
 		if grid[item.c.h][item.c.w] == "G" {
 			ans = item.depth
@@ -99,6 +90,15 @@ func main() {
 			}
 
 			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
+			if visitedGrid[item.c.h][item.c.w] == NOT_VISITED {
+				if item.lastMoveVertical {
+					visitedGrid[item.c.h][item.c.w] = VISITED_BY_HORIZONTAL
+				} else {
+					visitedGrid[item.c.h][item.c.w] = VISITED_BY_VERTICAL
+				}
+			} else {
+				visitedGrid[item.c.h][item.c.w] = VISITED_BY_BOTH
+			}
 		}
 	}
 
