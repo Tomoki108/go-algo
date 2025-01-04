@@ -21,6 +21,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	num1, num2, num3 := Ss[3], Ss[4], Ss[5]
+
+	numS := num1 + num2 + num3
+	num, _ := strconv.Atoi(numS)
+
+	if num <= 349 && num != 316 {
+		fmt.Fprintln(w, "Yes")
+	} else {
+		fmt.Fprintln(w, "No")
+	}
 }
 
 //////////////
