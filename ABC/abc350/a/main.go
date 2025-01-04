@@ -28,7 +28,7 @@ func main() {
 	numS := num1 + num2 + num3
 	num, _ := strconv.Atoi(numS)
 
-	if num <= 349 && num != 316 {
+	if num > 0 && num <= 349 && num != 316 {
 		fmt.Fprintln(w, "Yes")
 	} else {
 		fmt.Fprintln(w, "No")
