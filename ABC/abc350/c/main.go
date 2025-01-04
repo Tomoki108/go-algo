@@ -2,10 +2,10 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -22,28 +22,37 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	readInt(r)
+	N := readInt(r)
 	As := readIntArr(r)
 
-	ih := NewIntHeap(MinIntHeap)
-
-	for _, A := range As {
-		ih.PushI(A)
+	numIdx := make(map[int]int, N)
+	for i, a := range As {
+		numIdx[a] = i
 	}
 
-	fmt.Fprintln(w, swapCount)
-	for _, s := range swapped {
-		fmt.Fprintln(w, s[0]+1, s[1]+1)
-	}
-}
+	sortedAs := make([]int, len(As))
+	copy(sortedAs, As)
+	sort.Ints(sortedAs)
 
-func bubbleSort(numbers []int) {
-	for i := 0; i < len(numbers)-1; i++ {
-		for j := 0; j < len(numbers)-i-1; j++ {
-			if numbers[j] > numbers[j+1] {
-				numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
-			}
+	swapped = make([][2]int, 0)
+	for num := 1; num <= N; num++ {
+		actualNumIdx := numIdx[num]
+		expectedNumIdx := num - 1
+
+		if actualNumIdx != expectedNumIdx {
+			swapped = append(swapped, [2]int{min(actualNumIdx, expectedNumIdx) + 1, max(actualNumIdx, expectedNumIdx) + 1})
+
+			As[actualNumIdx] = As[expectedNumIdx]
+			As[expectedNumIdx] = num
+
+			numIdx[As[actualNumIdx]] = actualNumIdx
+			numIdx[As[expectedNumIdx]] = expectedNumIdx
 		}
+	}
+
+	fmt.Println(len(swapped))
+	for _, s := range swapped {
+		fmt.Println(s[0], s[1])
 	}
 }
 
@@ -54,58 +63,6 @@ var swapped [][2]int
 //////////////
 // Libs    //
 /////////////
-
-type IntHeapType int
-
-const (
-	MaxIntHeap IntHeapType = iota
-	MinIntHeap
-)
-
-type IntHeap struct {
-	iarr        []int
-	IntHeapType IntHeapType
-}
-
-func NewIntHeap(t IntHeapType) *IntHeap {
-	return &IntHeap{
-		iarr:        make([]int, 0),
-		IntHeapType: t,
-	}
-}
-
-func (h *IntHeap) PushI(i int) {
-	heap.Push(h, i)
-}
-
-func (h *IntHeap) PopI() int {
-	return heap.Pop(h).(int)
-}
-
-// to implement sort.Interface
-func (h IntHeap) Len() int           { return len(h.iarr) }
-func (h IntHeap) Less(i, j int) bool { return h.iarr[i] < h.iarr[j] }
-func (h IntHeap) Swap(i, j int) {
-	swapCount++
-	swapped = append(swapped, [2]int{i, j})
-	h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i]
-}
-
-// to implement heap.Interface
-func (h *IntHeap) Push(x any) {
-	// Push and Pop use pointer receivers because they modify the slice's length,
-	// not just its contents.
-	h.iarr = append(h.iarr, x.(int))
-}
-
-// to implement heap.Interface
-func (h *IntHeap) Pop() any {
-	oldiarr := h.iarr
-	n := len(oldiarr)
-	x := oldiarr[n-1]
-	h.iarr = oldiarr[0 : n-1]
-	return x
-}
 
 //////////////
 // Helpers  //

@@ -1,5 +1,6 @@
 package sort
 
+// https://zenn.dev/satumahayato010/articles/58fb473c40d9af#merge-sort
 func MergeSort(nums []int) []int {
 	var lenNums = len(nums)
 	if lenNums == 1 {
