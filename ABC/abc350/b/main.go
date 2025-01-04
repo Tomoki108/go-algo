@@ -21,6 +21,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, _ := read2Ints(r)
+	Ts := readIntArr(r)
+
+	teeth := make([]bool, 0, N)
+	for i := 0; i < N; i++ {
+		teeth = append(teeth, true)
+	}
+
+	for _, T := range Ts {
+		teeth[T-1] = !teeth[T-1]
+	}
+
+	ans := 0
+	for _, t := range teeth {
+		if t {
+			ans++
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
