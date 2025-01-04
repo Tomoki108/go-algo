@@ -21,14 +21,15 @@ func (h Heap[T]) Len() int           { return len(h) }
 func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
 func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
-// to implement heap.Interface
+// DO NOT USE DIRECTLY. to implement heap.Interface
 func (h *Heap[T]) Push(x any) {
 	// Push and Pop use pointer receivers because they modify the slice's length,
 	// not just its contents.
+
 	*h = append(*h, x.(T))
 }
 
-// to implement heap.Interface
+// DO NOT USE DIRECTLY. to implement heap.Interface
 func (h *Heap[T]) Pop() any {
 	old := *h
 	n := len(old)
@@ -52,8 +53,8 @@ func NewIntHeap(t IntHeapType) *IntHeap {
 type IntHeapType int
 
 const (
-	MaxIntHeap IntHeapType = iota
-	MinIntHeap
+	MinIntHeap IntHeapType = iota
+	MaxIntHeap
 )
 
 func (h *IntHeap) PushI(i int) {
@@ -65,18 +66,24 @@ func (h *IntHeap) PopI() int {
 }
 
 // to implement sort.Interface
-func (h IntHeap) Len() int           { return len(h.iarr) }
-func (h IntHeap) Less(i, j int) bool { return h.iarr[i] < h.iarr[j] }
-func (h IntHeap) Swap(i, j int)      { h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i] }
+func (h *IntHeap) Len() int { return len(h.iarr) }
+func (h *IntHeap) Less(i, j int) bool {
+	if h.IntHeapType == MaxIntHeap {
+		return h.iarr[i] > h.iarr[j]
+	} else {
+		return h.iarr[i] < h.iarr[j]
+	}
+}
+func (h *IntHeap) Swap(i, j int) { h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i] }
 
-// to implement heap.Interface
+// DO NOT USE DIRECTLY. to implement heap.Interface
 func (h *IntHeap) Push(x any) {
 	// Push and Pop use pointer receivers because they modify the slice's length,
 	// not just its contents.
 	h.iarr = append(h.iarr, x.(int))
 }
 
-// to implement heap.Interface
+// DO NOT USE DIRECTLY. to implement heap.Interface
 func (h *IntHeap) Pop() any {
 	oldiarr := h.iarr
 	n := len(oldiarr)
