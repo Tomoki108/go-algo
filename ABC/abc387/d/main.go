@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -49,6 +48,8 @@ func main() {
 		}
 	}
 
+	ans := -1
+
 	// 0: not visited
 	// 1: visited by vertical
 	// 2: visited by horizontal
@@ -57,40 +58,14 @@ func main() {
 	for i := 0; i < H; i++ {
 		visitedGrid[i] = make([]int, W)
 	}
-	firstAns := bfs(start, true, grid, visitedGrid)
 
-	fmt.Println()
-
-	visitedGrid = make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
-	for i := 0; i < H; i++ {
-		visitedGrid[i] = make([]int, W)
-	}
-	secondAns := bfs(start, false, grid, visitedGrid)
-
-	var candidates []int
-	if firstAns != -1 {
-		candidates = append(candidates, firstAns)
-	}
-	if secondAns != -1 {
-		candidates = append(candidates, secondAns)
-	}
-
-	if len(candidates) == 0 {
-		fmt.Fprintln(w, -1)
-		return
-	}
-
-	sort.Ints(candidates)
-	fmt.Fprintln(w, candidates[0])
-}
-
-func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [][]int) int {
 	q := NewQueue[qItem]()
-	q.Enqueue(qItem{start, 0, lastMoveVertical})
+	q.Enqueue(qItem{start, 0, true})
+	q.Enqueue(qItem{start, 0, false})
 
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
-		fmt.Printf("item: %v\n", item)
+		// fmt.Printf("item: %v\n", item)
 
 		if visitedGrid[item.c.h][item.c.w] == NOT_VISITED {
 			if item.lastMoveVertical {
@@ -103,7 +78,8 @@ func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [
 		}
 
 		if grid[item.c.h][item.c.w] == "G" {
-			return item.depth
+			ans = item.depth
+			break
 		}
 
 		// 隣接探索
@@ -126,8 +102,53 @@ func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [
 		}
 	}
 
-	return -1
+	fmt.Println(ans)
 }
+
+// func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [][]int) int {
+// 	q := NewQueue[qItem]()
+// 	q.Enqueue(qItem{start, 0, lastMoveVertical})
+
+// 	for !q.IsEmpty() {
+// 		item, _ := q.Dequeue()
+// 		fmt.Printf("item: %v\n", item)
+
+// 		if visitedGrid[item.c.h][item.c.w] == NOT_VISITED {
+// 			if item.lastMoveVertical {
+// 				visitedGrid[item.c.h][item.c.w] = VISITED_BY_VERTICAL
+// 			} else {
+// 				visitedGrid[item.c.h][item.c.w] = VISITED_BY_HORIZONTAL
+// 			}
+// 		} else {
+// 			visitedGrid[item.c.h][item.c.w] = VISITED_BY_BOTH
+// 		}
+
+// 		if grid[item.c.h][item.c.w] == "G" {
+// 			return item.depth
+// 		}
+
+// 		// 隣接探索
+// 		var adjacents [2]Coordinate
+// 		var ngVisitedMark int
+// 		if item.lastMoveVertical {
+// 			adjacents = item.c.HorizontalAdjacents()
+// 			ngVisitedMark = VISITED_BY_HORIZONTAL
+// 		} else {
+// 			adjacents = item.c.VerticalAdjacents()
+// 			ngVisitedMark = VISITED_BY_VERTICAL
+// 		}
+
+// 		for _, adj := range adjacents {
+// 			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == VISITED_BY_BOTH || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
+// 				continue
+// 			}
+
+// 			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
+// 		}
+// 	}
+
+// 	return -1
+// }
 
 type qItem struct {
 	c                Coordinate
