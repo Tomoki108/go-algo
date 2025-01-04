@@ -35,9 +35,9 @@ func main() {
 		}
 	}
 
-	visitedGrid := make([][]bool, H)
+	visitedGrid := make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
 	for i := 0; i < H; i++ {
-		visitedGrid[i] = make([]bool, W)
+		visitedGrid[i] = make([]int, W)
 	}
 
 	ans := -1
@@ -47,32 +47,40 @@ func main() {
 
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
-		visitedGrid[item.c.h][item.c.w] = true
+
+		if visitedGrid[item.c.h][item.c.w] == 0 {
+			if item.lastMoveVertical {
+				visitedGrid[item.c.h][item.c.w] = 1
+			} else {
+				visitedGrid[item.c.h][item.c.w] = 2
+			}
+		} else {
+			visitedGrid[item.c.h][item.c.w] = 3
+		}
 
 		if grid[item.c.h][item.c.w] == "G" {
 			ans = item.depth
 			break
 		}
 
+		// 隣接探索
 		var adjacents [2]Coordinate
-		if item.lastDir {
+		var ngVisitedMark int
+		if item.lastMoveVertical {
 			adjacents = item.c.HorizontalAdjacents()
+			ngVisitedMark = 2
 		} else {
 			adjacents = item.c.VerticalAdjacents()
+			ngVisitedMark = 1
 		}
 
 		for _, adj := range adjacents {
-			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] || grid[adj.h][adj.w] == "#" {
+			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == 3 || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
 				continue
 			}
 
-			q.Enqueue(qItem{adj, item.depth + 1, !item.lastDir})
+			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
 		}
-	}
-
-	visitedGrid = make([][]bool, H)
-	for i := 0; i < H; i++ {
-		visitedGrid[i] = make([]bool, W)
 	}
 
 	q = NewQueue[qItem]()
@@ -80,26 +88,39 @@ func main() {
 
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
-		visitedGrid[item.c.h][item.c.w] = true
+
+		if visitedGrid[item.c.h][item.c.w] == 0 {
+			if item.lastMoveVertical {
+				visitedGrid[item.c.h][item.c.w] = 1
+			} else {
+				visitedGrid[item.c.h][item.c.w] = 2
+			}
+		} else {
+			visitedGrid[item.c.h][item.c.w] = 3
+		}
 
 		if grid[item.c.h][item.c.w] == "G" {
 			ans = min(ans, item.depth)
 			break
 		}
 
+		// 隣接探索
 		var adjacents [2]Coordinate
-		if item.lastDir {
+		var ngVisitedMark int
+		if item.lastMoveVertical {
 			adjacents = item.c.HorizontalAdjacents()
+			ngVisitedMark = 2
 		} else {
 			adjacents = item.c.VerticalAdjacents()
+			ngVisitedMark = 1
 		}
 
 		for _, adj := range adjacents {
-			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] || grid[adj.h][adj.w] == "#" {
+			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == 3 || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
 				continue
 			}
 
-			q.Enqueue(qItem{adj, item.depth + 1, !item.lastDir})
+			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
 		}
 	}
 
@@ -107,9 +128,9 @@ func main() {
 }
 
 type qItem struct {
-	c       Coordinate
-	depth   int
-	lastDir bool // true: vertical, false: horizontal
+	c                Coordinate
+	depth            int
+	lastMoveVertical bool // true: vertical, false: horizontal
 }
 
 //////////////
