@@ -36,3 +36,51 @@ func (h *Heap[T]) Pop() any {
 	*h = old[0 : n-1]
 	return x
 }
+
+type IntHeap struct {
+	iarr        []int
+	IntHeapType IntHeapType
+}
+
+func NewIntHeap(t IntHeapType) *IntHeap {
+	return &IntHeap{
+		iarr:        make([]int, 0),
+		IntHeapType: t,
+	}
+}
+
+type IntHeapType int
+
+const (
+	MaxIntHeap IntHeapType = iota
+	MinIntHeap
+)
+
+func (h *IntHeap) PushI(i int) {
+	heap.Push(h, i)
+}
+
+func (h *IntHeap) PopI() int {
+	return heap.Pop(h).(int)
+}
+
+// to implement sort.Interface
+func (h IntHeap) Len() int           { return len(h.iarr) }
+func (h IntHeap) Less(i, j int) bool { return h.iarr[i] < h.iarr[j] }
+func (h IntHeap) Swap(i, j int)      { h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i] }
+
+// to implement heap.Interface
+func (h *IntHeap) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	h.iarr = append(h.iarr, x.(int))
+}
+
+// to implement heap.Interface
+func (h *IntHeap) Pop() any {
+	oldiarr := h.iarr
+	n := len(oldiarr)
+	x := oldiarr[n-1]
+	h.iarr = oldiarr[0 : n-1]
+	return x
+}
