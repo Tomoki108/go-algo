@@ -21,6 +21,9 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	A, B := read2Ints(r)
+
+	fmt.Fprintln(w, pow(A+B, 2))
 }
 
 //////////////
