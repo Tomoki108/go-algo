@@ -21,6 +21,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	X := readInt(r)
+
+	sum := 0
+	for i := 1; i <= 9; i++ {
+		for j := 1; j <= 9; j++ {
+			if i*j != X {
+				sum += i * j
+			}
+		}
+	}
+
+	fmt.Fprintln(w, sum)
 }
 
 //////////////
