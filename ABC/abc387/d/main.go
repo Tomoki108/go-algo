@@ -19,10 +19,12 @@ const INT_MIN = math.MinInt
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var H, W int
+
 func main() {
 	defer w.Flush()
 
-	H, W := read2Ints(r)
+	H, W = read2Ints(r)
 	grid := readGrid(r, H)
 
 	var start Coordinate
@@ -39,92 +41,67 @@ func main() {
 	for i := 0; i < H; i++ {
 		visitedGrid[i] = make([]int, W)
 	}
+	firstAns := bfs(start, true, grid, visitedGrid)
+
+	visitedGrid = make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
+	for i := 0; i < H; i++ {
+		visitedGrid[i] = make([]int, W)
+	}
+	secondAns := bfs(start, false, grid, visitedGrid)
 
 	ans := -1
-
-	q := NewQueue[qItem]()
-	q.Enqueue(qItem{start, 0, true})
-
-	for !q.IsEmpty() {
-		item, _ := q.Dequeue()
-
-		if visitedGrid[item.c.h][item.c.w] == 0 {
-			if item.lastMoveVertical {
-				visitedGrid[item.c.h][item.c.w] = 1
-			} else {
-				visitedGrid[item.c.h][item.c.w] = 2
-			}
-		} else {
-			visitedGrid[item.c.h][item.c.w] = 3
-		}
-
-		if grid[item.c.h][item.c.w] == "G" {
-			ans = item.depth
-			break
-		}
-
-		// 隣接探索
-		var adjacents [2]Coordinate
-		var ngVisitedMark int
-		if item.lastMoveVertical {
-			adjacents = item.c.HorizontalAdjacents()
-			ngVisitedMark = 2
-		} else {
-			adjacents = item.c.VerticalAdjacents()
-			ngVisitedMark = 1
-		}
-
-		for _, adj := range adjacents {
-			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == 3 || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
-				continue
-			}
-
-			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
-		}
+	if firstAns != -1 {
+		ans = firstAns
 	}
-
-	q = NewQueue[qItem]()
-	q.Enqueue(qItem{start, 0, false})
-
-	for !q.IsEmpty() {
-		item, _ := q.Dequeue()
-
-		if visitedGrid[item.c.h][item.c.w] == 0 {
-			if item.lastMoveVertical {
-				visitedGrid[item.c.h][item.c.w] = 1
-			} else {
-				visitedGrid[item.c.h][item.c.w] = 2
-			}
-		} else {
-			visitedGrid[item.c.h][item.c.w] = 3
-		}
-
-		if grid[item.c.h][item.c.w] == "G" {
-			ans = min(ans, item.depth)
-			break
-		}
-
-		// 隣接探索
-		var adjacents [2]Coordinate
-		var ngVisitedMark int
-		if item.lastMoveVertical {
-			adjacents = item.c.HorizontalAdjacents()
-			ngVisitedMark = 2
-		} else {
-			adjacents = item.c.VerticalAdjacents()
-			ngVisitedMark = 1
-		}
-
-		for _, adj := range adjacents {
-			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == 3 || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
-				continue
-			}
-
-			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
-		}
+	if secondAns != -1 {
+		ans = min(ans, secondAns)
 	}
 
 	fmt.Fprintln(w, ans)
+}
+
+func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [][]int) int {
+	q := NewQueue[qItem]()
+	q.Enqueue(qItem{start, 0, lastMoveVertical})
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+
+		if visitedGrid[item.c.h][item.c.w] == 0 {
+			if item.lastMoveVertical {
+				visitedGrid[item.c.h][item.c.w] = 1
+			} else {
+				visitedGrid[item.c.h][item.c.w] = 2
+			}
+		} else {
+			visitedGrid[item.c.h][item.c.w] = 3
+		}
+
+		if grid[item.c.h][item.c.w] == "G" {
+			return item.depth
+		}
+
+		// 隣接探索
+		var adjacents [2]Coordinate
+		var ngVisitedMark int
+		if item.lastMoveVertical {
+			adjacents = item.c.HorizontalAdjacents()
+			ngVisitedMark = 2
+		} else {
+			adjacents = item.c.VerticalAdjacents()
+			ngVisitedMark = 1
+		}
+
+		for _, adj := range adjacents {
+			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == 3 || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
+				continue
+			}
+
+			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
+		}
+	}
+
+	return -1
 }
 
 type qItem struct {
