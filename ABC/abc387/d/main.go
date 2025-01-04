@@ -105,51 +105,6 @@ func main() {
 	fmt.Println(ans)
 }
 
-// func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [][]int) int {
-// 	q := NewQueue[qItem]()
-// 	q.Enqueue(qItem{start, 0, lastMoveVertical})
-
-// 	for !q.IsEmpty() {
-// 		item, _ := q.Dequeue()
-// 		fmt.Printf("item: %v\n", item)
-
-// 		if visitedGrid[item.c.h][item.c.w] == NOT_VISITED {
-// 			if item.lastMoveVertical {
-// 				visitedGrid[item.c.h][item.c.w] = VISITED_BY_VERTICAL
-// 			} else {
-// 				visitedGrid[item.c.h][item.c.w] = VISITED_BY_HORIZONTAL
-// 			}
-// 		} else {
-// 			visitedGrid[item.c.h][item.c.w] = VISITED_BY_BOTH
-// 		}
-
-// 		if grid[item.c.h][item.c.w] == "G" {
-// 			return item.depth
-// 		}
-
-// 		// 隣接探索
-// 		var adjacents [2]Coordinate
-// 		var ngVisitedMark int
-// 		if item.lastMoveVertical {
-// 			adjacents = item.c.HorizontalAdjacents()
-// 			ngVisitedMark = VISITED_BY_HORIZONTAL
-// 		} else {
-// 			adjacents = item.c.VerticalAdjacents()
-// 			ngVisitedMark = VISITED_BY_VERTICAL
-// 		}
-
-// 		for _, adj := range adjacents {
-// 			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == VISITED_BY_BOTH || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
-// 				continue
-// 			}
-
-// 			q.Enqueue(qItem{adj, item.depth + 1, !item.lastMoveVertical})
-// 		}
-// 	}
-
-// 	return -1
-// }
-
 type qItem struct {
 	c                Coordinate
 	depth            int
