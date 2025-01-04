@@ -22,6 +22,17 @@ var w = bufio.NewWriter(os.Stdout)
 
 var H, W int
 
+// 0: not visited
+// 1: visited by vertical
+// 2: visited by horizontal
+// 3: visited by both
+const (
+	NOT_VISITED           = 0
+	VISITED_BY_VERTICAL   = 1
+	VISITED_BY_HORIZONTAL = 2
+	VISITED_BY_BOTH       = 3
+)
+
 func main() {
 	defer w.Flush()
 
@@ -38,11 +49,17 @@ func main() {
 		}
 	}
 
-	visitedGrid := make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
+	// 0: not visited
+	// 1: visited by vertical
+	// 2: visited by horizontal
+	// 3: visited by both
+	visitedGrid := make([][]int, H)
 	for i := 0; i < H; i++ {
 		visitedGrid[i] = make([]int, W)
 	}
 	firstAns := bfs(start, true, grid, visitedGrid)
+
+	fmt.Println()
 
 	// visitedGrid = make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
 	// for i := 0; i < H; i++ {
@@ -73,16 +90,16 @@ func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [
 
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
-		// fmt.Printf("item: %v\n", item)
+		fmt.Printf("item: %v\n", item)
 
-		if visitedGrid[item.c.h][item.c.w] == 0 {
+		if visitedGrid[item.c.h][item.c.w] == NOT_VISITED {
 			if item.lastMoveVertical {
-				visitedGrid[item.c.h][item.c.w] = 1
+				visitedGrid[item.c.h][item.c.w] = VISITED_BY_VERTICAL
 			} else {
-				visitedGrid[item.c.h][item.c.w] = 2
+				visitedGrid[item.c.h][item.c.w] = VISITED_BY_HORIZONTAL
 			}
 		} else {
-			visitedGrid[item.c.h][item.c.w] = 3
+			visitedGrid[item.c.h][item.c.w] = VISITED_BY_BOTH
 		}
 
 		if grid[item.c.h][item.c.w] == "G" {
@@ -94,14 +111,14 @@ func bfs(start Coordinate, lastMoveVertical bool, grid [][]string, visitedGrid [
 		var ngVisitedMark int
 		if item.lastMoveVertical {
 			adjacents = item.c.HorizontalAdjacents()
-			ngVisitedMark = 2
+			ngVisitedMark = VISITED_BY_HORIZONTAL
 		} else {
 			adjacents = item.c.VerticalAdjacents()
-			ngVisitedMark = 1
+			ngVisitedMark = VISITED_BY_VERTICAL
 		}
 
 		for _, adj := range adjacents {
-			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == 3 || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
+			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] == VISITED_BY_BOTH || visitedGrid[adj.h][adj.w] == ngVisitedMark || grid[adj.h][adj.w] == "#" {
 				continue
 			}
 
