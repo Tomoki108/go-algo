@@ -21,11 +21,45 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	L, R := read2Ints(r)
+
+	rd := GetDigists(R)
+
+	// 2桁 => 9+8+...+1
+
+	ints := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+	// Rと同じ桁数の最大値までの、蛇数の数
+	sum := 9
+	for digits := 2; digits <= rd; digits++ {
+		for _, i := range ints {
+			sum += pow(i, digits-1)
+		}
+	}
+
+	sum := 0
+	for i := 9; i >= 1; i-- {
+		for j := i - 1; j >= 1; j-- {
+			if i*j != 0 {
+				sum += i * j
+			}
+		}
+
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func GetDigists(num int) int {
+	digits := 0
+	for num > 0 {
+		num /= 10
+		digits++
+	}
+	return digits
+}
 
 //////////////
 // Helpers  //
