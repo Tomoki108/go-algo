@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -21,11 +22,163 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	H, W := read2Ints(r)
+	grid := readGrid(r, H)
+
+	var start Coordinate
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "S" {
+				start = Coordinate{i, j}
+				break
+			}
+		}
+	}
+
+	visitedGrid := make([][]bool, H)
+	for i := 0; i < H; i++ {
+		visitedGrid[i] = make([]bool, W)
+	}
+
+	ans := -1
+
+	q := NewQueue[qItem]()
+	q.Enqueue(qItem{start, 0, true})
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+		visitedGrid[item.c.h][item.c.w] = true
+
+		if grid[item.c.h][item.c.w] == "G" {
+			ans = item.depth
+			break
+		}
+
+		var adjacents [2]Coordinate
+		if item.lastDir {
+			adjacents = item.c.HorizontalAdjacents()
+		} else {
+			adjacents = item.c.VerticalAdjacents()
+		}
+
+		for _, adj := range adjacents {
+			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] || grid[adj.h][adj.w] == "#" {
+				continue
+			}
+
+			q.Enqueue(qItem{adj, item.depth + 1, !item.lastDir})
+		}
+	}
+
+	visitedGrid = make([][]bool, H)
+	for i := 0; i < H; i++ {
+		visitedGrid[i] = make([]bool, W)
+	}
+
+	q = NewQueue[qItem]()
+	q.Enqueue(qItem{start, 0, false})
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+		visitedGrid[item.c.h][item.c.w] = true
+
+		if grid[item.c.h][item.c.w] == "G" {
+			ans = min(ans, item.depth)
+			break
+		}
+
+		var adjacents [2]Coordinate
+		if item.lastDir {
+			adjacents = item.c.HorizontalAdjacents()
+		} else {
+			adjacents = item.c.VerticalAdjacents()
+		}
+
+		for _, adj := range adjacents {
+			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] || grid[adj.h][adj.w] == "#" {
+				continue
+			}
+
+			q.Enqueue(qItem{adj, item.depth + 1, !item.lastDir})
+		}
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+type qItem struct {
+	c       Coordinate
+	depth   int
+	lastDir bool // true: vertical, false: horizontal
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int
+}
+
+func (c Coordinate) VerticalAdjacents() [2]Coordinate {
+	return [2]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+	}
+}
+
+func (c Coordinate) HorizontalAdjacents() [2]Coordinate {
+	return [2]Coordinate{
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
 
 //////////////
 // Helpers  //
