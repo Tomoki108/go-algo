@@ -61,10 +61,10 @@ func main() {
 
 	fmt.Println()
 
-	// visitedGrid = make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
-	// for i := 0; i < H; i++ {
-	// 	visitedGrid[i] = make([]int, W)
-	// }
+	visitedGrid = make([][]int, H) // 0: not visited, 1: visited by vertical, 2: visited by horizontal, 3: visited by both
+	for i := 0; i < H; i++ {
+		visitedGrid[i] = make([]int, W)
+	}
 	secondAns := bfs(start, false, grid, visitedGrid)
 
 	var candidates []int
