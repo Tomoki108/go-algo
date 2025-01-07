@@ -35,6 +35,7 @@ func countSnakeNum(r int) int {
 	// return  : その条件下でのヘビ数の数え上げの結果
 	var digitDP func(pos, firstNum, strict int, digits []int) int
 
+	// メモはスライスでもいいが、初期化がダルいのでmapでやる
 	var memos = make(map[string]int)
 	genKey := func(pos, firstNum, strict int) string {
 		return fmt.Sprintf("%d-%d-%d", pos, firstNum, strict)
