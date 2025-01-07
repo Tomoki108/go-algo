@@ -27,7 +27,7 @@ func main() {
 }
 
 func countSnakeNum(r int) int {
-	digits := toDigits(r)
+	digits := ToDigits(r)
 
 	// pos     : 現在何桁目まで埋めてあるか（left indexed, starts with 0）
 	// firstNum: その桁までに最初に登場したゼロでは無い数字 || ゼロ
@@ -91,45 +91,17 @@ func countSnakeNum(r int) int {
 	return res
 }
 
-func toDigits(n int) []int {
+//////////////
+// Libs    //
+/////////////
+
+func ToDigits(n int) []int {
 	s := strconv.FormatInt(int64(n), 10)
 	digits := make([]int, len(s))
 	for i := 0; i < len(s); i++ {
 		digits[i] = int(s[i] - '0')
 	}
 	return digits
-}
-
-func simpleCount(numOfDigits int) int {
-	ret := 0
-	for i := 0; i <= 9; i++ {
-		ret += pow(i, numOfDigits-1)
-	}
-
-	return ret
-}
-
-//////////////
-// Libs    //
-/////////////
-
-// O(n) n: numの桁数
-// numの桁数を返す
-func GetDigists(num int) int {
-	digits := 0
-	for num > 0 {
-		num /= 10
-		digits++
-	}
-	return digits
-}
-
-// O(n)
-// slices.Reverce() と同じ（Goのバージョンが1.21以前だと使えないため）
-func SlRev[S ~[]E, E any](s S) {
-	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-		s[i], s[j] = s[j], s[i]
-	}
 }
 
 //////////////
