@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -30,23 +29,24 @@ func main() {
 		numIdx[a] = i
 	}
 
-	sortedAs := make([]int, len(As))
-	copy(sortedAs, As)
-	sort.Ints(sortedAs)
-
 	swapped = make([][2]int, 0)
 	for num := 1; num <= N; num++ {
 		actualNumIdx := numIdx[num]
 		expectedNumIdx := num - 1
 
 		if actualNumIdx != expectedNumIdx {
-			swapped = append(swapped, [2]int{min(actualNumIdx, expectedNumIdx) + 1, max(actualNumIdx, expectedNumIdx) + 1})
+			// log swapped
+			i := min(actualNumIdx, expectedNumIdx) + 1
+			j := max(actualNumIdx, expectedNumIdx) + 1
+			swapped = append(swapped, [2]int{i, j})
 
+			// do swap
 			As[actualNumIdx] = As[expectedNumIdx]
 			As[expectedNumIdx] = num
 
+			// update numIdx
+			numIdx[num] = expectedNumIdx
 			numIdx[As[actualNumIdx]] = actualNumIdx
-			numIdx[As[expectedNumIdx]] = expectedNumIdx
 		}
 	}
 
