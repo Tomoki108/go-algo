@@ -23,27 +23,31 @@ func main() {
 
 	L, R := read2Ints(r)
 
-	// fmt.Fprintln(w, simpleCount(3))
-	// fmt.Fprintln(w, simpleCount(2))
-	// fmt.Fprintln(w, simpleCount(1))
-
 	fmt.Fprintln(w, countSnakeNum(R)-countSnakeNum(L-1))
 }
 
 func countSnakeNum(r int) int {
 	digits := toDigits(r)
 
-	// pos 現在何桁目まで埋めたか（left indexed, starts with 0）
-	// firstNum その桁までに最初に登場したゼロでは無い数字 || ゼロ
-	// strict digitsを超えないように次の桁の数字を選ぶ必要があるかどうか
+	// pos     : 現在何桁目まで埋めてあるか（left indexed, starts with 0）
+	// firstNum: その桁までに最初に登場したゼロでは無い数字 || ゼロ
+	// strict  : digitsを超えないように次の桁の数字を選ぶ必要があるかどうか
+	// return  : その条件下でのヘビ数の数え上げの結果
 	var digitDP func(pos, firstNum, strict int, digits []int) int
 
+	var memos = make(map[string]int)
+	genKey := func(pos, firstNum, strict int) string {
+		return fmt.Sprintf("%d-%d-%d", pos, firstNum, strict)
+	}
+
 	digitDP = func(pos, firstNum, strict int, digits []int) int {
-
 		if pos == len(digits)-1 {
-			// fmt.Printf("pos: %d, firstNum: %d, strict: %d\n", pos, firstNum, strict)
-
 			return 1
+		}
+
+		key := genKey(pos, firstNum, strict)
+		if v, ok := memos[key]; ok {
+			return v
 		}
 
 		var limit int
@@ -55,13 +59,10 @@ func countSnakeNum(r int) int {
 			limit = 9
 		}
 
-		// fmt.Printf("pos: %d, firstNum: %d, strict: %d, limit: %d\n", pos, firstNum, strict, limit)
-		// fmt.Printf("limit: %d\n", limit)
-
 		res := 0
 		for nextDigit := 0; nextDigit <= limit; nextDigit++ {
 			nextStrict := 0
-			if strict == 1 && nextDigit == limit {
+			if strict == 1 && nextDigit == digits[pos+1] {
 				nextStrict = 1
 			}
 
@@ -73,7 +74,7 @@ func countSnakeNum(r int) int {
 			res += digitDP(pos+1, nextFirstNum, nextStrict, digits)
 		}
 
-		// fmt.Println("return\n")
+		memos[key] = res
 		return res
 	}
 
