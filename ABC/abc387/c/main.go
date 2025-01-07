@@ -21,6 +21,74 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	L, R := read2Ints(r)
+
+	ans := countSnakeNum(R) - countSnakeNum(L-1)
+
+	fmt.Fprintln(w, ans)
+}
+
+func countSnakeNum(r int) int {
+
+	digits := toDigits(r)
+
+	// pos 現在何桁目まで埋めたか（left indexed, starts with 1）
+	// firstNum その桁までに最初に登場したゼロでは無い数字 || ゼロ
+	// strict digitsを超えないように次の桁の数字を選ぶ必要があるかどうか
+	var digitDP func(pos, firstNum, strict int, digits []int) int
+
+	digitDP = func(pos, firstNum, strict int, digits []int) int {
+		if len(digits) == pos {
+			return 1
+		}
+
+		var limit int
+		if strict == 1 {
+			limit = digits[pos]
+		} else if firstNum != 0 {
+			limit = firstNum
+		} else {
+			limit = 9
+		}
+
+		res := 0
+		for nextDigit := 0; nextDigit <= limit; nextDigit++ {
+			nextStrict := 0
+			if strict == 1 && nextDigit == limit {
+				nextStrict = 1
+			}
+
+			nextFirstNum := firstNum
+			if firstNum == 0 && nextDigit != 0 {
+				firstNum = nextDigit
+			}
+
+			res += digitDP(pos+1, nextFirstNum, nextStrict, digits)
+		}
+
+		return res
+	}
+
+	res := 0
+	for firstDigit := 0; firstDigit <= digits[0]; firstDigit++ {
+		strict := 0
+		if firstDigit == digits[0] {
+			strict = 1
+		}
+
+		res += digitDP(1, firstDigit, strict, digits)
+	}
+
+	return res
+}
+
+func toDigits(n int) []int {
+	s := strconv.FormatInt(int64(n), 10)
+	digits := make([]int, len(s))
+	for i := 0; i < len(s); i++ {
+		digits[i] = int(s[i] - '0')
+	}
+	return digits
 }
 
 //////////////
