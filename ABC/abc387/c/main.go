@@ -23,33 +23,39 @@ func main() {
 
 	L, R := read2Ints(r)
 
+	// ans := countSnakeNum(L)
+
+	// fmt.Fprintln(w, ans)
+
 	ans := countSnakeNum(R) - countSnakeNum(L-1)
 
 	fmt.Fprintln(w, ans)
 }
 
 func countSnakeNum(r int) int {
-
 	digits := toDigits(r)
 
-	// pos 現在何桁目まで埋めたか（left indexed, starts with 1）
+	// pos 現在何桁目まで埋めたか（left indexed, starts with 0）
 	// firstNum その桁までに最初に登場したゼロでは無い数字 || ゼロ
 	// strict digitsを超えないように次の桁の数字を選ぶ必要があるかどうか
 	var digitDP func(pos, firstNum, strict int, digits []int) int
 
 	digitDP = func(pos, firstNum, strict int, digits []int) int {
-		if len(digits) == pos {
+		fmt.Printf("pos: %d, firstNum: %d, strict: %d\n", pos, firstNum, strict)
+
+		if pos == len(digits)-1 {
 			return 1
 		}
 
 		var limit int
 		if strict == 1 {
-			limit = digits[pos]
+			limit = digits[pos+1]
 		} else if firstNum != 0 {
-			limit = firstNum
+			limit = firstNum - 1
 		} else {
 			limit = 9
 		}
+		fmt.Printf("limit: %d\n", limit)
 
 		res := 0
 		for nextDigit := 0; nextDigit <= limit; nextDigit++ {
@@ -60,12 +66,13 @@ func countSnakeNum(r int) int {
 
 			nextFirstNum := firstNum
 			if firstNum == 0 && nextDigit != 0 {
-				firstNum = nextDigit
+				nextFirstNum = nextDigit
 			}
 
 			res += digitDP(pos+1, nextFirstNum, nextStrict, digits)
 		}
 
+		fmt.Println("return\n")
 		return res
 	}
 
@@ -76,7 +83,7 @@ func countSnakeNum(r int) int {
 			strict = 1
 		}
 
-		res += digitDP(1, firstDigit, strict, digits)
+		res += digitDP(0, firstDigit, strict, digits)
 	}
 
 	return res
@@ -94,6 +101,14 @@ func toDigits(n int) []int {
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// slices.Reverce() と同じ（Goのバージョンが1.21以前だと使えないため）
+func SlRev[S ~[]E, E any](s S) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+}
 
 //////////////
 // Helpers  //
