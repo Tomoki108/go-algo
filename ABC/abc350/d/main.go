@@ -21,11 +21,119 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	uf := NewUnionFind(N)
+
+	for i := 0; i < M; i++ {
+		A, B := read2Ints(r)
+		uf.Union(A-1, B-1)
+	}
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		if uf.IsRoot(i) {
+			gs := uf.GroupSize(i)
+
+			// 頂点数gsのグラフが完全グラフである場合の辺の数をプラスする
+			ans += CombinationNum(gs, 2)
+		}
+	}
+
+	// もともと存在していた辺の数を引く
+	ans -= M
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type UnionFind struct {
+	parent []int // len(parent)分のノードを考え、各ノードの親を記録している
+	size   []int // そのノードを頂点とする部分木の高さ（=グループサイズ）
+}
+
+func NewUnionFind(size int) *UnionFind {
+	parent := make([]int, size)
+	s := make([]int, size)
+	for i := range parent {
+		parent[i] = i
+		s[i] = 1
+	}
+	return &UnionFind{parent, s}
+}
+
+// O(α(N))　※定数時間。α(N)はアッカーマン関数の逆関数
+// xの親を見つける
+func (uf *UnionFind) Find(xIdx int) int {
+	if uf.parent[xIdx] != xIdx {
+		uf.parent[xIdx] = uf.Find(uf.parent[xIdx]) // 経路圧縮
+	}
+	return uf.parent[xIdx]
+}
+
+// O(α(N))
+// xとyを同じグループに統合する（サイズが大きい方 || インデックスの小さい方 に統合）
+func (uf *UnionFind) Union(xIdx, yIdx int) {
+	rootX := uf.Find(xIdx)
+	rootY := uf.Find(yIdx)
+
+	if rootX != rootY {
+		if uf.size[rootX] < uf.size[rootY] {
+			uf.parent[rootX] = rootY
+			uf.size[rootY] += uf.size[rootX]
+		} else {
+			uf.parent[rootY] = rootX
+			uf.size[rootX] += uf.size[rootY]
+		}
+	}
+}
+
+// O(1)
+func (uf *UnionFind) IsRoot(xIdx int) bool {
+	return uf.parent[xIdx] == xIdx
+}
+
+// O(α(N))
+func (uf *UnionFind) IsSameRoot(xIdx, yIdx int) bool {
+	return uf.Find(xIdx) == uf.Find(yIdx)
+}
+
+// O(N)
+func (uf *UnionFind) CountRoots() int {
+	count := 0
+	for i := range uf.parent {
+		if uf.parent[i] == i {
+			count++
+		}
+	}
+	return count
+}
+
+// O(α(N))
+func (uf *UnionFind) GroupSize(xIdx int) int {
+	return uf.size[uf.Find(xIdx)]
+}
+
+// O(r)
+// nCrの計算
+// (n * (n-1) ... * (n-r+1)) / r!
+func CombinationNum(n, r int) int {
+	if r > n {
+		return 0
+	}
+	if r > n/2 {
+		r = n - r // Use smaller r for efficiency
+	}
+	result := 1
+	for i := 0; i < r; i++ {
+		result *= (n - i)
+		result /= (i + 1)
+	}
+	return result
+}
 
 //////////////
 // Helpers  //
