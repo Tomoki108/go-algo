@@ -21,11 +21,39 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	L, R := read2Ints(r)
+
+	ans := make([][2]int, 0)
+
+	// [l, r)
+	var solve func(l, r int)
+	solve = func(l, r int) {
+		if L <= l && r <= R {
+			ans = append(ans, [2]int{l, r})
+			return
+		}
+
+		center := (l + r) / 2
+
+		if L < center {
+			solve(l, center)
+		}
+		if center < R {
+			solve(center, r)
+		}
+	}
+
+	solve(0, 1<<60)
+
+	fmt.Fprintln(w, len(ans))
+	for _, a := range ans {
+		fmt.Fprintln(w, a[0], a[1])
+	}
 }
 
-//////////////
+// ////////////
 // Libs    //
-/////////////
+// ///////////
 
 //////////////
 // Helpers  //
