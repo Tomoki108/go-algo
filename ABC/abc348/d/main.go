@@ -40,9 +40,9 @@ func main() {
 		medGrid[i] = make([]int, W)
 	}
 
-	visitedGrid := make([][]int, H)
+	visitedGrid := make([][]bool, H)
 	for i := 0; i < H; i++ {
-		visitedGrid[i] = make([]int, W)
+		visitedGrid[i] = make([]bool, W)
 	}
 
 	N := readInt(r)
@@ -52,39 +52,45 @@ func main() {
 		medGrid[R-1][C-1] = E
 	}
 
-	q := NewQueue[qItem]()
-	q.Enqueue(qItem{start, 0, 0})
+	var dfs func(c Coordinate, energy int) bool
 
-	for !q.IsEmpty() {
-		item, _ := q.Dequeue()
-		// fmt.Printf("item: %v\n", item)
-
-		if grid[item.c.h][item.c.w] == "T" {
-			fmt.Fprintln(w, "Yes")
-			return
+	dfs = func(c Coordinate, energy int) bool {
+		if grid[c.h][c.w] == "T" {
+			return true
 		}
 
-		e := item.energy
-		med := medGrid[item.c.h][item.c.w]
-		if med > e {
-			e = med
+		med := medGrid[c.h][c.w]
+		if energy < med {
+			energy = med
 		}
 
-		if e == 0 {
-			continue
+		if energy == 0 {
+			visitedGrid[c.h][c.w] = false
+			return false
 		}
 
-		for _, adj := range item.c.Adjacents() {
-			if !adj.IsValid(H, W) || grid[adj.h][adj.w] == "#" || visitedGrid[adj.h][adj.w] >= e {
+		for _, adj := range c.Adjacents() {
+			if !adj.IsValid(H, W) || visitedGrid[adj.h][adj.w] || grid[adj.h][adj.w] == "#" {
 				continue
 			}
 
-			q.Enqueue(qItem{adj, item.depth + 1, e - 1})
-			visitedGrid[adj.h][adj.w] = e - 1
+			visitedGrid[adj.h][adj.w] = true
+			found := dfs(adj, energy-1)
+			if found {
+				return true
+			}
 		}
+
+		visitedGrid[c.h][c.w] = false
+		return false
 	}
 
-	fmt.Fprintln(w, "No")
+	found := dfs(start, 0)
+	if found {
+		fmt.Fprintln(w, "Yes")
+	} else {
+		fmt.Fprintln(w, "No")
+	}
 }
 
 type qItem struct {
