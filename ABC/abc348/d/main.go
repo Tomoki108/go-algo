@@ -57,7 +57,7 @@ func main() {
 
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
-		fmt.Printf("item: %v\n", item)
+		// fmt.Printf("item: %v\n", item)
 
 		if grid[item.c.h][item.c.w] == "T" {
 			fmt.Fprintln(w, "Yes")
