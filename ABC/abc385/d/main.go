@@ -10,7 +10,6 @@ import (
 
 	"github.com/liyue201/gostl/ds/set"
 	"github.com/liyue201/gostl/utils/comparator"
-	"github.com/liyue201/gostl/utils/iterator"
 )
 
 const intMax = 1 << 62
@@ -62,8 +61,7 @@ func main() {
 
 			yTree, ok := houseXYMap[x]
 			if ok {
-				var houseY iterator.ConstIterator[int]
-				houseY = yTree.UpperBound(fromY - 1)
+				houseY := yTree.UpperBound(fromY - 1)
 
 				toDeleteYs := make([]int, 0)
 				for houseY.IsValid() && houseY.Value() <= toY {
@@ -73,7 +71,7 @@ func main() {
 					xTree, _ := houseYXMap[houseY.Value()]
 					xTree.Erase(x)
 
-					houseY = houseY.Next()
+					houseY.Next()
 				}
 				for _, y := range toDeleteYs {
 					yTree.Erase(y)
@@ -88,8 +86,7 @@ func main() {
 
 			yTree, ok := houseXYMap[x]
 			if ok {
-				var houseY iterator.ConstIterator[int]
-				houseY = yTree.UpperBound(fromY - 1)
+				houseY := yTree.UpperBound(fromY - 1)
 
 				toDeleteYs := make([]int, 0)
 				for houseY.IsValid() && houseY.Value() <= toY {
@@ -99,7 +96,7 @@ func main() {
 					xTree, _ := houseYXMap[houseY.Value()]
 					xTree.Erase(x)
 
-					houseY = houseY.Next()
+					houseY.Next()
 				}
 				for _, y := range toDeleteYs {
 					yTree.Erase(y)
@@ -114,8 +111,7 @@ func main() {
 
 			xTree, ok := houseYXMap[y]
 			if ok {
-				var houseX iterator.ConstIterator[int]
-				houseX = xTree.UpperBound(fromX - 1)
+				houseX := xTree.UpperBound(fromX - 1)
 
 				toDeleteXs := make([]int, 0)
 				for houseX.IsValid() && houseX.Value() <= toX {
@@ -125,7 +121,7 @@ func main() {
 					yTree, _ := houseXYMap[houseX.Value()]
 					yTree.Erase(y)
 
-					houseX = houseX.Next()
+					houseX.Next()
 				}
 				for _, x := range toDeleteXs {
 					xTree.Erase(x)
@@ -140,8 +136,7 @@ func main() {
 
 			xTree, ok := houseYXMap[y]
 			if ok {
-				var houseX iterator.ConstIterator[int]
-				houseX = xTree.UpperBound(fromX - 1)
+				houseX := xTree.UpperBound(fromX - 1)
 
 				toDeleteXs := make([]int, 0)
 				for houseX.IsValid() && houseX.Value() <= toX {
@@ -151,7 +146,7 @@ func main() {
 					yTree, _ := houseXYMap[houseX.Value()]
 					yTree.Erase(y)
 
-					houseX = houseX.Next()
+					houseX.Next()
 				}
 				for _, x := range toDeleteXs {
 					xTree.Erase(x)
