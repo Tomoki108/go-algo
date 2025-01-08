@@ -21,6 +21,15 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	As := readIntArr(r)
+
+	ans := 0
+	for _, a := range As {
+		ans += a
+	}
+
+	fmt.Fprintln(w, 0-ans)
 }
 
 //////////////
