@@ -26,9 +26,7 @@ func main() {
 
 	T := readStr(r)
 	smallT := strings.ToLower(T)
-	if strings.HasSuffix(smallT, "x") {
-		smallT = smallT[:len(smallT)-1]
-	}
+	smallT = strings.TrimSuffix(smallT, "x")
 	smallTs := strings.Split(smallT, "")
 
 	idx := 0
