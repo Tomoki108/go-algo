@@ -40,6 +40,76 @@ func main() {
 		medGrid[i] = make([]int, W)
 	}
 
+	visitedGrid := make([][]int, H)
+	for i := 0; i < H; i++ {
+		visitedGrid[i] = make([]int, W)
+	}
+
+	N := readInt(r)
+	for i := 0; i < N; i++ {
+		iarr := readIntArr(r)
+		R, C, E := iarr[0], iarr[1], iarr[2]
+		medGrid[R-1][C-1] = E
+	}
+
+	q := NewQueue[qItem]()
+	q.Enqueue(qItem{start, 0, 0})
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+		fmt.Printf("item: %v\n", item)
+
+		if grid[item.c.h][item.c.w] == "T" {
+			fmt.Fprintln(w, "Yes")
+			return
+		}
+
+		e := item.energy
+		med := medGrid[item.c.h][item.c.w]
+		if med > e {
+			e = med
+			medGrid[item.c.h][item.c.w] = 0
+		}
+
+		if e == 0 {
+			continue
+		}
+
+		for _, adj := range item.c.Adjacents() {
+			if !adj.IsValid(H, W) || grid[adj.h][adj.w] == "#" || (visitedGrid[adj.h][adj.w] != 0 && visitedGrid[adj.h][adj.w] >= e-1) {
+				continue
+			}
+
+			q.Enqueue(qItem{adj, item.depth + 1, e - 1})
+			visitedGrid[adj.h][adj.w] = e - 1
+		}
+	}
+
+	fmt.Fprintln(w, "No")
+}
+
+// dfs
+func alt() {
+	defer w.Flush()
+
+	H, W := read2Ints(r)
+
+	grid := readGrid(r, H)
+	var start Coordinate
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "S" {
+				start = Coordinate{i, j}
+				break
+			}
+		}
+	}
+
+	medGrid := make([][]int, H)
+	for i := 0; i < H; i++ {
+		medGrid[i] = make([]int, W)
+	}
+
 	visitedGrid := make([][]bool, H)
 	for i := 0; i < H; i++ {
 		visitedGrid[i] = make([]bool, W)
