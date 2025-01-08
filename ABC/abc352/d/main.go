@@ -11,8 +11,6 @@ import (
 
 	"github.com/liyue201/gostl/ds/set"
 	"github.com/liyue201/gostl/utils/comparator"
-
-	"github.com/emirpasic/gods/sets/treeset"
 )
 
 //lint:ignore U1000 unused 9223372036854775808, 19 digits, equiv 2^63
@@ -73,86 +71,9 @@ func main() {
 	fmt.Fprintln(w, ans)
 }
 
-// use gods.treeset
-func alt() {
-	defer w.Flush()
-
-	N, K := read2Ints(r)
-	Ps := readIntArr(r)
-
-	if K == 1 {
-		fmt.Fprintln(w, 0)
-		return
-	}
-
-	type PN struct {
-		P  int
-		No int
-	}
-	PNs := make([]PN, 0, N)
-	for i, P := range Ps {
-		PNs = append(PNs, PN{P: P, No: i + 1})
-	}
-	sort.Slice(PNs, func(i, j int) bool {
-		return PNs[i].P < PNs[j].P
-	})
-
-	ans := INT_MAX
-
-	currentNos := treeset.NewWithIntComparator()
-	for i := 0; i < K; i++ {
-		currentNos.Add(PNs[i].No)
-	}
-
-	right := K - 1
-	left := 0
-	for right < N {
-		minNo := First[int](currentNos)
-		maxNo := Last[int](currentNos)
-		ans = min(ans, maxNo-minNo)
-
-		right++
-		left++
-		if right != len(PNs) {
-			currentNos.Remove(PNs[left-1].No)
-			currentNos.Add(PNs[right].No)
-		}
-	}
-
-	fmt.Fprintln(w, ans)
-}
-
 //////////////
 // Libs    //
 /////////////
-
-// O(1)
-func First[T any](set *treeset.Set) T {
-	it := set.Iterator()
-	it.Begin()
-	it.Next()
-
-	val, ok := it.Value().(T)
-	if !ok {
-		panic("Type assertion failed")
-	}
-
-	return val
-}
-
-// O(1)
-func Last[T any](set *treeset.Set) T {
-	it := set.Iterator()
-	it.End()
-	it.Prev()
-
-	val, ok := it.Value().(T)
-	if !ok {
-		panic("Type assertion failed")
-	}
-
-	return val
-}
 
 //////////////
 // Helpers  //
