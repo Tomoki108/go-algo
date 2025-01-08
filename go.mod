@@ -4,4 +4,7 @@ module github.com/Tomoki108/go-algo
 // https://img.atcoder.jp/file/language-update/language-list.html
 go 1.20
 
-require github.com/emirpasic/gods v1.18.1
+require (
+	github.com/emirpasic/gods v1.18.1
+	github.com/liyue201/gostl v1.2.0
+)
