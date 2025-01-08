@@ -21,6 +21,27 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	m := make(map[string]int, len(Ss))
+	for _, s := range Ss {
+		m[s]++
+	}
+
+	rm := make(map[int]int, len(m))
+	for _, v := range m {
+		rm[v]++
+	}
+
+	for i := 1; i <= 100; i++ {
+		if rm[i] != 0 && rm[i] != 2 {
+			fmt.Fprintln(w, "No")
+			return
+		}
+	}
+
+	fmt.Fprintln(w, "Yes")
 }
 
 //////////////
