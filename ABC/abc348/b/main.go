@@ -21,11 +21,47 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	xys := make([][2]int, 0, N)
+
+	for i := 1; i <= N; i++ {
+		X, Y := read2Ints(r)
+		xys = append(xys, [2]int{X, Y})
+	}
+
+	ans := make([]int, 0, N)
+	for i, xy := range xys {
+
+		maxDist := INT_MIN
+		maxP := INT_MAX
+		for j, another := range xys {
+			if i == j {
+				continue
+			}
+
+			dist := CalcDistSquare(xy[0], xy[1], another[0], another[1])
+			if dist > maxDist {
+				maxDist = dist
+				maxP = j + 1
+			}
+		}
+
+		ans = append(ans, maxP)
+	}
+
+	writeSliceByLine(w, ans)
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// ユークリッド距離の2乗を求める
+func CalcDistSquare(fromX, fromY, toX, toY int) int {
+	return (toX-fromX)*(toX-fromX) + (toY-fromY)*(toY-fromY)
+}
 
 //////////////
 // Helpers  //
