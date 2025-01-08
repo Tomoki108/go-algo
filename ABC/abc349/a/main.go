@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-//lint:ignore U1000 unused 9223372036854775808, 19 digits, 2^63
+//lint:ignore U1000 unused 9223372036854775808, 19 digits, equiv 2^63
 const INT_MAX = math.MaxInt
 
-//lint:ignore U1000 unused -9223372036854775808, 19 digits, -1 * 2^63
+//lint:ignore U1000 unused -9223372036854775808, 19 digits, equiv -1 * 2^63
 const INT_MIN = math.MinInt
 
 var r = bufio.NewReader(os.Stdin)
@@ -21,89 +21,11 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	L, R := read2Ints(r)
-
-	fmt.Fprintln(w, countSnakeNum(R)-countSnakeNum(L-1))
-}
-
-func countSnakeNum(r int) int {
-	digits := ToDigits(r)
-
-	// pos     : 現在何桁目まで埋めてあるか（left indexed, starts with 0）
-	// firstNum: 現在埋まっている桁において、最初に登場したゼロでは無い数字 || ゼロ
-	// strict  : digitsを超えないように次の桁の数字を選ぶ必要があるかどうか
-	// return  : その条件下でのヘビ数の数え上げの結果
-	var digitDP func(pos, firstNum, strict int, digits []int) int
-
-	// メモはスライスでもいいが、初期化がダルいのでmapでやる
-	var memos = make(map[string]int)
-	genKey := func(pos, firstNum, strict int) string {
-		return fmt.Sprintf("%d-%d-%d", pos, firstNum, strict)
-	}
-
-	digitDP = func(pos, firstNum, strict int, digits []int) int {
-		if pos == len(digits)-1 {
-			return 1
-		}
-
-		key := genKey(pos, firstNum, strict)
-		if v, ok := memos[key]; ok {
-			return v
-		}
-
-		var limit int
-		if strict == 1 {
-			limit = min(firstNum-1, digits[pos+1])
-		} else if firstNum != 0 {
-			limit = firstNum - 1
-		} else {
-			limit = 9
-		}
-
-		res := 0
-		for nextDigit := 0; nextDigit <= limit; nextDigit++ {
-			nextStrict := 0
-			if strict == 1 && nextDigit == digits[pos+1] {
-				nextStrict = 1
-			}
-
-			nextFirstNum := firstNum
-			if firstNum == 0 && nextDigit != 0 {
-				nextFirstNum = nextDigit
-			}
-
-			res += digitDP(pos+1, nextFirstNum, nextStrict, digits)
-		}
-
-		memos[key] = res
-		return res
-	}
-
-	res := 0
-	for firstDigit := 0; firstDigit <= digits[0]; firstDigit++ {
-		strict := 0
-		if firstDigit == digits[0] {
-			strict = 1
-		}
-
-		res += digitDP(0, firstDigit, strict, digits)
-	}
-
-	return res
 }
 
 //////////////
 // Libs    //
 /////////////
-
-func ToDigits(n int) []int {
-	s := strconv.FormatInt(int64(n), 10)
-	digits := make([]int, len(s))
-	for i := 0; i < len(s); i++ {
-		digits[i] = int(s[i] - '0')
-	}
-	return digits
-}
 
 //////////////
 // Helpers  //
@@ -243,8 +165,6 @@ func abs(a int) int {
 
 // O(log(exp))
 // 繰り返し二乗法で x^y を計算する関数
-//
-//lint:ignore U1000 unused
 func pow(base, exp int) int {
 	// 繰り返し二乗法
 	// 2^8 = 4^2^2
