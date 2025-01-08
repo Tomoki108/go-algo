@@ -9,6 +9,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
+
 	"github.com/emirpasic/gods/sets/treeset"
 )
 
@@ -21,7 +24,57 @@ const INT_MIN = math.MinInt
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// use gostl.set
 func main() {
+	defer w.Flush()
+
+	N, K := read2Ints(r)
+	Ps := readIntArr(r)
+
+	if K == 1 {
+		fmt.Fprintln(w, 0)
+		return
+	}
+
+	type PN struct {
+		P  int
+		No int
+	}
+	PNs := make([]PN, 0, N)
+	for i, P := range Ps {
+		PNs = append(PNs, PN{P: P, No: i + 1})
+	}
+	sort.Slice(PNs, func(i, j int) bool {
+		return PNs[i].P < PNs[j].P
+	})
+
+	ans := INT_MAX
+
+	currentNos := set.New[int](comparator.IntComparator)
+	for i := 0; i < K; i++ {
+		currentNos.Insert(PNs[i].No)
+	}
+
+	right := K - 1
+	left := 0
+	for right < N {
+		minNo := currentNos.First().Value()
+		maxNo := currentNos.Last().Value()
+		ans = min(ans, maxNo-minNo)
+
+		right++
+		left++
+		if right != len(PNs) {
+			currentNos.Erase(PNs[left-1].No)
+			currentNos.Insert(PNs[right].No)
+		}
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+// use gods.treeset
+func alt() {
 	defer w.Flush()
 
 	N, K := read2Ints(r)
