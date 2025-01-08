@@ -21,6 +21,33 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	T := readStr(r)
+	smallT := strings.ToLower(T)
+	if strings.HasSuffix(smallT, "x") {
+		smallT = smallT[:len(smallT)-1]
+	}
+	smallTs := strings.Split(smallT, "")
+
+	idx := 0
+Outer:
+	for _, t := range smallTs {
+		for i := idx; i < len(Ss); i++ {
+			s := Ss[i]
+
+			if s == t {
+				idx = i + 1
+				continue Outer
+			}
+		}
+
+		fmt.Fprintln(w, "No")
+		return
+	}
+
+	fmt.Fprintln(w, "Yes")
 }
 
 //////////////
