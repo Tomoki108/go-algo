@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,6 +24,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	minValSet := set.New(comparator.IntComparator) // min a set of each color
+	caMap := make(map[int]*set.Set[int], N)        // color -> a set
+	for i := 0; i < N; i++ {
+		A, C := read2Ints(r)
+
+		if _, ok := caMap[C]; !ok {
+			caMap[C] = set.New(comparator.IntComparator)
+		} else {
+			firstA := caMap[C].First().Value()
+			minValSet.Erase(firstA)
+		}
+
+		caMap[C].Insert(A)
+		newFirstA := caMap[C].First().Value()
+		minValSet.Insert(newFirstA)
+	}
+
+	fmt.Fprintln(w, minValSet.Last().Value())
 }
 
 //////////////
