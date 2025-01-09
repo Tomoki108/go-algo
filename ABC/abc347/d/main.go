@@ -64,14 +64,14 @@ func main() {
 		X = C
 		pc_X := C_pc
 
-		passedBits := 0
-		for exp := 0; exp < 60; exp++ {
-			if IsBitPop(X, exp+1) {
-				X -= uint64(pow(2, exp))
-				Y += uint64(pow(2, exp))
-				passedBits++
-				if pc_X-passedBits*2 == pc_diff {
-					break
+		if pc_diff != pc_X {
+			for exp := 0; exp < 60; exp++ {
+				if IsBitPop(X, exp+1) {
+					X -= uint64(pow(2, exp))
+					Y += uint64(pow(2, exp))
+					if bits.OnesCount64(X)-bits.OnesCount64(Y) == pc_diff {
+						break
+					}
 				}
 			}
 		}
@@ -99,20 +99,23 @@ func main() {
 		Y = C
 		pc_Y := C_pc
 
-		passedBits := 0
-		for exp := 0; exp < 60; exp++ {
-			if IsBitPop(Y, exp+1) {
-				Y -= uint64(pow(2, exp))
-				X += uint64(pow(2, exp))
-				passedBits++
-				if pc_Y-passedBits*2 == pc_diff {
-					break
+		if pc_diff != pc_Y {
+			for exp := 0; exp < 60; exp++ {
+				if IsBitPop(Y, exp+1) {
+					Y -= uint64(pow(2, exp))
+					X += uint64(pow(2, exp))
+					if bits.OnesCount64(Y)-bits.OnesCount64(X) == pc_diff {
+						break
+					}
 				}
 			}
 		}
 
 		pc_Y = bits.OnesCount64(Y)
 		toAdd := b - pc_Y
+
+		// fmt.Printf("Y: %d, toAdd: %d, pc_Y: %d\n", Y, toAdd, pc_Y)
+
 		if toAdd != 0 {
 			for exp := 0; exp < 60; exp++ {
 				if !IsBitPop(X, exp+1) && !IsBitPop(Y, exp+1) {
