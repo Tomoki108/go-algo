@@ -42,6 +42,18 @@ func main() {
 		return
 	}
 
+	if len(remMap) == 2 {
+		diff := rems[N-1] - rems[0]
+
+		if diff <= A-1 || period-diff <= A-1 {
+			fmt.Println("Yes")
+		} else {
+			fmt.Println("No")
+		}
+
+		return
+	}
+
 	if rems[N-1]-rems[0] > A-1 {
 		fmt.Println("No")
 	} else {
