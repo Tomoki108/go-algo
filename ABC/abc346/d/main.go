@@ -21,11 +21,74 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	Cs := readIntArr(r)
+
+	zeroOneSeqCosts := make([]int, 0, N)
+	for i := 0; i < N; i++ {
+		var expected string
+		if i%2 == 0 {
+			expected = "0"
+		} else {
+			expected = "1"
+		}
+
+		cost := 0
+		if Ss[i] != expected {
+			cost = Cs[i]
+		}
+		zeroOneSeqCosts = append(zeroOneSeqCosts, cost)
+	}
+	zeroOneSeqCostPrefSum := PrefixSum(zeroOneSeqCosts)
+
+	oneZeroSeqCosts := make([]int, 0, N)
+	for i := 0; i < N; i++ {
+		var expected string
+		if i%2 == 0 {
+			expected = "1"
+		} else {
+			expected = "0"
+		}
+
+		cost := 0
+		if Ss[i] != expected {
+			cost = Cs[i]
+		}
+		oneZeroSeqCosts = append(oneZeroSeqCosts, cost)
+	}
+	oneZeroSeqCostPrefSum := PrefixSum(oneZeroSeqCosts)
+
+	ans := INT_MAX
+	// iは、01と10を反転させる仕切りの位置。仕切りは、index iの直後にある。
+	// 仕切りの左が01、右が10になるパターン１と、仕切りの左が10、右が01になるパターン２を考える。
+	for i := 0; i <= N-2; i++ {
+		cost1 := zeroOneSeqCostPrefSum[i+1] + oneZeroSeqCostPrefSum[N] - oneZeroSeqCostPrefSum[i+1]
+		ans = min(ans, cost1)
+
+		cost2 := oneZeroSeqCostPrefSum[i+1] + zeroOneSeqCostPrefSum[N] - zeroOneSeqCostPrefSum[i+1]
+		ans = min(ans, cost2)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元配列の累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers  //
