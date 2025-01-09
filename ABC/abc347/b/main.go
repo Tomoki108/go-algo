@@ -21,6 +21,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	subStrMap := make(map[string]struct{})
+	for i := 1; i <= len(Ss); i++ {
+		for j := 0; j < len(Ss)-(i-1); j++ {
+			subStr := strings.Join(Ss[j:j+i], "")
+			subStrMap[subStr] = struct{}{}
+		}
+	}
+
+	fmt.Println(len(subStrMap))
 }
 
 //////////////
