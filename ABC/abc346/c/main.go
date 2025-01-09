@@ -22,7 +22,7 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	N, K := read2Ints(r)
+	_, K := read2Ints(r)
 
 	ans := 0
 
@@ -36,7 +36,7 @@ func main() {
 
 	//	fmt.Printf("%v\n", As)
 
-	for i := 1; i <= N; i++ {
+	for i := 1; i < len(As); i++ {
 		var lastIterate bool
 
 		prevA := As[i-1]
@@ -62,10 +62,6 @@ func main() {
 	fmt.Println(ans)
 }
 
-//////////////
-// Libs    //
-/////////////
-
 // 一行に複数の整数が入力される場合、スペース区切りで整数を読み込む
 func readIntArr2(r *bufio.Reader, K int) ([]int, bool) {
 	kFound := false
@@ -84,6 +80,10 @@ func readIntArr2(r *bufio.Reader, K int) ([]int, bool) {
 
 	return arr, kFound
 }
+
+//////////////
+// Libs    //
+/////////////
 
 //////////////
 // Helpers  //
