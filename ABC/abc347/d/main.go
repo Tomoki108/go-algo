@@ -32,6 +32,10 @@ func main() {
 		fmt.Fprintln(w, -1)
 		return
 	}
+	if pc_diff > C_pc {
+		fmt.Fprintln(w, -1)
+		return
+	}
 	if a+b < C_pc {
 		fmt.Fprintln(w, -1)
 		return
@@ -87,7 +91,7 @@ func main() {
 			}
 		}
 
-		if toAdd > 0 {
+		if toAdd != 0 {
 			fmt.Fprintln(w, -1)
 			return
 		}
@@ -109,7 +113,7 @@ func main() {
 
 		pc_Y = bits.OnesCount64(Y)
 		toAdd := b - pc_Y
-		if toAdd > 0 {
+		if toAdd != 0 {
 			for exp := 0; exp < 60; exp++ {
 				if !IsBitPop(X, exp+1) && !IsBitPop(Y, exp+1) {
 					X += uint64(pow(2, exp))
