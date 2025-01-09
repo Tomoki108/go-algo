@@ -21,6 +21,53 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	W, B := read2Ints(r)
+
+	periodstr := "wbwbwwbwbwbw"
+	period := strings.Split(periodstr, "")
+	periodW := 0 // 7
+	periodB := 0 // 5
+	for _, p := range period {
+		if p == "w" {
+			periodW++
+		} else {
+			periodB++
+		}
+	}
+
+	length := W + B
+
+	quotient := length / len(period)
+	rem := length % len(period)           // 探索区間の長さ
+	sequence := append(period, period...) // 2周分の周期の数列
+
+	W -= periodW * quotient
+	B -= periodB * quotient
+	if W < 0 || B < 0 {
+		fmt.Println("No")
+		return
+	}
+
+	for i := 0; i <= len(sequence)-rem; i++ {
+		target := sequence[i : i+rem]
+
+		foundW := 0
+		foundB := 0
+		for j := 0; j < len(target); j++ {
+			if target[j] == "w" {
+				foundW++
+			} else {
+				foundB++
+			}
+		}
+
+		if foundW == W && foundB == B {
+			fmt.Println("Yes")
+			return
+		}
+	}
+
+	fmt.Println("No")
 }
 
 //////////////
