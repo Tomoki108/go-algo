@@ -32,6 +32,10 @@ func main() {
 		fmt.Fprintln(w, -1)
 		return
 	}
+	if a+b < C_pc {
+		fmt.Fprintln(w, -1)
+		return
+	}
 
 	var X uint64
 	var Y uint64
