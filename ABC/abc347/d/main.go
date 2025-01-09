@@ -40,7 +40,7 @@ func main() {
 		pc_X := C_pc
 
 		passedBits := 0
-		for exp := 0; exp < 60; exp++ {
+		for exp := 0; exp <= 63; exp++ {
 			if IsBitPop(X, exp+1) {
 				X -= uint64(pow(2, exp))
 				Y += uint64(pow(2, exp))
@@ -54,7 +54,7 @@ func main() {
 		pc_X = bits.OnesCount64(X)
 		toAdd := a - pc_X
 		if toAdd > 0 {
-			for exp := 0; exp < 60; exp++ {
+			for exp := 0; exp <= 63; exp++ {
 				if !IsBitPop(X, exp+1) && !IsBitPop(Y, exp+1) {
 					X += uint64(pow(2, exp))
 					Y += uint64(pow(2, exp))
@@ -70,7 +70,7 @@ func main() {
 		pc_Y := C_pc
 
 		passedBits := 0
-		for exp := 0; exp < 60; exp++ {
+		for exp := 0; exp <= 63; exp++ {
 			if IsBitPop(Y, exp+1) {
 				Y -= uint64(pow(2, exp))
 				X += uint64(pow(2, exp))
@@ -84,7 +84,7 @@ func main() {
 		pc_Y = bits.OnesCount64(Y)
 		toAdd := b - pc_Y
 		if toAdd > 0 {
-			for exp := 0; exp < 60; exp++ {
+			for exp := 0; exp <= 63; exp++ {
 				if !IsBitPop(X, exp+1) && !IsBitPop(Y, exp+1) {
 					X += uint64(pow(2, exp))
 					Y += uint64(pow(2, exp))
