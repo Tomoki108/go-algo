@@ -23,33 +23,36 @@ func main() {
 	defer w.Flush()
 
 	N, K := read2Ints(r)
-	As := readIntArr(r)
-
-	sort.Ints(As)
 
 	ans := 0
-	for i := 0; i < N; i++ {
+
+	As, kFound := readIntArr2(r, K)
+	if !kFound {
+		ans += K
+		As = append(As, K)
+	}
+	As = append(As, 0)
+	sort.Ints(As)
+
+	//	fmt.Printf("%v\n", As)
+
+	for i := 1; i <= N; i++ {
 		var lastIterate bool
 
-		var prevA int
-		if i == 0 {
-			prevA = 0
-		} else {
-			prevA = As[i-1]
-		}
-
+		prevA := As[i-1]
 		A := As[i]
-		if A >= K {
-			A = K
+		if A == K {
 			lastIterate = true
 		}
 
 		diff := A - prevA
-		if diff == 1 {
+		if diff <= 1 {
 			continue
 		}
 
-		ans += ((prevA + 1) + (A - 1)) * (diff - 1) / 2
+		sum := ((prevA + 1) + (A - 1)) * (diff - 1) / 2
+		//fmt.Printf("sum: %v\n", sum)
+		ans += sum
 
 		if lastIterate {
 			break
@@ -62,6 +65,25 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+// 一行に複数の整数が入力される場合、スペース区切りで整数を読み込む
+func readIntArr2(r *bufio.Reader, K int) ([]int, bool) {
+	kFound := false
+
+	input, _ := r.ReadString('\n')
+	strs := strings.Fields(input)
+	arr := make([]int, len(strs))
+	for i, s := range strs {
+		num, _ := strconv.Atoi(s)
+		arr[i] = num
+
+		if num == K {
+			kFound = true
+		}
+	}
+
+	return arr, kFound
+}
 
 //////////////
 // Helpers  //
