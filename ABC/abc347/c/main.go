@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,24 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, A, B := iarr[0], iarr[1], iarr[2]
+	Ds := readIntArr(r)
+
+	period := A + B
+
+	rems := make([]int, 0, N)
+	for _, d := range Ds {
+		rem := d % period
+		rems = append(rems, rem)
+	}
+	sort.Ints(rems)
+
+	if rems[N-1]-rems[0] > A-1 {
+		fmt.Println("No")
+	} else {
+		fmt.Println("Yes")
+	}
 }
 
 //////////////
