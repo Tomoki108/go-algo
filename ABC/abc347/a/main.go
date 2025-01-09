@@ -21,6 +21,17 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	_, K := read2Ints(r)
+	As := readIntArr(r)
+
+	ans := make([]int, 0)
+	for _, a := range As {
+		if a%K == 0 {
+			ans = append(ans, a/K)
+		}
+	}
+
+	writeSlice(w, ans)
 }
 
 //////////////
