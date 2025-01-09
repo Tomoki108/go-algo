@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"math"
+	"math/bits"
 	"os"
 	"strconv"
 	"strings"
@@ -21,11 +22,84 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	a, b, C := iarr[0], iarr[1], uint64(iarr[2])
+
+	C_pc := bits.OnesCount64(C)
+	pc_diff := abs(a - b)
+
+	if C_pc%2 != pc_diff%2 {
+		fmt.Fprintln(w, -1)
+		return
+	}
+
+	var X uint64
+	var Y uint64
+	if a > b {
+		X = C
+		pc_X := C_pc
+
+		passedBits := 0
+		for exp := 0; exp < 60; exp++ {
+			if IsBitPop(X, exp+1) {
+				X -= uint64(pow(2, exp))
+				Y += uint64(pow(2, exp))
+				passedBits++
+				if pc_X-passedBits*2 == pc_diff {
+					break
+				}
+			}
+		}
+
+		lenX := bits.Len64(X)
+		exp := lenX
+		pc_X = bits.OnesCount64(X)
+		for pc_X < a {
+			X += uint64(pow(2, exp))
+			Y += uint64(pow(2, exp))
+			pc_X++
+			exp++
+		}
+	} else {
+		Y = C
+		pc_Y := C_pc
+
+		passedBits := 0
+		for exp := 0; exp < 60; exp++ {
+			if IsBitPop(Y, exp+1) {
+				Y -= uint64(pow(2, exp))
+				X += uint64(pow(2, exp))
+				passedBits++
+				if pc_Y-passedBits*2 == pc_diff {
+					break
+				}
+			}
+		}
+
+		lenY := bits.Len64(Y)
+		exp := lenY
+		pc_Y = bits.OnesCount64(Y)
+		for pc_Y < b {
+			Y += uint64(pow(2, exp))
+			X += uint64(pow(2, exp))
+			pc_Y++
+			exp++
+		}
+	}
+
+	fmt.Fprintln(w, X, Y)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// k桁目のビットが1かどうかを判定（一番右を１桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << (k - 1)はビットマスク。1をk - 1桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << (k - 1))) != 0
+}
 
 //////////////
 // Helpers  //
