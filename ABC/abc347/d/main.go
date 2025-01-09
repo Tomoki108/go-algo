@@ -37,6 +37,23 @@ func main() {
 		return
 	}
 
+	if C_pc == 0 {
+		if a != b {
+			fmt.Fprintln(w, -1)
+			return
+		} else {
+			var X uint64
+			var Y uint64
+			for exp := 0; exp < a; exp++ {
+				X += uint64(pow(2, exp))
+				Y += uint64(pow(2, exp))
+			}
+
+			fmt.Fprintln(w, X, Y)
+			return
+		}
+	}
+
 	var X uint64
 	var Y uint64
 	if a > b {
