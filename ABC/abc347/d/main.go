@@ -74,7 +74,7 @@ func main() {
 			}
 		}
 
-		if toAdd != 0 {
+		if toAdd > 0 {
 			fmt.Fprintln(w, -1)
 			return
 		}
@@ -96,9 +96,6 @@ func main() {
 
 		pc_Y = bits.OnesCount64(Y)
 		toAdd := b - pc_Y
-
-		// fmt.Printf("Y: %d, toAdd: %d, pc_Y: %d\n", Y, toAdd, pc_Y)
-
 		if toAdd != 0 {
 			for exp := 0; exp < 60; exp++ {
 				if !IsBitPop(X, exp+1) && !IsBitPop(Y, exp+1) {
