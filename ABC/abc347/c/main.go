@@ -28,37 +28,33 @@ func main() {
 
 	period := A + B
 
-	rems := make([]int, 0, N)
 	remMap := make(map[int]struct{})
 	for _, d := range Ds {
 		rem := d % period
-		rems = append(rems, rem)
 		remMap[rem] = struct{}{}
+	}
+
+	rems := make([]int, 0, N)
+	for k := range remMap {
+		rems = append(rems, k)
 	}
 	sort.Ints(rems)
 
-	if len(remMap) > A {
-		fmt.Println("No")
-		return
-	}
-
-	if len(remMap) == 2 {
-		diff := rems[N-1] - rems[0]
-
-		if diff <= A-1 || period-diff <= A-1 {
-			fmt.Println("Yes")
+	for i := 0; i < len(rems); i++ {
+		var diff int
+		if i == 0 {
+			diff = rems[i] + (period - rems[len(rems)-1])
 		} else {
-			fmt.Println("No")
+			diff = rems[i] - rems[i-1]
 		}
 
-		return
+		if diff-1 >= B {
+			fmt.Println("Yes")
+			return
+		}
 	}
 
-	if rems[N-1]-rems[0] > A-1 {
-		fmt.Println("No")
-	} else {
-		fmt.Println("Yes")
-	}
+	fmt.Println("No")
 }
 
 //////////////
