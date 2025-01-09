@@ -51,14 +51,19 @@ func main() {
 			}
 		}
 
-		lenX := bits.Len64(X)
-		exp := lenX
 		pc_X = bits.OnesCount64(X)
-		for pc_X < a {
-			X += uint64(pow(2, exp))
-			Y += uint64(pow(2, exp))
-			pc_X++
-			exp++
+		toAdd := a - pc_X
+		if toAdd > 0 {
+			for exp := 0; exp < 60; exp++ {
+				if !IsBitPop(X, exp+1) && !IsBitPop(Y, exp+1) {
+					X += uint64(pow(2, exp))
+					Y += uint64(pow(2, exp))
+					toAdd--
+					if toAdd == 0 {
+						break
+					}
+				}
+			}
 		}
 	} else {
 		Y = C
@@ -76,14 +81,19 @@ func main() {
 			}
 		}
 
-		lenY := bits.Len64(Y)
-		exp := lenY
 		pc_Y = bits.OnesCount64(Y)
-		for pc_Y < b {
-			Y += uint64(pow(2, exp))
-			X += uint64(pow(2, exp))
-			pc_Y++
-			exp++
+		toAdd := b - pc_Y
+		if toAdd > 0 {
+			for exp := 0; exp < 60; exp++ {
+				if !IsBitPop(X, exp+1) && !IsBitPop(Y, exp+1) {
+					X += uint64(pow(2, exp))
+					Y += uint64(pow(2, exp))
+					toAdd--
+					if toAdd == 0 {
+						break
+					}
+				}
+			}
 		}
 	}
 
