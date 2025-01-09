@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -23,23 +22,30 @@ func main() {
 	defer w.Flush()
 
 	iarr := readIntArr(r)
-	N, A, B := iarr[0], iarr[1], iarr[2]
+	_, A, B := iarr[0], iarr[1], iarr[2]
 	Ds := readIntArr(r)
 
 	period := A + B
 
-	rems := make([]int, 0, N)
-	for _, d := range Ds {
-		rem := d % period
-		rems = append(rems, rem)
-	}
-	sort.Ints(rems)
+	// rems := make([]int, 0, N)
+	// remMap := make(map[int]struct{})
 
-	if rems[N-1]-rems[0] > A-1 {
-		fmt.Println("No")
-	} else {
-		fmt.Println("Yes")
+	prevRem := 0
+	for i, d := range Ds {
+		rem := d % period
+
+		if i != 0 {
+			diff := abs(rem - prevRem)
+			if !(diff <= A-1 || period-diff <= A-1) {
+				fmt.Println("No")
+				return
+			}
+		}
+
+		prevRem = rem
 	}
+
+	fmt.Println("Yes")
 }
 
 //////////////
