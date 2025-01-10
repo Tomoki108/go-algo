@@ -45,7 +45,7 @@ func main() {
 		usedGrid := createGrid[bool](H, W)
 		minH := 0
 		minW := 0
-	Middle:
+	Middle1:
 		for i, abIdx := range abIndexes {
 			ab := abs[abIdx]
 			if IsBitPop(uint64(bit), i) {
@@ -54,26 +54,62 @@ func main() {
 
 			for h := minH; h < minH+ab.A; h++ {
 				for w := minW; w < minW+ab.B; w++ {
-					if usedGrid[h-1][w-1] {
-						break Middle
+					c := Coordinate{h, w}
+					if !c.IsValid(H, W) {
+						break Middle1
 					}
-					usedGrid[h-1][w-1] = true
+
+					if usedGrid[h][w] {
+						break Middle1
+					}
+					usedGrid[h][w] = true
 				}
 			}
 
 			minH += ab.A
 			minW += ab.B
-
-			c := Coordinate{h: minH, w: minW}
-			if !c.IsValid(H, W) {
-				break Middle
-			}
 		}
 
 		fmt.Println("Yes")
 		return
 	}
 
+	for NextPermutation(abIndexes) {
+		for _, bit := range bits {
+			usedGrid := createGrid[bool](H, W)
+			minH := 0
+			minW := 0
+		Middle2:
+			for i, abIdx := range abIndexes {
+				ab := abs[abIdx]
+				if IsBitPop(uint64(bit), i) {
+					ab = AB{A: ab.B, B: ab.A}
+				}
+
+				for h := minH; h < minH+ab.A; h++ {
+					for w := minW; w < minW+ab.B; w++ {
+						c := Coordinate{h, w}
+						if !c.IsValid(H, W) {
+							break Middle2
+						}
+
+						if usedGrid[h][w] {
+							break Middle2
+						}
+						usedGrid[h][w] = true
+					}
+				}
+
+				minH += ab.A
+				minW += ab.B
+			}
+
+			fmt.Println("Yes")
+			return
+		}
+	}
+
+	fmt.Println("No")
 }
 
 type AB struct {
@@ -132,7 +168,7 @@ func reverse[T ~int | ~string](sl []T) {
 }
 
 type Coordinate struct {
-	h, w int
+	h, w int // 0-indexed
 }
 
 func (c Coordinate) IsValid(H, W int) bool {

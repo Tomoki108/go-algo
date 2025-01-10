@@ -3,7 +3,7 @@ package grid
 import "math"
 
 type Coordinate struct {
-	h, w int
+	h, w int // 0-indexed
 }
 
 func (c Coordinate) Adjacents() [4]Coordinate {
