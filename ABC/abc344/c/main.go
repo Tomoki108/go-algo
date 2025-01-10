@@ -21,6 +21,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r) // N
+	As := readIntArr(r)
+
+	M := readInt(r) // M
+	Bs := readIntArr(r)
+
+	L := readInt(r) // L
+	Cs := readIntArr(r)
+
+	readInt(r) // Q
+	Xs := readIntArr(r)
+
+	sumMap := make(map[int]struct{})
+	for i := 0; i < N; i++ {
+		for j := 0; j < M; j++ {
+			for k := 0; k < L; k++ {
+				sum := As[i] + Bs[j] + Cs[k]
+				sumMap[sum] = struct{}{}
+			}
+		}
+	}
+
+	for _, x := range Xs {
+		_, ok := sumMap[x]
+		if ok {
+			fmt.Println("Yes")
+		} else {
+			fmt.Println("No")
+		}
+	}
 }
 
 //////////////
