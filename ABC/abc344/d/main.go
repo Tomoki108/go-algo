@@ -48,13 +48,16 @@ func main() {
 
 	// bagIdx: bagIdx までのバッグを試した
 	// tIdx: tIdx目までTが完成している
-	// return: これまでにかかったコスト
 	var dfs func(bagIdx, tIdx int)
 	dfs = func(bagIdx, tIdx int) {
 		key := genKey(bagIdx, tIdx)
-		cost := memos[key]
+		cost, ok := memos[key]
 
 		if tIdx == len(T)-1 {
+			if !ok {
+				panic("not ok")
+			}
+
 			minCost = min(minCost, cost)
 			return
 		}
@@ -80,8 +83,21 @@ func main() {
 			}
 		}
 
-		dfs(bagIdx+1, tIdx)
+		// 現在のバッグをスルーする場合
+		{
+			newBagIdx := bagIdx + 1
+			newTIdx := tIdx
+
+			key := genKey(newBagIdx, newTIdx)
+			prevCost, ok := memos[key]
+			if !ok || prevCost > cost {
+				memos[key] = cost
+				dfs(bagIdx+1, tIdx)
+			}
+		}
 	}
+
+	dfs(-1, -1)
 
 	if minCost == INT_MAX {
 		fmt.Println(-1)
