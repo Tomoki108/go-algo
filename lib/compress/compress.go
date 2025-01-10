@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// O(n)
 // ランレングス圧縮を行う。[]"数+delimiter+文字種"を返す。
 func RunLength(sl []string, delimiter string) []string {
 	comp := make([]string, 0, len(sl))
@@ -29,6 +30,7 @@ func RunLength(sl []string, delimiter string) []string {
 	return comp
 }
 
+// O(1)
 // "数+delimiter+文字種"を分割して数と文字種を返す
 func SplitRLStr(s, delimiter string) (int, string) {
 	strs := strings.Split(s, delimiter)
