@@ -30,8 +30,17 @@ func main() {
 	}
 
 	ans := 0
+	sameCharExist := false
 	for _, v := range m {
-		ans += v * (len(m) - 1)
+		ans += v * (len(Ss) - v)
+
+		if v >= 2 {
+			sameCharExist = true
+		}
+	}
+	ans = ans / 2
+	if sameCharExist {
+		ans++
 	}
 
 	fmt.Println(ans)
