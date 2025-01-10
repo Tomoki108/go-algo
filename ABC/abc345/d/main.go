@@ -24,8 +24,6 @@ func main() {
 	iarr := readIntArr(r)
 	N, H, W := iarr[0], iarr[1], iarr[2]
 
-	usedGrid := createGrid[bool](H, W)
-
 	abs := make([]AB, 0, N)
 	for i := 0; i < N; i++ {
 		ab := AB{}
@@ -33,37 +31,47 @@ func main() {
 		abs = append(abs, ab)
 	}
 
-	var dfs func(c Coordinate, abs []AB) bool
-	dfs = func(c Coordinate, abs []AB) bool {
-		// if !c.IsValid(H, W) || usedGrid[c.h][c.w] {
+	bits := make([]int, 0, pow(2, N))
+	for bit := 0; bit <= 1<<N-1; bit++ {
+		bits = append(bits, bit)
+	}
 
-		// }
+	abIndexes := make([]int, 0, N)
+	for i := 0; i < N; i++ {
+		abIndexes = append(abIndexes, i)
+	}
 
-		if len(abs) == 0 {
-			return true
-		}
-
-		for idx, ab := range abs {
-
-			for _, fixed := range []AB{ab, {ab.B, ab.A}} {
-
-				// usedGrid check
-
-			CheckOuter:
-				for h := c.h; h < c.h+fixed.A; h++ {
-					for w := c.w; w < c.w+fixed.B; w++ {
-						if usedGrid[h-1][w-1] {
-							break CheckOuter
-						}
-					}
-				}
-
-				new_abs := append(abs[:idx], abs[idx+1:]...)
-
+	for _, bit := range bits {
+		usedGrid := createGrid[bool](H, W)
+		minH := 0
+		minW := 0
+	Middle:
+		for i, abIdx := range abIndexes {
+			ab := abs[abIdx]
+			if IsBitPop(uint64(bit), i) {
+				ab = AB{A: ab.B, B: ab.A}
 			}
 
+			for h := minH; h < minH+ab.A; h++ {
+				for w := minW; w < minW+ab.B; w++ {
+					if usedGrid[h-1][w-1] {
+						break Middle
+					}
+					usedGrid[h-1][w-1] = true
+				}
+			}
+
+			minH += ab.A
+			minW += ab.B
+
+			c := Coordinate{h: minH, w: minW}
+			if !c.IsValid(H, W) {
+				break Middle
+			}
 		}
 
+		fmt.Println("Yes")
+		return
 	}
 
 }
@@ -75,6 +83,53 @@ type AB struct {
 //////////////
 // Libs    //
 /////////////
+
+// k桁目のビットが1かどうかを判定（一番右を0桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << k はビットマスク。1をk桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << k)) != 0
+}
+
+// NOTE: 全パターンに何らかの処理を適用したいとき、オリジナルのslに対しては別途処理を記述する
+//
+// O(len(sl)*len(sl)!)
+// sl の要素を並び替えて、次の辞書順の順列にする
+func NextPermutation[T ~int | ~string](sl []T) bool {
+	n := len(sl)
+	i := n - 2
+
+	// Step1: 右から左に探索して、「スイッチポイント」を見つける:
+	// 　「スイッチポイント」とは、右から見て初めて「リストの値が減少する場所」です。
+	// 　例: [1, 2, 3, 6, 5, 4] の場合、3 がスイッチポイント。
+	for i >= 0 && sl[i] >= sl[i+1] {
+		i--
+	}
+
+	//　スイッチポイントが見つからない場合、最後の順列に到達しています。
+	if i < 0 {
+		return false
+	}
+
+	// Step2: スイッチポイントの右側の要素から、スイッチポイントより少しだけ大きい値を見つけ、交換します。
+	// 　例: 3 を右側で最小の大きい値 4 と交換。
+	j := n - 1
+	for sl[j] <= sl[i] {
+		j--
+	}
+	sl[i], sl[j] = sl[j], sl[i]
+
+	// Step3: スイッチポイントの右側を反転して、辞書順に次の順列を作ります。
+	// 　例: [1, 2, 4, 6, 5, 3] → [1, 2, 4, 3, 5, 6]。
+	reverse(sl[i+1:])
+	return true
+}
+
+func reverse[T ~int | ~string](sl []T) {
+	for i, j := 0, len(sl)-1; i < j; i, j = i+1, j-1 {
+		sl[i], sl[j] = sl[j], sl[i]
+	}
+}
 
 type Coordinate struct {
 	h, w int
