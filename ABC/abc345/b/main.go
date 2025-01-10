@@ -23,7 +23,14 @@ func main() {
 
 	X := readInt(r)
 
-	fmt.Println(X / 10)
+	q := X / 10
+	rem := X % 10
+
+	if rem > 0 {
+		fmt.Println(q + 1)
+	} else {
+		fmt.Println(q)
+	}
 }
 
 //////////////
