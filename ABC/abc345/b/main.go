@@ -21,6 +21,9 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	X := readInt(r)
+
+	fmt.Println(X / 10)
 }
 
 //////////////
