@@ -21,6 +21,22 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	if Ss[0] != "<" || Ss[len(Ss)-1] != ">" {
+		fmt.Println("No")
+		return
+	}
+
+	for i := 1; i < len(Ss)-1; i++ {
+		if Ss[i] != "=" {
+			fmt.Println("No")
+			return
+		}
+	}
+
+	fmt.Println("Yes")
 }
 
 //////////////
