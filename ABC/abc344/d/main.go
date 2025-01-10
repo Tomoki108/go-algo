@@ -21,6 +21,73 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	T := readStr(r)
+
+	N := readInt(r)
+
+	sMapByBags := make([]map[string]struct{}, 0, N)
+	for i := 0; i < N; i++ {
+		sarr := readStrArr(r)
+		sarr = sarr[1:] // Aを取り除く
+
+		m := make(map[string]struct{}, len(sarr))
+		for _, s := range sarr {
+			m[s] = struct{}{}
+		}
+		sMapByBags = append(sMapByBags, m)
+	}
+
+	var genKey func(bagIdx, tIdx int) string
+	genKey = func(bagIdx, tIdx int) string {
+		return fmt.Sprintf("%d-%d", bagIdx, tIdx)
+	}
+
+	minCost := INT_MAX
+
+	memos := make(map[string]int)
+
+	// bagIdx: bagIdx までのバッグを試した
+	// tIdx: tIdx目までTが完成している
+	// return: これまでにかかったコスト
+	var dfs func(bagIdx, tIdx int)
+	dfs = func(bagIdx, tIdx int) {
+		key := genKey(bagIdx, tIdx)
+		cost := memos[key]
+
+		if tIdx == len(T)-1 {
+			minCost = min(minCost, cost)
+			return
+		}
+		if bagIdx == N-1 {
+			return
+		}
+
+		sMap := sMapByBags[bagIdx+1]
+		maxSubStrLen := min(10, len(T[tIdx+1:]))
+		for length := 1; length <= maxSubStrLen; length++ {
+			subStr := T[tIdx+1 : tIdx+1+length]
+			_, ok := sMap[subStr]
+			if ok {
+				newBagIdx := bagIdx + 1
+				newTIdx := tIdx + length
+
+				key := genKey(newBagIdx, newTIdx)
+				prevCost, ok := memos[key]
+				if !ok || prevCost > cost+1 {
+					memos[key] = cost + 1
+					dfs(bagIdx+1, tIdx+length)
+				}
+			}
+		}
+
+		dfs(bagIdx+1, tIdx)
+	}
+
+	if minCost == INT_MAX {
+		fmt.Println(-1)
+	} else {
+		fmt.Println(minCost)
+	}
 }
 
 //////////////
