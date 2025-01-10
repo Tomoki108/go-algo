@@ -21,6 +21,27 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	startIdx := -1
+	endIdx := -1
+	for i := 0; i < len(Ss); i++ {
+		if Ss[i] == "|" {
+			if startIdx == -1 {
+				startIdx = i
+			} else {
+				endIdx = i
+			}
+		}
+	}
+
+	ans := append(Ss[:startIdx], Ss[endIdx+1:]...)
+	if len(ans) > 0 {
+		writeSliceWithoutSpace(w, ans)
+	} else {
+		fmt.Fprintln(w, "")
+	}
 }
 
 //////////////
