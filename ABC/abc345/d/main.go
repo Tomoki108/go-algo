@@ -21,11 +21,68 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, H, W := iarr[0], iarr[1], iarr[2]
+
+	usedGrid := createGrid[bool](H, W)
+
+	abs := make([]AB, 0, N)
+	for i := 0; i < N; i++ {
+		ab := AB{}
+		ab.A, ab.B = read2Ints(r)
+		abs = append(abs, ab)
+	}
+
+	var dfs func(c Coordinate, abs []AB) bool
+	dfs = func(c Coordinate, abs []AB) bool {
+		// if !c.IsValid(H, W) || usedGrid[c.h][c.w] {
+
+		// }
+
+		if len(abs) == 0 {
+			return true
+		}
+
+		for idx, ab := range abs {
+
+			for _, fixed := range []AB{ab, {ab.B, ab.A}} {
+
+				// usedGrid check
+
+			CheckOuter:
+				for h := c.h; h < c.h+fixed.A; h++ {
+					for w := c.w; w < c.w+fixed.B; w++ {
+						if usedGrid[h-1][w-1] {
+							break CheckOuter
+						}
+					}
+				}
+
+				new_abs := append(abs[:idx], abs[idx+1:]...)
+
+			}
+
+		}
+
+	}
+
+}
+
+type AB struct {
+	A, B int // A: 縦, B: 横
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers  //
@@ -81,6 +138,16 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 	for i := 0; i < height; i++ {
 		str := readStr(r)
 		grid[i] = strings.Split(str, "")
+	}
+
+	return grid
+}
+
+// height行、width列のT型グリッドを作成
+func createGrid[T any](height, width int) [][]T {
+	grid := make([][]T, height)
+	for i := 0; i < height; i++ {
+		grid[i] = make([]T, width)
 	}
 
 	return grid

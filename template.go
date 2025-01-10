@@ -86,6 +86,16 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 	return grid
 }
 
+// height行、width列のT型グリッドを作成
+func createGrid[T any](r *bufio.Reader, height, width int) [][]T {
+	grid := make([][]T, height)
+	for i := 0; i < height; i++ {
+		grid[i] = make([]T, width)
+	}
+
+	return grid
+}
+
 // 文字列グリッドを出力する
 func writeGrid(w *bufio.Writer, grid [][]string) {
 	for i := 0; i < len(grid); i++ {
