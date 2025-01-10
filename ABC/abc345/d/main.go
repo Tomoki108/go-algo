@@ -66,12 +66,19 @@ func main() {
 				}
 			}
 
-			minH += ab.A
-			minW += ab.B
-		}
+			for h := 0; h < H; h++ {
+				for w := 0; w < W; w++ {
+					if !usedGrid[h][w] {
+						minH = h
+						minW = w
+						continue Middle1
+					}
+				}
+			}
 
-		fmt.Println("Yes")
-		return
+			fmt.Println("Yes")
+			return
+		}
 	}
 
 	for NextPermutation(abIndexes) {
@@ -100,12 +107,19 @@ func main() {
 					}
 				}
 
-				minH += ab.A
-				minW += ab.B
-			}
+				for h := 0; h < H; h++ {
+					for w := 0; w < W; w++ {
+						if !usedGrid[h][w] {
+							minH = h
+							minW = w
+							continue Middle2
+						}
+					}
+				}
 
-			fmt.Println("Yes")
-			return
+				fmt.Println("Yes")
+				return
+			}
 		}
 	}
 
