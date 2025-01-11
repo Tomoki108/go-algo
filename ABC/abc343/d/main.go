@@ -40,25 +40,8 @@ func main() {
 		scores[A-1] = newScore
 		scoreCountMap[newScore]++
 
-		// fmt.Println(scoreCountMap)
-
 		fmt.Fprintln(w, len(scoreCountMap))
 	}
-
-	// s := set.New(comparator.IntComparator)
-	// s.Insert(0)
-
-	// for i := 0; i < T; i++ {
-	// 	A, B := read2Ints(r)
-
-	// 	s.Erase(scores[A-1])
-	// 	scores[A-1] += B
-	// 	s.Insert(scores[A-1])
-
-	// 	fmt.Println(s.String())
-
-	// 	fmt.Fprintln(w, s.Size())
-	// }
 }
 
 //////////////
