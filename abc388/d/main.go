@@ -41,6 +41,7 @@ func main() {
 			add++
 			it.Next()
 		}
+
 		// fmt.Printf("As[i]: %d, i-1: %d,  add: %d\n", As[i], i-1, add)
 		// fmt.Println("")
 
