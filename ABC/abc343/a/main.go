@@ -21,6 +21,14 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	A, B := read2Ints(r)
+
+	for i := 0; i <= 9; i++ {
+		if i != A+B {
+			fmt.Println(i)
+			return
+		}
+	}
 }
 
 //////////////
