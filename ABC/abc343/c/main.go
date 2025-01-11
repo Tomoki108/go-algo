@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +22,41 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	cubicNums := make([]int, 0)
+	for i := 1; i <= 1000000; i++ {
+		cubicNums = append(cubicNums, pow(i, 3))
+		// 0^3 == １^ == 1 なので、0はとばしてもOK
+	}
+
+	N := readInt(r)
+
+	idx := sort.Search(len(cubicNums), func(i int) bool {
+		return cubicNums[i] > N
+	})
+	idx -= 1
+
+	for i := idx; i >= 0; i-- {
+		if IsPallindromeStr(strconv.Itoa(cubicNums[i])) {
+			fmt.Fprintln(w, cubicNums[i])
+			return
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n/2)
+func IsPallindromeStr(s string) bool {
+	for i := 0; i < len(s)/2; i++ {
+		if s[i] != s[len(s)-1-i] {
+			return false
+		}
+	}
+
+	return true
+}
 
 //////////////
 // Helpers  //
