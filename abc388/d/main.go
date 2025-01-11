@@ -28,18 +28,21 @@ func main() {
 	As := readIntArr(r)
 
 	ans := make([]int, 0, N)
-	adultSet := NewIntSet()
+	adultSet := NewMultiIntSet()
 
 	for i := 0; i < N; i++ {
-		fmt.Println(adultSet.String())
+		// fmt.Println(adultSet.String())
 
 		it := adultSet.UpperBound(i - 1)
+		// fmt.Println(i - 1)
 
 		add := 0
 		for it.IsValid() {
 			add++
 			it.Next()
 		}
+		// fmt.Printf("As[i]: %d, i-1: %d,  add: %d\n", As[i], i-1, add)
+		// fmt.Println("")
 
 		stoneNum := As[i] + add
 		adultSet.Insert(stoneNum + i)
@@ -59,8 +62,8 @@ func main() {
 // Libs    //
 /////////////
 
-func NewIntSet() *set.Set[int] {
-	return set.New(comparator.IntComparator)
+func NewMultiIntSet() *set.MultiSet[int] {
+	return set.NewMultiSet(comparator.IntComparator)
 }
 
 //////////////
