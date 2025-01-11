@@ -21,6 +21,33 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	graph := make([][]int, N)
+	for i := 0; i < N; i++ {
+		vs := make([]int, 0)
+		iarr := readIntArr(r)
+		for idx, elm := range iarr {
+			if elm == 1 {
+				vs = append(vs, idx+1)
+			}
+		}
+		graph[i] = vs
+	}
+
+	noLine := true
+	for i := 0; i < N; i++ {
+		vs := graph[i]
+		if len(vs) == 0 {
+			continue
+		}
+		noLine = false
+		writeSlice(w, vs)
+	}
+
+	if noLine {
+		fmt.Fprintln(w)
+	}
 }
 
 //////////////

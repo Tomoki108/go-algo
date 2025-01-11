@@ -114,6 +114,11 @@ func writeSlice[T any](w *bufio.Writer, sl []T) {
 
 // スライスの中身をスペース区切りなしで出力する
 func writeSliceWithoutSpace[T any](w *bufio.Writer, sl []T) {
+	if len(sl) == 0 {
+		fmt.Fprintln(w)
+		return
+	}
+
 	for idx, v := range sl {
 		fmt.Fprint(w, v)
 		if idx == len(sl)-1 {
@@ -124,6 +129,11 @@ func writeSliceWithoutSpace[T any](w *bufio.Writer, sl []T) {
 
 // スライスの中身を一行づつ出力する
 func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
+	if len(sl) == 0 {
+		fmt.Fprintln(w)
+		return
+	}
+
 	for _, v := range sl {
 		fmt.Fprintln(w, v)
 	}
