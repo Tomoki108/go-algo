@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +22,50 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	As := readIntArr(r)
+	sort.Ints(As)
+
+	ans := 0
+
+	for i, A := range As {
+
+		toSearch := As[i+1:]
+		idx := sort.Search(len(toSearch), func(j int) bool {
+			return toSearch[j] >= A*2
+		})
+
+		if idx == len(toSearch) {
+			continue
+		}
+
+		ans += len(toSearch) - idx
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(r)
+// nCrの計算
+// (n * (n-1) ... * (n-r+1)) / r!
+func CombinationNum(n, r int) int {
+	if r > n {
+		return 0
+	}
+	if r > n/2 {
+		r = n - r // Use smaller r for efficiency
+	}
+	result := 1
+	for i := 0; i < r; i++ {
+		result *= (n - i)
+		result /= (i + 1)
+	}
+	return result
+}
 
 //////////////
 // Helpers  //
