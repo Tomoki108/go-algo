@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,11 +24,44 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	ans := make([]int, 0, N)
+	adultSet := NewIntSet()
+
+	for i := 0; i < N; i++ {
+		fmt.Println(adultSet.String())
+
+		it := adultSet.UpperBound(i - 1)
+
+		add := 0
+		for it.IsValid() {
+			add++
+			it.Next()
+		}
+
+		stoneNum := As[i] + add
+		adultSet.Insert(stoneNum + i)
+
+		stoneNum -= N - (i + 1)
+		if stoneNum < 0 {
+			stoneNum = 0
+		}
+
+		ans = append(ans, stoneNum)
+	}
+
+	writeSlice(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func NewIntSet() *set.Set[int] {
+	return set.New(comparator.IntComparator)
+}
 
 //////////////
 // Helpers  //
