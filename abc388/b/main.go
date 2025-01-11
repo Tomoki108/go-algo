@@ -21,6 +21,25 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, D := read2Ints(r)
+
+	tls := make([][2]int, 0, N)
+	for i := 0; i < N; i++ {
+		T, L := read2Ints(r)
+		tls = append(tls, [2]int{T, L})
+	}
+
+	for i := 1; i <= D; i++ {
+		maxAns := 0
+
+		for _, tl := range tls {
+			weight := tl[0] * (tl[1] + i)
+			maxAns = max(maxAns, weight)
+		}
+
+		fmt.Fprintln(w, maxAns)
+
+	}
 }
 
 //////////////
