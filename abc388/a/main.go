@@ -21,6 +21,12 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+
+	ans := string(S[0]) + "UPC"
+
+	fmt.Fprintln(w, ans)
+
 }
 
 //////////////
