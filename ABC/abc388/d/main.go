@@ -26,37 +26,18 @@ func main() {
 
 	N := readInt(r)
 	As := readIntArr(r)
+	As = DiffArray(As)
 
-	ans := make([]int, 0, N)
-	adultSet := NewMultiIntSet()
-
+	prev := 0
 	for i := 0; i < N; i++ {
-		// fmt.Println(adultSet.String())
+		prev += As[i]
 
-		it := adultSet.UpperBound(i - 1)
-		// fmt.Println(i - 1)
-
-		add := 0
-		for it.IsValid() {
-			add++
-			it.Next()
+		if prev <= 0 {
+			continue
 		}
 
-		// fmt.Printf("As[i]: %d, i-1: %d,  add: %d\n", As[i], i-1, add)
-		// fmt.Println("")
-
-		stoneNum := As[i] + add
-		adultSet.Insert(stoneNum + i)
-
-		stoneNum -= N - (i + 1)
-		if stoneNum < 0 {
-			stoneNum = 0
-		}
-
-		ans = append(ans, stoneNum)
 	}
 
-	writeSlice(w, ans)
 }
 
 //////////////
@@ -65,6 +46,31 @@ func main() {
 
 func NewMultiIntSet() *set.MultiSet[int] {
 	return set.NewMultiSet(comparator.IntComparator)
+}
+
+// O(n)
+// 一次元配列の累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
+
+func DiffArray(sl []int) []int {
+	res := make([]int, 0, len(sl))
+	res = append(res, sl[0])
+	for i := 1; i < len(sl); i++ {
+		res = append(res, sl[i]-sl[i-1])
+	}
+	return res
+}
+
+func RangeUpdateDiffArray(sl []int, l, r, x int) {
+	sl[l] += x
+	sl[r] -= x
 }
 
 //////////////
