@@ -7,9 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/liyue201/gostl/ds/set"
-	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -26,16 +23,41 @@ func main() {
 
 	N := readInt(r)
 	As := readIntArr(r)
-	As = DiffArray(As)
 
-	prev := 0
+	diffAsArr := DiffArray(As)
+
+	prevA := 0
 	for i := 0; i < N; i++ {
-		prev += As[i]
-
-		if prev <= 0 {
+		A := prevA + diffAsArr[i]
+		if A == 0 {
 			continue
 		}
 
+		var toGive int
+		if A >= len(diffAsArr)-(i+1) {
+			toGive = len(diffAsArr) - (i + 1)
+		} else {
+			toGive = A
+		}
+
+		A -= toGive
+		diffAsArr[i] = A - prevA
+		prevA = A
+
+		RangeUpdateDiffArray(diffAsArr, i+1, INT_MAX, toGive)
+		RangeUpdateDiffArray(diffAsArr, i+1, i+toGive+1, 1)
+	}
+
+	prevAns := 0
+	for i, diffA := range diffAsArr {
+		ans := prevAns + diffA
+		prevAns = ans
+
+		if i == N-1 {
+			fmt.Fprintln(w, ans)
+		} else {
+			fmt.Fprint(w, ans, " ")
+		}
 	}
 
 }
@@ -43,21 +65,6 @@ func main() {
 //////////////
 // Libs    //
 /////////////
-
-func NewMultiIntSet() *set.MultiSet[int] {
-	return set.NewMultiSet(comparator.IntComparator)
-}
-
-// O(n)
-// 一次元配列の累積和を返す（index0には0を入れる。）
-func PrefixSum(sl []int) []int {
-	n := len(sl)
-	res := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		res[i+1] = res[i] + sl[i]
-	}
-	return res
-}
 
 func DiffArray(sl []int) []int {
 	res := make([]int, 0, len(sl))
@@ -69,8 +76,12 @@ func DiffArray(sl []int) []int {
 }
 
 func RangeUpdateDiffArray(sl []int, l, r, x int) {
-	sl[l] += x
-	sl[r] -= x
+	if l < len(sl) {
+		sl[l] += x
+	}
+	if r < len(sl) {
+		sl[r] -= x
+	}
 }
 
 //////////////
