@@ -31,6 +31,11 @@ func main() {
 
 	q := K / countOfNM
 	rem := K % countOfNM
+	if rem == 0 {
+		ans := max(N*(M*q-1), M*(N*q-1))
+		fmt.Fprintln(w, ans)
+		return
+	}
 
 	nMultiplierStart := M*q + 1
 	nMultiplierEnd := M*(q+1) - 1
