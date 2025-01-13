@@ -21,6 +21,24 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	sts := make([][2]int, 0, N)
+	for i := 0; i < N-1; i++ {
+		S, T := read2Ints(r)
+		sts = append(sts, [2]int{S, T})
+	}
+
+	currentCount := As[0]
+	for i := 1; i < N; i++ {
+		s, t := sts[i-1][0], sts[i-1][1]
+
+		toCarry := currentCount / s * t
+		currentCount = As[i] + toCarry
+	}
+
+	fmt.Fprintln(w, currentCount)
 }
 
 //////////////
