@@ -39,14 +39,14 @@ func main() {
 
 	nMultiplierStart := M*q + 1
 	nMultiplierEnd := M*(q+1) - 1
-	Ns := make([]int, 0)
+	Ns := make([]int, 0, rem)
 	for i := nMultiplierStart; i <= nMultiplierEnd; i++ {
 		Ns = append(Ns, N*i)
 	}
 
 	mMultiplierStart := N*q + 1
 	mMultiplierEnd := N*(q+1) - 1
-	Ms := make([]int, 0)
+	Ms := make([]int, 0, rem)
 	for i := mMultiplierStart; i <= mMultiplierEnd; i++ {
 		Ms = append(Ms, M*i)
 	}
