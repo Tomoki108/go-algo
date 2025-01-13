@@ -21,6 +21,40 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	Q := readInt(r)
+
+	cds := make([][2]string, 0, Q)
+	for i := 0; i < Q; i++ {
+		sarr := readStrArr(r)
+		c, d := sarr[0], sarr[1]
+		cds = append(cds, [2]string{c, d})
+	}
+
+	memos := make(map[string]string, 26)
+
+	for i, s := range Ss {
+		memo, exists := memos[s]
+		if exists {
+			Ss[i] = memo
+			continue
+		}
+
+		current := s
+		for _, cd := range cds {
+			c, d := cd[0], cd[1]
+			if c == current {
+				current = d
+			}
+		}
+
+		Ss[i] = current
+		memos[s] = current
+	}
+
+	writeSliceWithoutSpace(w, Ss)
 }
 
 //////////////
