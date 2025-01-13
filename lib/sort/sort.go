@@ -22,6 +22,8 @@ func MergeSort(nums []int) []int {
 	return merge(MergeSort(left), MergeSort(right))
 }
 
+// O(len(left) + len(right))
+// ソート済みの2つのスライスをマージしてソートする
 func merge(left, right []int) (result []int) {
 	result = make([]int, len(left)+len(right))
 

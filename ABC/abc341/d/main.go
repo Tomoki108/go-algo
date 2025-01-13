@@ -21,11 +21,69 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, M, K := iarr[0], iarr[1], iarr[2]
+
+	// period := N * M
+	// countOfN := M - 1
+	// countOfM := N - 1
+	countOfNM := M + N - 2
+
+	q := K / countOfNM
+	rem := K % countOfNM
+
+	nMultiplierStart := M*q + 1
+	nMultiplierEnd := M*(q+1) - 1
+	Ns := make([]int, 0)
+	for i := nMultiplierStart; i <= nMultiplierEnd; i++ {
+		Ns = append(Ns, N*i)
+	}
+
+	mMultiplierStart := N*q + 1
+	mMultiplierEnd := N*(q+1) - 1
+	Ms := make([]int, 0)
+	for i := mMultiplierStart; i <= mMultiplierEnd; i++ {
+		Ms = append(Ms, M*i)
+	}
+
+	merged := merge(Ns, Ms)
+	ans := merged[rem-1]
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(len(left) + len(right))
+// ソート済みの2つのスライスをマージしてソートする
+func merge(left, right []int) (result []int) {
+	result = make([]int, len(left)+len(right))
+
+	i := 0
+	for len(left) > 0 && len(right) > 0 {
+		if left[0] < right[0] {
+			result[i] = left[0]
+			left = left[1:]
+		} else {
+			result[i] = right[0]
+			right = right[1:]
+		}
+		i++
+	}
+
+	// append the remaining elements to result
+	for j := 0; j < len(left); j++ {
+		result[i] = left[j]
+		i++
+	}
+	for j := 0; j < len(right); j++ {
+		result[i] = right[j]
+		i++
+	}
+	return
+}
 
 //////////////
 // Helpers  //
