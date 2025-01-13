@@ -21,6 +21,21 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	ans := make([]string, 0, 2*N+1)
+	prev := "0"
+	for i := 0; i < 2*N+1; i++ {
+		if prev == "0" {
+			ans = append(ans, "1")
+			prev = "1"
+		} else {
+			ans = append(ans, "0")
+			prev = "0"
+		}
+	}
+
+	writeSliceWithoutSpace(w, ans)
 }
 
 //////////////
