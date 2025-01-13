@@ -21,11 +21,83 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H, W, _ := iarr[0], iarr[1], iarr[2]
+
+	T := readStr(r)
+	Ts := strings.Split(T, "")
+
+	grid := readGrid(r, H)
+
+	ans := 0
+	for i := 1; i < H-1; i++ {
+	Outer:
+		for j := 1; j < W-1; j++ {
+			if grid[i][j] == "#" {
+				continue
+			}
+
+			current := Coordinate{i, j}
+			for _, t := range Ts {
+				adjacents := current.Adjacents()
+				switch t {
+				case "U":
+					next := adjacents[0]
+					if next.IsValid(H, W) && grid[next.h][next.w] == "." {
+						current = next
+					} else {
+						continue Outer
+					}
+				case "D":
+					next := adjacents[1]
+					if next.IsValid(H, W) && grid[next.h][next.w] == "." {
+						current = next
+					} else {
+						continue Outer
+					}
+				case "L":
+					next := adjacents[2]
+					if next.IsValid(H, W) && grid[next.h][next.w] == "." {
+						current = next
+					} else {
+						continue Outer
+					}
+				case "R":
+					next := adjacents[3]
+					if next.IsValid(H, W) && grid[next.h][next.w] == "." {
+						current = next
+					} else {
+						continue Outer
+					}
+				}
+			}
+			ans++
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers  //
