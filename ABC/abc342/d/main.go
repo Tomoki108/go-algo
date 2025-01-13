@@ -24,36 +24,29 @@ func main() {
 	readInt(r)
 	As := readIntArr(r)
 
-	sNums := make(map[int]struct{}, 0)
-	i := 0
-	upperLimit := 2 * pow(10, 5)
-	for true {
-		sNum := pow(i, 2)
-		if sNum > upperLimit {
-			break
-		}
-		sNums[sNum] = struct{}{}
-		i++
-	}
-
-	sNumAs := make([]int, 0)
-	for _, a := range As {
-		if _, exists := sNums[a]; exists {
-			sNumAs = append(sNumAs, a)
-		}
-	}
-
-	fmt.Println(sNumAs)
-
-	// 部分列のパターン数の和を、等差数列の和の公式でを求める。
-	ans := len(sNumAs) * (len(sNumAs) - 1) / 2
-
-	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(√n)
+// 素因数分解を行い、素因数=>指数のmapを返す
+func PrimeFactorization(n int) map[int]int {
+	pf := make(map[int]int)
+	// 因数候補は√nまででいい。
+	// √nより大きい数で割った場合、商は√nより小さい数になるため、√n以下の検証時にその割り算は済んでいる。
+	for factor := 2; factor*factor <= n; factor++ {
+		for n%factor == 0 {
+			pf[factor]++
+			n /= factor
+		}
+	}
+	if n > 1 {
+		pf[n]++
+	}
+	return pf
+}
 
 //////////////
 // Helpers  //
