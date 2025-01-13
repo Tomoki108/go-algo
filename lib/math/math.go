@@ -23,3 +23,23 @@ func ToDigits(n int) []int {
 	}
 	return digits
 }
+
+// O(log(min(a,b)))
+// 拡張ユークリッドの互除法で、最大公約数(Greatest Common Divisor)を求める
+// （ax + by = gcd(a, b) となるx, yも返す）
+func GCD(a, b int) (gcd, x, y int) {
+	if b == 0 {
+		return a, 1, 0
+	}
+	gcd, x1, y1 := GCD(b, a%b)
+	x2 := y1
+	y2 := x1 - (a/b)*y1
+	return gcd, x2, y2
+}
+
+// O(log(min(a,b)))
+// 最小公倍数（Least Common Multipler）を求める
+func LCM(a, b int) int {
+	gcd, _, _ := GCD(a, b)
+	return a * b / gcd
+}

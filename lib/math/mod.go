@@ -124,6 +124,7 @@ func InverseElmByGCD(a, m int) (int, error) {
 	return Mod(x, m), nil
 }
 
+// O(log(min(a,b)))
 // 拡張ユークリッドの互除法で、最大公約数を求める
 // （ax + by = gcd(a, b) となるx, yも返す）
 func extendedGCD(a, b int) (gcd, x, y int) {

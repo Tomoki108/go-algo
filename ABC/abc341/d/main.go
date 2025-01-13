@@ -24,70 +24,72 @@ func main() {
 	iarr := readIntArr(r)
 	N, M, K := iarr[0], iarr[1], iarr[2]
 
-	// period := N * M
-	// countOfN := M - 1
-	// countOfM := N - 1
-	countOfNM := M + N - 2
+	lowerLimit := 0
+	upperLimit := pow(10, 18)
 
-	q := K / countOfNM
-	rem := K % countOfNM
-	if rem == 0 {
-		ans := max(N*(M*q-1), M*(N*q-1))
-		fmt.Fprintln(w, ans)
-		return
+	ans := AscIntSearch(lowerLimit, upperLimit, func(max int) bool {
+		return countMatchedNums(max, N, M) >= K
+	})
+	// 範囲内に必ず解が存在するはず
+	if ans == lowerLimit-1 {
+		panic("not found")
 	}
-
-	nMultiplierStart := M*q + 1
-	nMultiplierEnd := M*(q+1) - 1
-	Ns := make([]int, 0, rem)
-	for i := nMultiplierStart; i <= nMultiplierEnd; i++ {
-		Ns = append(Ns, N*i)
-	}
-
-	mMultiplierStart := N*q + 1
-	mMultiplierEnd := N*(q+1) - 1
-	Ms := make([]int, 0, rem)
-	for i := mMultiplierStart; i <= mMultiplierEnd; i++ {
-		Ms = append(Ms, M*i)
-	}
-
-	merged := merge(Ns, Ms)
-	ans := merged[rem-1]
 
 	fmt.Fprintln(w, ans)
+}
+
+func countMatchedNums(max, n, m int) int {
+	lcm := LCM(n, m)
+	count := max/n + max/m - max/lcm*2
+	return count
 }
 
 //////////////
 // Libs    //
 /////////////
 
-// O(len(left) + len(right))
-// ソート済みの2つのスライスをマージしてソートする
-func merge(left, right []int) (result []int) {
-	result = make([]int, len(left)+len(right))
+// O(log(min(a,b)))
+// 拡張ユークリッドの互除法で、最大公約数(Greatest Common Divisor)を求める
+// （ax + by = gcd(a, b) となるx, yも返す）
+func GCD(a, b int) (gcd, x, y int) {
+	if b == 0 {
+		return a, 1, 0
+	}
+	gcd, x1, y1 := GCD(b, a%b)
+	x2 := y1
+	y2 := x1 - (a/b)*y1
+	return gcd, x2, y2
+}
 
-	i := 0
-	for len(left) > 0 && len(right) > 0 {
-		if left[0] < right[0] {
-			result[i] = left[0]
-			left = left[1:]
+// O(log(min(a,b)))
+// 最小公倍数（Least Common Multipler）を求める
+func LCM(a, b int) int {
+	gcd, _, _ := GCD(a, b)
+	return a * b / gcd
+}
+
+// O(log(high-low))
+// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
+// low~highは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はlow-1を返す
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
+		if f(mid) {
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
 		} else {
-			result[i] = right[0]
-			right = right[1:]
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
 		}
-		i++
 	}
 
-	// append the remaining elements to result
-	for j := 0; j < len(left); j++ {
-		result[i] = left[j]
-		i++
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
 	}
-	for j := 0; j < len(right); j++ {
-		result[i] = right[j]
-		i++
-	}
-	return
+
+	return low - 1 // 条件を満たす値が見つからない場合
 }
 
 //////////////
