@@ -21,9 +21,40 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	readInt(r)
+	N := readInt(r)
 	As := readIntArr(r)
 
+	AsMap := make(map[int]int, N)
+	for _, a := range As {
+		if a == 0 {
+			AsMap[0]++
+			continue
+		}
+
+		factors := PrimeFactorization(a)
+		congruentA := 1
+		for factor, exp := range factors {
+			if exp%2 == 1 {
+				congruentA *= factor
+			}
+		}
+
+		AsMap[congruentA]++
+	}
+
+	ans := 0
+	// 0を使う組み合わせの数を足す。（全組み合わせの数　- ゼロを使わない組み合わせの数 を足す。）
+	ans += CombinationNum(len(As), 2) - CombinationNum(len(As)-AsMap[0], 2)
+
+	for k, v := range AsMap {
+		if k == 0 {
+			continue
+		}
+
+		ans += CombinationNum(v, 2)
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
@@ -46,6 +77,24 @@ func PrimeFactorization(n int) map[int]int {
 		pf[n]++
 	}
 	return pf
+}
+
+// O(r)
+// nCrの計算
+// (n * (n-1) ... * (n-r+1)) / r!
+func CombinationNum(n, r int) int {
+	if r > n {
+		return 0
+	}
+	if r > n/2 {
+		r = n - r // Use smaller r for efficiency
+	}
+	result := 1
+	for i := 0; i < r; i++ {
+		result *= (n - i)
+		result /= (i + 1)
+	}
+	return result
 }
 
 //////////////
