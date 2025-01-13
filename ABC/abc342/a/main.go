@@ -21,6 +21,28 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	m := make(map[string]int)
+	for _, s := range Ss {
+		m[s]++
+	}
+
+	diff := ""
+	for k, v := range m {
+		if v == 1 {
+			diff = k
+			break
+		}
+	}
+
+	for i, s := range Ss {
+		if s == diff {
+			fmt.Fprintln(w, i+1)
+			return
+		}
+	}
 }
 
 //////////////
