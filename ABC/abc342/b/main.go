@@ -21,6 +21,25 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	Ps := readIntArr(r)
+
+	idxMap := make(map[int]int)
+	for i, p := range Ps {
+		idxMap[p] = i
+	}
+
+	Q := readInt(r)
+
+	for i := 0; i < Q; i++ {
+		A, B := read2Ints(r)
+
+		if idxMap[A] > idxMap[B] {
+			fmt.Fprintln(w, B)
+		} else {
+			fmt.Fprintln(w, A)
+		}
+	}
 }
 
 //////////////
