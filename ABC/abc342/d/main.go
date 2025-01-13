@@ -21,6 +21,34 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	As := readIntArr(r)
+
+	sNums := make(map[int]struct{}, 0)
+	i := 0
+	upperLimit := 2 * pow(10, 5)
+	for true {
+		sNum := pow(i, 2)
+		if sNum > upperLimit {
+			break
+		}
+		sNums[sNum] = struct{}{}
+		i++
+	}
+
+	sNumAs := make([]int, 0)
+	for _, a := range As {
+		if _, exists := sNums[a]; exists {
+			sNumAs = append(sNumAs, a)
+		}
+	}
+
+	fmt.Println(sNumAs)
+
+	// 部分列のパターン数の和を、等差数列の和の公式でを求める。
+	ans := len(sNumAs) * (len(sNumAs) - 1) / 2
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
