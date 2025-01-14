@@ -16,7 +16,7 @@ const INT_MAX = math.MaxInt
 const INT_MIN = math.MinInt
 
 var r = bufio.NewReader(os.Stdin)
-var w = bufio.NewWriter(os.Stdout)
+var writer = bufio.NewWriter(os.Stdout)
 
 const (
 	UP = iota
@@ -26,7 +26,7 @@ const (
 )
 
 func main() {
-	defer w.Flush()
+	defer writer.Flush()
 
 	iarr := readIntArr(r)
 	H, W, N := iarr[0], iarr[1], iarr[2]
@@ -54,15 +54,15 @@ func main() {
 				}
 				current = [3]int{h, nw, LEFT}
 			case LEFT:
-				nh := h + 1
-				if nh >= H {
-					nh -= H
-				}
-				current = [3]int{nh, w, UP}
-			case RIGHT:
 				nh := h - 1
 				if nh < 0 {
 					nh += H
+				}
+				current = [3]int{nh, w, UP}
+			case RIGHT:
+				nh := h + 1
+				if nh >= H {
+					nh -= H
 				}
 				current = [3]int{nh, w, DOWN}
 			}
@@ -83,22 +83,26 @@ func main() {
 				}
 				current = [3]int{h, nw, RIGHT}
 			case LEFT:
-				nh := h - 1
-				if nh < 0 {
-					nh += H
-				}
-				current = [3]int{nh, w, DOWN}
-			case RIGHT:
 				nh := h + 1
 				if nh >= H {
 					nh -= H
 				}
+				current = [3]int{nh, w, DOWN}
+			case RIGHT:
+				nh := h - 1
+				if nh < 0 {
+					nh += H
+				}
 				current = [3]int{nh, w, UP}
 			}
 		}
+
+		// fmt.Fprintln(writer, current)
+		// writeGrid(writer, grid)
+		// fmt.Fprintln(writer)
 	}
 
-	writeGrid(w, grid)
+	writeGrid(writer, grid)
 }
 
 //////////////
