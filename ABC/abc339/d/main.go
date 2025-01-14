@@ -19,13 +19,6 @@ const INT_MIN = math.MinInt
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
-const (
-	UP = iota
-	DOWN
-	LEFT
-	RIGHT
-)
-
 func main() {
 	defer w.Flush()
 
