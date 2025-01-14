@@ -44,27 +44,27 @@ func main() {
 			case UP:
 				nw := w + 1
 				if nw >= W {
-					nw = W - nw
+					nw -= W
 				}
 				current = [3]int{h, nw, RIGHT}
 			case DOWN:
 				nw := w - 1
 				if nw < 0 {
-					nw = W + nw
+					nw += W
 				}
 				current = [3]int{h, nw, LEFT}
 			case LEFT:
 				nh := h + 1
 				if nh >= H {
-					nh = H - nh
+					nh -= H
 				}
-				current = [3]int{nh, w, DOWN}
+				current = [3]int{nh, w, UP}
 			case RIGHT:
 				nh := h - 1
 				if nh < 0 {
-					nh = H + nh
+					nh += H
 				}
-				current = [3]int{nh, w, UP}
+				current = [3]int{nh, w, DOWN}
 			}
 		} else {
 			grid[h][w] = "."
@@ -73,27 +73,27 @@ func main() {
 			case UP:
 				nw := w - 1
 				if nw < 0 {
-					nw = W + nw
+					nw += W
 				}
-				current = [3]int{h, w - 1, LEFT}
+				current = [3]int{h, nw, LEFT}
 			case DOWN:
 				nw := w + 1
 				if nw >= W {
-					nw = W - nw
+					nw -= W
 				}
-				current = [3]int{h, w + 1, RIGHT}
+				current = [3]int{h, nw, RIGHT}
 			case LEFT:
 				nh := h - 1
 				if nh < 0 {
-					nh = H + nh
+					nh += H
 				}
-				current = [3]int{h - 1, w, UP}
+				current = [3]int{nh, w, DOWN}
 			case RIGHT:
 				nh := h + 1
 				if nh >= H {
-					nh = H - nh
+					nh -= H
 				}
-				current = [3]int{h + 1, w, DOWN}
+				current = [3]int{nh, w, UP}
 			}
 		}
 	}
