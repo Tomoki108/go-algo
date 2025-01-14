@@ -21,6 +21,28 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	As := readIntArr(r)
+
+	minStart := 0
+	current := 0
+	for _, a := range As {
+		current += a
+		if current < 0 {
+			minStart += abs(current)
+			current = 0
+		}
+	}
+
+	current = minStart
+	for _, a := range As {
+		current += a
+		if current < 0 {
+			panic("unreachable")
+		}
+	}
+
+	fmt.Fprintln(w, current)
 }
 
 //////////////
