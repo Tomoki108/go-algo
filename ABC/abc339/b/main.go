@@ -18,9 +18,87 @@ const INT_MIN = math.MinInt
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+const (
+	UP = iota
+	DOWN
+	LEFT
+	RIGHT
+)
+
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H, W, N := iarr[0], iarr[1], iarr[2]
+
+	grid := createGrid[string](H, W, ".")
+
+	current := [3]int{0, 0, UP}
+	for i := 0; i < N; i++ {
+		h, w, dir := current[0], current[1], current[2]
+
+		if grid[h][w] == "." {
+			grid[h][w] = "#"
+
+			switch dir {
+			case UP:
+				nw := w + 1
+				if nw >= W {
+					nw = W - nw
+				}
+				current = [3]int{h, nw, RIGHT}
+			case DOWN:
+				nw := w - 1
+				if nw < 0 {
+					nw = W + nw
+				}
+				current = [3]int{h, nw, LEFT}
+			case LEFT:
+				nh := h + 1
+				if nh >= H {
+					nh = H - nh
+				}
+				current = [3]int{nh, w, DOWN}
+			case RIGHT:
+				nh := h - 1
+				if nh < 0 {
+					nh = H + nh
+				}
+				current = [3]int{nh, w, UP}
+			}
+		} else {
+			grid[h][w] = "."
+
+			switch dir {
+			case UP:
+				nw := w - 1
+				if nw < 0 {
+					nw = W + nw
+				}
+				current = [3]int{h, w - 1, LEFT}
+			case DOWN:
+				nw := w + 1
+				if nw >= W {
+					nw = W - nw
+				}
+				current = [3]int{h, w + 1, RIGHT}
+			case LEFT:
+				nh := h - 1
+				if nh < 0 {
+					nh = H + nh
+				}
+				current = [3]int{h - 1, w, UP}
+			case RIGHT:
+				nh := h + 1
+				if nh >= H {
+					nh = H - nh
+				}
+				current = [3]int{h + 1, w, DOWN}
+			}
+		}
+	}
+
+	writeGrid(w, grid)
 }
 
 //////////////
@@ -34,7 +112,6 @@ func main() {
 // 一行に1文字のみの入力を読み込む
 func readStr(r *bufio.Reader) string {
 	input, _ := r.ReadString('\n')
-
 	return strings.TrimSpace(input)
 }
 
@@ -43,7 +120,6 @@ func readInt(r *bufio.Reader) int {
 	input, _ := r.ReadString('\n')
 	str := strings.TrimSpace(input)
 	i, _ := strconv.Atoi(str)
-
 	return i
 }
 
@@ -53,7 +129,6 @@ func read2Ints(r *bufio.Reader) (int, int) {
 	strs := strings.Fields(input)
 	i1, _ := strconv.Atoi(strs[0])
 	i2, _ := strconv.Atoi(strs[1])
-
 	return i1, i2
 }
 
@@ -71,7 +146,6 @@ func readIntArr(r *bufio.Reader) []int {
 	for i, s := range strs {
 		arr[i], _ = strconv.Atoi(s)
 	}
-
 	return arr
 }
 
@@ -82,17 +156,18 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 		str := readStr(r)
 		grid[i] = strings.Split(str, "")
 	}
-
 	return grid
 }
 
 // height行、width列のT型グリッドを作成
-func createGrid[T any](height, width int) [][]T {
+func createGrid[T any](height, width int, val T) [][]T {
 	grid := make([][]T, height)
 	for i := 0; i < height; i++ {
 		grid[i] = make([]T, width)
+		for j := 0; j < width; j++ {
+			grid[i][j] = val
+		}
 	}
-
 	return grid
 }
 

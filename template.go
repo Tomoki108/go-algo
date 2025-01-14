@@ -34,7 +34,6 @@ func main() {
 // 一行に1文字のみの入力を読み込む
 func readStr(r *bufio.Reader) string {
 	input, _ := r.ReadString('\n')
-
 	return strings.TrimSpace(input)
 }
 
@@ -43,7 +42,6 @@ func readInt(r *bufio.Reader) int {
 	input, _ := r.ReadString('\n')
 	str := strings.TrimSpace(input)
 	i, _ := strconv.Atoi(str)
-
 	return i
 }
 
@@ -53,7 +51,6 @@ func read2Ints(r *bufio.Reader) (int, int) {
 	strs := strings.Fields(input)
 	i1, _ := strconv.Atoi(strs[0])
 	i2, _ := strconv.Atoi(strs[1])
-
 	return i1, i2
 }
 
@@ -71,7 +68,6 @@ func readIntArr(r *bufio.Reader) []int {
 	for i, s := range strs {
 		arr[i], _ = strconv.Atoi(s)
 	}
-
 	return arr
 }
 
@@ -82,17 +78,18 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 		str := readStr(r)
 		grid[i] = strings.Split(str, "")
 	}
-
 	return grid
 }
 
 // height行、width列のT型グリッドを作成
-func createGrid[T any](height, width int) [][]T {
+func createGrid[T any](height, width int, val T) [][]T {
 	grid := make([][]T, height)
 	for i := 0; i < height; i++ {
 		grid[i] = make([]T, width)
+		for j := 0; j < width; j++ {
+			grid[i][j] = val
+		}
 	}
-
 	return grid
 }
 
@@ -167,7 +164,6 @@ func pow(base, exp int) int {
 	// 2^8 = 4^2^2
 	// 2^9 = 4^2^2 * 2
 	// この性質を利用して、基数を2乗しつつ指数を1/2にしていく
-
 	result := 1
 	for exp > 0 {
 		if exp%2 == 1 {
