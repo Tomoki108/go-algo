@@ -25,19 +25,22 @@ func main() {
 	N := readInt(r)
 	grid := readGrid(r, N)
 
+	obstacles := 0
 	ps := make([]Coordinate, 0)
 	for i := 0; i < N; i++ {
 		for j := 0; j < N; j++ {
 			if grid[i][j] == "P" {
 				ps = append(ps, Coordinate{i, j})
+			} else if grid[i][j] == "#" {
+				obstacles++
 			}
 		}
 	}
 
-	// memoSize := CombinationNum(N*N-obstacles, 2)
+	memoSize := CombinationNum(N*N-obstacles, 2)
 	// fmt.Fprintln(w, CombinationNum(3600, 2)) // 6468600
 
-	occurredMap := make(map[string]bool)
+	occurredMap := make(map[string]bool, memoSize)
 	genKey := func(p1, p2 Coordinate) string {
 		p1, p2 = sort(p1, p2)
 		return fmt.Sprintf("%d %d %d %d", p1.h, p1.w, p2.h, p2.w)
