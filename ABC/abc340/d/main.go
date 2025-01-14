@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -21,11 +22,98 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	// [node: [[node, weight], [node, weight]]], ...]
+	// node is 0-indexed
+	graph := make([][2][2]int, N)
+	for i := 0; i < N-1; i++ {
+		iarr := readIntArr(r)
+		A, B, X := iarr[0], iarr[1], iarr[2]
+
+		graph = append(graph, [2][2]int{{i + 1, A}, {X - 1, B}})
+	}
+
+	nodesWeight := make(map[int]int, N)
+	fixedNodes := make(map[int]struct{}, N)
+
+	pq := &Heap[pqItem]{}
+	pq.PushItem(pqItem{0, 0})
+
+	for pq.Len() > 0 {
+		item := pq.PopItem()
+		node := item.node
+
+		if _, ok := fixedNodes[node]; ok {
+			continue
+		}
+		fixedNodes[node] = struct{}{}
+		nodesWeight[node] = item.weight
+
+		for _, neighbors := range graph[node] {
+			neighbor, weight := neighbors[0], neighbors[1]
+
+			if _, ok := fixedNodes[neighbor]; ok {
+				continue
+			}
+
+			fixedNodes[neighbor] = struct{}{}
+
+			pq.PushItem(pqItem{neighbor, item.weight + weight})
+		}
+	}
+
+	fmt.Fprintln(w, nodesWeight[N-1])
+
+}
+
+type pqItem struct {
+	node, weight int
+}
+
+func (p pqItem) Priority() int {
+	return p.weight
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type HeapItem interface {
+	Priority() int
+}
+
+type Heap[T HeapItem] []T
+
+func (h *Heap[T]) PushItem(item T) {
+	heap.Push(h, item)
+}
+
+func (h *Heap[T]) PopItem() T {
+	return heap.Pop(h).(T)
+}
+
+// to implement sort.Interface
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// DO NOT USE DIRECTLY. to implement heap.Interface
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+
+	*h = append(*h, x.(T))
+}
+
+// DO NOT USE DIRECTLY. to implement heap.Interface
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
 
 //////////////
 // Helpers  //

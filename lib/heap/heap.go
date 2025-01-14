@@ -53,8 +53,8 @@ func NewIntHeap(t IntHeapType) *IntHeap {
 type IntHeapType int
 
 const (
-	MinIntHeap IntHeapType = iota
-	MaxIntHeap
+	MinIntHeap IntHeapType = iota // 大きい方が優先
+	MaxIntHeap                    // 小さい方が優先
 )
 
 func (h *IntHeap) PushI(i int) {
