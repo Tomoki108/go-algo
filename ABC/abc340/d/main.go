@@ -26,13 +26,14 @@ func main() {
 
 	// [node: [[node, weight], [node, weight]]], ...]
 	// node is 0-indexed
-	graph := make([][2][2]int, N)
+	graph := make([][2][2]int, 0, N)
 	for i := 0; i < N-1; i++ {
 		iarr := readIntArr(r)
 		A, B, X := iarr[0], iarr[1], iarr[2]
 
 		graph = append(graph, [2][2]int{{i + 1, A}, {X - 1, B}})
 	}
+	graph = append(graph, [2][2]int{})
 
 	nodesWeight := make(map[int]int, N)
 	fixedNodes := make(map[int]struct{}, N)
@@ -50,14 +51,15 @@ func main() {
 		fixedNodes[node] = struct{}{}
 		nodesWeight[node] = item.weight
 
+		if node == N-1 {
+			break
+		}
+
 		for _, neighbors := range graph[node] {
 			neighbor, weight := neighbors[0], neighbors[1]
-
 			if _, ok := fixedNodes[neighbor]; ok {
 				continue
 			}
-
-			fixedNodes[neighbor] = struct{}{}
 
 			pq.PushItem(pqItem{neighbor, item.weight + weight})
 		}
