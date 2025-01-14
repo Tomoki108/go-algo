@@ -21,6 +21,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	sl := make([]int, 0)
+
+	Q := readInt(r)
+	for i := 0; i < Q; i++ {
+		q, num := read2Ints(r)
+
+		switch q {
+		case 1:
+			sl = append(sl, num)
+		case 2:
+			idx := len(sl) - num
+			fmt.Fprintln(w, sl[idx])
+		}
+	}
 }
 
 //////////////
