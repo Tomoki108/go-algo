@@ -21,6 +21,31 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	memos := make(map[int]int) // num => cost
+
+	var dfs func(num int) int
+	dfs = func(num int) int {
+		if num < 2 {
+			return 0
+		}
+
+		if cost, ok := memos[num]; ok {
+			return cost
+		}
+
+		memos[num] = num
+		q := num / 2
+		rem := num % 2
+
+		cost := num + dfs(q) + dfs(q+rem)
+		memos[num] = cost
+
+		return cost
+	}
+
+	fmt.Fprintln(w, dfs(N))
 }
 
 //////////////
