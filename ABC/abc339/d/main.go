@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -18,14 +19,178 @@ const INT_MIN = math.MinInt
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+const (
+	UP = iota
+	DOWN
+	LEFT
+	RIGHT
+)
+
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	grid := readGrid(r, N)
+
+	var p1 Coordinate
+	var p2 Coordinate
+
+	obstacles := 0
+	ps := make([]Coordinate, 0)
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if grid[i][j] == "P" {
+				ps = append(ps, Coordinate{i, j})
+			} else if grid[i][j] == "#" {
+				obstacles++
+			}
+		}
+	}
+
+	// memoSize := CombinationNum(N*N-obstacles, 2)
+	// fmt.Fprintln(w, CombinationNum(3600, 2))
+
+	occurredMap := make(map[string]bool)
+	genKey := func(p1, p2 Coordinate) string {
+		p1, p2 = sort(p1, p2)
+		return fmt.Sprintf("%d %d %d %d", p1.h, p1.w, p2.h, p2.w)
+	}
+
+	q := NewQueue[qItem]()
+	q.Enqueue(qItem{ps[0], ps[1], 0})
+	occurredMap[genKey(ps[0], ps[1])] = true
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+		p1, p2 = item.p1, item.p2
+
+		if p1 == p2 {
+			fmt.Fprintln(w, item.depth)
+			return
+		}
+
+		// 上下左右
+		for _, delta := range [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
+			np1 := Coordinate{p1.h + delta[0], p1.w + delta[1]}
+			np2 := Coordinate{p2.h + delta[0], p2.w + delta[1]}
+
+			if !(np1.IsValid(N, N) && grid[np1.h][np1.w] != "#") {
+				np1 = p1
+			}
+			if !(np2.IsValid(N, N) && grid[np2.h][np2.w] != "#") {
+				np2 = p2
+			}
+
+			if !(p1 == np1 && p2 == np2) {
+				key := genKey(np1, np2)
+				if !occurredMap[key] {
+					q.Enqueue(qItem{np1, np2, item.depth + 1})
+					occurredMap[key] = true
+				}
+			}
+		}
+	}
+
+	fmt.Fprintln(w, -1)
+}
+
+type qItem struct {
+	p1, p2 Coordinate
+	depth  int
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func sort(one, another Coordinate) (Coordinate, Coordinate) {
+	if one.h > another.h {
+		return another, one
+	} else if one.h == another.h {
+		if one.w > another.w {
+			return another, one
+		}
+		return one, another
+	}
+	return one, another
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+// O(r)
+// nCrの計算
+// (n * (n-1) ... * (n-r+1)) / r!
+func CombinationNum(n, r int) int {
+	if r > n {
+		return 0
+	}
+	if r > n/2 {
+		r = n - r // Use smaller r for efficiency
+	}
+	result := 1
+	for i := 0; i < r; i++ {
+		result *= (n - i)
+		result /= (i + 1)
+	}
+	return result
+}
 
 //////////////
 // Helpers  //

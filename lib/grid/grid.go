@@ -2,6 +2,13 @@ package grid
 
 import "math"
 
+const (
+	UP = iota
+	DOWN
+	LEFT
+	RIGHT
+)
+
 type Coordinate struct {
 	h, w int // 0-indexed
 }
