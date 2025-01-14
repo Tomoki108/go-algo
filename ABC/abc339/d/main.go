@@ -37,18 +37,21 @@ func main() {
 		}
 	}
 
-	memoSize := CombinationNum(N*N-obstacles, 2)
-	// fmt.Fprintln(w, CombinationNum(3600, 2)) // 6468600
-
-	occurredMap := make(map[string]bool, memoSize)
-	genKey := func(p1, p2 Coordinate) string {
-		p1, p2 = sort(p1, p2)
-		return fmt.Sprintf("%d %d %d %d", p1.h, p1.w, p2.h, p2.w)
+	occurred := make([][][][]bool, N) // サイズが巨大なのでマップだと遅い。
+	for i := 0; i < N; i++ {
+		occurred[i] = make([][][]bool, N)
+		for j := 0; j < N; j++ {
+			occurred[i][j] = make([][]bool, N)
+			for k := 0; k < N; k++ {
+				occurred[i][j][k] = make([]bool, N)
+			}
+		}
 	}
 
 	q := NewQueue[qItem]()
 	q.Enqueue(qItem{ps[0], ps[1], 0})
-	occurredMap[genKey(ps[0], ps[1])] = true
+	ps1, ps2 := sort(ps[0], ps[1])
+	occurred[ps1.h][ps1.w][ps2.h][ps2.w] = true
 
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
@@ -72,10 +75,10 @@ func main() {
 			}
 
 			if !(p1 == np1 && p2 == np2) {
-				key := genKey(np1, np2)
-				if !occurredMap[key] {
+				np1, np2 = sort(np1, np2)
+				if !occurred[np1.h][np1.w][np2.h][np2.w] {
 					q.Enqueue(qItem{np1, np2, item.depth + 1})
-					occurredMap[key] = true
+					occurred[np1.h][np1.w][np2.h][np2.w] = true
 				}
 			}
 		}
