@@ -29,7 +29,7 @@ func main() {
 	prefsum1 = append(prefsum1, 0)
 	prefsum2 = append(prefsum2, 0)
 	for i := 1; i < M; i++ {
-		A, B := sort2IntsDesc(Xs[i], Xs[i-1])
+		A, B := sort2IntsDesc(Xs[i]%N, Xs[i-1]%N)
 
 		cost1 := A - B
 		cost2 := N - cost1
@@ -38,11 +38,11 @@ func main() {
 		prefsum2 = append(prefsum2, cost2+prefsum2[i-1])
 	}
 
-	fmt.Println(prefsum1)
-	fmt.Println(prefsum2)
+	// fmt.Println(prefsum1)
+	// fmt.Println(prefsum2)
 
 	ans := INT_MAX
-	for i := 0; i < M+1; i++ {
+	for i := 0; i < M; i++ {
 		cost := prefsum1[i] + prefsum2[len(prefsum2)-1-i]
 		ans = min(ans, cost)
 	}
