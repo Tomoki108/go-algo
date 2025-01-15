@@ -21,6 +21,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Qs := readIntArr(r)
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	qA := INT_MAX
+	for i := 0; i < N; i++ {
+		if As[i] == 0 {
+			continue
+		}
+		qA = min(qA, Qs[i]/As[i])
+	}
+
+	ans := INT_MIN
+	for i := 0; i <= qA; i++ {
+		qB := INT_MAX
+
+		for j := 0; j < N; j++ {
+			nQs := Qs[j] - i*As[j]
+			if Bs[j] == 0 {
+				continue
+			}
+
+			qB = min(qB, nQs/Bs[j])
+		}
+
+		ans = max(ans, i+qB)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
