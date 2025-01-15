@@ -21,6 +21,33 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	Xs := readIntArr(r)
+
+	prefsum1 := make([]int, 0, M+1)
+	prefsum2 := make([]int, 0, M+1)
+	prefsum1 = append(prefsum1, 0)
+	prefsum2 = append(prefsum2, 0)
+	for i := 1; i < M; i++ {
+		A, B := sort2IntsDesc(Xs[i], Xs[i-1])
+
+		cost1 := A - B
+		cost2 := N - cost1
+
+		prefsum1 = append(prefsum1, cost1+prefsum1[i-1])
+		prefsum2 = append(prefsum2, cost2+prefsum2[i-1])
+	}
+
+	fmt.Println(prefsum1)
+	fmt.Println(prefsum2)
+
+	ans := INT_MAX
+	for i := 0; i < M+1; i++ {
+		cost := prefsum1[i] + prefsum2[len(prefsum2)-1-i]
+		ans = min(ans, cost)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
@@ -137,6 +164,20 @@ func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
 	for _, v := range sl {
 		fmt.Fprintln(w, v)
 	}
+}
+
+func sort2IntsAsc(a, b int) (int, int) {
+	if a > b {
+		return b, a
+	}
+	return a, b
+}
+
+func sort2IntsDesc(a, b int) (int, int) {
+	if a < b {
+		return b, a
+	}
+	return a, b
 }
 
 func min(i, j int) int {

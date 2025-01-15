@@ -136,6 +136,20 @@ func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
 	}
 }
 
+func sort2Ints(a, b int) (int, int) {
+	if a > b {
+		return b, a
+	}
+	return a, b
+}
+
+func sort2IntsDesc(a, b int) (int, int) {
+	if a < b {
+		return b, a
+	}
+	return a, b
+}
+
 func min(i, j int) int {
 	if i < j {
 		return i
