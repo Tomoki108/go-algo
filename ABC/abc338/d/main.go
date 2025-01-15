@@ -38,8 +38,8 @@ func main() {
 		prefsum2 = append(prefsum2, cost2+prefsum2[i-1])
 	}
 
-	// fmt.Println(prefsum1)
-	// fmt.Println(prefsum2)
+	fmt.Println(prefsum1)
+	fmt.Println(prefsum2)
 
 	ans := INT_MAX
 	for i := 0; i < M; i++ {
