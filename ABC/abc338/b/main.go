@@ -21,6 +21,28 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	m := make(map[string]int)
+	for _, s := range Ss {
+		m[s]++
+	}
+
+	maxCount := 0
+	maxChar := ""
+	for k, v := range m {
+		if v > maxCount {
+			maxCount = v
+			maxChar = k
+		} else if v == maxCount {
+			if k < maxChar {
+				maxChar = k
+			}
+		}
+	}
+
+	fmt.Fprintln(w, maxChar)
 }
 
 //////////////
