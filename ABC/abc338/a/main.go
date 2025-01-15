@@ -21,6 +21,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	if "A" <= Ss[0] && Ss[0] <= "Z" {
+		for i := 1; i < len(Ss); i++ {
+			if "a" <= Ss[i] && Ss[i] <= "z" {
+				continue
+			}
+			fmt.Fprintln(w, "No")
+			return
+		}
+
+		fmt.Fprintln(w, "Yes")
+		return
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
