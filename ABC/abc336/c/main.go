@@ -23,12 +23,12 @@ func main() {
 
 	N := readInt(r)
 
-	// var digits []int
-	// var memos map[string]int
-
 	genKey := func(pos int, strict bool) string {
 		return fmt.Sprintf("%d-%v", pos, strict)
 	}
+
+	// var digits []int
+	// var memos map[string]int
 
 	// pos: pos桁目まで現在埋まっている。（左始まりの、0-indexed）
 	// strict: 上限を気にして列挙する必要があるかどうか。（posより前の桁が全て上限の同一の桁と一致している。）
@@ -64,8 +64,6 @@ func main() {
 		return count
 	}
 
-	goodNumsFirst := []int{2, 4, 6, 8}
-
 	minNum := 0
 	maxNum := INT_MAX
 	ans := AscIntSearch(minNum, maxNum, func(num int) bool {
@@ -73,19 +71,20 @@ func main() {
 		digits := ToDigits(num)
 
 		count := 0
-		for _, goodNumFirst := range goodNumsFirst {
-			count += digitDP(0, digits[0] == goodNumFirst, memos, digits)
+		limit := digits[0]
+
+		for i := 0; i <= limit; i++ {
+			if i%2 != 0 {
+				continue
+			}
+			count += digitDP(0, digits[0] == i, memos, digits)
 		}
+
 		return count >= N
 	})
 
 	fmt.Fprintln(w, ans)
 }
-
-// // 0,2,4,6,8
-// func countGoodNum(maxNum int) int {
-
-// }
 
 //////////////
 // Libs    //
