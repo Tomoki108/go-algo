@@ -21,11 +21,121 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	// var digits []int
+	// var memos map[string]int
+
+	genKey := func(pos int, strict bool) string {
+		return fmt.Sprintf("%d-%v", pos, strict)
+	}
+
+	// pos: pos桁目まで現在埋まっている。（左始まりの、0-indexed）
+	// strict: 上限を気にして列挙する必要があるかどうか。（posより前の桁が全て上限の同一の桁と一致している。）
+	// return: 現在の状態に合致する数のパターン数。
+	var digitDP func(pos int, strict bool, memos map[string]int, digits []int) int
+	digitDP = func(pos int, strict bool, memos map[string]int, digits []int) int {
+		memo, exist := memos[genKey(pos, strict)]
+		if exist {
+			return memo
+		}
+
+		if pos == len(digits)-1 {
+			return 1
+		}
+
+		limit := 8
+		if strict {
+			limit = digits[pos+1]
+		}
+
+		count := 0
+		for i := 0; i <= limit; i++ {
+			if i%2 != 0 {
+				continue
+			}
+
+			newStrict := strict && i == limit
+
+			count += digitDP(pos+1, newStrict, memos, digits)
+		}
+
+		memos[genKey(pos, strict)] = count
+		return count
+	}
+
+	goodNumsFirst := []int{2, 4, 6, 8}
+
+	minNum := 0
+	maxNum := INT_MAX
+	ans := AscIntSearch(minNum, maxNum, func(num int) bool {
+		memos := make(map[string]int)
+		digits := ToDigits(num)
+
+		count := 0
+		for _, goodNumFirst := range goodNumsFirst {
+			count += digitDP(0, digits[0] == goodNumFirst, memos, digits)
+		}
+		return count >= N
+	})
+
+	fmt.Fprintln(w, ans)
 }
+
+// // 0,2,4,6,8
+// func countGoodNum(maxNum int) int {
+
+// }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log(high-low))
+// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
+// low~highは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はlow-1を返す
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
+		if f(mid) {
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
+		} else {
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
+		}
+	}
+
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
+	}
+
+	return low - 1 // 条件を満たす値が見つからない場合
+}
+
+// O(n) n: numの桁数
+// numの各桁の数字を返す
+func ToDigits(n int) []int {
+	s := strconv.FormatInt(int64(n), 10)
+	digits := make([]int, len(s))
+	for i := 0; i < len(s); i++ {
+		digits[i] = int(s[i] - '0') // （'x'に対応する数字 - '0'に対応する数字）のruneの数字 = x as int
+	}
+	return digits
+}
+
+// O(n) n: numの桁数
+// numの桁数を返す
+func GetDigists(num int) int {
+	digits := 0
+	for num > 0 {
+		num /= 10
+		digits++
+	}
+	return digits
+}
 
 //////////////
 // Helpers  //
