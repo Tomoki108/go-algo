@@ -8,8 +8,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/Tomoki108/go-algo/lib/compress"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -27,7 +25,7 @@ func main() {
 	S := readStr(r)
 	Ss := strings.Split(S, "")
 
-	compressed := compress.RunLength(Ss, "_")
+	compressed := RunLength(Ss, "_")
 
 	if len(compressed) > 3 {
 		fmt.Fprintln(w, "No")
@@ -46,7 +44,7 @@ func main() {
 
 	chars := make([]string, 0, 3)
 	for _, c := range compressed {
-		_, char := compress.SplitRLStr(c, "_")
+		_, char := SplitRLStr(c, "_")
 		chars = append(chars, char)
 	}
 
