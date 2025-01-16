@@ -40,13 +40,15 @@ func main() {
 		colsRL = append(colsRL, RunLength(cols, "_"))
 	}
 
+	// fmt.Printf("rowsRL: %v\n", rowsRL)
+	// fmt.Printf("colsRL: %v\n", colsRL)
+
 	ans := INT_MAX
 	for i := 0; i < H; i++ {
 		rowRL := rowsRL[i]
 
-		for j := 0; j < len(rowRL)-1; j++ {
+		for j := 0; j < len(rowRL); j++ {
 			num, char := SplitRLStr(rowRL[j], "_")
-			next_num, next_char := SplitRLStr(rowRL[j+1], "_")
 
 			if char == "x" {
 				continue
@@ -59,27 +61,25 @@ func main() {
 					return
 				}
 
-				if next_char == "." && next_num >= rem {
-					ans = min(ans, rem)
-				}
-
-				continue
-			}
-
-			if char == "." {
-				if next_char == "o" {
-					rem := K - next_num
-					if rem <= 0 {
-						fmt.Fprintln(w, 0)
-						return
-					}
-
-					if num >= rem {
+				if j-1 >= 0 {
+					prev_num, prev_char := SplitRLStr(rowRL[j-1], "_")
+					if prev_char == "." && prev_num >= rem {
 						ans = min(ans, rem)
 					}
 				}
 
-				continue
+				if j+1 <= len(rowRL)-1 {
+					next_num, next_char := SplitRLStr(rowRL[j+1], "_")
+					if next_char == "." && next_num >= rem {
+						ans = min(ans, rem)
+					}
+				}
+			}
+
+			if char == "." {
+				if num >= K {
+					ans = min(ans, K)
+				}
 			}
 		}
 	}
@@ -87,9 +87,8 @@ func main() {
 	for i := 0; i < W; i++ {
 		colRL := colsRL[i]
 
-		for j := 0; j < len(colRL)-1; j++ {
+		for j := 0; j < len(colRL); j++ {
 			num, char := SplitRLStr(colRL[j], "_")
-			next_num, next_char := SplitRLStr(colRL[j+1], "_")
 
 			if char == "x" {
 				continue
@@ -102,27 +101,25 @@ func main() {
 					return
 				}
 
-				if next_char == "." && next_num >= rem {
-					ans = min(ans, rem)
-				}
-
-				continue
-			}
-
-			if char == "." {
-				if next_char == "o" {
-					rem := K - next_num
-					if rem <= 0 {
-						fmt.Fprintln(w, 0)
-						return
-					}
-
-					if num >= rem {
+				if j-1 >= 0 {
+					prev_num, prev_char := SplitRLStr(colRL[j-1], "_")
+					if prev_char == "." && prev_num >= rem {
 						ans = min(ans, rem)
 					}
 				}
 
-				continue
+				if j+1 <= len(colRL)-1 {
+					next_num, next_char := SplitRLStr(colRL[j+1], "_")
+					if next_char == "." && next_num >= rem {
+						ans = min(ans, rem)
+					}
+				}
+			}
+
+			if char == "." {
+				if num >= K {
+					ans = min(ans, K)
+				}
 			}
 		}
 	}
