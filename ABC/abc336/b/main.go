@@ -21,11 +21,29 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	ctz := 0
+	for i := 0; i <= 63; i++ {
+		if IsBitPop(uint64(N), i) {
+			break
+		}
+		ctz++
+	}
+
+	fmt.Fprintln(w, ctz)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// k桁目のビットが1かどうかを判定（一番右を0桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << k はビットマスク。1をk桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << k)) != 0
+}
 
 //////////////
 // Helpers  //
