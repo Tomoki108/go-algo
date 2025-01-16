@@ -21,6 +21,24 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	xSum := 0
+	ySum := 0
+	for i := 0; i < N; i++ {
+		x, y := read2Ints(r)
+		xSum += x
+		ySum += y
+	}
+
+	if xSum == ySum {
+		fmt.Fprintln(w, "Draw")
+	} else if xSum > ySum {
+		fmt.Fprintln(w, "Takahashi")
+	} else {
+		fmt.Fprintln(w, "Aoki")
+	}
+
 }
 
 //////////////
