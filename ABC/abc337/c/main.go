@@ -21,11 +21,47 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	m := make(map[int]int, N) // 前にいる人の番号(or -1) => その人の番号
+	for i := 0; i < N; i++ {
+		m[As[i]] = i + 1
+	}
+
+	var rec func(*Node)
+	rec = func(node *Node) {
+		nextData, exits := m[node.data]
+		if !exits {
+			return
+		}
+
+		next := &Node{data: nextData}
+		node.next = next
+
+		rec(next)
+	}
+
+	start := &Node{data: m[-1]}
+	rec(start)
+
+	current := start
+	fmt.Fprint(w, current.data)
+	for current.next != nil {
+		current = current.next
+		fmt.Fprint(w, " ", current.data)
+	}
+	fmt.Fprintln(w)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Node struct {
+	data int // その人の番号
+	next *Node
+}
 
 //////////////
 // Helpers  //
