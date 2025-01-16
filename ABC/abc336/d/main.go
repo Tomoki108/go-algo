@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/deque"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,6 +23,52 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	half := N / 2
+
+	leftDeque := deque.New[int]()
+	rightDeque := deque.New[int]()
+	for _, A := range As[0:half] {
+		leftDeque.PushBack(A)
+	}
+	for _, A := range As[half:] {
+		rightDeque.PushBack(A)
+	}
+
+	ans := 0
+	for leftDeque.Size() > 1 {
+		center := leftDeque.PopBack()
+
+		leftLimit := min(leftDeque.Front()-leftDeque.Back()+1, leftDeque.Size())
+		rightLimit := min(rightDeque.Front()-rightDeque.Back()+1, rightDeque.Size())
+		limit := min(leftLimit, rightLimit)
+		ans = max(ans, limit)
+
+		rightDeque.PushFront(center)
+	}
+
+	// reset Deques
+	for _, A := range As[0:half] {
+		leftDeque.PushBack(A)
+	}
+	for _, A := range As[half:] {
+		rightDeque.PushBack(A)
+	}
+
+	for rightDeque.Size() > 1 {
+		center := rightDeque.PopBack()
+
+		leftLimit := min(leftDeque.Front()-leftDeque.Back()+1, leftDeque.Size())
+		rightLimit := min(rightDeque.Front()-rightDeque.Back()+1, rightDeque.Size())
+		limit := min(leftLimit, rightLimit)
+		ans = max(ans, limit)
+
+		leftDeque.PushFront(center)
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
