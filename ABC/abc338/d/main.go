@@ -24,27 +24,33 @@ func main() {
 	N, M := read2Ints(r)
 	Xs := readIntArr(r)
 
-	prefsum1 := make([]int, 0, M+1)
-	prefsum2 := make([]int, 0, M+1)
-	prefsum1 = append(prefsum1, 0)
-	prefsum2 = append(prefsum2, 0)
-	for i := 1; i < M; i++ {
-		A, B := sort2IntsDesc(Xs[i]%N, Xs[i-1]%N)
+	// 距離の累積和配列を作るための差分配列。全要素0で初期化。
+	// その累積和配列は、sl[i]-sl[j]としたときに、[i,j)の区間の任意の辺を削除したときの「ツアー内の各区間の距離の合計」となるもの
+	distsDiff := make([]int, N)
 
-		cost1 := A - B
-		cost2 := N - cost1
+	for i := 0; i < M-1; i++ {
+		s := Xs[i]
+		t := Xs[i+1]
+		s, t = sort2IntsAsc(s, t)
 
-		prefsum1 = append(prefsum1, cost1+prefsum1[i-1])
-		prefsum2 = append(prefsum2, cost2+prefsum2[i-1])
+		a := t - s // 時計回りの距離
+		b := N - a // 反時計回りの距離
+
+		RangeUpdateDiffArray(distsDiff, 0, s, a)
+		RangeUpdateDiffArray(distsDiff, s, t, b)
+		RangeUpdateDiffArray(distsDiff, t, N, a)
 	}
 
-	fmt.Println(prefsum1)
-	fmt.Println(prefsum2)
+	dists := make([]int, N)
+	prev := 0
+	for i := 0; i < N; i++ {
+		dists[i] = distsDiff[i] + prev
+		prev = dists[i]
+	}
 
 	ans := INT_MAX
-	for i := 0; i < M; i++ {
-		cost := prefsum1[i] + prefsum2[len(prefsum2)-1-i]
-		ans = min(ans, cost)
+	for i := 0; i < N; i++ {
+		ans = min(ans, dists[i])
 	}
 
 	fmt.Fprintln(w, ans)
@@ -53,6 +59,29 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// intスライスの差分配列を返す
+func DiffArray(sl []int) []int {
+	res := make([]int, 0, len(sl))
+	res = append(res, sl[0])
+	for i := 1; i < len(sl); i++ {
+		res = append(res, sl[i]-sl[i-1])
+	}
+	return res
+}
+
+// O(1)
+// 差分配列への区間更新を行う。
+// 更新後に累積和をとっていくと、各インデックスの値が求まる。所謂imos法
+func RangeUpdateDiffArray(sl []int, l, r, x int) {
+	if l < len(sl) {
+		sl[l] += x
+	}
+	if r < len(sl) {
+		sl[r] -= x
+	}
+}
 
 //////////////
 // Helpers  //
@@ -97,6 +126,7 @@ func readIntArr(r *bufio.Reader) []int {
 	arr := make([]int, len(strs))
 	for i, s := range strs {
 		arr[i], _ = strconv.Atoi(s)
+		arr[i]-- // 今回は0-indexedにする
 	}
 
 	return arr

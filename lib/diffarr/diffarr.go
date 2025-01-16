@@ -12,7 +12,7 @@ func DiffArray(sl []int) []int {
 }
 
 // O(1)
-// 差分配列への区間更新を行う。
+// 差分配列への区間更新を行う。[l, r)にxを加算する。
 // 更新後に累積和をとっていくと、各インデックスの値が求まる。所謂imos法
 func RangeUpdateDiffArray(sl []int, l, r, x int) {
 	if l < len(sl) {
