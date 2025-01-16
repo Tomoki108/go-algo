@@ -45,3 +45,7 @@ func (q *Queue[T]) Peek() (T, bool) {
 	}
 	return front.Value.(T), true
 }
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}

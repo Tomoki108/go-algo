@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -26,100 +27,90 @@ func main() {
 
 	grid := readGrid(r, H)
 
-	rowsRL := make([][]string, 0, H)
-	for i := 0; i < H; i++ {
-		rowsRL = append(rowsRL, RunLength(grid[i], "_"))
-	}
-
-	colsRL := make([][]string, 0, W)
-	for i := 0; i < W; i++ {
-		cols := make([]string, 0, H)
-		for j := 0; j < H; j++ {
-			cols = append(cols, grid[j][i])
-		}
-		colsRL = append(colsRL, RunLength(cols, "_"))
-	}
-
-	// fmt.Printf("rowsRL: %v\n", rowsRL)
-	// fmt.Printf("colsRL: %v\n", colsRL)
+	q := NewQueue[string]()
 
 	ans := INT_MAX
+
 	for i := 0; i < H; i++ {
-		rowRL := rowsRL[i]
+		q.Clear()
+		oCount := 0
+		for j := 0; j < W; j++ {
+			str := grid[i][j]
 
-		for j := 0; j < len(rowRL); j++ {
-			num, char := SplitRLStr(rowRL[j], "_")
-
-			if char == "x" {
-				continue
+			switch str {
+			case "o":
+				q.Enqueue(str)
+				oCount++
+			case "x":
+				q.Clear()
+				oCount = 0
+			case ".":
+				q.Enqueue(str)
 			}
 
-			if char == "o" {
-				rem := K - num
+			if q.Size() == K {
+				rem := K - oCount
 				if rem <= 0 {
-					fmt.Fprintln(w, 0)
-					return
+					rem = 0
 				}
 
-				if j-1 >= 0 {
-					prev_num, prev_char := SplitRLStr(rowRL[j-1], "_")
-					if prev_char == "." && prev_num >= rem {
-						ans = min(ans, rem)
-					}
-				}
-
-				if j+1 <= len(rowRL)-1 {
-					next_num, next_char := SplitRLStr(rowRL[j+1], "_")
-					if next_char == "." && next_num >= rem {
-						ans = min(ans, rem)
-					}
-				}
+				ans = min(ans, rem)
 			}
 
-			if char == "." {
-				if num >= K {
-					ans = min(ans, K)
+			if q.Size() > K {
+				item, _ := q.Dequeue()
+				if item == "o" {
+					oCount--
 				}
+
+				rem := K - oCount
+				if rem <= 0 {
+					rem = 0
+				}
+
+				ans = min(ans, rem)
 			}
 		}
 	}
 
 	for i := 0; i < W; i++ {
-		colRL := colsRL[i]
+		q.Clear()
+		oCount := 0
+		for j := 0; j < H; j++ {
+			str := grid[j][i]
 
-		for j := 0; j < len(colRL); j++ {
-			num, char := SplitRLStr(colRL[j], "_")
-
-			if char == "x" {
-				continue
+			switch str {
+			case "o":
+				q.Enqueue(str)
+				oCount++
+			case "x":
+				q.Clear()
+				oCount = 0
+			case ".":
+				q.Enqueue(str)
 			}
 
-			if char == "o" {
-				rem := K - num
+			if q.Size() == K {
+				rem := K - oCount
 				if rem <= 0 {
-					fmt.Fprintln(w, 0)
-					return
+					rem = 0
 				}
 
-				if j-1 >= 0 {
-					prev_num, prev_char := SplitRLStr(colRL[j-1], "_")
-					if prev_char == "." && prev_num >= rem {
-						ans = min(ans, rem)
-					}
-				}
-
-				if j+1 <= len(colRL)-1 {
-					next_num, next_char := SplitRLStr(colRL[j+1], "_")
-					if next_char == "." && next_num >= rem {
-						ans = min(ans, rem)
-					}
-				}
+				ans = min(ans, rem)
 			}
 
-			if char == "." {
-				if num >= K {
-					ans = min(ans, K)
+			if q.Size() > K {
+				item, _ := q.Dequeue()
+				if item == "o" {
+					oCount--
 				}
+
+				rem := K - oCount
+				if rem <= 0 {
+					rem = 0
+				}
+
+				ans = min(ans, rem)
 			}
 		}
 	}
@@ -135,38 +126,50 @@ func main() {
 // Libs    //
 /////////////
 
-// O(n)
-// ランレングス圧縮を行う。[]"数+delimiter+文字種"を返す。
-func RunLength(sl []string, delimiter string) []string {
-	comp := make([]string, 0, len(sl))
-	if len(sl) == 0 {
-		return comp
-	}
-
-	lastChar := sl[0]
-	currentLen := 0
-	for i := 0; i < len(sl); i++ {
-		s := sl[i]
-		if s == lastChar {
-			currentLen++
-		} else {
-			comp = append(comp, strconv.Itoa(currentLen)+delimiter+lastChar)
-			lastChar = s
-			currentLen = 1
-		}
-	}
-	comp = append(comp, strconv.Itoa(currentLen)+delimiter+lastChar) // 最後の一文字
-
-	return comp
+type Queue[T any] struct {
+	list *list.List
 }
 
-// O(1)
-// "数+delimiter+文字種"を分割して数と文字種を返す
-func SplitRLStr(s, delimiter string) (int, string) {
-	strs := strings.Split(s, delimiter)
-	num, _ := strconv.Atoi(strs[0])
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
 
-	return num, strs[1]
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
 }
 
 //////////////
