@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/Tomoki108/go-algo/lib/compress"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,11 +24,84 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	compressed := compress.RunLength(Ss, "_")
+
+	if len(compressed) > 3 {
+		fmt.Fprintln(w, "No")
+		return
+	}
+
+	expectedChars := [][]string{
+		{"A", "B", "C"},
+		{"A", "B"},
+		{"A", "C"},
+		{"B", "C"},
+		{"A"},
+		{"B"},
+		{"C"},
+	}
+
+	chars := make([]string, 0, 3)
+	for _, c := range compressed {
+		_, char := compress.SplitRLStr(c, "_")
+		chars = append(chars, char)
+	}
+
+	matched := false
+	for _, expected := range expectedChars {
+		if reflect.DeepEqual(expected, chars) {
+			matched = true
+			break
+		}
+	}
+
+	if matched {
+		fmt.Fprintln(w, "Yes")
+	} else {
+		fmt.Fprintln(w, "No")
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// ランレングス圧縮を行う。[]"数+delimiter+文字種"を返す。
+func RunLength(sl []string, delimiter string) []string {
+	comp := make([]string, 0, len(sl))
+	if len(sl) == 0 {
+		return comp
+	}
+
+	lastChar := sl[0]
+	currentLen := 0
+	for i := 0; i < len(sl); i++ {
+		s := sl[i]
+		if s == lastChar {
+			currentLen++
+		} else {
+			comp = append(comp, strconv.Itoa(currentLen)+delimiter+lastChar)
+			lastChar = s
+			currentLen = 1
+		}
+	}
+	comp = append(comp, strconv.Itoa(currentLen)+delimiter+lastChar) // 最後の一文字
+
+	return comp
+}
+
+// O(1)
+// "数+delimiter+文字種"を分割して数と文字種を返す
+func SplitRLStr(s, delimiter string) (int, string) {
+	strs := strings.Split(s, delimiter)
+	num, _ := strconv.Atoi(strs[0])
+
+	return num, strs[1]
+}
 
 //////////////
 // Helpers  //
