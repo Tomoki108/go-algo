@@ -7,8 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/liyue201/gostl/ds/deque"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -26,49 +24,27 @@ func main() {
 	N := readInt(r)
 	As := readIntArr(r)
 
-	half := N / 2
-
-	leftDeque := deque.New[int]()
-	rightDeque := deque.New[int]()
-	for _, A := range As[0:half] {
-		leftDeque.PushBack(A)
+	lHeights := make([]int, N+2)
+	lHeights[0] = 0
+	for i := 0; i < N; i++ {
+		lHeights[i+1] = min(As[i], lHeights[i]+1)
 	}
-	for _, A := range As[half:] {
-		rightDeque.PushBack(A)
+	lHeights[N+1] = 0
+
+	rHeights := make([]int, N+2)
+	rHeights[N+1] = 0
+	for i := N - 1; i >= 0; i-- {
+		rHeights[i+1] = min(As[i], rHeights[i+2]+1)
 	}
+	rHeights[0] = 0
 
-	ans := 0
-	for leftDeque.Size() > 1 {
-		center := leftDeque.PopBack()
-
-		leftLimit := min(leftDeque.Front()-leftDeque.Back()+1, leftDeque.Size())
-		rightLimit := min(rightDeque.Front()-rightDeque.Back()+1, rightDeque.Size())
-		limit := min(leftLimit, rightLimit)
-		ans = max(ans, limit)
-
-		rightDeque.PushFront(center)
+	ans := INT_MIN
+	for i := 1; i < N+1; i++ {
+		h := min(lHeights[i], rHeights[i])
+		ans = max(ans, h)
 	}
 
-	// reset Deques
-	for _, A := range As[0:half] {
-		leftDeque.PushBack(A)
-	}
-	for _, A := range As[half:] {
-		rightDeque.PushBack(A)
-	}
-
-	for rightDeque.Size() > 1 {
-		center := rightDeque.PopBack()
-
-		leftLimit := min(leftDeque.Front()-leftDeque.Back()+1, leftDeque.Size())
-		rightLimit := min(rightDeque.Front()-rightDeque.Back()+1, rightDeque.Size())
-		limit := min(leftLimit, rightLimit)
-		ans = max(ans, limit)
-
-		leftDeque.PushFront(center)
-	}
-
-	fmt.Println(ans)
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
