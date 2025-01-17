@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +22,38 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r)
+	Rs := readIntArr(r)
+	sort.Ints(Rs)
+
+	prefsumRs := PrefixSum(Rs)
+
+	// fmt.Printf("prefsumRs: %v\n", prefsumRs)
+
+	for i := 0; i < Q; i++ {
+		X := readInt(r)
+
+		idx := sort.Search(N+1, func(j int) bool {
+			return prefsumRs[j] > X
+		})
+		fmt.Fprintln(w, idx-1) // 累積和のスライスには先頭に0を入れているので、-1する
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元配列の累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers  //
