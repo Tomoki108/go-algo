@@ -21,6 +21,38 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r)
+
+	coordinates := make([][2]int, 0, N) // 先頭が番号Nのパーツの座標、末尾が番号1のパーツの座標
+	for i := N; i > 0; i-- {
+		coordinates = append(coordinates, [2]int{i, 0})
+	}
+
+	for i := 0; i < Q; i++ {
+		sarr := readStrArr(r)
+
+		q := atoi(sarr[0])
+		if q == 1 {
+			C := sarr[1]
+
+			newx, newy := 0, 0
+			switch C {
+			case "U":
+				newx, newy = coordinates[N-1][0], coordinates[N-1][1]+1
+			case "D":
+				newx, newy = coordinates[N-1][0], coordinates[N-1][1]-1
+			case "L":
+				newx, newy = coordinates[N-1][0]-1, coordinates[N-1][1]
+			case "R":
+				newx, newy = coordinates[N-1][0]+1, coordinates[N-1][1]
+			}
+			coordinates = append(coordinates[1:N], [2]int{newx, newy})
+		} else {
+			p := atoi(sarr[1])
+
+			fmt.Fprintln(w, coordinates[N-p][0], coordinates[N-p][1])
+		}
+	}
 }
 
 //////////////
@@ -137,6 +169,11 @@ func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
 	for _, v := range sl {
 		fmt.Fprintln(w, v)
 	}
+}
+
+func atoi(s string) int {
+	n, _ := strconv.Atoi(s)
+	return n
 }
 
 func min(i, j int) int {

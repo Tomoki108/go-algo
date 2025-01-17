@@ -136,6 +136,11 @@ func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
 	}
 }
 
+func atoi(s string) int {
+	n, _ := strconv.Atoi(s)
+	return n
+}
+
 func sort2Ints(a, b int) (int, int) {
 	if a > b {
 		return b, a
