@@ -21,6 +21,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	for i := 0; i <= 21; i++ {
+		for j := 0; j <= 21; j++ {
+			for k := 0; k <= 21; k++ {
+				if i+j+k <= N {
+					fmt.Fprintln(w, i, j, k)
+				}
+			}
+		}
+	}
+
 }
 
 //////////////
