@@ -21,6 +21,32 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, K := read2Ints(r)
+	As := readIntArr(r)
+
+	m := make(map[int]int)
+	for _, a := range As {
+		m[a]++
+	}
+
+	socks := make([]int, 0, 2*N-K)
+	for i := 1; i <= N; i++ {
+		count, ok := m[i]
+		if !ok {
+			socks = append(socks, i, i)
+		} else {
+			for j := 0; j < 2-count; j++ {
+				socks = append(socks, i)
+			}
+		}
+	}
+
+	ans := 0
+	for i := len(socks) - 1; i >= 1; i -= 2 {
+		ans += abs(socks[i] - socks[i-1])
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
