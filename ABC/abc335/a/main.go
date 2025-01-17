@@ -21,6 +21,11 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	Ss[len(Ss)-1] = "4"
+
+	writeSliceWithoutSpace(w, Ss)
 }
 
 //////////////
