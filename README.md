@@ -1,6 +1,6 @@
 # go-algo
 
-solve Atcoder Beginer Contests
+challenge Atcoder Beginer Contests
 
 ## pre-requisists
 
