@@ -24,8 +24,6 @@ func main() {
 	read2Ints(r)
 	As := readIntArr(r)
 
-	// fmt.Printf("0, As: %v\n", As)
-
 	if len(As) == 1 {
 		fmt.Fprintln(w, 0)
 		return
@@ -33,7 +31,6 @@ func main() {
 
 	if len(As)%2 == 1 {
 		prefSumLen := len(As)/2 + 1
-		//		fmt.Printf("prefSumLen: %d\n", prefSumLen)
 
 		// index 0始まりの累積和
 		oddPrefSum1 := make([]int, prefSumLen)
@@ -50,9 +47,6 @@ func main() {
 			odd := abs(As[i] - As[i+1])
 			oddPrefSum2[i/2+1] = oddPrefSum2[i/2] + odd
 		}
-
-		// fmt.Printf("oddPrefSum1: %v\n", oddPrefSum1)
-		// fmt.Printf("oddPrefSum2: %v\n", oddPrefSum2)
 
 		ans := INT_MAX
 		for i := 0; i < prefSumLen; i++ {
