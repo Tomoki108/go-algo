@@ -32,36 +32,34 @@ func main() {
 	}
 
 	if len(As)%2 == 1 {
-		var ans1, ans2, ans3 int
-		{
-			halfIdx := len(As) / 2
+		prefSumLen := len(As)/2 + 1
+		//		fmt.Printf("prefSumLen: %d\n", prefSumLen)
 
-			copyAs := make([]int, 0, len(As))
-			copyAs = append(copyAs, As[:halfIdx]...)
-			copyAs = append(copyAs, As[halfIdx+1:]...)
-
-			ans1 = calcOddSum(copyAs)
-			fmt.Printf("1, copyAs: %v\n", copyAs)
-			fmt.Printf("1, ans1: %v\n", ans1)
+		// index 0始まりの累積和
+		oddPrefSum1 := make([]int, prefSumLen)
+		oddPrefSum1[0] = 0
+		for i := 0; i < len(As)-1; i += 2 {
+			odd := abs(As[i] - As[i+1])
+			oddPrefSum1[i/2+1] = oddPrefSum1[i/2] + odd
 		}
 
-		{
-			copyAs := make([]int, 0, len(As))
-			copyAs = append(copyAs, As[1:]...)
-			ans2 = calcOddSum(copyAs)
-			fmt.Printf("2, copyAs: %v\n", copyAs)
-			fmt.Printf("2, ans2: %v\n", ans2)
+		// index 1始まりの累積和
+		oddPrefSum2 := make([]int, prefSumLen)
+		oddPrefSum2[0] = 0
+		for i := 1; i < len(As)-1; i += 2 {
+			odd := abs(As[i] - As[i+1])
+			oddPrefSum2[i/2+1] = oddPrefSum2[i/2] + odd
 		}
 
-		{
-			copyAs := make([]int, 0, len(As))
-			copyAs = append(copyAs, As[:len(As)-1]...)
-			ans3 = calcOddSum(copyAs)
-			fmt.Printf("3, copyAs: %v\n", copyAs)
-			fmt.Printf("3, ans3: %v\n", ans3)
+		// fmt.Printf("oddPrefSum1: %v\n", oddPrefSum1)
+		// fmt.Printf("oddPrefSum2: %v\n", oddPrefSum2)
+
+		ans := INT_MAX
+		for i := 0; i < prefSumLen; i++ {
+			odd := oddPrefSum1[i] + oddPrefSum2[prefSumLen-1] - oddPrefSum2[i]
+			ans = min(ans, odd)
 		}
 
-		ans := min(ans1, min(ans2, ans3))
 		fmt.Fprintln(w, ans)
 		return
 	}
