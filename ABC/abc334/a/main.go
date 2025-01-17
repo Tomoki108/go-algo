@@ -21,6 +21,13 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	B, G := read2Ints(r)
+
+	if B > G {
+		fmt.Fprintln(w, "Bat")
+	} else {
+		fmt.Fprintln(w, "Glove")
+	}
 }
 
 //////////////
