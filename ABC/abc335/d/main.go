@@ -21,6 +21,58 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	grid := createGrid[int](N, N)
+
+	var fill4edges func(start [2]int, startNo, edgeLen int)
+
+	fill4edges = func(start [2]int, startNo, edgeLen int) {
+		grid[start[0]][start[1]] = startNo
+
+		height := start[0]
+		width := start[1]
+		no := startNo
+		for width < start[1]+edgeLen {
+			grid[height][width] = no
+			no++
+			width++
+		}
+		width--
+
+		for height < start[0]+edgeLen {
+			grid[height][width] = no
+			no++
+			height++
+		}
+		height--
+
+		for width >= start[1] {
+			grid[height][width] = no
+			no++
+			width--
+		}
+		width++
+
+		for height > start[0] {
+			grid[height][width] = no
+			no++
+			height--
+		}
+		height++
+
+		edgeLen -= 2
+		if edgeLen <= 0 {
+			return
+		}
+
+		fill4edges([2]int{height + 1, width + 1}, no, edgeLen)
+	}
+
+	fill4edges([2]int{0, 0}, 1, N)
+
+	for i := 0; i < N; i++ {
+		writeSlice(w, grid[i])
+	}
 }
 
 //////////////
@@ -97,45 +149,45 @@ func createGrid[T any](height, width int) [][]T {
 }
 
 // 文字列グリッドを出力する
-func writeGrid(w *bufio.Writer, grid [][]string) {
+func writeGrid(width *bufio.Writer, grid [][]string) {
 	for i := 0; i < len(grid); i++ {
-		fmt.Fprint(w, strings.Join(grid[i], ""), "\n")
+		fmt.Fprint(width, strings.Join(grid[i], ""), "\n")
 	}
 }
 
 // スライスの中身をスペース区切りで出力する
-func writeSlice[T any](w *bufio.Writer, sl []T) {
+func writeSlice[T any](width *bufio.Writer, sl []T) {
 	vs := make([]any, len(sl))
 	for i, v := range sl {
 		vs[i] = v
 	}
-	fmt.Fprintln(w, vs...)
+	fmt.Fprintln(width, vs...)
 }
 
 // スライスの中身をスペース区切りなしで出力する
-func writeSliceWithoutSpace[T any](w *bufio.Writer, sl []T) {
+func writeSliceWithoutSpace[T any](width *bufio.Writer, sl []T) {
 	if len(sl) == 0 {
-		fmt.Fprintln(w)
+		fmt.Fprintln(width)
 		return
 	}
 
 	for idx, v := range sl {
-		fmt.Fprint(w, v)
+		fmt.Fprint(width, v)
 		if idx == len(sl)-1 {
-			fmt.Fprintln(w)
+			fmt.Fprintln(width)
 		}
 	}
 }
 
 // スライスの中身を一行づつ出力する
-func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
+func writeSliceByLine[T any](width *bufio.Writer, sl []T) {
 	if len(sl) == 0 {
-		fmt.Fprintln(w)
+		fmt.Fprintln(width)
 		return
 	}
 
 	for _, v := range sl {
-		fmt.Fprintln(w, v)
+		fmt.Fprintln(width, v)
 	}
 }
 
