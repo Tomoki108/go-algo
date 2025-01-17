@@ -22,39 +22,47 @@ func main() {
 	defer w.Flush()
 
 	N := readInt(r)
-	grid := createGrid[int](N, N)
+	grid := createGrid[string](N, N)
 
 	var fill4edges func(start [2]int, startNo, edgeLen int)
 
 	fill4edges = func(start [2]int, startNo, edgeLen int) {
-		grid[start[0]][start[1]] = startNo
+		grid[start[0]][start[1]] = strconv.Itoa(startNo)
 
 		height := start[0]
 		width := start[1]
 		no := startNo
+
+		// 上の辺
 		for width < start[1]+edgeLen {
-			grid[height][width] = no
+			grid[height][width] = strconv.Itoa(no)
 			no++
 			width++
 		}
 		width--
 
+		// 右の辺
+		height++
 		for height < start[0]+edgeLen {
-			grid[height][width] = no
+			grid[height][width] = strconv.Itoa(no)
 			no++
 			height++
 		}
 		height--
 
+		// 下の辺
+		width--
 		for width >= start[1] {
-			grid[height][width] = no
+			grid[height][width] = strconv.Itoa(no)
 			no++
 			width--
 		}
 		width++
 
+		// 左の辺
+		height--
 		for height > start[0] {
-			grid[height][width] = no
+			grid[height][width] = strconv.Itoa(no)
 			no++
 			height--
 		}
@@ -65,10 +73,17 @@ func main() {
 			return
 		}
 
-		fill4edges([2]int{height + 1, width + 1}, no, edgeLen)
+		// for i := 0; i < N; i++ {
+		// 	writeSlice(w, grid[i])
+		// }
+		// panic("end")
+
+		fill4edges([2]int{start[0] + 1, start[0] + 1}, no, edgeLen)
 	}
 
 	fill4edges([2]int{0, 0}, 1, N)
+
+	grid[(N+1)/2-1][(N+1)/2-1] = "T"
 
 	for i := 0; i < N; i++ {
 		writeSlice(w, grid[i])
