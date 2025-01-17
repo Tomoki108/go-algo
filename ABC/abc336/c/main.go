@@ -22,6 +22,29 @@ func main() {
 	defer w.Flush()
 
 	N := readInt(r)
+	N--
+
+	s := strconv.FormatInt(int64(N), 5)
+	ss := strings.Split(s, "")
+
+	m := map[string]string{
+		"0": "0",
+		"1": "2",
+		"2": "4",
+		"3": "6",
+		"4": "8",
+	}
+
+	for _, v := range ss {
+		fmt.Fprint(w, m[v])
+	}
+	fmt.Fprintln(w)
+}
+
+func alt() {
+	defer w.Flush()
+
+	N := readInt(r)
 
 	genKey := func(pos int, strict bool) string {
 		return fmt.Sprintf("%d-%v", pos, strict)
