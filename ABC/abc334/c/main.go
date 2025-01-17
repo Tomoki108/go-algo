@@ -21,37 +21,70 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	N, K := read2Ints(r)
+	read2Ints(r)
 	As := readIntArr(r)
 
-	m := make(map[int]int)
-	for _, a := range As {
-		m[a]++
+	// fmt.Printf("0, As: %v\n", As)
+
+	if len(As) == 1 {
+		fmt.Fprintln(w, 0)
+		return
 	}
 
-	socks := make([]int, 0, 2*N-K)
-	for i := 1; i <= N; i++ {
-		count, ok := m[i]
-		if !ok {
-			socks = append(socks, i, i)
-		} else {
-			for j := 0; j < 2-count; j++ {
-				socks = append(socks, i)
-			}
+	if len(As)%2 == 1 {
+		var ans1, ans2, ans3 int
+		{
+			halfIdx := len(As) / 2
+
+			copyAs := make([]int, 0, len(As))
+			copyAs = append(copyAs, As[:halfIdx]...)
+			copyAs = append(copyAs, As[halfIdx+1:]...)
+			ans1 = calcOddSum(copyAs)
 		}
+
+		{
+			copyAs := make([]int, 0, len(As))
+			copyAs = append(copyAs, As[1:]...)
+			ans2 = calcOddSum(copyAs)
+		}
+
+		{
+			copyAs := make([]int, 0, len(As))
+			copyAs = append(copyAs, As[:len(As)-1]...)
+			ans3 = calcOddSum(copyAs)
+		}
+
+		ans := min(ans1, min(ans2, ans3))
+		fmt.Fprintln(w, ans)
+		return
 	}
 
-	ans := 0
-	for i := len(socks) - 1; i >= 1; i -= 2 {
-		ans += abs(socks[i] - socks[i-1])
-	}
-
+	ans := calcOddSum(As)
 	fmt.Fprintln(w, ans)
+}
+
+func calcOddSum(As []int) int {
+	ans := 0
+	for i := 0; i < len(As)-1; i += 2 {
+		ans += abs(As[i] - As[i+1])
+	}
+	return ans
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// intスライスの差分配列を返す
+func DiffArray(sl []int) []int {
+	res := make([]int, 0, len(sl))
+	res = append(res, sl[0])
+	for i := 1; i < len(sl); i++ {
+		res = append(res, sl[i]-sl[i-1])
+	}
+	return res
+}
 
 //////////////
 // Helpers  //
