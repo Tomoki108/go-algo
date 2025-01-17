@@ -17,8 +17,9 @@ brew install goenv
 # https://img.atcoder.jp/file/language-update/language-list.html
 goenv install 1.20.14
 
-# install gopls for old go version
+# install compatible version of gopls(language server) and dlv(debug tool).
 go install golang.org/x/tools/gopls@v0.15.3
+go install github.com/go-delve/delve/cmd/dlv@v1.20.2
 ```
 
 - setup atcoder-cli
@@ -34,9 +35,13 @@ vi template.json # then copy and paste ./template.json
 vi main.go # then copy and paste ./template.go
 ```
 
-- add alias to `~/.bashrc` or `~/.zshrc`
+- add go/goenv setting and alias to `~/.bashrc` or `~/.zshrc`
 
 ```sh
+# go, goenv
+eval "$(goenv init -)"
+export PATH=$PATH:$GOPATH/bin
+
 # AtCoder
 alias acct='oj t -c "go run main.go"'
 alias accs='acct && acc s -s -- -y'
@@ -45,7 +50,7 @@ alias accss='acc s -s -- -y'
 
 ## commands
 
-- how to solve a contest
+- how to challenge a contest
 
 ```sh
 cd ABC
