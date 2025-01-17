@@ -39,19 +39,26 @@ func main() {
 			copyAs := make([]int, 0, len(As))
 			copyAs = append(copyAs, As[:halfIdx]...)
 			copyAs = append(copyAs, As[halfIdx+1:]...)
+
 			ans1 = calcOddSum(copyAs)
+			fmt.Printf("1, copyAs: %v\n", copyAs)
+			fmt.Printf("1, ans1: %v\n", ans1)
 		}
 
 		{
 			copyAs := make([]int, 0, len(As))
 			copyAs = append(copyAs, As[1:]...)
 			ans2 = calcOddSum(copyAs)
+			fmt.Printf("2, copyAs: %v\n", copyAs)
+			fmt.Printf("2, ans2: %v\n", ans2)
 		}
 
 		{
 			copyAs := make([]int, 0, len(As))
 			copyAs = append(copyAs, As[:len(As)-1]...)
 			ans3 = calcOddSum(copyAs)
+			fmt.Printf("3, copyAs: %v\n", copyAs)
+			fmt.Printf("3, ans3: %v\n", ans3)
 		}
 
 		ans := min(ans1, min(ans2, ans3))
