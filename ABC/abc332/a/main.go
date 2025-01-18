@@ -21,6 +21,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, S, K := iarr[0], iarr[1], iarr[2]
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		P, Q := read2Ints(r)
+		ans += P * Q
+	}
+
+	if ans >= S {
+		fmt.Fprintln(w, ans)
+	} else {
+		fmt.Fprintln(w, ans+K)
+	}
 }
 
 //////////////
