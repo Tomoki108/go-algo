@@ -21,11 +21,91 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	// O(|maxNum| * 3)
+	var countRT func(maxNum int) int
+	countRT = func(maxNum int) int {
+		digits := GetDigists(maxNum)
+
+		sameDigitsR := 0
+		for i := 0; i < digits; i++ {
+			sameDigitsR += pow(10, i)
+		}
+
+		RCount := digits
+		if sameDigitsR > maxNum {
+			RCount--
+		}
+
+		RTCount := CombinationNum(RCount, 3)
+
+		return RTCount
+	}
+
+	ans := AscIntSearch(3, INT_MAX, func(num int) bool {
+		return countRT(num) >= N
+	})
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n) n: numの桁数
+// numの桁数を返す
+func GetDigists(num int) int {
+	digits := 0
+	for num > 0 {
+		num /= 10
+		digits++
+	}
+	return digits
+}
+
+// O(r)
+// nCrの計算
+// (n * (n-1) ... * (n-r+1)) / r!
+func CombinationNum(n, r int) int {
+	if r > n {
+		return 0
+	}
+	if r > n/2 {
+		r = n - r // Use smaller r for efficiency
+	}
+	result := 1
+	for i := 0; i < r; i++ {
+		result *= (n - i)
+		result /= (i + 1)
+	}
+	return result
+}
+
+// O(log(high-low))
+// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
+// low~highは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はlow-1を返す
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
+		if f(mid) {
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
+		} else {
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
+		}
+	}
+
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
+	}
+
+	return low - 1 // 条件を満たす値が見つからない場合
+}
 
 //////////////
 // Helpers  //
