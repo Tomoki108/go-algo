@@ -21,7 +21,7 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	N := readInt(r)
+	// N := readInt(r)
 
 	// O(|maxNum| * 3)
 	var countRT func(maxNum int) int
@@ -38,16 +38,28 @@ func main() {
 			RCount--
 		}
 
+		// 同じ種類のRを使わない組み合わせ
 		RTCount := CombinationNum(RCount, 3)
+		// 二つの種類のRを使う組み合わせ
+		RTCount += CombinationNum(RCount, 2)
+		// 一つの種類のRを使う組み合わせ
+		RTCount += RCount
+
+		fmt.Printf("maxNum: %d, digits: %d, sameDigitsR: %d, RCount: %d\n", maxNum, digits, sameDigitsR, RCount)
 
 		return RTCount
 	}
 
-	ans := AscIntSearch(3, INT_MAX, func(num int) bool {
-		return countRT(num) >= N
-	})
+	fmt.Printf("countRT(%d): %d\n", 113, countRT(113))
 
-	fmt.Fprintln(w, ans)
+	// ans := AscIntSearch(3, INT_MAX, func(num int) bool {
+
+	// 	// fmt.Printf("num: %d, countRT: %d\n", num, countRT(num))
+
+	// 	return countRT(num) >= N
+	// })
+
+	// fmt.Fprintln(w, ans)
 }
 
 //////////////
