@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -23,37 +24,19 @@ func main() {
 
 	N := readInt(r)
 
-	var dfs func(i, j, k, no, maxNum int)
-	dfs = func(i, j, k, no, maxNum int) {
-		if no == N {
-			fmt.Fprintln(w, i+j+k)
-			return
-		}
-
-		if i == j && j == k {
-			if i != 1 {
-				nk := k + pow(10, GetDigits(k))
-				dfs(i, j, nk, no+1)
-			} else {
-				ni, nj := 1, 1
-				nk := k + pow(10, GetDigits(k))
-				dfs(ni, nj, nk, no+1)
+	sl := make([]int, 0, pow(19, 3))
+	for i := 1; i <= 111111111111111111; i += pow(10, GetDigits(i)) {
+		for j := i; j <= 111111111111111111; j += pow(10, GetDigits(j)) {
+			for k := j; k <= 111111111111111111; k += pow(10, GetDigits(k)) {
+				// fmt.Println(i, j, k)
+				sl = append(sl, i+j+k)
 			}
-			return
 		}
-
-		if i == j {
-			nj := j + pow(10, GetDigits(j))
-			dfs(i, nj, k, no+1)
-			return
-		}
-
-		ni := i + pow(10, GetDigits(i))
-		dfs(ni, j, k, no+1)
 	}
 
-	dfs(1, 1, 1, 1)
+	sort.Ints(sl)
 
+	fmt.Println(sl[N-1])
 }
 
 //////////////
