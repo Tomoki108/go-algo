@@ -43,8 +43,13 @@ func main() {
 			maxAnyT = max(maxAnyT, anyT)
 		case "2":
 			logoT++
+			anyT++
 			maxlogoT = max(maxlogoT, logoT)
 		}
+
+		// fmt.Printf("anyT: %d, logoT: %d\n", anyT, logoT)
+		// fmt.Printf("maxAnyT: %d, maxlogoT: %d\n", maxAnyT, maxlogoT)
+		// fmt.Println("-----")
 	}
 
 	ans := max(maxAnyT-M, maxlogoT)
