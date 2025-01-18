@@ -28,7 +28,7 @@ func main() {
 /////////////
 
 //////////////
-// Helpers  //
+// Helpers //
 /////////////
 
 // 一行に1文字のみの入力を読み込む
@@ -78,6 +78,16 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 		str := readStr(r)
 		grid[i] = strings.Split(str, "")
 	}
+	return grid
+}
+
+// height行の整数グリッドを読み込む
+func readIntGrid(r *bufio.Reader, height int) [][]int {
+	grid := make([][]int, height)
+	for i := 0; i < height; i++ {
+		grid[i] = readIntArr(r)
+	}
+
 	return grid
 }
 
@@ -139,6 +149,10 @@ func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
 func atoi(s string) int {
 	n, _ := strconv.Atoi(s)
 	return n
+}
+
+func itoa(n int) string {
+	return strconv.Itoa(n)
 }
 
 func sort2Ints(a, b int) (int, int) {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -18,14 +19,109 @@ const INT_MIN = math.MinInt
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+var H, W int
+
 func main() {
 	defer w.Flush()
 
+	H, W = read2Ints(r)
+
+	gridA := readGrid(r, H)
+	gridB := readGrid(r, H)
+
+	goal := ""
+	for i := 0; i < H; i++ {
+		goal += strings.Join(gridA[i], "")
+	}
+
+	visited := make(map[string]bool)
+
+	// gridToStr := func(grid [][]string) string {
+	// 	str := ""
+	// 	for i := 0; i < H; i++ {
+	// 		str += strings.Join(grid[i], "")
+	// 	}
+	// 	return str
+	// }
+
+	gridWSwap := func(grid [][]string, widx int) string {
+		if widx >= W-2 {
+			panic("invalid widx")
+		}
+
+
+		}
+	}
+
+	gridHSwap := func(gridSl []string, hidx int) {
+		gridSl[hidx], gridSl[hidx+1] = gridSl[hidx+1], gridSl[hidx]
+	}
+
+	q := NewQueue()
+	for i := 0; i < H-1; i++ {
+
+	}
+
+	for i := 0; i < W-1; i++ {
+
+	}
+
+}
+
+type qItem struct {
+	gridSl []string
+	depth  int
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers  //
@@ -78,6 +174,16 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 		str := readStr(r)
 		grid[i] = strings.Split(str, "")
 	}
+	return grid
+}
+
+// height行の整数グリッドを読み込む
+func readIntGrid(r *bufio.Reader, height int) [][]int {
+	grid := make([][]int, height)
+	for i := 0; i < height; i++ {
+		grid[i] = readIntArr(r)
+	}
+
 	return grid
 }
 
@@ -134,6 +240,15 @@ func writeSliceByLine[T any](w *bufio.Writer, sl []T) {
 	for _, v := range sl {
 		fmt.Fprintln(w, v)
 	}
+}
+
+func atoi(s string) int {
+	n, _ := strconv.Atoi(s)
+	return n
+}
+
+func itoa(n int) string {
+	return strconv.Itoa(n)
 }
 
 func sort2Ints(a, b int) (int, int) {
