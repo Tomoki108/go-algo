@@ -29,6 +29,7 @@ func main() {
 	// outSnakeNums := 0
 
 	startIndex := 0
+	q3Exist := false
 	for i := 0; i < Q; i++ {
 		iarr := readIntArr(r)
 		q := iarr[0]
@@ -38,14 +39,28 @@ func main() {
 			l := iarr[1]
 			snakeLenPrefSum = append(snakeLenPrefSum, snakeLenPrefSum[len(snakeLenPrefSum)-1]+l)
 		case 2:
-			removeLen := snakeLenPrefSum[startIndex]
-			RangeUpdateDiffArray(snakeLenPrefSum, startIndex, INT_MAX, removeLen)
+			// removeLen := snakeLenPrefSum[startIndex]
 			startIndex++
 		case 3:
 			k := iarr[1]
 
-			fmt.Fprintln(w, startIndex+(k-1))
+			// [0, startIndex)はremoved
+			// [startIndex, K-1+1)
+			// fmt.Println("--")
+			// fmt.Printf("startIndex: %d\n", startIndex)
+			// fmt.Printf("k: %d\n", k)
+			// fmt.Printf("snakeLenPrefSum: %v\n", snakeLenPrefSum)
+			// fmt.Println("--")
+
+			sum := snakeLenPrefSum[k-1+startIndex] - snakeLenPrefSum[startIndex]
+			fmt.Fprintln(w, sum)
+
+			q3Exist = true
 		}
+	}
+
+	if !q3Exist {
+		fmt.Fprintln(w)
 	}
 
 }
