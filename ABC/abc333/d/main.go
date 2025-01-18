@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -21,11 +22,102 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	graph := make([][]int, N)
+	for i := 0; i < N-1; i++ {
+		a, b := read2Ints(r)
+		a--
+		b--
+
+		graph[a] = append(graph[a], b)
+		graph[b] = append(graph[b], a)
+	}
+
+	q := NewQueue[qItem]()
+	q.Enqueue(qItem{0, 0})
+
+	visited := make(map[int]bool, N)
+
+	minDistToLeaf := INT_MAX
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+
+		adjs := graph[item.node]
+		if len(adjs) == 1 {
+			minDistToLeaf = min(minDistToLeaf, item.dist)
+			continue
+		}
+
+		for _, adj := range adjs {
+			_, ok := visited[adj]
+			if ok && item.dist+1 >= minDistToLeaf {
+				continue
+			}
+
+			q.Enqueue(qItem{adj, item.dist + 1})
+			visited[adj] = true
+		}
+
+	}
+
+	fmt.Fprintln(w, minDistToLeaf+1)
+}
+
+type qItem struct {
+	node, dist int
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers  //
