@@ -29,30 +29,20 @@ func main() {
 	gridA := readGrid(r, H)
 	gridB := readGrid(r, H)
 
-	goal := ""
-	for i := 0; i < H; i++ {
-		goal += strings.Join(gridA[i], "")
-	}
+	goal := GridToString(H, W, gridB)
 
 	visited := make(map[string]bool)
 
-	// gridToStr := func(grid [][]string) string {
-	// 	str := ""
-	// 	for i := 0; i < H; i++ {
-	// 		str += strings.Join(grid[i], "")
-	// 	}
-	// 	return str
-	// }
-
 	gridWSwap := func(grid [][]string, widx int) string {
-		if widx >= W-2 {
+		if widx >= W-1 {
 			panic("invalid widx")
 		}
 
-
+		for i := 0; i < H; i++ {
+			grid[i][widx], grid[i][widx+1] = grid[i][widx+1], grid[i][widx]
 		}
-	}
 
+	}
 	gridHSwap := func(gridSl []string, hidx int) {
 		gridSl[hidx], gridSl[hidx+1] = gridSl[hidx+1], gridSl[hidx]
 	}
@@ -76,6 +66,27 @@ type qItem struct {
 //////////////
 // Libs    //
 /////////////
+
+// H行W列の文字列グリッドを文字列に変換（マップのキー用など）
+func GridToString(H, W int, grid [][]string) string {
+	str := ""
+	for i := 0; i < H; i++ {
+		str += strings.Join(grid[i], "")
+	}
+	return str
+}
+
+// T型グリッドのコピーを作成する
+func CopyGrid[T any](grid [][]T) [][]T {
+	H := len(grid)
+	W := len(grid[0])
+	res := make([][]T, H)
+	for i := 0; i < H; i++ {
+		res[i] = make([]T, W)
+		copy(res[i], grid[i])
+	}
+	return res
+}
 
 type Queue[T any] struct {
 	list *list.List

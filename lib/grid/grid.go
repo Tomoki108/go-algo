@@ -1,6 +1,9 @@
 package grid
 
-import "math"
+import (
+	"math"
+	"strings"
+)
 
 type Coordinate struct {
 	h, w int // 0-indexed
@@ -21,6 +24,27 @@ func (c Coordinate) IsValid(H, W int) bool {
 
 func (c Coordinate) CalcManhattanDistance(other Coordinate) int {
 	return int(math.Abs(float64(c.h-other.h)) + math.Abs(float64(c.w-other.w)))
+}
+
+// H行W列の文字列グリッドを文字列に変換（マップのキー用など）
+func GridToString(H, W int, grid [][]string) string {
+	str := ""
+	for i := 0; i < H; i++ {
+		str += strings.Join(grid[i], "")
+	}
+	return str
+}
+
+// T型グリッドのコピーを作成する
+func CopyGrid[T any](grid [][]T) [][]T {
+	H := len(grid)
+	W := len(grid[0])
+	res := make([][]T, H)
+	for i := 0; i < H; i++ {
+		res[i] = make([]T, W)
+		copy(res[i], grid[i])
+	}
+	return res
 }
 
 // 一辺がnの正方形グリッドのマス目(hight, width)を、時計回りにtime回回転させたときの座標を返す
