@@ -21,45 +21,39 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	// N := readInt(r)
+	N := readInt(r)
 
-	// O(|maxNum| * 3)
-	var countRT func(maxNum int) int
-	countRT = func(maxNum int) int {
-		digits := GetDigists(maxNum)
-
-		sameDigitsR := 0
-		for i := 0; i < digits; i++ {
-			sameDigitsR += pow(10, i)
+	var dfs func(i, j, k, no, maxNum int)
+	dfs = func(i, j, k, no, maxNum int) {
+		if no == N {
+			fmt.Fprintln(w, i+j+k)
+			return
 		}
 
-		RCount := digits
-		if sameDigitsR > maxNum {
-			RCount--
+		if i == j && j == k {
+			if i != 1 {
+				nk := k + pow(10, GetDigits(k))
+				dfs(i, j, nk, no+1)
+			} else {
+				ni, nj := 1, 1
+				nk := k + pow(10, GetDigits(k))
+				dfs(ni, nj, nk, no+1)
+			}
+			return
 		}
 
-		// 同じ種類のRを使わない組み合わせ
-		RTCount := CombinationNum(RCount, 3)
-		// 二つの種類のRを使う組み合わせ
-		RTCount += CombinationNum(RCount, 2)
-		// 一つの種類のRを使う組み合わせ
-		RTCount += RCount
+		if i == j {
+			nj := j + pow(10, GetDigits(j))
+			dfs(i, nj, k, no+1)
+			return
+		}
 
-		fmt.Printf("maxNum: %d, digits: %d, sameDigitsR: %d, RCount: %d\n", maxNum, digits, sameDigitsR, RCount)
-
-		return RTCount
+		ni := i + pow(10, GetDigits(i))
+		dfs(ni, j, k, no+1)
 	}
 
-	fmt.Printf("countRT(%d): %d\n", 113, countRT(113))
+	dfs(1, 1, 1, 1)
 
-	// ans := AscIntSearch(3, INT_MAX, func(num int) bool {
-
-	// 	// fmt.Printf("num: %d, countRT: %d\n", num, countRT(num))
-
-	// 	return countRT(num) >= N
-	// })
-
-	// fmt.Fprintln(w, ans)
 }
 
 //////////////
@@ -68,7 +62,7 @@ func main() {
 
 // O(n) n: numの桁数
 // numの桁数を返す
-func GetDigists(num int) int {
+func GetDigits(num int) int {
 	digits := 0
 	for num > 0 {
 		num /= 10
