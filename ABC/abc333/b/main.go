@@ -21,6 +21,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	m := map[string]int{
+		"A": 0,
+		"B": 1,
+		"C": 2,
+		"D": 3,
+		"E": 4,
+	}
+
+	sortStr := func(a, b string) (first, second string) {
+		if a > b {
+			return b, a
+		}
+		return a, b
+	}
+
+	S := readStr(r)
+	S1, S2 := string(S[0]), string(S[1])
+	S1, S2 = sortStr(S1, S2)
+	dist1 := min(m[S2]-m[S1], 5-(m[S2]-m[S1]))
+
+	T := readStr(r)
+	T1, T2 := string(T[0]), string(T[1])
+	T1, T2 = sortStr(T1, T2)
+	dist2 := min(m[T2]-m[T1], 5-(m[T2]-m[T1]))
+
+	if dist1 == dist2 {
+		fmt.Fprintln(w, "Yes")
+	} else {
+		fmt.Fprintln(w, "No")
+	}
 }
 
 //////////////
