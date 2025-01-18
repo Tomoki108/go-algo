@@ -44,6 +44,7 @@ func main() {
 		case "2":
 			logoT++
 			anyT++
+			maxAnyT = max(maxAnyT, anyT)
 			maxlogoT = max(maxlogoT, logoT)
 		}
 
