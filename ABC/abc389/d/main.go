@@ -22,15 +22,16 @@ func main() {
 	defer w.Flush()
 
 	R := readInt(r)
+	R = R * 10
 
-	layer := AscIntSearch(1, INT_MAX, func(layer int) bool {
-		return calcRSquareFromLayer2(layer) > float64(R)
+	layer := AscIntSearch(1, 10000000, func(layer int) bool {
+		return calcRSquareFromLayer2(layer) > R*R
 	})
 	layer--
 
 	crossRSquare := calcRSquareFromLayer1(layer)
 
-	if float64(R*R) >= crossRSquare {
+	if R*R >= crossRSquare {
 		fmt.Fprintln(w, blockCount1(layer))
 	} else {
 		fmt.Fprintln(w, blockCount2(layer))
@@ -56,14 +57,13 @@ func blockCount2(layer int) int {
 }
 
 // 十字を包む円の場合の、半径Rを求める
-func calcRSquareFromLayer1(layer int) float64 {
-	return 0.5*0.5 + (0.5+float64(layer))*(0.5+float64(layer))
-
+func calcRSquareFromLayer1(layer int) int {
+	return 5*5 + (5+10*layer)*(5+10*layer)
 }
 
 // 四角を包む円の場合の、半径Rを求める
-func calcRSquareFromLayer2(layer int) float64 {
-	return (0.5+float64(layer-1))*(0.5+float64(layer-1)) + (0.5+float64(layer-1))*(0.5+float64(layer-1))
+func calcRSquareFromLayer2(layer int) int {
+	return (5+10*(layer-1))*(5+10*(layer-1)) + (5+10*(layer-1))*(5+10*(layer-1))
 }
 
 //////////////
