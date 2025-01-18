@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -65,11 +64,6 @@ func main() {
 	visited[0] = true
 	dfs(0)
 
-	// for i, v := range childNodeCountGraph {
-	// 	fmt.Printf("node: %d, child: %d\n", i, v)
-	// }
-	// fmt.Println()
-
 	costSl := make([]int, 0, N)
 	startAdjacents := graph[0]
 	for _, adj := range startAdjacents {
@@ -102,52 +96,6 @@ func PrefixSum(sl []int) []int {
 		res[i+1] = res[i] + sl[i]
 	}
 	return res
-}
-
-type Queue[T any] struct {
-	list *list.List
-}
-
-func NewQueue[T any]() *Queue[T] {
-	return &Queue[T]{
-		list: list.New(),
-	}
-}
-
-func (q *Queue[T]) Enqueue(value T) {
-	q.list.PushBack(value)
-}
-
-func (q *Queue[T]) Dequeue() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	q.list.Remove(front)
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) IsEmpty() bool {
-	return q.list.Len() == 0
-}
-
-func (q *Queue[T]) Size() int {
-	return q.list.Len()
-}
-
-// Peek returns the front element without removing it
-func (q *Queue[T]) Peek() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) Clear() {
-	q.list.Init()
 }
 
 //////////////
