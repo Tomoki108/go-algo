@@ -21,11 +21,74 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	R := readInt(r)
+
+	layer := AscIntSearch(1, INT_MAX, func(layer int) bool {
+		return calcRSquareFromLayer2(layer) > float64(R)
+	})
+	layer--
+
+	crossRSquare := calcRSquareFromLayer1(layer)
+
+	if float64(R*R) >= crossRSquare {
+		fmt.Fprintln(w, blockCount1(layer))
+	} else {
+		fmt.Fprintln(w, blockCount2(layer))
+	}
+}
+
+// 十字を包む円の場合の、ブロックの数を求める
+func blockCount1(layer int) int {
+	ret := 1
+
+	for i := layer + 1; i >= 2; i-- {
+		ret += pow(2, i)
+	}
+
+	return ret
+}
+
+// 四角を包む円の場合の、ブロックの数を求める
+func blockCount2(layer int) int {
+	len := 1 + (layer-1)*2
+
+	return len * len
+}
+
+// 十字を包む円の場合の、半径Rを求める
+func calcRSquareFromLayer1(layer int) float64 {
+	return 0.5*0.5 + (0.5+float64(layer))*(0.5+float64(layer))
+
+}
+
+// 四角を包む円の場合の、半径Rを求める
+func calcRSquareFromLayer2(layer int) float64 {
+	return (0.5+float64(layer-1))*(0.5+float64(layer-1)) + (0.5+float64(layer-1))*(0.5+float64(layer-1))
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
+		if f(mid) {
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
+		} else {
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
+		}
+	}
+
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
+	}
+
+	return low - 1 // 条件を満たす値が見つからない場合
+}
 
 //////////////
 // Helpers //
