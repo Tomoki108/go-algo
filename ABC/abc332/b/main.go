@@ -37,10 +37,15 @@ func main() {
 			continue
 		}
 
-		for !(g == G || m == 0) {
-			g++
-			m--
-		}
+		toPour := min(G-g, m)
+		g += toPour
+		m -= toPour
+
+		// 制約の小ささから、以下のように書いても間に合う
+		// for !(g == G || m == 0) {
+		// 	g++
+		// 	m--
+		// }
 	}
 
 	fmt.Fprintln(w, g, m)
