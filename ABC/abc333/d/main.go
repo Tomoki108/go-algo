@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -34,35 +35,54 @@ func main() {
 		graph[b] = append(graph[b], a)
 	}
 
-	q := NewQueue[qItem]()
-	q.Enqueue(qItem{0, 0})
+	childNodeCountGraph := make([]int, N)
+	visited := make([]bool, N)
 
-	visited := make(map[int]bool, N)
-
-	minDistToLeaf := INT_MAX
-
-	for !q.IsEmpty() {
-		item, _ := q.Dequeue()
-
-		adjs := graph[item.node]
-		if len(adjs) == 1 {
-			minDistToLeaf = min(minDistToLeaf, item.dist)
-			continue
+	var dfs func(node int) int
+	dfs = func(node int) int {
+		adjacents := graph[node]
+		if len(adjacents) == 1 {
+			childNodeCountGraph[node] = 1
+			visited[node] = false
+			return 1
 		}
 
-		for _, adj := range adjs {
-			_, ok := visited[adj]
-			if ok && item.dist+1 >= minDistToLeaf {
+		result := 1 // 自身の分のノードカウント1を足す
+		for _, adj := range adjacents {
+			if visited[adj] {
 				continue
 			}
-
-			q.Enqueue(qItem{adj, item.dist + 1})
 			visited[adj] = true
+
+			result += dfs(adj)
 		}
 
+		childNodeCountGraph[node] = result
+		visited[node] = false
+		return result
 	}
 
-	fmt.Fprintln(w, minDistToLeaf+1)
+	visited[0] = true
+	dfs(0)
+
+	// for i, v := range childNodeCountGraph {
+	// 	fmt.Printf("node: %d, child: %d\n", i, v)
+	// }
+	// fmt.Println()
+
+	costSl := make([]int, 0, N)
+	startAdjacents := graph[0]
+	for _, adj := range startAdjacents {
+		costSl = append(costSl, childNodeCountGraph[adj])
+	}
+	sort.Ints(costSl)
+
+	costPrefSum := PrefixSum(costSl)
+
+	ans := costPrefSum[len(costPrefSum)-2]
+	ans++ // node 0を削除するコストを足す
+
+	fmt.Fprintln(w, ans)
 }
 
 type qItem struct {
@@ -72,6 +92,17 @@ type qItem struct {
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元配列の累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 type Queue[T any] struct {
 	list *list.List
