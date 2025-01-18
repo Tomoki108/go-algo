@@ -21,6 +21,12 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	for i := 1; i <= N; i++ {
+		fmt.Fprint(w, N)
+	}
+	fmt.Fprintln(w)
 }
 
 //////////////
