@@ -44,7 +44,6 @@ func main() {
 		case "2":
 			logoT++
 			maxlogoT = max(maxlogoT, logoT)
-			c
 		}
 	}
 
