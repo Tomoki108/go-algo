@@ -21,11 +21,50 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	Q := readInt(r)
+
+	snakeLenPrefSum := make([]int, 0, Q)
+	snakeLenPrefSum = append(snakeLenPrefSum, 0)
+	// outSnakeLenSum := 0
+	// outSnakeNums := 0
+
+	startIndex := 0
+	for i := 0; i < Q; i++ {
+		iarr := readIntArr(r)
+		q := iarr[0]
+
+		switch q {
+		case 1:
+			l := iarr[1]
+			snakeLenPrefSum = append(snakeLenPrefSum, snakeLenPrefSum[len(snakeLenPrefSum)-1]+l)
+		case 2:
+			removeLen := snakeLenPrefSum[startIndex]
+			RangeUpdateDiffArray(snakeLenPrefSum, startIndex, INT_MAX, removeLen)
+			startIndex++
+		case 3:
+			k := iarr[1]
+
+			fmt.Fprintln(w, startIndex+(k-1))
+		}
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(1)
+// 差分配列への区間更新を行う。[l, r)にxを加算する。
+// 更新後に累積和をとっていくと、各インデックスの値が求まる。所謂imos法
+func RangeUpdateDiffArray(sl []int, l, r, x int) {
+	if l < len(sl) {
+		sl[l] += x
+	}
+	if r < len(sl) {
+		sl[r] -= x
+	}
+}
 
 //////////////
 // Helpers //
