@@ -21,6 +21,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	S := readStr(r)
+
+	Ss := strings.Split(S, "")
+
+	maxAnyT := 0
+	maxlogoT := 0
+
+	anyT := 0
+	logoT := 0
+	for i := 0; i < N; i++ {
+		s := Ss[i]
+
+		switch s {
+		case "0":
+			anyT = 0
+			logoT = 0
+		case "1":
+			anyT++
+			maxAnyT = max(maxAnyT, anyT)
+		case "2":
+			logoT++
+			maxlogoT = max(maxlogoT, logoT)
+			c
+		}
+	}
+
+	ans := max(maxAnyT-M, maxlogoT)
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
