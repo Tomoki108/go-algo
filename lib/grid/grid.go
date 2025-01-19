@@ -2,6 +2,7 @@ package grid
 
 import (
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -30,7 +31,22 @@ func (c Coordinate) CalcManhattanDistance(other Coordinate) int {
 func GridToString(H, W int, grid [][]string) string {
 	str := ""
 	for i := 0; i < H; i++ {
-		str += strings.Join(grid[i], "")
+		str += strings.Join(grid[i], "_")
+	}
+	return str
+}
+
+// H行W列の整数グリッドを文字列に変換（マップのキー用など）
+func IntGridToString(H, W int, grid [][]int) string {
+	str := ""
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if i == 0 && j == 0 {
+				str += strconv.Itoa(grid[i][j])
+			} else {
+				str += "_" + strconv.Itoa(grid[i][j])
+			}
+		}
 	}
 	return str
 }

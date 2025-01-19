@@ -26,52 +26,119 @@ func main() {
 
 	H, W = read2Ints(r)
 
-	gridA := readGrid(r, H)
-	gridB := readGrid(r, H)
+	gridA := readIntGrid(r, H)
+	gridB := readIntGrid(r, H)
 
-	goal := GridToString(H, W, gridB)
+	goal := IntGridToString(H, W, gridB)
+	if IntGridToString(H, W, gridA) == goal {
+		fmt.Fprintln(w, 0)
+		return
+	}
 
-	visited := make(map[string]bool)
-
-	gridWSwap := func(grid [][]string, widx int) string {
+	gridHSwap := func(grid [][]int, hidx int) {
+		if hidx >= H-1 {
+			panic("invalid hidx")
+		}
+		grid[hidx], grid[hidx+1] = grid[hidx+1], grid[hidx]
+	}
+	gridWSwap := func(grid [][]int, widx int) {
 		if widx >= W-1 {
 			panic("invalid widx")
 		}
-
 		for i := 0; i < H; i++ {
 			grid[i][widx], grid[i][widx+1] = grid[i][widx+1], grid[i][widx]
 		}
-
-	}
-	gridHSwap := func(gridSl []string, hidx int) {
-		gridSl[hidx], gridSl[hidx+1] = gridSl[hidx+1], gridSl[hidx]
 	}
 
-	q := NewQueue()
+	visited := make(map[string]bool)
+
+	q := NewQueue[qItem]()
+	// Enqueue initial state
 	for i := 0; i < H-1; i++ {
+		cgrid := CopyGrid(gridA)
+		gridHSwap(cgrid, i)
 
+		hash := IntGridToString(H, W, cgrid)
+		if visited[hash] {
+			continue
+		}
+		visited[hash] = true
+
+		q.Enqueue(qItem{grid: cgrid, depth: 1})
 	}
-
 	for i := 0; i < W-1; i++ {
+		cgrid := CopyGrid(gridA)
+		gridWSwap(cgrid, i)
 
+		hash := IntGridToString(H, W, cgrid)
+		if visited[hash] {
+			continue
+		}
+		visited[hash] = true
+
+		q.Enqueue(qItem{grid: cgrid, depth: 1})
 	}
 
+	// BFS
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+		grid := item.grid
+		depth := item.depth
+
+		if IntGridToString(H, W, grid) == goal {
+			fmt.Fprintln(w, depth)
+			return
+		}
+
+		for i := 0; i < H-1; i++ {
+			cgrid := CopyGrid(grid)
+			gridHSwap(cgrid, i)
+
+			hash := IntGridToString(H, W, cgrid)
+			if visited[hash] {
+				continue
+			}
+			visited[hash] = true
+
+			q.Enqueue(qItem{grid: cgrid, depth: depth + 1})
+		}
+		for i := 0; i < W-1; i++ {
+			cgrid := CopyGrid(grid)
+			gridWSwap(cgrid, i)
+
+			hash := IntGridToString(H, W, cgrid)
+			if visited[hash] {
+				continue
+			}
+			visited[hash] = true
+
+			q.Enqueue(qItem{grid: cgrid, depth: depth + 1})
+		}
+	}
+
+	fmt.Fprintln(w, -1)
 }
 
 type qItem struct {
-	gridSl []string
-	depth  int
+	grid  [][]int
+	depth int
 }
 
 //////////////
 // Libs    //
 /////////////
 
-// H行W列の文字列グリッドを文字列に変換（マップのキー用など）
-func GridToString(H, W int, grid [][]string) string {
+// H行W列の整数グリッドを文字列に変換（マップのキー用など）
+func IntGridToString(H, W int, grid [][]int) string {
 	str := ""
 	for i := 0; i < H; i++ {
-		str += strings.Join(grid[i], "")
+		for j := 0; j < W; j++ {
+			if i == 0 && j == 0 {
+				str += strconv.Itoa(grid[i][j])
+			} else {
+				str += "_" + strconv.Itoa(grid[i][j])
+			}
+		}
 	}
 	return str
 }
