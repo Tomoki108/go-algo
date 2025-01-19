@@ -51,35 +51,11 @@ func main() {
 	}
 
 	visited := make(map[string]bool)
-
 	q := NewQueue[qItem]()
-	// Enqueue initial state
-	for i := 0; i < H-1; i++ {
-		cgrid := CopyGrid(gridA)
-		gridHSwap(cgrid, i)
 
-		hash := IntGridToString(H, W, cgrid)
-		if visited[hash] {
-			continue
-		}
-		visited[hash] = true
+	q.Enqueue(qItem{grid: gridA, depth: 0})
+	visited[IntGridToString(H, W, gridA)] = true
 
-		q.Enqueue(qItem{grid: cgrid, depth: 1})
-	}
-	for i := 0; i < W-1; i++ {
-		cgrid := CopyGrid(gridA)
-		gridWSwap(cgrid, i)
-
-		hash := IntGridToString(H, W, cgrid)
-		if visited[hash] {
-			continue
-		}
-		visited[hash] = true
-
-		q.Enqueue(qItem{grid: cgrid, depth: 1})
-	}
-
-	// BFS
 	for !q.IsEmpty() {
 		item, _ := q.Dequeue()
 		grid := item.grid
