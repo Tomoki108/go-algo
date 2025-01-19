@@ -23,7 +23,7 @@ func main() {
 
 	X := readInt(r)
 
-	for i := 1; i <= 21; i++ {
+	for i := 1; i <= 20; i++ {
 		k := 1
 		for j := i; j > 0; j-- {
 			k *= j
