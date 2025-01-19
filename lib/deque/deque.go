@@ -1,46 +1,42 @@
 package deque
 
-import "fmt"
-
-// Deque構造
 type Deque[T any] struct {
-	data         []T // 固定サイズ配列
-	head, tail   int // 先頭と末尾のインデックス
-	capacity     int // 配列の容量
-	elementCount int // 現在の要素数
+	data       []T
+	head, tail int // 先頭と末尾のインデックス
+	capacity   int // デックの容量
+	size       int // 現在の要素数
 }
 
-// 新しいDequeを作成
-func NewDeque[T any](capacity int) *Deque[T] {
+func NewDeque[T any](initialCapacity int) *Deque[T] {
 	return &Deque[T]{
-		data:     make([]T, capacity), // 配列の初期化
-		capacity: capacity,
+		data:     make([]T, initialCapacity),
+		capacity: initialCapacity,
 	}
 }
 
-// 先頭に要素を追加
+// O(1)
 func (d *Deque[T]) PushFront(value T) {
 	if d.IsFull() {
-		panic("deque is full")
+		d.resize()
 	}
 	// headを逆方向に進めて要素を追加
 	d.head = (d.head - 1 + d.capacity) % d.capacity
 	d.data[d.head] = value
-	d.elementCount++
+	d.size++
 }
 
-// 末尾に要素を追加
+// O(1)
 func (d *Deque[T]) PushBack(value T) {
 	if d.IsFull() {
-		panic("deque is full")
+		d.resize()
 	}
 	// 要素を追加し、tailを進める
 	d.data[d.tail] = value
 	d.tail = (d.tail + 1) % d.capacity
-	d.elementCount++
+	d.size++
 }
 
-// 先頭の要素を削除
+// O(1)
 func (d *Deque[T]) PopFront() T {
 	if d.IsEmpty() {
 		panic("deque is empty")
@@ -48,11 +44,11 @@ func (d *Deque[T]) PopFront() T {
 	// 要素を取得し、headを進める
 	value := d.data[d.head]
 	d.head = (d.head + 1) % d.capacity
-	d.elementCount--
+	d.size--
 	return value
 }
 
-// 末尾の要素を削除
+// O(1)
 func (d *Deque[T]) PopBack() T {
 	if d.IsEmpty() {
 		panic("deque is empty")
@@ -60,11 +56,11 @@ func (d *Deque[T]) PopBack() T {
 	// tailを逆方向に進めて要素を取得
 	d.tail = (d.tail - 1 + d.capacity) % d.capacity
 	value := d.data[d.tail]
-	d.elementCount--
+	d.size--
 	return value
 }
 
-// 先頭の要素を取得
+// O(1)
 func (d *Deque[T]) Front() T {
 	if d.IsEmpty() {
 		panic("deque is empty")
@@ -72,7 +68,7 @@ func (d *Deque[T]) Front() T {
 	return d.data[d.head]
 }
 
-// 末尾の要素を取得
+// O(1)
 func (d *Deque[T]) Back() T {
 	if d.IsEmpty() {
 		panic("deque is empty")
@@ -81,39 +77,32 @@ func (d *Deque[T]) Back() T {
 	return d.data[(d.tail-1+d.capacity)%d.capacity]
 }
 
-// デックが空かどうか
 func (d *Deque[T]) IsEmpty() bool {
-	return d.elementCount == 0
+	return d.size == 0
 }
 
-// デックが満杯かどうか
 func (d *Deque[T]) IsFull() bool {
-	return d.elementCount == d.capacity
+	return d.size == d.capacity
 }
 
-// デックの要素数
 func (d *Deque[T]) Size() int {
-	return d.elementCount
+	return d.size
 }
 
-func main() {
-	// デックの作成
-	d := NewDeque[int](5)
+// O(current size)
+// デックの容量を2倍に拡張する
+func (d *Deque[T]) resize() {
+	newCapacity := d.capacity * 2
+	newData := make([]T, newCapacity)
 
-	// 末尾に要素を追加
-	d.PushBack(10)
-	d.PushBack(20)
-	// 先頭に要素を追加
-	d.PushFront(5)
+	// 現在のデータを新しい配列にコピー（リングバッファの順序を維持）
+	for i := 0; i < d.size; i++ {
+		newData[i] = d.data[(d.head+i)%d.capacity]
+	}
 
-	// 先頭と末尾の要素を確認
-	fmt.Println(d.Front()) // 5
-	fmt.Println(d.Back())  // 20
-
-	// 先頭と末尾の要素を削除
-	fmt.Println(d.PopFront()) // 5
-	fmt.Println(d.PopBack())  // 20
-
-	// 要素数の確認
-	fmt.Println("Size:", d.Size()) // 1
+	// 配列とインデックスを更新
+	d.data = newData
+	d.head = 0
+	d.tail = d.size
+	d.capacity = newCapacity
 }
