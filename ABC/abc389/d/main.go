@@ -22,58 +22,65 @@ func main() {
 	defer w.Flush()
 
 	R := readInt(r)
-	R *= 10
+	R = 2 * R
 
-	layer := AscIntSearch(1, 10000000, func(layer int) bool {
-		return calcRSquareFromLayer2(layer) > R*R
-	})
-	layer--
-
-	// fmt.Printf("layer: %d\n", layer)
-
-	// tmp := calcRSquareFromLayer2(1)
-	// fmt.Printf("tmp: %d\n", tmp)
-
-	crossRSquare := calcRSquareFromLayer1(layer)
-
-	if R*R*10 >= crossRSquare {
-		fmt.Fprintln(w, blockCount1(layer))
-	} else {
-		fmt.Fprintln(w, blockCount2(layer))
-	}
-}
-
-// 十字を包む円の場合の、ブロックの数を求める
-func blockCount1(layer int) int {
-	ret := 1
-
-	for i := layer + 1; i >= 2; i-- {
-		ret += pow(2, i)
+	if R <= 2 {
+		fmt.Fprintln(w, 1)
+		return
 	}
 
-	return ret
-}
+	count := 0
 
-// 四角を包む円の場合の、ブロックの数を求める
-func blockCount2(layer int) int {
-	len := 1 + (layer-1)*2
+	maxY := R - 1
+	maxX := R - 1
+	minX := 1
+	for y := maxY; y >= 3; y -= 2 {
+		x := DescIntSearch(maxX, minX, func(x int) bool {
+			return x*x+y*y <= R*R
+		})
+		if x%2 == 0 {
+			x--
+		}
 
-	return len * len
-}
+		rowCount := x/2 + 1
+		count += rowCount
 
-// 十字を包む円の場合の、半径Rを求める
-func calcRSquareFromLayer1(layer int) int {
-	return 5*5 + (5+10*layer)*(5+10*layer)
-}
+		minX = x
+	}
 
-// 四角を包む円の場合の、半径Rを求める
-func calcRSquareFromLayer2(layer int) int {
-	return (5+10*(layer-1))*(5+10*(layer-1)) + (5+10*(layer-1))*(5+10*(layer-1))
+	count *= 4
+	count++
+
+	fmt.Fprintln(w, count)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log(high-low))
+// high, high-1, ..., lowの範囲で条件を満たす最小の値を二分探索する
+// high~lowは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はhigh+1を返す
+func DescIntSearch(high, low int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための式.
+		// 中央値はhigh側に寄る（+1しているため）
+		mid := low + (high-low+1)/2
+		if f(mid) {
+			low = mid // 条件を満たす場合、よりhigh側の範囲を探索
+		} else {
+			high = mid - 1 // 条件を満たさない場合、よりlow側の範囲を探索
+		}
+	}
+
+	// 最後に high(=low) が条件を満たしているかを確認
+	if f(high) {
+		return high
+	}
+
+	return high + 1 // 条件を満たす値が見つからない場合
+}
 
 func AscIntSearch(low, high int, f func(num int) bool) int {
 	for low < high {
