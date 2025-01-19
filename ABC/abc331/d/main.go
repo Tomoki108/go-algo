@@ -21,6 +21,49 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r)
+
+	colors := make([][]string, N+1)
+	coloredPrefSum := make([][]int, N+1)
+	for i := 0; i < N+1; i++ {
+		colors[i] = make([]string, N+1)
+		coloredPrefSum[i] = make([]int, N+1)
+	}
+
+	for i := 0; i < N; i++ {
+		str := readStr(r)
+		str = "W" + str // 番兵
+		colors[i+1] = strings.Split(str, "")
+	}
+
+	for i := 0; i < N+1; i++ {
+		for j := 0; j < N+1; j++ {
+			if colors[i][j] == "B" {
+				coloredPrefSum[i][j] = 1
+			}
+		}
+	}
+
+	for i := 1; i < N+1; i++ {
+		for j := 1; j < N+1; j++ {
+			coloredPrefSum[i][j] += coloredPrefSum[i-1][j]
+		}
+	}
+	for i := 1; i < N+1; i++ {
+		for j := 1; j < N+1; j++ {
+			coloredPrefSum[i][j] += coloredPrefSum[i][j-1]
+		}
+	}
+
+	// 累積和作成まであっていた。
+	// for i := 0; i < N+1; i++ {
+	// 	fmt.Println(coloredPrefSum[i])
+	// }
+
+	for i := 0; i < Q; i++ {
+		// iarr := readIntArr(r)
+		// A, B, C, D := iarr[0], iarr[1], iarr[2], iarr[3]
+	}
 }
 
 //////////////
