@@ -1,5 +1,6 @@
 package deque
 
+// 先頭、末尾へのデータ追加、削除がO(1)で行える。インデックスアクセスもO(1)で可能
 type Deque[T any] struct {
 	data       []T
 	head, tail int // 先頭と末尾のインデックス
@@ -75,6 +76,16 @@ func (d *Deque[T]) Back() T {
 	}
 	// tailの直前の要素を取得
 	return d.data[(d.tail-1+d.capacity)%d.capacity]
+}
+
+// O(1)
+func (d *Deque[T]) At(index int) T {
+	if index < 0 || index >= d.size {
+		panic("index out of range")
+	}
+
+	physicalIndex := (d.head + index) % d.capacity
+	return d.data[physicalIndex]
 }
 
 func (d *Deque[T]) IsEmpty() bool {

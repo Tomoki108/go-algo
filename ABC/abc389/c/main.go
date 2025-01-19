@@ -22,6 +22,46 @@ func main() {
 	defer w.Flush()
 
 	Q := readInt(r)
+
+	lenPrefsumDeque := NewDeque[int](Q)
+
+	q3Exist := false
+	outLen := 0
+	for i := 0; i < Q; i++ {
+		iarr := readIntArr(r)
+		q := iarr[0]
+
+		switch q {
+		case 1:
+			l := iarr[1]
+			prevLen := 0
+			if !lenPrefsumDeque.IsEmpty() {
+				prevLen = lenPrefsumDeque.Back()
+			}
+			lenPrefsumDeque.PushBack(l + prevLen)
+		case 2:
+			len := lenPrefsumDeque.PopFront()
+			outLen = len
+		case 3:
+			if lenPrefsumDeque.Size() == 1 {
+				fmt.Fprintln(w, 0)
+				q3Exist = true
+				continue
+			}
+
+			k := iarr[1]
+
+			// インデックスに変換するため、-1
+			// index iの蛇の頭の座標は、index i-1までの蛇の長さの累積話なので、更に-1
+			prefsum := lenPrefsumDeque.At(k - 2)
+			fmt.Fprintln(w, prefsum-outLen)
+			q3Exist = true
+		}
+	}
+
+	if !q3Exist {
+		fmt.Fprintln(w)
+	}
 }
 
 func alt() {
@@ -63,6 +103,123 @@ func alt() {
 //////////////
 // Libs    //
 /////////////
+
+type Deque[T any] struct {
+	data       []T
+	head, tail int // 先頭と末尾のインデックス
+	capacity   int // デックの容量
+	size       int // 現在の要素数
+}
+
+func NewDeque[T any](initialCapacity int) *Deque[T] {
+	return &Deque[T]{
+		data:     make([]T, initialCapacity),
+		capacity: initialCapacity,
+	}
+}
+
+// O(1)
+func (d *Deque[T]) PushFront(value T) {
+	if d.IsFull() {
+		d.resize()
+	}
+	// headを逆方向に進めて要素を追加
+	d.head = (d.head - 1 + d.capacity) % d.capacity
+	d.data[d.head] = value
+	d.size++
+}
+
+// O(1)
+func (d *Deque[T]) PushBack(value T) {
+	if d.IsFull() {
+		d.resize()
+	}
+	// 要素を追加し、tailを進める
+	d.data[d.tail] = value
+	d.tail = (d.tail + 1) % d.capacity
+	d.size++
+}
+
+// O(1)
+func (d *Deque[T]) PopFront() T {
+	if d.IsEmpty() {
+		panic("deque is empty")
+	}
+	// 要素を取得し、headを進める
+	value := d.data[d.head]
+	d.head = (d.head + 1) % d.capacity
+	d.size--
+	return value
+}
+
+// O(1)
+func (d *Deque[T]) PopBack() T {
+	if d.IsEmpty() {
+		panic("deque is empty")
+	}
+	// tailを逆方向に進めて要素を取得
+	d.tail = (d.tail - 1 + d.capacity) % d.capacity
+	value := d.data[d.tail]
+	d.size--
+	return value
+}
+
+// O(1)
+func (d *Deque[T]) Front() T {
+	if d.IsEmpty() {
+		panic("deque is empty")
+	}
+	return d.data[d.head]
+}
+
+// O(1)
+func (d *Deque[T]) Back() T {
+	if d.IsEmpty() {
+		panic("deque is empty")
+	}
+	// tailの直前の要素を取得
+	return d.data[(d.tail-1+d.capacity)%d.capacity]
+}
+
+// O(1)
+func (d *Deque[T]) At(index int) T {
+	if index < 0 || index >= d.size {
+		panic("index out of range")
+	}
+
+	physicalIndex := (d.head + index) % d.capacity
+	return d.data[physicalIndex]
+}
+
+func (d *Deque[T]) IsEmpty() bool {
+	return d.size == 0
+}
+
+func (d *Deque[T]) IsFull() bool {
+	return d.size == d.capacity
+}
+
+func (d *Deque[T]) Size() int {
+	return d.size
+}
+
+// O(current size)
+// デックの容量を2倍に拡張する
+func (d *Deque[T]) resize() {
+	newCapacity := d.capacity * 2
+	newData := make([]T, newCapacity)
+
+	// 現在のデータを新しい配列にコピー（リングバッファの順序を維持）
+	for i := 0; i < d.size; i++ {
+		newData[i] = d.data[(d.head+i)%d.capacity]
+	}
+
+	// 配列とインデックスを更新
+	d.data = newData
+	d.head = 0
+	d.tail = d.size
+	d.capacity = newCapacity
+}
 
 //////////////
 // Helpers //
