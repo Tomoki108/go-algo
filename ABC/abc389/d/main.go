@@ -22,16 +22,21 @@ func main() {
 	defer w.Flush()
 
 	R := readInt(r)
-	R = R * 10
+	R *= 10
 
 	layer := AscIntSearch(1, 10000000, func(layer int) bool {
 		return calcRSquareFromLayer2(layer) > R*R
 	})
 	layer--
 
+	// fmt.Printf("layer: %d\n", layer)
+
+	// tmp := calcRSquareFromLayer2(1)
+	// fmt.Printf("tmp: %d\n", tmp)
+
 	crossRSquare := calcRSquareFromLayer1(layer)
 
-	if R*R >= crossRSquare {
+	if R*R*10 >= crossRSquare {
 		fmt.Fprintln(w, blockCount1(layer))
 	} else {
 		fmt.Fprintln(w, blockCount2(layer))
