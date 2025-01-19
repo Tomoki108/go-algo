@@ -22,6 +22,12 @@ func main() {
 	defer w.Flush()
 
 	Q := readInt(r)
+}
+
+func alt() {
+	defer w.Flush()
+
+	Q := readInt(r)
 
 	snakeLenPrefSum := make([]int, 0, Q)
 	snakeLenPrefSum = append(snakeLenPrefSum, 0)
