@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +22,65 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	copyAs := make([]int, N)
+	copy(copyAs, As)
+
+	Deduplicate(copyAs)
+	sort.Ints(copyAs)
+	prefsum := PrefixSum(copyAs)
+
+	ansMap := make(map[int]int) // num => ans
+
+	for i := 1; i <= N; i++ {
+		num := prefsum[i] - prefsum[i-1]
+		sum := prefsum[len(prefsum)-1] - prefsum[i]
+
+		ansMap[num] = sum
+	}
+
+	for i, a := range As {
+		ans := ansMap[a]
+		fmt.Fprint(w, ans)
+		if i == N-1 {
+			fmt.Fprintln(w)
+		} else {
+			fmt.Fprint(w, " ")
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+func Deduplicate[T comparable](sl []T) []T {
+	m := map[T]bool{}
+	for _, v := range sl {
+		m[v] = true
+	}
+
+	var deduped []T
+	for k := range m {
+		deduped = append(deduped, k)
+	}
+
+	return deduped
+}
+
+// O(n)
+// 一次元配列の累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers //
