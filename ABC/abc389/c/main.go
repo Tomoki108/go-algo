@@ -25,8 +25,6 @@ func main() {
 
 	snakeLenPrefSum := make([]int, 0, Q)
 	snakeLenPrefSum = append(snakeLenPrefSum, 0)
-	// outSnakeLenSum := 0
-	// outSnakeNums := 0
 
 	startIndex := 0
 	q3Exist := false
@@ -39,18 +37,9 @@ func main() {
 			l := iarr[1]
 			snakeLenPrefSum = append(snakeLenPrefSum, snakeLenPrefSum[len(snakeLenPrefSum)-1]+l)
 		case 2:
-			// removeLen := snakeLenPrefSum[startIndex]
 			startIndex++
 		case 3:
 			k := iarr[1]
-
-			// [0, startIndex)はremoved
-			// [startIndex, K-1+1)
-			// fmt.Println("--")
-			// fmt.Printf("startIndex: %d\n", startIndex)
-			// fmt.Printf("k: %d\n", k)
-			// fmt.Printf("snakeLenPrefSum: %v\n", snakeLenPrefSum)
-			// fmt.Println("--")
 
 			sum := snakeLenPrefSum[k-1+startIndex] - snakeLenPrefSum[startIndex]
 			fmt.Fprintln(w, sum)
