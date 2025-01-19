@@ -21,6 +21,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, S, M, L := iarr[0], iarr[1], iarr[2], iarr[3]
+
+	ans := INT_MAX
+	for i := 0; i <= N/6+1; i++ {
+		for j := 0; j <= N/8+1; j++ {
+			for k := 0; k <= N/12+1; k++ {
+				if i*6+j*8+k*12 < N {
+					continue
+				}
+
+				ans = min(ans, i*S+j*M+k*L)
+			}
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
