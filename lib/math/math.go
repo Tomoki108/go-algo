@@ -24,6 +24,15 @@ func ToDigits(n int) []int {
 	return digits
 }
 
+// O(n)
+// nを階乗する
+func Factorial(n int) int {
+	if n == 0 {
+		return 1
+	}
+	return n * Factorial(n-1)
+}
+
 // O(log(min(a,b)))
 // 拡張ユークリッドの互除法で、最大公約数(Greatest Common Divisor)を求める
 // （ax + by = gcd(a, b) となるx, yも返す）
