@@ -21,6 +21,29 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	M, D := read2Ints(r)
+	iarr := readIntArr(r)
+	y, m, d := iarr[0], iarr[1], iarr[2]
+
+	nd := (d + 1) % D
+	if nd == 0 {
+		nd = D
+	}
+
+	if nd < d {
+		m++
+	}
+
+	nm := m % M
+	if nm == 0 {
+		nm = M
+	}
+
+	if nm < m {
+		y++
+	}
+
+	fmt.Fprintf(w, "%d %d %d\n", y, nm, nd)
 }
 
 //////////////
