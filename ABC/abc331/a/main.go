@@ -25,25 +25,21 @@ func main() {
 	iarr := readIntArr(r)
 	y, m, d := iarr[0], iarr[1], iarr[2]
 
-	nd := (d + 1) % D
-	if nd == 0 {
-		nd = D
+	nd := d + 1
+	nm := m
+	ny := y
+
+	if nd > D {
+		nd -= D
+		nm++
 	}
 
-	if nd < d {
-		m++
+	if nm > M {
+		nm -= M
+		ny++
 	}
 
-	nm := m % M
-	if nm == 0 {
-		nm = M
-	}
-
-	if nm < m {
-		y++
-	}
-
-	fmt.Fprintf(w, "%d %d %d\n", y, nm, nd)
+	fmt.Fprintf(w, "%d %d %d\n", ny, nm, nd)
 }
 
 //////////////
