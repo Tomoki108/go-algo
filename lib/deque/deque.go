@@ -1,5 +1,7 @@
 package deque
 
+import "fmt"
+
 // 先頭、末尾へのデータ追加、削除がO(1)で行える。インデックスアクセスもO(1)で可能
 type Deque[T any] struct {
 	data       []T
@@ -98,6 +100,10 @@ func (d *Deque[T]) IsFull() bool {
 
 func (d *Deque[T]) Size() int {
 	return d.size
+}
+
+func (d *Deque[T]) Dump() {
+	fmt.Printf("head: %d, tail: %d, data: %v\n", d.head, d.tail, d.data)
 }
 
 // O(current size)

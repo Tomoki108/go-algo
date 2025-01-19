@@ -43,17 +43,17 @@ func main() {
 			len := lenPrefsumDeque.PopFront()
 			outLen = len
 		case 3:
-			if lenPrefsumDeque.Size() == 1 {
+			k := iarr[1]
+			k-- // インデックスに変換するため、-1
+
+			if k == 0 {
 				fmt.Fprintln(w, 0)
 				q3Exist = true
 				continue
 			}
 
-			k := iarr[1]
-
-			// インデックスに変換するため、-1
 			// index iの蛇の頭の座標は、index i-1までの蛇の長さの累積話なので、更に-1
-			prefsum := lenPrefsumDeque.At(k - 2)
+			prefsum := lenPrefsumDeque.At(k - 1)
 			fmt.Fprintln(w, prefsum-outLen)
 			q3Exist = true
 		}
@@ -219,6 +219,10 @@ func (d *Deque[T]) resize() {
 	d.head = 0
 	d.tail = d.size
 	d.capacity = newCapacity
+}
+
+func (d *Deque[T]) Dump() {
+	fmt.Printf("head: %d, tail: %d, data: %v\n", d.head, d.tail, d.data)
 }
 
 //////////////
