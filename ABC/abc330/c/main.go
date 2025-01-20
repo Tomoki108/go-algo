@@ -24,9 +24,9 @@ func main() {
 
 	D := readInt(r)
 
-	maxSquareNum := 2 * pow(10, 6)
-	squareNums := make([]int, 0, maxSquareNum+1)
-	for i := 0; i*i <= maxSquareNum; i++ {
+	maxRootNum := 2 * pow(10, 6)
+	squareNums := make([]int, 0, maxRootNum+1)
+	for i := 0; i <= maxRootNum; i++ {
 		squareNums = append(squareNums, i*i)
 	}
 
