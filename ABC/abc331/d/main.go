@@ -39,18 +39,68 @@ func main() {
 	// }
 	// return
 
+	// h, wは右下隅の座標
+	countInSquare := func(h, w int) int {
+		h_q := (h + 1) / N
+		h_rem := (h + 1) % N
+		w_q := (w + 1) / N
+		w_rem := (w + 1) % N
+
+		ret := 0
+
+		// add whole block count
+		ret += h_q * w_q * countSumGrid[N][N]
+
+		// add horizontal stic-out count
+		{
+			var h = h_rem
+			var w int
+			if w_q < 1 {
+				w = w_rem
+			} else {
+				w = w_q*N - 1
+			}
+
+			ret += countSumGrid[h][w]
+		}
+
+		// add vertical stic-out count
+		{
+			var h int
+			var w = w_rem
+			if h_q < 1 {
+				h = h_rem
+			} else {
+				h = h_q*N - 1
+			}
+
+			ret += countSumGrid[h][w]
+		}
+
+		// sub corner count
+		{
+			var h int
+			var w int
+			if h_rem > 0 && w_rem > 0 {
+				h = h_rem
+				w = w_rem
+			} else {
+				h = 0
+				w = 0
+			}
+			ret -= countSumGrid[h][w]
+		}
+
+		return ret
+	}
+
 	for i := 0; i < Q; i++ {
 		iarr := readIntArr(r)
 		A, B, C, D := iarr[0], iarr[1], iarr[2], iarr[3]
 
-		ans := countSquare(C, D) - countSquare(C, B) - countSquare(A, D) + countSquare(A, B)
+		ans := countInSquare(C, D) - countInSquare(C, B) - countInSquare(A, D) + countInSquare(A, B)
 		fmt.Fprintln(w, ans)
 	}
-}
-
-// h, wは右下隅の座標
-func countSquare(h, w int) int {
-	return 0
 }
 
 //////////////
