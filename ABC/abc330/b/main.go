@@ -27,10 +27,12 @@ func main() {
 	As := readIntArr(r)
 
 	for i, a := range As {
-		if a <= L {
+		if a < L {
 			fmt.Fprint(w, L)
-		} else {
+		} else if a > R {
 			fmt.Fprint(w, R)
+		} else {
+			fmt.Fprint(w, a)
 		}
 
 		if i == N-1 {
