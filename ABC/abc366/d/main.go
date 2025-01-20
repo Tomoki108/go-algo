@@ -19,48 +19,14 @@ func main() {
 
 	N := readInt(r)
 
-	cube := make([][][]int, N+1)
-	sumCube := make([][][]int, N+1)
-	for i := 0; i < N+1; i++ {
-		cube[i] = make([][]int, N+1)
-		sumCube[i] = make([][]int, N+1)
-		for j := 0; j < N+1; j++ {
-			cube[i][j] = make([]int, N+1)
-			sumCube[i][j] = make([]int, N+1)
-		}
-	}
-
+	cube := make([][][]int, N)
 	for i := 0; i < N; i++ {
+		cube[i] = make([][]int, N)
 		for j := 0; j < N; j++ {
-			iarr := readIntArr(r)
-			for k := 0; k < N; k++ {
-				cube[i+1][j+1][k+1] = iarr[k]
-				sumCube[i+1][j+1][k+1] = iarr[k]
-			}
+			cube[i][j] = readIntArr(r)
 		}
 	}
-
-	for x := 1; x < N+1; x++ {
-		for y := 1; y < N+1; y++ {
-			for z := 1; z < N+1; z++ {
-				sumCube[x][y][z] += sumCube[x-1][y][z]
-			}
-		}
-	}
-	for x := 1; x < N+1; x++ {
-		for y := 1; y < N+1; y++ {
-			for z := 1; z < N+1; z++ {
-				sumCube[x][y][z] += sumCube[x][y-1][z]
-			}
-		}
-	}
-	for x := 1; x < N+1; x++ {
-		for y := 1; y < N+1; y++ {
-			for z := 1; z < N+1; z++ {
-				sumCube[x][y][z] += sumCube[x][y][z-1]
-			}
-		}
-	}
+	sumCube := PrefixSum3D(cube)
 
 	Q := readInt(r)
 	for i := 0; i < Q; i++ {
@@ -69,6 +35,54 @@ func main() {
 		sum := SumFrom3DPrefixSum(sumCube, Lx, Rx, Ly, Ry, Lz, Rz)
 		fmt.Fprintln(w, sum)
 	}
+}
+
+//////////////
+// Libs    //
+/////////////
+
+// O(cube_size)
+// 三次元累積和を返す（各次元のindex0には0を入れる。）
+func PrefixSum3D(cube [][][]int) [][][]int {
+	X := len(cube) + 1
+	Y := len(cube[0]) + 1
+	Z := len(cube[0][0]) + 1
+
+	sumCube := make([][][]int, X)
+	for i := 0; i < X; i++ {
+		sumCube[i] = make([][]int, Y)
+		for j := 0; j < Y; j++ {
+			sumCube[i][j] = make([]int, Z)
+			if i == 0 || j == 0 {
+				continue
+			}
+
+			copy(sumCube[i][j][1:], cube[i-1][j-1])
+		}
+	}
+
+	for i := 1; i < X; i++ {
+		for j := 1; j < Y; j++ {
+			for k := 1; k < Z; k++ {
+				sumCube[i][j][k] += sumCube[i][j][k-1]
+			}
+		}
+	}
+	for i := 1; i < X; i++ {
+		for j := 1; j < Y; j++ {
+			for k := 1; k < Z; k++ {
+				sumCube[i][j][k] += sumCube[i][j-1][k]
+			}
+		}
+	}
+	for i := 1; i < X; i++ {
+		for j := 1; j < Y; j++ {
+			for k := 1; k < Z; k++ {
+				sumCube[i][j][k] += sumCube[i-1][j][k]
+			}
+		}
+	}
+	return sumCube
 }
 
 // 三次元累積和から、任意の範囲の和を求める
@@ -92,19 +106,6 @@ func SumFrom3DPrefixSum(sumCube [][][]int, Lx, Rx, Ly, Ry, Lz, Rz int) int {
 	result -= sumCube[Lx][Ly][Lz]
 
 	return result
-}
-
-//////////////
-// Libs    //
-/////////////
-
-func PrefixSum(sl []int) []int {
-	n := len(sl)
-	res := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		res[i+1] = res[i] + sl[i]
-	}
-	return res
 }
 
 //////////////

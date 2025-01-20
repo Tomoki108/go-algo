@@ -52,26 +52,31 @@ func PrefixSum3D(cube [][][]int) [][][]int {
 		sumCube[i] = make([][]int, Y)
 		for j := 0; j < Y; j++ {
 			sumCube[i][j] = make([]int, Z)
+			if i == 0 || j == 0 {
+				continue
+			}
+
+			copy(sumCube[i][j][1:], cube[i-1][j-1])
 		}
 	}
 
-	for i := 0; i < X; i++ {
-		for j := 0; j < Y; j++ {
-			for k := 0; k < Z; k++ {
+	for i := 1; i < X; i++ {
+		for j := 1; j < Y; j++ {
+			for k := 1; k < Z; k++ {
 				sumCube[i][j][k] += sumCube[i][j][k-1]
 			}
 		}
 	}
-	for i := 0; i < X; i++ {
-		for j := 0; j < Y; j++ {
-			for k := 0; k < Z; k++ {
+	for i := 1; i < X; i++ {
+		for j := 1; j < Y; j++ {
+			for k := 1; k < Z; k++ {
 				sumCube[i][j][k] += sumCube[i][j-1][k]
 			}
 		}
 	}
-	for i := 0; i < X; i++ {
-		for j := 0; j < Y; j++ {
-			for k := 0; k < Z; k++ {
+	for i := 1; i < X; i++ {
+		for j := 1; j < Y; j++ {
+			for k := 1; k < Z; k++ {
 				sumCube[i][j][k] += sumCube[i-1][j][k]
 			}
 		}
