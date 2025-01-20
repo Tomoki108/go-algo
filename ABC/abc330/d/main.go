@@ -24,6 +24,37 @@ func main() {
 	N := readInt(r)
 	grid := readGrid(r, N)
 
+	rowCount := make([]int, N)
+	colCOunt := make([]int, N)
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if grid[i][j] == "o" {
+				rowCount[i]++
+				colCOunt[j]++
+			}
+		}
+	}
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if grid[i][j] == "x" {
+				continue
+			}
+
+			ans += (rowCount[i] - 1) * (colCOunt[j] - 1)
+		}
+	}
+
+	fmt.Fprintln(w, ans)
+}
+
+func alt() {
+	defer w.Flush()
+
+	N := readInt(r)
+	grid := readGrid(r, N)
+
 	countGrid := createGrid(N, N, 0)
 	for i := 0; i < N; i++ {
 		for j := 0; j < N; j++ {
