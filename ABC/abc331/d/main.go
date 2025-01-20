@@ -36,15 +36,29 @@ func main() {
 
 	// h, wは右下隅の座標
 	countInSquare := func(h, w int) int {
+		if h < 0 || w < 0 {
+			return 0
+		}
+
+		// すべてのマスがN*Nの周期の内側にある場合、bottom remnantとright remnantで重複数え上げしてしまう。
+		// その管理のためのフラグ
+		totallyInside := false
+		if h <= N && w <= N {
+			totallyInside = true
+		}
+		// fmt.Println("h, w:", h, w)
+
 		h_q := (h + 1) / N
 		h_rem := (h + 1) % N
 		w_q := (w + 1) / N
 		w_rem := (w + 1) % N
+		// fmt.Printf("h_q: %d, h_rem: %d, w_q: %d, w_rem: %d\n", h_q, h_rem, w_q, w_rem)
 
 		ret := 0
 
 		// add whole block count
 		ret += h_q * w_q * countSumGrid[N][N]
+		// fmt.Printf("whole block count: %d\n", h_q*w_q*countSumGrid[N][N])
 
 		// add bottom remnant count
 		{
@@ -60,10 +74,11 @@ func main() {
 				count *= w_q
 			}
 			ret += count
+			// fmt.Printf("bottom remnant count: %d\n", count)
 		}
 
 		// add right remnant count
-		{
+		if !totallyInside {
 			var h int
 			var w = w_rem
 			var count int
@@ -77,6 +92,7 @@ func main() {
 			}
 
 			ret += count
+			// fmt.Printf("right remnant count: %d\n", count)
 		}
 
 		// add corner count
@@ -93,6 +109,7 @@ func main() {
 
 			ret += countSumGrid[h][w]
 		}
+		// fmt.Println("ret:", ret)
 
 		return ret
 	}
