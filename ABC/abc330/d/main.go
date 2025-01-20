@@ -33,20 +33,99 @@ func main() {
 		}
 	}
 
-	countVerticalSum := createGrid(N, N+1, 0) // １行目は、１行目の累積和が入っている
+	countHSum := createGrid(N, N+1, 0) // １行目は、１行目の累積和が入っている
 	for i := 0; i < N; i++ {
 		for j := 0; j < N; j++ {
-			countVerticalSum[i][j+1] = countVerticalSum[i][j] + countGrid[i][j]
+			countHSum[i][j+1] = countHSum[i][j] + countGrid[i][j]
 		}
 	}
 
-	countHorizontalSum := createGrid(N, N+1, 0) // １行目は、1列目の累積和が入っている
+	countVSum := createGrid(N, N+1, 0) // １行目は、1列目の累積和が入っている
 	for i := 0; i < N; i++ {
 		for j := 0; j < N; j++ {
-			countHorizontalSum[i][j+1] = countHorizontalSum[i][j] + countGrid[j][i]
+			countVSum[i][j+1] = countVSum[i][j] + countGrid[j][i]
 		}
 	}
 
+	// fmt.Println(countHSum)
+	// fmt.Println(countVSum)
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if grid[i][j] == "x" {
+				continue
+			}
+
+			vOpts := countVSum[j][N] - countVSum[j][i+1]
+			hOpts := countHSum[i][N] - countHSum[i][j+1]
+
+			// if hOpts*vOpts > 0 {
+			// 	fmt.Printf("i: %d, j: %d, vOpts: %d, hOpts: %d, plus: %d\n", i, j, hOpts, vOpts, hOpts*vOpts)
+			// }
+
+			ans += hOpts * vOpts
+		}
+	}
+
+	// fmt.Println()
+
+	for i := N - 1; i >= 0; i-- {
+		for j := N - 1; j >= 0; j-- {
+			if grid[i][j] == "x" {
+				continue
+			}
+
+			vOpts := countVSum[j][i]
+			hOpts := countHSum[i][j]
+
+			// if hOpts*vOpts > 0 {
+			// 	fmt.Printf("i: %d, j: %d, vOpts: %d, hOpts: %d, plus: %d\n", i, j, hOpts, vOpts, hOpts*vOpts)
+			// }
+
+			ans += hOpts * vOpts
+		}
+	}
+
+	// fmt.Println()
+
+	for i := N - 1; i >= 0; i-- {
+		for j := 0; j < N; j++ {
+			if grid[i][j] == "x" {
+				continue
+			}
+
+			vOpts := countVSum[j][i]
+			hOpts := countHSum[i][N] - countHSum[i][j+1]
+
+			// if hOpts*vOpts > 0 {
+			// 	fmt.Printf("i: %d, j: %d, vOpts: %d, hOpts: %d, plus: %d\n", i, j, hOpts, vOpts, hOpts*vOpts)
+			// }
+
+			ans += hOpts * vOpts
+		}
+	}
+
+	// fmt.Println()
+
+	for i := 0; i < N; i++ {
+		for j := N - 1; j >= 0; j-- {
+			if grid[i][j] == "x" {
+				continue
+			}
+
+			vOpts := countVSum[j][N] - countVSum[j][i+1]
+			hOpts := countHSum[i][j]
+
+			// if hOpts*vOpts > 0 {
+			// 	fmt.Printf("i: %d, j: %d, vOpts: %d, hOpts: %d, plus: %d\n", i, j, hOpts, vOpts, hOpts*vOpts)
+			// }
+
+			ans += hOpts * vOpts
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
