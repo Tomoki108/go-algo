@@ -40,42 +40,51 @@ func main() {
 		h_rem := (h + 1) % N
 		w_q := (w + 1) / N
 		w_rem := (w + 1) % N
-		// fmt.Printf("h: %d, w: %d, h_q: %d, h_rem: %d, w_q: %d, w_rem: %d\n\n", h, w, h_q, h_rem, w_q, w_rem)
+		fmt.Printf("h: %d, w: %d, h_q: %d, h_rem: %d, w_q: %d, w_rem: %d\n\n", h, w, h_q, h_rem, w_q, w_rem)
 
 		ret := 0
 
 		// add whole block count
 		ret += h_q * w_q * countSumGrid[N][N]
-		// fmt.Printf("whole, h_q: %d, w_q: %d, count: %d\n", h_q, w_q, h_q*w_q*countSumGrid[N][N])
+		fmt.Printf("whole, h_q: %d, w_q: %d, count: %d\n", h_q, w_q, h_q*w_q*countSumGrid[N][N])
+		// fmt.Printf("ret: %d\n\n", ret)
 
 		// add vertical stic-out count
 		{
 			var h = h_rem
 			var w int
+			var count int
 			if w_q < 1 {
 				w = w_rem
+				count = countSumGrid[h][w]
 			} else {
-				w = w_q * N
+				w = N
+				count = countSumGrid[h][w]
+				count *= w_q
 			}
 
-			// fmt.Printf("vertical stick-out, h: %d, w: %d, count: %d\n", h, w, countSumGrid[h][w])
+			fmt.Printf("vertical stick-out, h: %d, w: %d, count: %d\n", h, w, count)
 
-			ret += countSumGrid[h][w]
+			ret += count
 		}
 
 		// add horizontal stic-out count
 		{
 			var h int
 			var w = w_rem
+			var count int
 			if h_q < 1 {
 				h = h_rem
+				count = countSumGrid[h][w]
 			} else {
-				h = h_q * N
+				h = N
+				count = countSumGrid[h][w]
+				count *= h_q
 			}
 
-			// fmt.Printf("horizontal stick-out, h: %d, w: %d, count: %d\n", h, w, countSumGrid[h][w])
+			fmt.Printf("horizontal stick-out, h: %d, w: %d, count: %d\n", h, w, count)
 
-			ret += countSumGrid[h][w]
+			ret += count
 		}
 
 		// sub corner count
@@ -90,7 +99,7 @@ func main() {
 				w = 0
 			}
 
-			// fmt.Printf("corner, h: %d, w: %d, count: %d\n", h, w, countSumGrid[h][w])
+			fmt.Printf("corner, h: %d, w: %d, count: %d\n", h, w, countSumGrid[h][w])
 
 			ret -= countSumGrid[h][w]
 		}
