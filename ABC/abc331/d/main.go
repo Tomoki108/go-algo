@@ -40,16 +40,13 @@ func main() {
 		h_rem := (h + 1) % N
 		w_q := (w + 1) / N
 		w_rem := (w + 1) % N
-		fmt.Printf("h: %d, w: %d, h_q: %d, h_rem: %d, w_q: %d, w_rem: %d\n\n", h, w, h_q, h_rem, w_q, w_rem)
 
 		ret := 0
 
 		// add whole block count
 		ret += h_q * w_q * countSumGrid[N][N]
-		fmt.Printf("whole, h_q: %d, w_q: %d, count: %d\n", h_q, w_q, h_q*w_q*countSumGrid[N][N])
-		// fmt.Printf("ret: %d\n\n", ret)
 
-		// add vertical stic-out count
+		// add bottom remnant count
 		{
 			var h = h_rem
 			var w int
@@ -62,13 +59,10 @@ func main() {
 				count = countSumGrid[h][w]
 				count *= w_q
 			}
-
-			fmt.Printf("vertical stick-out, h: %d, w: %d, count: %d\n", h, w, count)
-
 			ret += count
 		}
 
-		// add horizontal stic-out count
+		// add right remnant count
 		{
 			var h int
 			var w = w_rem
@@ -82,16 +76,14 @@ func main() {
 				count *= h_q
 			}
 
-			fmt.Printf("horizontal stick-out, h: %d, w: %d, count: %d\n", h, w, count)
-
 			ret += count
 		}
 
-		// sub corner count
+		// add corner count
 		{
 			var h int
 			var w int
-			if h_rem > 0 && w_rem > 0 {
+			if h_q > 0 && w_q > 0 {
 				h = h_rem
 				w = w_rem
 			} else {
@@ -99,12 +91,8 @@ func main() {
 				w = 0
 			}
 
-			fmt.Printf("corner, h: %d, w: %d, count: %d\n", h, w, countSumGrid[h][w])
-
-			ret -= countSumGrid[h][w]
+			ret += countSumGrid[h][w]
 		}
-
-		// fmt.Printf("ret: %d\n\n", ret)
 
 		return ret
 	}
@@ -155,24 +143,6 @@ func PrefixSum2D(grid [][]int) [][]int {
 		}
 	}
 	return sumGrid
-}
-
-// 二次元累積和から、任意の範囲の和を求める
-// sumGridには、x, y, z方向に番兵（余分な空の一行）が含まれているものとする
-// Lx, Rxは、その軸における範囲指定 => x方向には、Rxの累積和からLx-1の累積和を引く
-func SumFrom2DPrefixSum(sumGrid [][]int, Lx, Rx, Ly, Ry int) int {
-	Lx--
-	Ly--
-
-	// 包除原理
-	result := sumGrid[Rx][Ry]
-
-	result -= sumGrid[Lx][Ry]
-	result -= sumGrid[Rx][Ly]
-
-	result += sumGrid[Lx][Ly]
-
-	return result
 }
 
 //////////////
