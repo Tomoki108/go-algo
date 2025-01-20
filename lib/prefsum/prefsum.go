@@ -20,7 +20,6 @@ func PrefixSum2D(grid [][]int) [][]int {
 	sumGrid := make([][]int, H)
 	for i := 0; i < H; i++ {
 		sumGrid[i] = make([]int, W)
-
 		if i == 0 {
 			continue
 		}
@@ -55,7 +54,6 @@ func PrefixSum3D(cube [][][]int) [][][]int {
 			if i == 0 || j == 0 {
 				continue
 			}
-
 			copy(sumCube[i][j][1:], cube[i-1][j-1])
 		}
 	}
