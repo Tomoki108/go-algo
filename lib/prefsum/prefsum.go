@@ -20,15 +20,19 @@ func PrefixSum2D(grid [][]int) [][]int {
 	sumGrid := make([][]int, H)
 	for i := 0; i < H; i++ {
 		sumGrid[i] = make([]int, W)
-		copy(sumGrid[i][1:], grid[i])
+
+		if i == 0 {
+			continue
+		}
+		copy(sumGrid[i][1:], grid[i-1])
 	}
 
-	for i := 0; i < H; i++ {
+	for i := 1; i < H; i++ {
 		for j := 1; j < W; j++ {
 			sumGrid[i][j] += sumGrid[i][j-1]
 		}
 	}
-	for i := 0; i < H; i++ {
+	for i := 1; i < H; i++ {
 		for j := 1; j < W; j++ {
 			sumGrid[i][j] += sumGrid[i-1][j]
 		}

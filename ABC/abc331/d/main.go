@@ -23,42 +23,21 @@ func main() {
 
 	N, Q := read2Ints(r)
 
-	colors := make([][]string, N+1)
-	coloredPrefSum := make([][]int, N+1)
-	for i := 0; i < N+1; i++ {
-		colors[i] = make([]string, N+1)
-		coloredPrefSum[i] = make([]int, N+1)
-	}
-
+	colors := readGrid(r, N)
+	countGrid := createGrid(N, N, 0)
 	for i := 0; i < N; i++ {
-		str := readStr(r)
-		str = "X" + str // 番兵
-		colors[i+1] = strings.Split(str, "")
-	}
-
-	for i := 0; i < N+1; i++ {
-		for j := 0; j < N+1; j++ {
+		for j := 0; j < N; j++ {
 			if colors[i][j] == "B" {
-				coloredPrefSum[i][j] = 1
+				countGrid[i][j] = 1
 			}
 		}
 	}
+	countSumGrid := PrefixSum2D(countGrid)
 
-	for i := 1; i < N+1; i++ {
-		for j := 1; j < N+1; j++ {
-			coloredPrefSum[i][j] += coloredPrefSum[i-1][j]
-		}
+	for i := 0; i < N+1; i++ {
+		fmt.Println(countSumGrid[i])
 	}
-	for i := 1; i < N+1; i++ {
-		for j := 1; j < N+1; j++ {
-			coloredPrefSum[i][j] += coloredPrefSum[i][j-1]
-		}
-	}
-
-	// 累積和作成まであっていた。
-	// for i := 0; i < N+1; i++ {
-	// 	fmt.Println(coloredPrefSum[i])
-	// }
+	return
 
 	for i := 0; i < Q; i++ {
 		// iarr := readIntArr(r)
@@ -66,13 +45,42 @@ func main() {
 	}
 }
 
-func countColored(h, w int) int {
+// func countColored(h, w int) int {
 
-}
+// }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(grid_size)
+// 二次元累積和を返す（各次元のindex0には0を入れる。）
+func PrefixSum2D(grid [][]int) [][]int {
+	H := len(grid) + 1
+	W := len(grid[0]) + 1
+
+	sumGrid := make([][]int, H)
+	for i := 0; i < H; i++ {
+		sumGrid[i] = make([]int, W)
+
+		if i == 0 {
+			continue
+		}
+		copy(sumGrid[i][1:], grid[i-1])
+	}
+
+	for i := 1; i < H; i++ {
+		for j := 1; j < W; j++ {
+			sumGrid[i][j] += sumGrid[i][j-1]
+		}
+	}
+	for i := 1; i < H; i++ {
+		for j := 1; j < W; j++ {
+			sumGrid[i][j] += sumGrid[i-1][j]
+		}
+	}
+	return sumGrid
+}
 
 //////////////
 // Helpers //
