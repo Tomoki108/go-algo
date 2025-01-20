@@ -39,13 +39,6 @@ func main() {
 		if h < 0 || w < 0 {
 			return 0
 		}
-
-		// すべてのマスがN*Nの周期の内側にある場合、bottom remnantとright remnantで重複数え上げしてしまう。
-		// その管理のためのフラグ
-		totallyInside := false
-		if h <= N && w <= N {
-			totallyInside = true
-		}
 		// fmt.Println("h, w:", h, w)
 
 		h_q := (h + 1) / N
@@ -53,6 +46,13 @@ func main() {
 		w_q := (w + 1) / N
 		w_rem := (w + 1) % N
 		// fmt.Printf("h_q: %d, h_rem: %d, w_q: %d, w_rem: %d\n", h_q, h_rem, w_q, w_rem)
+
+		// すべてのマスがN*Nの周期の内側にある場合、bottom remnantとright remnantで重複数え上げしてしまう。
+		// その管理のためのフラグ
+		totallyInside := false
+		if h_q == 0 && w_q == 0 {
+			totallyInside = true
+		}
 
 		ret := 0
 
