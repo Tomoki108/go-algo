@@ -34,20 +34,24 @@ func main() {
 	}
 	countSumGrid := PrefixSum2D(countGrid)
 
-	for i := 0; i < N+1; i++ {
-		fmt.Println(countSumGrid[i])
-	}
-	return
+	// for i := 0; i < N+1; i++ {
+	// 	fmt.Println(countSumGrid[i])
+	// }
+	// return
 
 	for i := 0; i < Q; i++ {
-		// iarr := readIntArr(r)
-		// A, B, C, D := iarr[0], iarr[1], iarr[2], iarr[3]
+		iarr := readIntArr(r)
+		A, B, C, D := iarr[0], iarr[1], iarr[2], iarr[3]
+
+		ans := countSquare(C, D) - countSquare(C, B) - countSquare(A, D) + countSquare(A, B)
+		fmt.Fprintln(w, ans)
 	}
 }
 
-// func countColored(h, w int) int {
-
-// }
+// h, wは右下隅の座標
+func countSquare(h, w int) int {
+	return 0
+}
 
 //////////////
 // Libs    //
