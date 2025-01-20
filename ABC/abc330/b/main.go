@@ -21,6 +21,24 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, L, R := iarr[0], iarr[1], iarr[2]
+
+	As := readIntArr(r)
+
+	for i, a := range As {
+		if a <= L {
+			fmt.Fprint(w, L)
+		} else {
+			fmt.Fprint(w, R)
+		}
+
+		if i == N-1 {
+			fmt.Fprintln(w)
+		} else {
+			fmt.Fprint(w, " ")
+		}
+	}
 }
 
 //////////////
