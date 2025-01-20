@@ -32,6 +32,9 @@ func main() {
 	sort.Ints(copyAs)
 	prefsum := PrefixSum(copyAs)
 
+	fmt.Println(copyAs)
+	fmt.Println(prefsum)
+
 	ansMap := make(map[int]int) // num => ans
 
 	for i := 1; i <= N; i++ {

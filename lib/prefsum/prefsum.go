@@ -1,7 +1,7 @@
 package prefsum
 
 // O(n)
-// 一次元配列の累積和を返す（index0には0を入れる。）
+// 一次元累積和を返す（index0には0を入れる。）
 func PrefixSum(sl []int) []int {
 	n := len(sl)
 	res := make([]int, n+1)
@@ -9,6 +9,70 @@ func PrefixSum(sl []int) []int {
 		res[i+1] = res[i] + sl[i]
 	}
 	return res
+}
+
+// O(grid_size)
+// 二次元累積和を返す（各次元のindex0には0を入れる。）
+func PrefixSum2D(grid [][]int) [][]int {
+	H := len(grid) + 1
+	W := len(grid[0]) + 1
+
+	sumGrid := make([][]int, H)
+	for i := 0; i < H; i++ {
+		sumGrid[i] = make([]int, W)
+		copy(sumGrid[i][1:], grid[i])
+	}
+
+	for i := 0; i < H; i++ {
+		for j := 1; j < W; j++ {
+			sumGrid[i][j] += sumGrid[i][j-1]
+		}
+	}
+	for i := 0; i < H; i++ {
+		for j := 1; j < W; j++ {
+			sumGrid[i][j] += sumGrid[i-1][j]
+		}
+	}
+	return sumGrid
+}
+
+// O(cube_size)
+// 三次元累積和を返す（各次元のindex0には0を入れる。）
+func PrefixSum3D(cube [][][]int) [][][]int {
+	X := len(cube) + 1
+	Y := len(cube[0]) + 1
+	Z := len(cube[0][0]) + 1
+
+	sumCube := make([][][]int, X)
+	for i := 0; i < X; i++ {
+		sumCube[i] = make([][]int, Y)
+		for j := 0; j < Y; j++ {
+			sumCube[i][j] = make([]int, Z)
+		}
+	}
+
+	for i := 0; i < X; i++ {
+		for j := 0; j < Y; j++ {
+			for k := 0; k < Z; k++ {
+				sumCube[i][j][k] += sumCube[i][j][k-1]
+			}
+		}
+	}
+	for i := 0; i < X; i++ {
+		for j := 0; j < Y; j++ {
+			for k := 0; k < Z; k++ {
+				sumCube[i][j][k] += sumCube[i][j-1][k]
+			}
+		}
+	}
+	for i := 0; i < X; i++ {
+		for j := 0; j < Y; j++ {
+			for k := 0; k < Z; k++ {
+				sumCube[i][j][k] += sumCube[i-1][j][k]
+			}
+		}
+	}
+	return sumCube
 }
 
 // 二次元累積和から、任意の範囲の和を求める

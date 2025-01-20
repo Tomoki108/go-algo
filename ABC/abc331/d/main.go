@@ -32,7 +32,7 @@ func main() {
 
 	for i := 0; i < N; i++ {
 		str := readStr(r)
-		str = "W" + str // 番兵
+		str = "X" + str // 番兵
 		colors[i+1] = strings.Split(str, "")
 	}
 
@@ -64,6 +64,10 @@ func main() {
 		// iarr := readIntArr(r)
 		// A, B, C, D := iarr[0], iarr[1], iarr[2], iarr[3]
 	}
+}
+
+func countColored(h, w int) int {
+
 }
 
 //////////////
