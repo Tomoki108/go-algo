@@ -21,11 +21,48 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	grid := readGrid(r, N)
+
+	countGrid := createGrid(N, N, 0)
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if grid[i][j] == "o" {
+				countGrid[i][j] = 1
+			}
+		}
+	}
+
+	countVerticalSum := createGrid(N, N+1, 0) // １行目は、１行目の累積和が入っている
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			countVerticalSum[i][j+1] = countVerticalSum[i][j] + countGrid[i][j]
+		}
+	}
+
+	countHorizontalSum := createGrid(N, N+1, 0) // １行目は、1列目の累積和が入っている
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			countHorizontalSum[i][j+1] = countHorizontalSum[i][j] + countGrid[j][i]
+		}
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers //
