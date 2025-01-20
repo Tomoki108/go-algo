@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	D := readInt(r)
+
+	maxSquareNum := 2 * pow(10, 6)
+	squareNums := make([]int, 0, maxSquareNum+1)
+	for i := 0; i*i <= maxSquareNum; i++ {
+		squareNums = append(squareNums, i*i)
+	}
+
+	ans := INT_MAX
+	for i, sNum := range squareNums {
+		toSearch := squareNums[i:]
+
+		idx1 := sort.Search(len(toSearch), func(j int) bool {
+			return sNum+toSearch[j] >= D
+		})
+		if idx1 == len(toSearch) {
+			break
+		}
+
+		ans1 := abs(sNum + toSearch[idx1] - D)
+		ans = min(ans, ans1)
+
+		if idx1 > 0 {
+			idx2 := idx1 - 1
+			ans2 := abs(sNum + toSearch[idx2] - D)
+			ans = min(ans, ans2)
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
