@@ -34,92 +34,23 @@ func main() {
 	}
 	countSumGrid := PrefixSum2D(countGrid)
 
-	// h, wは右下隅の座標
-	countInSquare := func(h, w int) int {
-		if h < 0 || w < 0 {
-			return 0
-		}
-		// fmt.Println("h, w:", h, w)
+	// h, wは、範囲内の右下のマスの、一つ右下のマスの座標を指す。
+	countInSquare := func(i, j int) int {
+		res := countSumGrid[N][N] * (i / N) * (j / N) // 周期全体のブロックの個数 * それが何セットあるか
+		res += countSumGrid[N][j%N] * (i / N)         // 右に飛び出した半端分の個数 * それが何セットあるか
+		res += countSumGrid[i%N][N] * (j / N)         // 下に飛び出した半端分の個数 * それが何セットあるか
+		res += countSumGrid[i%N][j%N]                 // 右下の半端分（右と下両方に飛び出している場合のみ存在）
 
-		h_q := (h + 1) / N
-		h_rem := (h + 1) % N
-		w_q := (w + 1) / N
-		w_rem := (w + 1) % N
-		// fmt.Printf("h_q: %d, h_rem: %d, w_q: %d, w_rem: %d\n", h_q, h_rem, w_q, w_rem)
-
-		// すべてのマスがN*Nの周期の内側にある場合、bottom remnantとright remnantで重複数え上げしてしまう。
-		// その管理のためのフラグ
-		totallyInside := false
-		if h_q == 0 && w_q == 0 {
-			totallyInside = true
-		}
-
-		ret := 0
-
-		// add whole block count
-		ret += h_q * w_q * countSumGrid[N][N]
-		// fmt.Printf("whole block count: %d\n", h_q*w_q*countSumGrid[N][N])
-
-		// add bottom remnant count
-		{
-			var h = h_rem
-			var w int
-			var count int
-			if w_q < 1 {
-				w = w_rem
-				count = countSumGrid[h][w]
-			} else {
-				w = N
-				count = countSumGrid[h][w]
-				count *= w_q
-			}
-			ret += count
-			// fmt.Printf("bottom remnant count: %d\n", count)
-		}
-
-		// add right remnant count
-		if !totallyInside {
-			var h int
-			var w = w_rem
-			var count int
-			if h_q < 1 {
-				h = h_rem
-				count = countSumGrid[h][w]
-			} else {
-				h = N
-				count = countSumGrid[h][w]
-				count *= h_q
-			}
-
-			ret += count
-			dump(fmt.Sprintf("h: %d, w: %d, count: %d", h, w, count))
-			// fmt.Printf("right remnant count: %d\n", count)
-		}
-
-		// add corner count
-		{
-			var h int
-			var w int
-			if h_q > 0 && w_q > 0 {
-				h = h_rem
-				w = w_rem
-			} else {
-				h = 0
-				w = 0
-			}
-
-			ret += countSumGrid[h][w]
-		}
-		// fmt.Println("ret:", ret)
-
-		return ret
+		return res
 	}
 
 	for i := 0; i < Q; i++ {
 		iarr := readIntArr(r)
 		A, B, C, D := iarr[0], iarr[1], iarr[2], iarr[3]
-		A--
-		B--
+		// 累積和のグリッドはH, Wが1づつ長いため、C, Dに1を足す。
+		// A, Bには足さないのは、calcSquare関数の引数の想定より、もともと足されているようなものであるため。
+		C++
+		D++
 
 		ans := countInSquare(C, D) -
 			countInSquare(C, B) -
