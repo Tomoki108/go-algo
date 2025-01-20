@@ -28,7 +28,6 @@ func main() {
 	copyAs := make([]int, N)
 	copy(copyAs, As)
 
-	Deduplicate(copyAs)
 	sort.Ints(copyAs)
 	prefsum := PrefixSum(copyAs)
 
@@ -58,21 +57,6 @@ func main() {
 //////////////
 // Libs    //
 /////////////
-
-// O(n)
-func Deduplicate[T comparable](sl []T) []T {
-	m := map[T]bool{}
-	for _, v := range sl {
-		m[v] = true
-	}
-
-	var deduped []T
-	for k := range m {
-		deduped = append(deduped, k)
-	}
-
-	return deduped
-}
 
 // O(n)
 // 一次元配列の累積和を返す（index0には0を入れる。）
