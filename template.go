@@ -31,6 +31,13 @@ func main() {
 // Helpers //
 /////////////
 
+func dump(msg string) {
+	dumpFlag := strings.Contains(strings.Join(os.Args, " "), "-dump")
+	if dumpFlag {
+		fmt.Println(msg)
+	}
+}
+
 // 一行に1文字のみの入力を読み込む
 func readStr(r *bufio.Reader) string {
 	input, _ := r.ReadString('\n')

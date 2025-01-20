@@ -92,6 +92,7 @@ func main() {
 			}
 
 			ret += count
+			dump(fmt.Sprintf("h: %d, w: %d, count: %d", h, w, count))
 			// fmt.Printf("right remnant count: %d\n", count)
 		}
 
@@ -165,6 +166,13 @@ func PrefixSum2D(grid [][]int) [][]int {
 //////////////
 // Helpers //
 /////////////
+
+func dump(msg string) {
+	dumpFlag := strings.Contains(strings.Join(os.Args, " "), "-dump")
+	if dumpFlag {
+		fmt.Println(msg)
+	}
+}
 
 // 一行に1文字のみの入力を読み込む
 func readStr(r *bufio.Reader) string {
