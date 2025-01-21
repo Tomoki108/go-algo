@@ -25,6 +25,7 @@ func main() {
 	As := readIntArr(r)
 
 	winnerVote := 0
+	winner := INT_MAX
 	m := make(map[int]int, N)
 	for i := 0; i < M; i++ {
 		A := As[i]
@@ -32,9 +33,12 @@ func main() {
 		m[A]++
 		vote := m[A]
 
-		if vote > winnerVote {
+		if vote > winnerVote || vote == winnerVote && A < winner {
 			fmt.Fprintln(w, A)
 			winnerVote = vote
+			winner = A
+		} else {
+			fmt.Fprintln(w, winner)
 		}
 	}
 
