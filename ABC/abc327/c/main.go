@@ -21,6 +21,51 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	grid := readIntGrid(r, 9)
+
+	// row check
+	for i := 0; i < 9; i++ {
+		rowMap := make(map[int]struct{})
+		for j := 0; j < 9; j++ {
+			rowMap[grid[i][j]] = struct{}{}
+		}
+		if len(rowMap) != 9 {
+			fmt.Println("No")
+			return
+		}
+	}
+
+	// col check
+	for i := 0; i < 9; i++ {
+		colMap := make(map[int]struct{})
+		for j := 0; j < 9; j++ {
+			colMap[grid[j][i]] = struct{}{}
+		}
+		if len(colMap) != 9 {
+			fmt.Println("No")
+			return
+		}
+	}
+
+	rowRanges := [3][2]int{{0, 2}, {3, 5}, {6, 8}}
+	colRanges := [3][2]int{{0, 2}, {3, 5}, {6, 8}}
+
+	for _, rowRange := range rowRanges {
+		for _, colRange := range colRanges {
+			gridMap := make(map[int]struct{})
+			for i := rowRange[0]; i <= rowRange[1]; i++ {
+				for j := colRange[0]; j <= colRange[1]; j++ {
+					gridMap[grid[i][j]] = struct{}{}
+				}
+			}
+			if len(gridMap) != 9 {
+				fmt.Println("No")
+				return
+			}
+		}
+	}
+
+	fmt.Println("Yes")
 }
 
 //////////////
