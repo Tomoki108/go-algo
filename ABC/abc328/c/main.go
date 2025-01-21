@@ -21,11 +21,72 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	countPrefsum := make([]int, 0, N+1)
+	countPrefsum = append(countPrefsum, 0)
+
+	prev := ""
+	for i := 0; i < N; i++ {
+		str := Ss[i]
+		if prev == str {
+			countPrefsum = append(countPrefsum, countPrefsum[i]+1)
+		} else {
+			countPrefsum = append(countPrefsum, countPrefsum[i])
+			prev = str
+		}
+	}
+
+	dump(fmt.Sprintf("%v", countPrefsum))
+
+	for i := 0; i < Q; i++ {
+		l, r := read2Ints(r)
+
+		ans := countPrefsum[r] - countPrefsum[l]
+		fmt.Fprintln(w, ans)
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// ランレングス圧縮を行う。[]"数+delimiter+文字種"を返す。
+func RunLength(sl []string, delimiter string) []string {
+	comp := make([]string, 0, len(sl))
+	if len(sl) == 0 {
+		return comp
+	}
+
+	lastChar := sl[0]
+	currentLen := 0
+	for i := 0; i < len(sl); i++ {
+		s := sl[i]
+		if s == lastChar {
+			currentLen++
+		} else {
+			comp = append(comp, strconv.Itoa(currentLen)+delimiter+lastChar)
+			lastChar = s
+			currentLen = 1
+		}
+	}
+	comp = append(comp, strconv.Itoa(currentLen)+delimiter+lastChar) // 最後の一文字
+
+	return comp
+}
+
+// O(1)
+// "数+delimiter+文字種"を分割して数と文字種を返す
+func SplitRLStr(s, delimiter string) (int, string) {
+	strs := strings.Split(s, delimiter)
+	num, _ := strconv.Atoi(strs[0])
+
+	return num, strs[1]
+}
 
 //////////////
 // Helpers //
