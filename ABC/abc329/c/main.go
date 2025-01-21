@@ -21,11 +21,48 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	Ss = RunLength(Ss, "")
+
+	m := make(map[string]struct{}, N)
+	for _, s := range Ss {
+		m[s] = struct{}{}
+	}
+
+	fmt.Fprintln(w, len(m))
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// ランレングス圧縮を行う。[]"数+delimiter+文字種"を返す。
+func RunLength(sl []string, delimiter string) []string {
+	comp := make([]string, 0, len(sl))
+	if len(sl) == 0 {
+		return comp
+	}
+
+	lastChar := sl[0]
+	currentLen := 0
+	for i := 0; i < len(sl); i++ {
+		s := sl[i]
+		if s == lastChar {
+			currentLen++
+		} else {
+			comp = append(comp, strconv.Itoa(currentLen)+delimiter+lastChar)
+			lastChar = s
+			currentLen = 1
+		}
+	}
+	comp = append(comp, strconv.Itoa(currentLen)+delimiter+lastChar) // 最後の一文字
+
+	return comp
+}
 
 //////////////
 // Helpers //
