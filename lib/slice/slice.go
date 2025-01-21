@@ -19,6 +19,7 @@ func RevSl[S ~[]E, E any](s S) S {
 	return revS
 }
 
+// O(N + M)
 func SlCommon[T comparable](slice1, slice2 []T) []T {
 	// 要素の出現回数を記録するマップ
 	countMap := make(map[T]int)
