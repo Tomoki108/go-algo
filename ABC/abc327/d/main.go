@@ -25,33 +25,8 @@ func main() {
 	As := readIntArr(r)
 	Bs := readIntArr(r)
 
-	// Xs[i]が、Aのindex iによって決定されたことを表す
-	X_aIndexes := make([][]int, N)
-	for i, A := range As {
-		X_aIndexes[A-1] = append(X_aIndexes[A-1], i)
-	}
+	graph := make([][]int, N)
 
-	X_bIndexes := make([][]int, N)
-	for i, B := range Bs {
-		X_bIndexes[B-1] = append(X_bIndexes[B-1], i)
-	}
-
-	dump(fmt.Sprintf("%v", X_aIndexes))
-	dump(fmt.Sprintf("%v", X_bIndexes))
-
-	for m := 0; m < M; m++ {
-
-		indexes1 := X_aIndexes[m]
-		indexes2 := X_bIndexes[m]
-
-		commonIndexes := SlCommon(indexes1, indexes2)
-		if len(commonIndexes) > 0 {
-			fmt.Fprintln(w, "No")
-			return
-		}
-	}
-
-	fmt.Fprintln(w, "Yes")
 }
 
 //////////////
