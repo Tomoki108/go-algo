@@ -21,6 +21,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	As := readIntArr(r)
+
+	winnerVote := 0
+	m := make(map[int]int, N)
+	for i := 0; i < M; i++ {
+		A := As[i]
+
+		m[A]++
+		vote := m[A]
+
+		if vote > winnerVote {
+			fmt.Fprintln(w, A)
+			winnerVote = vote
+		}
+	}
+
 }
 
 //////////////
