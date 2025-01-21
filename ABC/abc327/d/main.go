@@ -25,8 +25,53 @@ func main() {
 	As := readIntArr(r)
 	Bs := readIntArr(r)
 
+	// Xsについて、違うことが確定しているindexを辺で繋ぐ
 	graph := make([][]int, N)
 
+	for i := 0; i < M; i++ {
+		A := As[i]
+		B := Bs[i]
+		A--
+		B--
+
+		graph[A] = append(graph[A], B)
+		graph[B] = append(graph[B], A)
+	}
+
+	Xs := make([]int, N)
+	for i := 0; i < N; i++ {
+		Xs[i] = -1
+	}
+
+	// 塗ろうとする頂点、色
+	var dfs func(node, color int) bool
+	dfs = func(node, color int) bool {
+		if Xs[node] != -1 {
+			return Xs[node] == color
+		}
+
+		Xs[node] = color
+		for _, next := range graph[node] {
+			// visitedを管理しておらず親にも戻るが、関数の最初でtrueを確定で返すので問題ない。
+			if !dfs(next, 1-color) {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	for i := 0; i < N; i++ {
+		// それ以前のdfsで塗られていないノードについてdfsする。（連結成分ごとに塗る。）
+		if Xs[i] == -1 {
+			if !dfs(i, 0) { // 連結成分の最初のノードなので、0, 1はどちらでも良い
+				fmt.Fprintln(w, "No")
+				return
+			}
+		}
+	}
+
+	fmt.Fprintln(w, "Yes")
 }
 
 //////////////
