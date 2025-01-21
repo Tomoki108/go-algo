@@ -21,6 +21,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	for i := 0; i < len(Ss); i++ {
+		fmt.Fprint(w, Ss[i])
+		if i == len(Ss)-1 {
+			fmt.Fprintln(w)
+		} else {
+			fmt.Fprint(w, " ")
+		}
+	}
+
 }
 
 //////////////
