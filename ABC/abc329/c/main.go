@@ -25,11 +25,17 @@ func main() {
 	S := readStr(r)
 	Ss := strings.Split(S, "")
 
-	Ss = RunLength(Ss, "")
+	Ss = RunLength(Ss, "_")
 
 	m := make(map[string]struct{}, N)
 	for _, s := range Ss {
-		m[s] = struct{}{}
+		count, char := SplitRLStr(s, "_")
+
+		for i := 1; i <= count; i++ {
+			key := itoa(i) + "_" + char
+			m[key] = struct{}{}
+		}
+
 	}
 
 	fmt.Fprintln(w, len(m))
@@ -38,6 +44,15 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+// O(1)
+// "数+delimiter+文字種"を分割して数と文字種を返す
+func SplitRLStr(s, delimiter string) (int, string) {
+	strs := strings.Split(s, delimiter)
+	num, _ := strconv.Atoi(strs[0])
+
+	return num, strs[1]
+}
 
 // O(n)
 // ランレングス圧縮を行う。[]"数+delimiter+文字種"を返す。
