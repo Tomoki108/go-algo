@@ -21,6 +21,32 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Ds := readIntArr(r)
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		D := Ds[i]
+		M := i + 1
+		for j := 1; j <= D; j++ {
+			mdStr := itoa(M) + itoa(j)
+
+			same := true
+			char := mdStr[0]
+			for k := 1; k < len(mdStr); k++ {
+				if mdStr[k] != char {
+					same = false
+					break
+				}
+			}
+
+			if same {
+				ans++
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
