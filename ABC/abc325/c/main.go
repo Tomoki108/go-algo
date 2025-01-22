@@ -21,11 +21,156 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	H, W := read2Ints(r)
+	grid := readGrid(r, H)
+
+	sensorsMap := make(map[[2]int]int, H*W) // coordinate => index
+	index := 0
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "#" {
+				sensorsMap[[2]int{i, j}] = index
+				index++
+			}
+		}
+	}
+
+	uf := NewUnionFind(len(sensorsMap))
+
+	visited := make([][]bool, H)
+	for i := 0; i < H; i++ {
+		visited[i] = make([]bool, W)
+	}
+
+	var dfs func(i, j int)
+	dfs = func(i, j int) {
+		c := Coordinate{i, j}
+
+		for _, adj := range c.AdjacentsWithDiagonals() {
+			if !adj.IsValid(H, W) || grid[adj.h][adj.w] == "." || visited[adj.h][adj.w] {
+				continue
+			}
+
+			uf.Union(sensorsMap[[2]int{i, j}], sensorsMap[[2]int{adj.h, adj.w}])
+			visited[adj.h][adj.w] = true
+			dfs(adj.h, adj.w)
+		}
+
+		visited[i][j] = true
+	}
+
+	for sensor, idx := range sensorsMap {
+		if uf.IsRoot(idx) { // ルートでないなら、これ以前のdfsで連結成分で繋がっている。
+			dfs(sensor[0], sensor[1])
+		}
+	}
+
+	fmt.Fprintln(w, uf.CountRoots())
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) AdjacentsWithDiagonals() [8]Coordinate {
+	return [8]Coordinate{
+		{c.h - 1, c.w},     // 上
+		{c.h + 1, c.w},     // 下
+		{c.h, c.w - 1},     // 左
+		{c.h, c.w + 1},     // 右
+		{c.h - 1, c.w - 1}, // 左上
+		{c.h - 1, c.w + 1}, // 右上
+		{c.h + 1, c.w - 1}, // 左下
+		{c.h + 1, c.w + 1}, // 右下
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
+
+type UnionFind struct {
+	parent []int // len(parent)分のノードを考え、各ノードの親を記録している
+	size   []int // そのノードを頂点とする部分木の頂点数
+}
+
+func NewUnionFind(size int) *UnionFind {
+	parent := make([]int, size)
+	s := make([]int, size)
+	for i := range parent {
+		parent[i] = i
+		s[i] = 1
+	}
+	return &UnionFind{parent, s}
+}
+
+// O(α(N))　※定数時間。α(N)はアッカーマン関数の逆関数
+// xの親を見つける
+func (uf *UnionFind) Find(xIdx int) int {
+	if uf.parent[xIdx] != xIdx {
+		uf.parent[xIdx] = uf.Find(uf.parent[xIdx]) // 経路圧縮
+	}
+	return uf.parent[xIdx]
+}
+
+// O(α(N))
+// xとyを同じグループに統合する（サイズが大きい方に統合）
+func (uf *UnionFind) Union(xIdx, yIdx int) {
+	rootX := uf.Find(xIdx)
+	rootY := uf.Find(yIdx)
+
+	if rootX != rootY {
+		if uf.size[rootX] < uf.size[rootY] {
+			uf.parent[rootX] = rootY
+			uf.size[rootY] += uf.size[rootX]
+		} else if uf.size[rootX] > uf.size[rootY] {
+			uf.parent[rootY] = rootX
+			uf.size[rootX] += uf.size[rootY]
+		} else {
+			uf.parent[rootY] = rootX
+			uf.size[rootX] += uf.size[rootY]
+		}
+	}
+}
+
+// O(1)
+func (uf *UnionFind) IsRoot(xIdx int) bool {
+	return uf.parent[xIdx] == xIdx
+}
+
+// O(α(N))
+func (uf *UnionFind) IsSameRoot(xIdx, yIdx int) bool {
+	return uf.Find(xIdx) == uf.Find(yIdx)
+}
+
+// O(N)
+func (uf *UnionFind) CountRoots() int {
+	count := 0
+	for i := range uf.parent {
+		if uf.parent[i] == i {
+			count++
+		}
+	}
+	return count
+}
+
+// O(α(N))
+func (uf *UnionFind) GroupSize(xIdx int) int {
+	return uf.size[uf.Find(xIdx)]
+}
 
 //////////////
 // Helpers //

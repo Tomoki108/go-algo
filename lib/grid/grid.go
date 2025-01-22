@@ -19,6 +19,19 @@ func (c Coordinate) Adjacents() [4]Coordinate {
 	}
 }
 
+func (c Coordinate) AdjacentsWithDiagonals() [8]Coordinate {
+	return [8]Coordinate{
+		{c.h - 1, c.w},     // 上
+		{c.h + 1, c.w},     // 下
+		{c.h, c.w - 1},     // 左
+		{c.h, c.w + 1},     // 右
+		{c.h - 1, c.w - 1}, // 左上
+		{c.h - 1, c.w + 1}, // 右上
+		{c.h + 1, c.w - 1}, // 左下
+		{c.h + 1, c.w + 1}, // 右下
+	}
+}
+
 func (c Coordinate) IsValid(H, W int) bool {
 	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
 }
