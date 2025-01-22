@@ -21,6 +21,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	for i := N; i < 1000; i++ {
+		i3 := i / 100
+		i2 := (i - i3*100) / 10
+		i1 := i - i3*100 - i2*10
+
+		if i3*i2 == i1 {
+			fmt.Println(i)
+			return
+		}
+	}
 }
 
 //////////////
