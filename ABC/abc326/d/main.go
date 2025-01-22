@@ -24,31 +24,85 @@ func main() {
 	N := readInt(r)
 	R := readStr(r)
 	C := readStr(r)
-	Rs := strings.Split(R, "")
-	Cs := strings.Split(C, "")
+	grid := createGrid(N, N, ".")
 
-	var set []string
-	if N == 3 {
-		set = []string{"A", "B", "C"}
-	} else if N == 4 {
-		set = []string{"A", "B", "C", "."}
-	} else if N == 5 {
-		set = []string{"A", "B", "C", ".", "."}
-	}
-
-	ps := Permute([]string{}, set)
-
-	sets := make([][]string, 0, N)
+	indexes := make([]int, 0, N) // 行にあるインデックス
 	for i := 0; i < N; i++ {
-
+		indexes = append(indexes, i)
 	}
 
-	set1 := make([]string, N)
-	set2 := make([]string, N)
-	set
+	var dfs func(char string, grid [][]string) bool
+	dfs = func(char string, grid [][]string) bool {
+		if char == "D" {
+			currentR := ""
+			currentC := ""
+		ColIdx:
+			for i := 0; i < N; i++ { // col index
+				for j := 0; j < N; j++ { // row index
+					if grid[i][j] != "." {
+						currentR += grid[0][i]
+						continue ColIdx
+					}
+				}
+			}
+		RowIdx:
+			for i := 0; i < N; i++ { // row index
+				for j := 0; j < N; j++ { // col index
+					if grid[j][i] != "." {
+						currentC += grid[j][0]
+						continue RowIdx
+					}
+				}
+			}
 
-	for NextPermutation(set) {
+			if currentR == R && currentC == C {
+				fmt.Fprintln(w, "Yes")
+				writeGrid(w, grid)
+				return true
+			}
 
+			return false
+		}
+
+		idxs := make([]int, N) // charを、grid[i]idx[i]におくという、パターン
+		copy(idxs, indexes)
+
+		next := true
+	Outer:
+		for next {
+			cgrid := CopyGrid(grid)
+			for i := 0; i < N; i++ {
+				if cgrid[i][idxs[i]] != "." {
+					next = NextPermutation(idxs)
+					continue Outer
+				}
+				cgrid[i][idxs[i]] = char
+			}
+
+			var nextChar string
+			switch char {
+			case "A":
+				nextChar = "B"
+			case "B":
+				nextChar = "C"
+			case "C":
+				nextChar = "D"
+			default:
+				panic("invalid char")
+			}
+
+			if dfs(nextChar, cgrid) {
+				return true
+			}
+
+			next = NextPermutation(idxs)
+		}
+
+		return false
+	}
+
+	if !dfs("A", grid) {
+		fmt.Fprintln(w, "No")
 	}
 }
 
@@ -56,41 +110,17 @@ func main() {
 // Libs    //
 /////////////
 
-// NOTE: スライスのcopyが多く、n = 10 程度で致命的に遅い。NetxPermutationを推奨。
-//
-// O(n!) n: len(options)
-// 順列のパターンを全列挙する
-// ex, Permute([]int{}, []int{1, 2, 3}) returns [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]
-// options[i]に重複した要素が含まれていても、あらかじめソートしておけば重複パターンは除かれる
-func Permute[T comparable](current []T, options []T) [][]T {
-	var results [][]T
-
-	if len(options) == 0 {
-		ccrrent := make([]T, len(current))
-		copy(ccrrent, current)
-
-		return [][]T{ccrrent}
+// O(H*W)
+// T型グリッドのコピーを作成する
+func CopyGrid[T any](grid [][]T) [][]T {
+	H := len(grid)
+	W := len(grid[0])
+	res := make([][]T, H)
+	for i := 0; i < H; i++ {
+		res[i] = make([]T, W)
+		copy(res[i], grid[i])
 	}
-
-	var lastO T
-	for i, o := range options {
-		if o == lastO {
-			continue
-		}
-		lastO = o
-
-		current = append(current, o)
-		newOptions := make([]T, 0, len(options)-1)
-		newOptions = append(newOptions, options[:i]...)
-		newOptions = append(newOptions, options[i+1:]...)
-
-		subResults := Permute(current, newOptions)
-		results = append(results, subResults...)
-
-		current = current[:len(current)-1]
-	}
-
-	return results
+	return res
 }
 
 // NOTE: 全パターンに何らかの処理を適用したいとき、オリジナルのslに対しては別途処理を記述する
@@ -125,6 +155,12 @@ func NextPermutation[T ~int | ~string](sl []T) bool {
 	// 　例: [1, 2, 4, 6, 5, 3] → [1, 2, 4, 3, 5, 6]。
 	reverse(sl[i+1:])
 	return true
+}
+
+func reverse[T ~int | ~string](sl []T) {
+	for i, j := 0, len(sl)-1; i < j; i, j = i+1, j-1 {
+		sl[i], sl[j] = sl[j], sl[i]
+	}
 }
 
 //////////////

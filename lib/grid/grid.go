@@ -51,6 +51,7 @@ func IntGridToString(H, W int, grid [][]int) string {
 	return str
 }
 
+// O(H*W)
 // T型グリッドのコピーを作成する
 func CopyGrid[T any](grid [][]T) [][]T {
 	H := len(grid)
