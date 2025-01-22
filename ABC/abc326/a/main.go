@@ -21,6 +21,27 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	X, Y := read2Ints(r)
+
+	if X > Y {
+		if X-Y <= 3 {
+			fmt.Println("Yes")
+			return
+		} else {
+			fmt.Println("No")
+			return
+		}
+	} else {
+		if Y-X <= 2 {
+			fmt.Println("Yes")
+			return
+		} else {
+			fmt.Println("No")
+			return
+		}
+
+	}
+
 }
 
 //////////////
