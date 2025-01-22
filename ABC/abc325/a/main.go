@@ -21,6 +21,9 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	sarr := readStrArr(r)
+
+	fmt.Fprintln(w, sarr[0]+" san")
 }
 
 //////////////
