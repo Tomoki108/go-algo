@@ -64,6 +64,12 @@ func TestPermute(t *testing.T) {
 	}
 }
 
+func BenchmarkPermute2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Permute2([]int{}, [][]int{{1, 2}, {3, 4}})
+	}
+}
+
 func TestPermute2(t *testing.T) {
 	tests := []struct {
 		name     string
