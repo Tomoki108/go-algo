@@ -36,24 +36,26 @@ func main() {
 		if char == "D" {
 			currentR := ""
 			currentC := ""
-		ColIdx:
-			for i := 0; i < N; i++ { // col index
-				for j := 0; j < N; j++ { // row index
-					if grid[i][j] != "." {
-						currentR += grid[0][i]
-						continue ColIdx
-					}
-				}
-			}
 		RowIdx:
 			for i := 0; i < N; i++ { // row index
 				for j := 0; j < N; j++ { // col index
-					if grid[j][i] != "." {
-						currentC += grid[j][0]
+					if grid[i][j] != "." {
+						currentR += grid[i][j]
 						continue RowIdx
 					}
 				}
 			}
+		ColIdx:
+			for i := 0; i < N; i++ { // col index
+				for j := 0; j < N; j++ { // row index
+					if grid[j][i] != "." {
+						currentC += grid[j][i]
+						continue ColIdx
+					}
+				}
+			}
+
+			dump(fmt.Sprintf("currentR: %s\n currentC: %s\n", currentR, currentC))
 
 			if currentR == R && currentC == C {
 				fmt.Fprintln(w, "Yes")
