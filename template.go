@@ -31,13 +31,6 @@ func main() {
 // Helpers //
 /////////////
 
-func dump(msg string) {
-	dumpFlag := strings.Contains(strings.Join(os.Args, " "), "-dump")
-	if dumpFlag {
-		fmt.Println(msg)
-	}
-}
-
 // 一行に1文字のみの入力を読み込む
 func readStr(r *bufio.Reader) string {
 	input, _ := r.ReadString('\n')
@@ -213,4 +206,21 @@ func pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
