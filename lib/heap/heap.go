@@ -21,7 +21,8 @@ func (h Heap[T]) Len() int           { return len(h) }
 func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
 func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
-// DO NOT USE DIRECTLY. to implement heap.Interface
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
 func (h *Heap[T]) Push(x any) {
 	// Push and Pop use pointer receivers because they modify the slice's length,
 	// not just its contents.
@@ -29,7 +30,8 @@ func (h *Heap[T]) Push(x any) {
 	*h = append(*h, x.(T))
 }
 
-// DO NOT USE DIRECTLY. to implement heap.Interface
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
 func (h *Heap[T]) Pop() any {
 	old := *h
 	n := len(old)
@@ -57,10 +59,12 @@ const (
 	MaxIntHeap                    // 小さい方が優先
 )
 
+// O(logN)
 func (h *IntHeap) PushI(i int) {
 	heap.Push(h, i)
 }
 
+// O(logN)
 func (h *IntHeap) PopI() int {
 	return heap.Pop(h).(int)
 }
@@ -76,14 +80,16 @@ func (h *IntHeap) Less(i, j int) bool {
 }
 func (h *IntHeap) Swap(i, j int) { h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i] }
 
-// DO NOT USE DIRECTLY. to implement heap.Interface
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
 func (h *IntHeap) Push(x any) {
 	// Push and Pop use pointer receivers because they modify the slice's length,
 	// not just its contents.
 	h.iarr = append(h.iarr, x.(int))
 }
 
-// DO NOT USE DIRECTLY. to implement heap.Interface
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
 func (h *IntHeap) Pop() any {
 	oldiarr := h.iarr
 	n := len(oldiarr)

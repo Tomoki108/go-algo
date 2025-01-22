@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +23,120 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	sections := make([][2]int, 0, N) // []{start, end}
+	for i := 0; i < N; i++ {
+		T, D := read2Ints(r)
+		sections = append(sections, [2]int{T, T + D})
+	}
+	sort.Slice(sections, func(i, j int) bool {
+		return sections[i][0] < sections[j][0]
+	})
+
+	ans := 0
+
+	t := sections[0][0] // 現在時刻
+	sectionIdx := 0     // 次にこのindexの区間から、endをpriority queueに追加しようとする。
+
+	pq := NewIntHeap(MinIntHeap) // すでに開始している区間の終了時間を格納。最も早く終了するものが先頭に来る。
+	for sectionIdx < N || pq.Len() != 0 {
+		dump(fmt.Sprintf("[at start] t: %d, sectionIdx: %d, pq: %v, ans: %d", t, sectionIdx, pq.iarr, ans))
+
+		// waste expired end-time
+		for pq.Len() > 0 {
+			last := pq.PopI()
+			if last >= t {
+				dump(fmt.Sprintf("[wasted] %d", last))
+				pq.PushI(last)
+				break
+			}
+		}
+
+		for sectionIdx < N && sections[sectionIdx][0] <= t {
+			pq.PushI(sections[sectionIdx][1])
+			dump(fmt.Sprintf("[pushed] %d", sections[sectionIdx][1]))
+			sectionIdx++
+		}
+
+		if pq.Len() == 0 {
+			if sectionIdx < N {
+				t = sections[sectionIdx][0]
+				continue
+			}
+			break
+		}
+
+		poped := pq.PopI()
+		dump(fmt.Sprintf("[poped] %d", poped))
+		ans++
+		t++
+
+		dump(fmt.Sprintf("[at end] t: %d, sectionIdx: %d, pq: %v, ans %d\n", t, sectionIdx, pq.iarr, ans))
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type IntHeap struct {
+	iarr        []int
+	IntHeapType IntHeapType
+}
+
+func NewIntHeap(t IntHeapType) *IntHeap {
+	return &IntHeap{
+		iarr:        make([]int, 0),
+		IntHeapType: t,
+	}
+}
+
+type IntHeapType int
+
+const (
+	MinIntHeap IntHeapType = iota // 大きい方が優先
+	MaxIntHeap                    // 小さい方が優先
+)
+
+func (h *IntHeap) PushI(i int) {
+	heap.Push(h, i)
+}
+
+func (h *IntHeap) PopI() int {
+	return heap.Pop(h).(int)
+}
+
+// to implement sort.Interface
+func (h *IntHeap) Len() int { return len(h.iarr) }
+func (h *IntHeap) Less(i, j int) bool {
+	if h.IntHeapType == MaxIntHeap {
+		return h.iarr[i] > h.iarr[j]
+	} else {
+		return h.iarr[i] < h.iarr[j]
+	}
+}
+func (h *IntHeap) Swap(i, j int) { h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *IntHeap) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	h.iarr = append(h.iarr, x.(int))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *IntHeap) Pop() any {
+	oldiarr := h.iarr
+	n := len(oldiarr)
+	x := oldiarr[n-1]
+	h.iarr = oldiarr[0 : n-1]
+	return x
+}
 
 //////////////
 // Helpers //
