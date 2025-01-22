@@ -35,14 +35,8 @@ func main() {
 		for j := 0; j < N; j++ {
 			x := wxs[j].x
 
-			start := i + x
-			if start > 24 {
-				start -= 24
-			}
-			end := i + 1 + x
-			if end > 24 {
-				end -= 24
-			}
+			start := (i + x) % 24
+			end := (i + 1 + x) % 24
 
 			if start >= 9 && start <= 18 && end >= 9 && end <= 18 {
 				ans += wxs[j].w
