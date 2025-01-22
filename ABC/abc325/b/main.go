@@ -21,11 +21,58 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	wxs := make([]WX, 0, N)
+	for i := 0; i < N; i++ {
+		W, X := read2Ints(r)
+		wxs = append(wxs, WX{W, X})
+	}
+
+	maxAns := INT_MIN
+	for i := 0; i <= 24; i++ {
+		ans := 0
+		for j := 0; j < N; j++ {
+			x := wxs[j].x
+
+			start := i + x
+			if start > 24 {
+				start -= 24
+			}
+			end := i + 1 + x
+			if end > 24 {
+				end -= 24
+			}
+
+			if start >= 9 && start <= 18 && end >= 9 && end <= 18 {
+				ans += wxs[j].w
+			}
+		}
+		maxAns = max(maxAns, ans)
+	}
+
+	fmt.Println(maxAns)
+}
+
+type WX struct {
+	w int // 人数
+	x int // 時差+x
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+func RevSl[S ~[]E, E any](s S) S {
+	lenS := len(s)
+	revS := make(S, lenS)
+	for i := 0; i < lenS; i++ {
+		revS[i] = s[lenS-1-i]
+	}
+
+	return revS
+}
 
 //////////////
 // Helpers //
