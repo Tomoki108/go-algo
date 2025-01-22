@@ -41,12 +41,12 @@ func main() {
 
 	pq := NewIntHeap(MinIntHeap) // すでに開始している区間の終了時間を格納。最も早く終了するものが先頭に来る。
 	for sectionIdx < N || pq.Len() != 0 {
-		dump(fmt.Sprintf("[at start] t: %d, sectionIdx: %d, pq: %v, ans: %d", t, sectionIdx, pq.iarr, ans))
+		// dump(fmt.Sprintf("[at start] t: %d, sectionIdx: %d, pq: %v, ans: %d", t, sectionIdx, pq.iarr, ans))
 
 		// push end-time of start-time t
 		for sectionIdx < N && sections[sectionIdx][0] == t {
 			pq.PushI(sections[sectionIdx][1])
-			dump(fmt.Sprintf("[pushed] %d", sections[sectionIdx][1]))
+			// dump(fmt.Sprintf("[pushed] %d", sections[sectionIdx][1]))
 			sectionIdx++
 		}
 
@@ -54,24 +54,16 @@ func main() {
 		for pq.Len() > 0 {
 			last := pq.PopI()
 			if last >= t {
-				dump(fmt.Sprintf("[wasted] %d", last))
+				// dump(fmt.Sprintf("[wasted] %d", last))
 				pq.PushI(last)
 				break
 			}
 		}
 
-		// if pq.Len() == 0 {
-		// 	if sectionIdx < N {
-		// 		t = sections[sectionIdx][0]
-		// 		continue
-		// 	}
-		// 	break
-		// }
-
 		// pop closest end-time
 		if pq.Len() > 0 {
-			poped := pq.PopI()
-			dump(fmt.Sprintf("[poped] %d", poped))
+			pq.PopI()
+			// dump(fmt.Sprintf("[poped] %d", poped))
 			ans++
 		}
 
@@ -82,7 +74,7 @@ func main() {
 			t++
 		}
 
-		dump(fmt.Sprintf("[at end] t: %d, sectionIdx: %d, pq: %v, ans %d\n", t, sectionIdx, pq.iarr, ans))
+		// dump(fmt.Sprintf("[at end] t: %d, sectionIdx: %d, pq: %v, ans %d\n", t, sectionIdx, pq.iarr, ans))
 	}
 
 	fmt.Println(ans)
