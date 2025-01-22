@@ -50,10 +50,7 @@ func Permute[T comparable](current []T, options []T) [][]T {
 	var results [][]T
 
 	if len(options) == 0 {
-		ccrrent := make([]T, len(current))
-		copy(ccrrent, current)
-
-		return [][]T{ccrrent}
+		return [][]T{current}
 	}
 
 	var lastO T
@@ -64,9 +61,9 @@ func Permute[T comparable](current []T, options []T) [][]T {
 		lastO = o
 
 		current = append(current, o)
-		newOptions := make([]T, 0, len(options)-1)
-		newOptions = append(newOptions, options[:i]...)
-		newOptions = append(newOptions, options[i+1:]...)
+		newOptions := make([]T, len(options)-1)
+		copy(newOptions, options[:i])
+		copy(newOptions[i:], options[i+1:])
 
 		subResults := Permute(current, newOptions)
 		results = append(results, subResults...)
