@@ -41,12 +41,12 @@ func main() {
 
 	pq := NewIntHeap(MinIntHeap) // すでに開始している区間の終了時間を格納。最も早く終了するものが先頭に来る。
 	for sectionIdx < N || pq.Len() != 0 {
-		// dump(fmt.Sprintf("[at start] t: %d, sectionIdx: %d, pq: %v, ans: %d", t, sectionIdx, pq.iarr, ans))
+		dump("[at start] t: %d, sectionIdx: %d, pq: %v, ans: %d", t, sectionIdx, pq.iarr, ans)
 
 		// push end-time of start-time t
 		for sectionIdx < N && sections[sectionIdx][0] == t {
 			pq.PushI(sections[sectionIdx][1])
-			// dump(fmt.Sprintf("[pushed] %d", sections[sectionIdx][1]))
+			dump("[pushed] %d", sections[sectionIdx][1])
 			sectionIdx++
 		}
 
@@ -54,16 +54,15 @@ func main() {
 		for pq.Len() > 0 {
 			last := pq.PopI()
 			if last >= t {
-				// dump(fmt.Sprintf("[wasted] %d", last))
 				pq.PushI(last)
 				break
+
 			}
 		}
 
 		// pop closest end-time
 		if pq.Len() > 0 {
 			pq.PopI()
-			// dump(fmt.Sprintf("[poped] %d", poped))
 			ans++
 		}
 
@@ -74,7 +73,7 @@ func main() {
 			t++
 		}
 
-		// dump(fmt.Sprintf("[at end] t: %d, sectionIdx: %d, pq: %v, ans %d\n", t, sectionIdx, pq.iarr, ans))
+		dump("[at end] t: %d, sectionIdx: %d, pq: %v, ans %d\n", t, sectionIdx, pq.iarr, ans)
 	}
 
 	fmt.Println(ans)
@@ -143,13 +142,6 @@ func (h *IntHeap) Pop() any {
 //////////////
 // Helpers //
 /////////////
-
-func dump(msg string) {
-	dumpFlag := strings.Contains(strings.Join(os.Args, " "), "-dump")
-	if dumpFlag {
-		fmt.Println(msg)
-	}
-}
 
 // 一行に1文字のみの入力を読み込む
 func readStr(r *bufio.Reader) string {
@@ -326,4 +318,21 @@ func pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
