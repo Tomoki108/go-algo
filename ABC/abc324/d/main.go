@@ -22,45 +22,45 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	N := readInt(r)
+	readInt(r)
 	S := readStr(r)
 	Ss := strings.Split(S, "")
+	sort.Slice(Ss, func(i, j int) bool {
+		return Ss[i] > Ss[j]
+	})
 
-	nums := make([]int, 0, N)
-	for i := 0; i < N; i++ {
-		nums = append(nums, atoi(Ss[i]))
-	}
-	sort.Ints(nums)
+	maxNum := atoi(strings.Join(Ss, ""))
+	maxNumRoute := int(math.Sqrt(float64(maxNum))) + 1
 
-	ans := 0
+	dump("%d\n", maxNum)
+	dump("%d\n", maxNumRoute)
 
-	next := true
-	for next {
-		num := 0
-		for i := 0; i < N; i++ {
-			num += nums[i] * pow(10, N-1-i)
+	// 平方数をstringの配列に分割=>ソート=>結合したものをキーにして、その数をカウントする
+	sqNumMap := make(map[string]int, maxNumRoute)
+	for i := 0; i <= maxNumRoute; i++ {
+		sqNum := i * i
+
+		numStr := itoa(sqNum)
+		numStrs := strings.Split(numStr, "")
+		sort.Slice(numStrs, func(i, j int) bool {
+			return numStrs[i] > numStrs[j]
+		})
+
+		for len(numStrs) < len(Ss) {
+			numStrs = append(numStrs, "0")
 		}
 
-		pfs := PrimeFactorization(num)
+		key := strings.Join(numStrs, "")
 
-		dump("num: %d, pfs: %v\n", num, pfs)
-
-		squareNum := true
-		for _, exp := range pfs {
-			if exp%2 != 0 {
-				squareNum = false
-				break
-			}
-		}
-
-		if squareNum {
-			ans++
-		}
-
-		next = NextPermutation(nums)
+		sqNumMap[key]++
 	}
 
-	fmt.Println(ans)
+	dump("%v\n", sqNumMap)
+
+	key := strings.Join(Ss, "")
+	ans := sqNumMap[key]
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
