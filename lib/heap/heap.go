@@ -55,8 +55,8 @@ func NewIntHeap(t IntHeapType) *IntHeap {
 type IntHeapType int
 
 const (
-	MinIntHeap IntHeapType = iota // 大きい方が優先
-	MaxIntHeap                    // 小さい方が優先
+	MinIntHeap IntHeapType = iota // 小さい方が優先して取り出される
+	MaxIntHeap                    // 大きい方が優先して取り出される
 )
 
 // O(logN)
