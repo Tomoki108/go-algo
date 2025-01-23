@@ -31,11 +31,18 @@ func main() {
 	scoreMap := make(map[int]int, N) // person index => score
 	scoreSet := NewMultiIntSetAsc()
 
+	remAsMap := make(map[int]*set.MultiSet[int], N) // person index => remaining As
+
 	grid := readGrid(r, N)
 	for i := 0; i < N; i++ {
 		for j := 0; j < M; j++ {
 			if grid[i][j] == "o" {
 				scoreMap[i] += As[j]
+			} else {
+				if _, ok := remAsMap[i]; !ok {
+					remAsMap[i] = NewMultiIntSetAsc()
+				}
+				remAsMap[i].Insert(As[j])
 			}
 		}
 		scoreMap[i] += i + 1 // ボーナス得点
@@ -46,23 +53,26 @@ func main() {
 	sort.Slice(As, func(i, j int) bool {
 		return As[i] > As[j]
 	})
-	// prefsum := prefsum.PrefixSum(As)
 
 	dump("scoreMap: %v\n", scoreMap)
 
 	for i := 0; i < N; i++ {
 		score := scoreMap[i]
-		dump("score: %v\n", score)
+		dump("i: %d, score: %v\n", i, score)
 
 		scoreSet.Erase(score)
 		highestScore := scoreSet.Last().Value()
 		scoreSet.Insert(score)
 
+		remAs := remAsMap[i]
+		dump("remAs: %v\n", remAs)
+
 		ans := 0
-		asIdx := 0
 		for score <= highestScore {
-			score += As[asIdx]
-			asIdx++
+			solve := remAs.Last().Value()
+			remAs.Erase(solve)
+
+			score += solve
 			ans++
 		}
 
@@ -77,17 +87,6 @@ func main() {
 // set.First().Value() => min
 func NewMultiIntSetAsc() *set.MultiSet[int] {
 	return set.NewMultiSet(comparator.IntComparator)
-}
-
-// O(n)
-// 一次元累積和を返す（index0には0を入れる。）
-func PrefixSum(sl []int) []int {
-	n := len(sl)
-	res := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		res[i+1] = res[i] + sl[i]
-	}
-	return res
 }
 
 //////////////
