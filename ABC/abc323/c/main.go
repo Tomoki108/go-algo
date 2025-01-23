@@ -5,8 +5,12 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,11 +25,70 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	As := readIntArr(r)
+
+	scoreMap := make(map[int]int, N) // person index => score
+	scoreSet := NewMultiIntSetAsc()
+
+	grid := readGrid(r, N)
+	for i := 0; i < N; i++ {
+		for j := 0; j < M; j++ {
+			if grid[i][j] == "o" {
+				scoreMap[i] += As[j]
+			}
+		}
+		scoreMap[i] += i + 1 // ボーナス得点
+		scoreSet.Insert(scoreMap[i])
+	}
+
+	// 降順ソート
+	sort.Slice(As, func(i, j int) bool {
+		return As[i] > As[j]
+	})
+	// prefsum := prefsum.PrefixSum(As)
+
+	dump("scoreMap: %v\n", scoreMap)
+
+	for i := 0; i < N; i++ {
+		score := scoreMap[i]
+		dump("score: %v\n", score)
+
+		scoreSet.Erase(score)
+		highestScore := scoreSet.Last().Value()
+		scoreSet.Insert(score)
+
+		ans := 0
+		asIdx := 0
+		for score <= highestScore {
+			score += As[asIdx]
+			asIdx++
+			ans++
+		}
+
+		fmt.Fprintln(w, ans)
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// set.First().Value() => min
+func NewMultiIntSetAsc() *set.MultiSet[int] {
+	return set.NewMultiSet(comparator.IntComparator)
+}
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers //
