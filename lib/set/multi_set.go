@@ -95,3 +95,11 @@ func (ms *MultiSet[T]) Size() int {
 func (ms *MultiSet[T]) Clear() {
 	ms.tree.Clear()
 }
+
+func (ms *MultiSet[T]) First() *rbtree.RbTreeIterator[T, int] {
+	return ms.tree.IterFirst()
+}
+
+func (ms *MultiSet[T]) Last() *rbtree.RbTreeIterator[T, int] {
+	return ms.tree.IterLast()
+}
