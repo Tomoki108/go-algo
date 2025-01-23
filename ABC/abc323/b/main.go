@@ -26,8 +26,14 @@ func main() {
 
 	grid := readGrid(r, N)
 
-	scores := make([]int, N)
+	type scoreWithIndex struct {
+		score int
+		index int
+	}
+
+	scoreWithIndexes := make([]scoreWithIndex, N)
 	for i := 0; i < N; i++ {
+		scoreWithIndexes[i] = scoreWithIndex{index: i}
 		for j := 0; j < N; j++ {
 			str := grid[i][j]
 
@@ -35,37 +41,27 @@ func main() {
 			case "-":
 				continue
 			case "o":
-				scores[i]++
+				scoreWithIndexes[i].score++
 			}
 		}
 	}
 
-	dump("scores: %v\n", scores)
-
-	scoreIndexes := make(map[int][]int, N)
-
-	for i, score := range scores {
-		scoreIndexes[score] = append(scoreIndexes[score], i)
-	}
-
-	dump("scoreIndexes: %v\n", scoreIndexes)
-
-	sort.Slice(scores, func(i, j int) bool {
-		return scores[i] > scores[j]
+	sort.Slice(scoreWithIndexes, func(i, j int) bool {
+		if scoreWithIndexes[i].score == scoreWithIndexes[j].score {
+			return scoreWithIndexes[i].index < scoreWithIndexes[j].index
+		}
+		return scoreWithIndexes[i].score > scoreWithIndexes[j].score
 	})
-	scores = Deduplicate(scores)
 
-	ans := make([]int, 0, N)
-	for i := 0; i < len(scores); i++ {
-		idxs := scoreIndexes[scores[i]]
-		sort.Ints(idxs)
+	for i, s := range scoreWithIndexes {
+		fmt.Fprint(w, s.index+1)
 
-		for _, idx := range idxs {
-			ans = append(ans, idx+1)
+		if i != N-1 {
+			fmt.Fprint(w, " ")
+		} else {
+			fmt.Fprintln(w)
 		}
 	}
-
-	writeSlice(w, ans)
 }
 
 //////////////
