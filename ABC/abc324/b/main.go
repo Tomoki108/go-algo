@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -21,11 +22,40 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	fcs := PrimeFactorization(N)
+	keys := mapKeys(fcs)
+
+	if reflect.DeepEqual(keys, []int{2, 3}) || reflect.DeepEqual(keys, []int{2}) || reflect.DeepEqual(keys, []int{3}) {
+		fmt.Fprintln(w, "Yes")
+	} else {
+		fmt.Fprintln(w, "No")
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(√n)
+// 素因数分解を行い、素因数=>指数のmapを返す。（keyは昇順）
+func PrimeFactorization(n int) map[int]int {
+	pf := make(map[int]int)
+	// 因数候補は√nまででいい。
+	// √nより大きい数で割った場合、商は√nより小さい数になるため、√n以下の検証時にその割り算は済んでいる。
+	for factor := 2; factor*factor <= n; factor++ {
+		for n%factor == 0 {
+			pf[factor]++
+			n /= factor
+		}
+	}
+	if n > 1 {
+		pf[n]++
+	}
+	return pf
+}
 
 //////////////
 // Helpers //
@@ -167,6 +197,14 @@ func sort2IntsDesc(a, b int) (int, int) {
 		return b, a
 	}
 	return a, b
+}
+
+func mapKeys[T comparable, S any](m map[T]S) []T {
+	keys := make([]T, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 func min(i, j int) int {

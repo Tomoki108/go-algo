@@ -169,6 +169,14 @@ func sort2IntsDesc(a, b int) (int, int) {
 	return a, b
 }
 
+func mapKeys[T comparable, U any](m map[T]U) []T {
+	keys := make([]T, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func min(i, j int) int {
 	if i < j {
 		return i

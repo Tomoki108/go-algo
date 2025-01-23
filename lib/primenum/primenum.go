@@ -1,7 +1,7 @@
 package primenum
 
 // O(√n)
-// 素因数分解を行い、素因数=>指数のmapを返す
+// 素因数分解を行い、素因数=>指数のmapを返す（keyは昇順）
 func PrimeFactorization(n int) map[int]int {
 	pf := make(map[int]int)
 	// 因数候補は√nまででいい。

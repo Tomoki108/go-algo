@@ -33,6 +33,24 @@ func Factorial(n int) int {
 	return n * Factorial(n-1)
 }
 
+// O(√n)
+// 素因数分解を行い、素因数=>指数のmapを返す（keyは昇順）
+func PrimeFactorization(n int) map[int]int {
+	pf := make(map[int]int)
+	// 因数候補は√nまででいい。
+	// √nより大きい数で割った場合、商は√nより小さい数になるため、√n以下の検証時にその割り算は済んでいる。
+	for factor := 2; factor*factor <= n; factor++ {
+		for n%factor == 0 {
+			pf[factor]++
+			n /= factor
+		}
+	}
+	if n > 1 {
+		pf[n]++
+	}
+	return pf
+}
+
 // O(log(min(a,b)))
 // 拡張ユークリッドの互除法で、最大公約数(Greatest Common Divisor)を求める
 // （ax + by = gcd(a, b) となるx, yも返す）
