@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,80 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	sarr := readStrArr(r)
+	N := atoi(sarr[0])
+	T := sarr[1]
+	Ts := strings.Split(T, "")
+
+	sss := make([][]string, 0, N)
+	for i := 0; i < N; i++ {
+		S := readStr(r)
+		ss := strings.Split(S, "")
+		sss = append(sss, ss)
+	}
+
+	ans := make([]int, 0, N)
+	for i := 0; i < N; i++ {
+		ss := sss[i]
+
+		switch len(Ts) - len(ss) {
+		case 0:
+			diff := 0
+			ng := false
+			for i := 0; i < len(Ts); i++ {
+				if Ts[i] != ss[i] {
+					diff++
+					if diff > 1 {
+						ng = true
+						break
+					}
+				}
+			}
+
+			if !ng {
+				ans = append(ans, i+1)
+			}
+		case 1:
+			diff := 0
+			ng := false
+			for i := 0; i < len(ss); i++ {
+				if Ts[i] != ss[i-diff] {
+					diff++
+					if diff > 1 {
+						ng = true
+						break
+					}
+				}
+			}
+
+			if !ng {
+				ans = append(ans, i+1)
+			}
+		case -1:
+			diff := 0
+			ng := false
+			for i := 0; i < len(Ts); i++ {
+				if Ts[i-diff] != ss[i] {
+					diff++
+					if diff > 1 {
+						ng = true
+						break
+					}
+				}
+			}
+
+			if !ng {
+				ans = append(ans, i+1)
+			}
+		default:
+			continue
+		}
+	}
+
+	sort.Ints(ans)
+
+	fmt.Fprintln(w, len(ans))
+	writeSlice(w, ans)
 }
 
 //////////////
