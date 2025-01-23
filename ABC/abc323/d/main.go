@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -24,69 +26,59 @@ func main() {
 
 	N := readInt(r)
 
-	type Slime struct {
-		size, count int
-	}
+	countMap := make(map[int]int, N)
+	sizeSet := NewIntSetAsc()
 
-	slimes := make([]*Slime, 0, N)
 	for i := 0; i < N; i++ {
 		S, C := read2Ints(r)
-		slimes = append(slimes, &Slime{size: S, count: C})
-	}
-	sort.Slice(slimes, func(i, j int) bool {
-		return slimes[i].size < slimes[j].size
-	})
 
-	prevIdx := 0
-	for i := 1; i < N; i++ {
-		if slimes[prevIdx].size == slimes[i].size {
-			slimes[i].count += slimes[prevIdx].count
-			slimes[prevIdx] = nil
-		}
-
-		prevIdx = i
+		countMap[S] += C
+		sizeSet.Insert(S)
 	}
 
-	newSlimes := make([]*Slime, 0, N)
-	for i := 0; i < N; i++ {
-		if slimes[i] != nil {
-			newSlimes = append(newSlimes, slimes[i])
-		}
-	}
+	dump("sizeSet: %v\n", sizeSet.String())
 
-	for i := 0; i < len(newSlimes); i++ {
-		merged := newSlimes[i].count / 2
-		newSlimes[i].count = newSlimes[i].count % 2
+	// i := 0
+	for sizeSet.Size() > 0 {
+		size := sizeSet.First().Value()
+		sizeSet.Erase(size)
 
-		toSearch := newSlimes[i+1:]
-		idx := sort.Search(len(toSearch), func(j int) bool {
-			return toSearch[j].size >= newSlimes[i].size*2
-		})
+		count := countMap[size]
 
-		if idx == len(toSearch) {
-			newSlimes[i].count += merged
-			continue
-		}
+		merged := count / 2
+		countMap[size] = count % 2
 
-		if toSearch[idx].size == newSlimes[i].size*2 {
-			toSearch[idx].count += merged
-			continue
+		it := sizeSet.Find(size * 2)
+		if it.IsValid() {
+			countMap[size*2] += merged
 		} else {
-			newSlimes[i].count += merged
+			sizeSet.Insert(size * 2)
+			countMap[size*2] = merged
 		}
+
+		// dump("size: %v\n", size)
+		// dump("sizeSet: %v\n", sizeSet.String())
+		// i++
+		// if i > 10 {
+		// 	panic("end")
+		// }
 	}
 
 	ans := 0
-	for i := 0; i < len(newSlimes); i++ {
-		ans += newSlimes[i].count
+	for _, count := range countMap {
+		ans += count
 	}
 
-	fmt.Println(ans)
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func NewIntSetAsc() *set.Set[int] {
+	return set.New(comparator.IntComparator)
+}
 
 //////////////
 // Helpers //
