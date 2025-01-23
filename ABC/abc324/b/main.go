@@ -23,11 +23,16 @@ func main() {
 
 	N := readInt(r)
 
-	for i := 0; i <= 63; i++ {
-		for j := 0; j <= 54; j++ {
-			if pow(2, i)*pow(3, j) == N {
+	for i := 0; i <= 63; i++ { // log_2_10^18 = 59.7
+		for j := 0; j <= 38; j++ { // log_3_10^18 = 37.7
+			num := pow(2, i) * pow(3, j)
+			if num == N {
 				fmt.Fprintln(w, "Yes")
 				return
+			}
+
+			if num > N {
+				break
 			}
 		}
 	}
