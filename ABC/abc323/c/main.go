@@ -54,26 +54,19 @@ func main() {
 		return As[i] > As[j]
 	})
 
-	dump("scoreMap: %v\n", scoreMap)
-
 	for i := 0; i < N; i++ {
 		score := scoreMap[i]
-		dump("i: %d, score: %v\n", i, score)
 
 		scoreSet.Erase(score)
 		highestScore := scoreSet.Last().Key()
-		dump("highestScore: %v\n", highestScore)
 		scoreSet.Insert(score)
 
 		remAs := remAsMap[i]
-		dump("remAs: %v\n", remAs.Values())
 
 		ans := 0
 		for score <= highestScore {
 			solve := remAs.Last().Key()
 			remAs.Erase(solve)
-
-			dump("solve: %v\n", solve)
 
 			score += solve
 			ans++

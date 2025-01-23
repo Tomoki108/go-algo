@@ -6,14 +6,19 @@ import (
 )
 
 func NewIntMultiSetAsc() *MultiSet[int] {
-	return NewMultiSet[int](comparator.IntComparator)
+	return NewMultiSet(comparator.IntComparator)
 }
 
 func NewIntMultiSetDesc() *MultiSet[int] {
-	return NewMultiSet[int](comparator.Reverse(comparator.IntComparator))
+	return NewMultiSet(comparator.Reverse(comparator.IntComparator))
 }
 
+// NOTE:
 // gostlのNativeのMultiSetは、Erace()が同一の値を全て削除してしまうためこちらを使う。
+// nodeから値を取得するときは以下の様になることに注意。
+// 	- multiSet.First().Key() => 値: T型
+// 	- multiSet.First().Value() => 個数: int型
+
 type MultiSet[T any] struct {
 	tree *rbtree.RbTree[T, int]
 }
