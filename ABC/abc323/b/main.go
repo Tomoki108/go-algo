@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +22,70 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	grid := readGrid(r, N)
+
+	scores := make([]int, N)
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			str := grid[i][j]
+
+			switch str {
+			case "-":
+				continue
+			case "o":
+				scores[i]++
+			}
+		}
+	}
+
+	dump("scores: %v\n", scores)
+
+	scoreIndexes := make(map[int][]int, N)
+
+	for i, score := range scores {
+		scoreIndexes[score] = append(scoreIndexes[score], i)
+	}
+
+	dump("scoreIndexes: %v\n", scoreIndexes)
+
+	sort.Slice(scores, func(i, j int) bool {
+		return scores[i] > scores[j]
+	})
+	scores = Deduplicate(scores)
+
+	ans := make([]int, 0, N)
+	for i := 0; i < len(scores); i++ {
+		idxs := scoreIndexes[scores[i]]
+		sort.Ints(idxs)
+
+		for _, idx := range idxs {
+			ans = append(ans, idx+1)
+		}
+	}
+
+	writeSlice(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+func Deduplicate[T comparable](sl []T) []T {
+	m := map[T]bool{}
+	for _, v := range sl {
+		m[v] = true
+	}
+
+	var deduped []T
+	for k := range m {
+		deduped = append(deduped, k)
+	}
+
+	return deduped
+}
 
 //////////////
 // Helpers //
