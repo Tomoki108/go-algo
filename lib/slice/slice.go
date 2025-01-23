@@ -1,24 +1,6 @@
 package slice
 
 // O(n)
-// 順序を無視して要素が一致しているかどうかを返す
-func SlElementsMatch[T comparable](sl1, sl2 []T) bool {
-	if len(sl1) != len(sl2) {
-		return false
-	}
-
-	m := make(map[T]int)
-	for _, v := range sl1 {
-		m[v]++
-	}
-	for _, v := range sl2 {
-		m[v]--
-	}
-
-	return len(m) == 0
-}
-
-// O(n)
 // slices.Reverce() と同じ（Goのバージョンが1.21以前だと使えないため）
 func SlRev[S ~[]E, E any](s S) {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
