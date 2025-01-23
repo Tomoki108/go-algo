@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"reflect"
 	"strconv"
 	"strings"
 )
@@ -24,15 +23,16 @@ func main() {
 
 	N := readInt(r)
 
-	fcs := PrimeFactorization(N)
-	keys := mapKeys(fcs)
-
-	if reflect.DeepEqual(keys, []int{2, 3}) || reflect.DeepEqual(keys, []int{2}) || reflect.DeepEqual(keys, []int{3}) {
-		fmt.Fprintln(w, "Yes")
-	} else {
-		fmt.Fprintln(w, "No")
+	for i := 0; i <= 63; i++ {
+		for j := 0; j <= 54; j++ {
+			if pow(2, i)*pow(3, j) == N {
+				fmt.Fprintln(w, "Yes")
+				return
+			}
+		}
 	}
 
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
@@ -40,7 +40,7 @@ func main() {
 /////////////
 
 // O(√n)
-// 素因数分解を行い、素因数=>指数のmapを返す。（keyは昇順）
+// 素因数分解を行い、素因数=>指数のmapを返す。
 func PrimeFactorization(n int) map[int]int {
 	pf := make(map[int]int)
 	// 因数候補は√nまででいい。
@@ -231,6 +231,10 @@ func abs(a int) int {
 // O(log(exp))
 // 繰り返し二乗法で x^y を計算する関数
 func pow(base, exp int) int {
+	if exp == 0 {
+		return 1
+	}
+
 	// 繰り返し二乗法
 	// 2^8 = 4^2^2
 	// 2^9 = 4^2^2 * 2

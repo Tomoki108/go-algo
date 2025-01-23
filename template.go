@@ -201,6 +201,10 @@ func abs(a int) int {
 // O(log(exp))
 // 繰り返し二乗法で x^y を計算する関数
 func pow(base, exp int) int {
+	if exp == 0 {
+		return 1
+	}
+
 	// 繰り返し二乗法
 	// 2^8 = 4^2^2
 	// 2^9 = 4^2^2 * 2
