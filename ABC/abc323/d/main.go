@@ -42,11 +42,19 @@ func main() {
 	for sizeSet.Size() > 0 {
 		size := sizeSet.First().Value()
 		sizeSet.Erase(size)
-
 		count := countMap[size]
+		if count == 1 {
+			continue
+		}
 
 		merged := count / 2
-		countMap[size] = count % 2
+		rem := count % 2
+		if rem == 0 {
+			delete(countMap, size)
+		} else {
+			// これはやらなくても答えに影響がない。
+			// countMap[size] = 1
+		}
 
 		it := sizeSet.Find(size * 2)
 		if it.IsValid() {
@@ -64,12 +72,7 @@ func main() {
 		// }
 	}
 
-	ans := 0
-	for _, count := range countMap {
-		ans += count
-	}
-
-	fmt.Fprintln(w, ans)
+	fmt.Fprintln(w, len(countMap))
 }
 
 //////////////
