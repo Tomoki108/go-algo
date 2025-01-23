@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +22,109 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	nums := make([]int, 0, N)
+	for i := 0; i < N; i++ {
+		nums = append(nums, atoi(Ss[i]))
+	}
+	sort.Ints(nums)
+
+	ans := 0
+
+	next := true
+	for next {
+		num := 0
+		for i := 0; i < N; i++ {
+			num += nums[i] * pow(10, N-1-i)
+		}
+
+		pfs := PrimeFactorization(num)
+
+		dump("num: %d, pfs: %v\n", num, pfs)
+
+		squareNum := true
+		for _, exp := range pfs {
+			if exp%2 != 0 {
+				squareNum = false
+				break
+			}
+		}
+
+		if squareNum {
+			ans++
+		}
+
+		next = NextPermutation(nums)
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// NOTE:
+// next := true; for next { some(sl); next = NextPermutation(sl); } で使う
+//
+// O(len(sl)*len(sl)!)
+// sl の要素を並び替えて、次の辞書順の順列にする
+func NextPermutation[T ~int | ~string](sl []T) bool {
+	n := len(sl)
+	i := n - 2
+
+	// Step1: 右から左に探索して、「スイッチポイント」を見つける:
+	// 　「スイッチポイント」とは、右から見て初めて「リストの値が減少する場所」です。
+	// 　例: [1, 2, 3, 6, 5, 4] の場合、3 がスイッチポイント。
+	for i >= 0 && sl[i] >= sl[i+1] {
+		i--
+	}
+
+	//　スイッチポイントが見つからない場合、最後の順列に到達しています。
+	if i < 0 {
+		return false
+	}
+
+	// Step2: スイッチポイントの右側の要素から、スイッチポイントより少しだけ大きい値を見つけ、交換します。
+	// 　例: 3 を右側で最小の大きい値 4 と交換。
+	j := n - 1
+	for sl[j] <= sl[i] {
+		j--
+	}
+	sl[i], sl[j] = sl[j], sl[i]
+
+	// Step3: スイッチポイントの右側を反転して、辞書順に次の順列を作ります。
+	// 　例: [1, 2, 4, 6, 5, 3] → [1, 2, 4, 3, 5, 6]。
+	reverse(sl[i+1:])
+	return true
+}
+
+func reverse[T ~int | ~string](sl []T) {
+	for i, j := 0, len(sl)-1; i < j; i, j = i+1, j-1 {
+		sl[i], sl[j] = sl[j], sl[i]
+	}
+}
+
+// O(√n)
+// 素因数分解を行い、素因数=>指数のmapを返す（keyは昇順）
+func PrimeFactorization(n int) map[int]int {
+	pf := make(map[int]int)
+	// 因数候補は√nまででいい。
+	// √nより大きい数で割った場合、商は√nより小さい数になるため、√n以下の検証時にその割り算は済んでいる。
+	for factor := 2; factor*factor <= n; factor++ {
+		for n%factor == 0 {
+			pf[factor]++
+			n /= factor
+		}
+	}
+	if n > 1 {
+		pf[n]++
+	}
+	return pf
+}
 
 //////////////
 // Helpers //
