@@ -32,7 +32,7 @@ func main() {
 	originalKey := strings.Join(Ss, "")
 
 	maxNum := atoi(strings.Join(Ss, ""))
-	maxNumRoute := int(math.Sqrt(float64(maxNum))) + 1
+	maxNumRoute := Sqrt(maxNum)
 
 	dump("%d\n", maxNum)
 	dump("%d\n", maxNumRoute)
@@ -63,6 +63,11 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+// √n以上の、最も√nに近い整数を返す
+func Sqrt(n int) int {
+	return int(math.Ceil(math.Sqrt(float64(n))))
+}
 
 //////////////
 // Helpers //

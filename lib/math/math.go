@@ -1,6 +1,9 @@
 package math
 
-import "strconv"
+import (
+	"math"
+	"strconv"
+)
 
 // O(n) n: numの桁数
 // numの桁数を返す
@@ -22,6 +25,11 @@ func ToDigits(n int) []int {
 		digits[i] = int(s[i] - '0') // （'x'に対応する数字 - '0'に対応する数字）のruneの数字 = x as int
 	}
 	return digits
+}
+
+// √n以上の、最も√nに近い整数を返す
+func Sqrt(n int) int {
+	return int(math.Ceil(math.Sqrt(float64(n))))
 }
 
 // O(n)
