@@ -2,14 +2,12 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/liyue201/gostl/ds/set"
-	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -27,60 +25,95 @@ func main() {
 	N := readInt(r)
 
 	countMap := make(map[int]int, N)
-	sizeSet := NewIntSetAsc()
+	sizepq := NewIntHeap(MinIntHeap)
 
 	for i := 0; i < N; i++ {
 		S, C := read2Ints(r)
 
 		countMap[S] += C
-		sizeSet.Insert(S)
+		sizepq.PushI(S)
 	}
 
-	dump("sizeSet: %v\n", sizeSet.String())
-
-	// i := 0
-	for sizeSet.Size() > 0 {
-		size := sizeSet.First().Value()
-		sizeSet.Erase(size)
+	ans := 0
+	for sizepq.Len() > 0 {
+		size := sizepq.PopI()
 		count := countMap[size]
-		if count == 1 {
-			continue
-		}
 
 		merged := count / 2
 		rem := count % 2
-		if rem == 0 {
-			delete(countMap, size)
-		} else {
-			// これはやらなくても答えに影響がない。
-			// countMap[size] = 1
+		if rem == 1 {
+			ans++
 		}
 
-		it := sizeSet.Find(size * 2)
-		if it.IsValid() {
-			countMap[size*2] += merged
-		} else {
-			sizeSet.Insert(size * 2)
-			countMap[size*2] = merged
+		if _, ok := countMap[size*2]; !ok {
+			sizepq.PushI(size * 2)
 		}
-
-		// dump("size: %v\n", size)
-		// dump("sizeSet: %v\n", sizeSet.String())
-		// i++
-		// if i > 10 {
-		// 	panic("end")
-		// }
+		countMap[size*2] += merged
 	}
 
-	fmt.Fprintln(w, len(countMap))
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
 
-func NewIntSetAsc() *set.Set[int] {
-	return set.New(comparator.IntComparator)
+type IntHeap struct {
+	iarr        []int
+	IntHeapType IntHeapType
+}
+
+func NewIntHeap(t IntHeapType) *IntHeap {
+	return &IntHeap{
+		iarr:        make([]int, 0),
+		IntHeapType: t,
+	}
+}
+
+type IntHeapType int
+
+const (
+	MinIntHeap IntHeapType = iota // 小さい方が優先して取り出される
+	MaxIntHeap                    // 大きい方が優先して取り出される
+)
+
+// O(logN)
+func (h *IntHeap) PushI(i int) {
+	heap.Push(h, i)
+}
+
+// O(logN)
+func (h *IntHeap) PopI() int {
+	return heap.Pop(h).(int)
+}
+
+// to implement sort.Interface
+func (h *IntHeap) Len() int { return len(h.iarr) }
+func (h *IntHeap) Less(i, j int) bool {
+	if h.IntHeapType == MaxIntHeap {
+		return h.iarr[i] > h.iarr[j]
+	} else {
+		return h.iarr[i] < h.iarr[j]
+	}
+}
+func (h *IntHeap) Swap(i, j int) { h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *IntHeap) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	h.iarr = append(h.iarr, x.(int))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *IntHeap) Pop() any {
+	oldiarr := h.iarr
+	n := len(oldiarr)
+	x := oldiarr[n-1]
+	h.iarr = oldiarr[0 : n-1]
+	return x
 }
 
 //////////////
