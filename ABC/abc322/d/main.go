@@ -26,16 +26,11 @@ func main() {
 	grid3 := readGrid(r, 4)
 
 	getParts := func(grid [][]string) [][2]int {
-		var pFirst *[2]int
 		var pSlice [][2]int
 		for i := 0; i < 4; i++ {
 			for j := 0; j < 4; j++ {
-				if grid1[i][j] == "#" {
-					if pFirst == nil {
-						pFirst = &[2]int{i, j}
-					} else {
-						pSlice = append(pSlice, [2]int{i - pFirst[0], j - pFirst[1]})
-					}
+				if grid[i][j] == "#" {
+					pSlice = append(pSlice, [2]int{i, j})
 				}
 			}
 		}
@@ -46,6 +41,24 @@ func main() {
 	p2 := getParts(grid2)
 	p3 := getParts(grid3)
 	partsSl := [3][][2]int{p1, p2, p3}
+
+	var partsMap [3][4][][2]int // partsNo -> rotateNo -> parts (as slice of base cell delta)
+	for i := 0; i < 3; i++ {
+		partsMap[i] = [4][][2]int{}
+		parts := partsSl[i]
+		for j := 0; j < 4; j++ {
+			basePart := parts[0]
+			basePart[0], basePart[1] = RotateSquareGridCell(4, basePart[0], basePart[1], j)
+
+			for k := 1; k < len(parts); k++ {
+				partsMap[i][j][k-1] = [2]int{parts[k][0] - basePart[0], parts[k][1] - basePart[1]}
+			}
+		}
+	}
+
+	// fmt.Printf("p1: %v\n", p1)
+	// fmt.Printf("p2: %v\n", p2)
+	// fmt.Printf("p3: %v\n", p3)
 
 	var dfs func(mostLeftUp [2]int, partsSl [3][][2]int, partsIdx int, grid [][]string) bool
 	dfs = func(mostLeftUp [2]int, partsSl [3][][2]int, partsIdx int, grid [][]string) bool {
@@ -62,11 +75,13 @@ func main() {
 	Outer:
 		for i := 0; i <= 3; i++ {
 			cgrid := CopyGrid(grid)
+			cgrid[mostLeftUp[0]][mostLeftUp[1]] = "#"
 
 			for _, part := range newParts {
 				nh, nw := RotateSquareGridCell(4, part[0], part[1], i)
 				c := Coordinate{nh, nw}
-				if !c.IsValid(4, 4) || grid[c.h][c.w] == "#" {
+				if !c.IsValid(4, 4) || cgrid[c.h][c.w] == "#" {
+					// fmt.Printf("invalid, i: %d, part: %v\n", i, part)
 					continue Outer
 				}
 				cgrid[c.h][c.w] = "#"
@@ -85,6 +100,7 @@ func main() {
 			}
 
 			newPartsIdx := partsIdx + 1
+
 			return dfs(*newMostLeftUp, partsSl, newPartsIdx, cgrid)
 		}
 
@@ -96,13 +112,13 @@ func main() {
 	for next {
 		newPartsSl := [3][][2]int{partsSl[perm[0]], partsSl[perm[1]], partsSl[perm[2]]}
 		if dfs([2]int{0, 0}, newPartsSl, 0, createGrid(4, 4, ".")) {
-			fmt.Println("Yes")
+			fmt.Fprintln(w, "Yes")
 			return
 		}
 		next = NextPermutation(perm)
 	}
 
-	fmt.Println("No")
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
