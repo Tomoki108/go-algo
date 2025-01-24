@@ -89,12 +89,11 @@ func main() {
 			dump("delta: %v\n", delta)
 
 			for _, part := range parts {
-				part.h += delta[0]
-				part.w += delta[1]
-				if !part.IsValid(4, 4) || cgrid[part.h][part.w] == "#" {
+				c := Coordinate{part.h + delta[0], part.w + delta[1]}
+				if !c.IsValid(4, 4) || cgrid[c.h][c.w] == "#" {
 					continue Outer1
 				}
-				cgrid[part.h][part.w] = "#"
+				cgrid[c.h][c.w] = "#"
 			}
 
 			// for h := 0; h < 4; h++ {
@@ -111,14 +110,16 @@ func main() {
 					}
 				}
 			}
-			if newMostLeftUp == nil {
+			if newMostLeftUp == nil && permIdx == 2 {
 				return true
 			}
 			dump("newMostLeftUp: %v\n\n", *newMostLeftUp)
 
 			newPartsIdx := permIdx + 1
 
-			return dfs(*newMostLeftUp, partsNoPerm, newPartsIdx, cgrid)
+			if dfs(*newMostLeftUp, partsNoPerm, newPartsIdx, cgrid) {
+				return true
+			}
 		}
 
 		return false
