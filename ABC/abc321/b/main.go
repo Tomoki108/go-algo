@@ -26,7 +26,7 @@ func main() {
 	As := readIntArr(r)
 	sort.Ints(As)
 
-	// minA := As[0]
+	minA := As[0]
 	maxA := As[len(As)-1]
 
 	sum := 0
@@ -35,6 +35,11 @@ func main() {
 	}
 
 	short := X - sum
+
+	if short <= minA {
+		fmt.Println(0)
+		return
+	}
 
 	if short <= maxA {
 		fmt.Println(short)
