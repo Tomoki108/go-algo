@@ -21,6 +21,57 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	K := readInt(r)
+
+	genKey := func(pos int, limit int, strict bool) string {
+		return fmt.Sprintf("%d-%d-%t", pos, limit, strict)
+	}
+
+	// pos: pos桁目まで現在埋まっている。（左始まりの、0-indexed）
+	// prevNum: pos-1桁目の数字
+	// strict: maxDigitsを気にして次の桁を決める必要があるか = これまでの桁がmaxDigitsと一致しているか
+	// nonzero: 0以外の数字が出現したか
+	// memos: 同じ状況の個数のメモ
+	// maxDigits: マックスの数字の各桁
+	var digitDP func(pos int, prevNum int, strict, nonzero bool, memos map[string]int, maxDigits []int) int
+	digitDP = func(pos int, prevNum int, strict, nonzero bool, memos map[string]int, maxDigits []int) int {
+		memo, ok := memos[genKey(pos, prevNum, strict)]
+		if ok {
+			return memo
+		}
+
+		if pos == len(maxDigits)-1 {
+			return 1
+		}
+
+		upperLimit := abs(prevNum - 1)
+		if strict {
+			upperLimit = min(upperLimit, maxDigits[pos])
+		}
+
+		lowerLimit := 0
+		if nonzero {
+			lowerLimit = len(maxDigits) - pos - 1
+		}
+
+		res := 0
+		for next := 0; next <= upperLimit; next++ {
+			nextStrict := strict
+			if next < upperLimit {
+				nextStrict = false
+			}
+
+			if next-1 < 0 {
+
+			}
+
+			res += digitDP(pos+1, next-1, nextStrict, memos, maxDigits)
+		}
+
+		memos[genKey(pos, prevNum, strict)] = res
+		return res
+	}
+
 }
 
 //////////////
