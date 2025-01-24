@@ -76,17 +76,12 @@ func main() {
 			panic("can't reach here")
 		}
 
-		dump("mostLeftUp: %v, partsNoPerm: %v, permIdx: %d\n", mostLeftUp, partsNoPerm, permIdx)
-
 	Outer1:
 		for i := 0; i <= 3; i++ {
 			cgrid := CopyGrid(grid)
 
 			parts := partsMap[partsNoPerm[permIdx]][i]
 			delta := [2]int{mostLeftUp[0] - parts[0].h, mostLeftUp[1] - parts[0].w}
-
-			dump("parts: %v\n", parts)
-			dump("delta: %v\n", delta)
 
 			for _, part := range parts {
 				c := Coordinate{part.h + delta[0], part.w + delta[1]}
@@ -95,10 +90,6 @@ func main() {
 				}
 				cgrid[c.h][c.w] = "#"
 			}
-
-			// for h := 0; h < 4; h++ {
-			// 	fmt.Println(cgrid[h])
-			// }
 
 			var newMostLeftUp *[2]int
 		Outer2:
@@ -113,10 +104,8 @@ func main() {
 			if newMostLeftUp == nil && permIdx == 2 {
 				return true
 			}
-			dump("newMostLeftUp: %v\n\n", *newMostLeftUp)
 
 			newPartsIdx := permIdx + 1
-
 			if dfs(*newMostLeftUp, partsNoPerm, newPartsIdx, cgrid) {
 				return true
 			}
