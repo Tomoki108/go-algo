@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,27 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	_, X := read2Ints(r)
+	As := readIntArr(r)
+	sort.Ints(As)
+
+	// minA := As[0]
+	maxA := As[len(As)-1]
+
+	sum := 0
+	for i := 1; i < len(As)-1; i++ {
+		sum += As[i]
+	}
+
+	short := X - sum
+
+	if short <= maxA {
+		fmt.Println(short)
+		return
+	} else {
+		fmt.Println(-1)
+		return
+	}
 }
 
 //////////////
