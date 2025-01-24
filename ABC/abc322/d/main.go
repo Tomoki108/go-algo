@@ -69,13 +69,9 @@ func main() {
 			panic("can't reach here")
 		}
 
-		// parts := partsNoPerm[partsIdx]
-		// newParts := make([][2]int, 0, len(parts))
-		// for _, part := range parts {
-		// 	newParts = append(newParts, [2]int{part[0] + mostLeftUp[0], part[1] + mostLeftUp[1]})
-		// }
+		fmt.Printf("mostLeftUp: %v, partsNoPerm: %v, permIdx: %d\n", mostLeftUp, partsNoPerm, permIdx)
 
-	Outer:
+	Outer1:
 		for i := 0; i <= 3; i++ {
 			cgrid := CopyGrid(grid)
 			cgrid[mostLeftUp[0]][mostLeftUp[1]] = "#"
@@ -87,22 +83,30 @@ func main() {
 				c := Coordinate{nh, nw}
 				if !c.IsValid(4, 4) || cgrid[c.h][c.w] == "#" {
 					// fmt.Printf("invalid, i: %d, part: %v\n", i, part)
-					continue Outer
+					continue Outer1
 				}
 				cgrid[c.h][c.w] = "#"
 			}
 
+			for h := 0; h < 4; h++ {
+				fmt.Println(cgrid[h])
+			}
+
 			var newMostLeftUp *[2]int
+		Outer2:
 			for h := 0; h < 4; h++ {
 				for w := 0; w < 4; w++ {
 					if cgrid[h][w] == "." {
 						newMostLeftUp = &[2]int{h, w}
+						break Outer2
 					}
 				}
 			}
 			if newMostLeftUp == nil {
 				return true
 			}
+			fmt.Printf("newMostLeftUp: %v\n", *newMostLeftUp)
+			fmt.Println("")
 
 			newPartsIdx := permIdx + 1
 
