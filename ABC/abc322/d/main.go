@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -42,26 +43,27 @@ func main() {
 	p3 := getParts(grid3)
 	partsSl := [3][][2]int{p1, p2, p3}
 
-	var partsMap [3][4][][2]int // partsNo -> rotateNo -> parts (as slice of base cell delta)
-	for i := 0; i < 3; i++ {
+	var partsMap [3][4][][2]int // partsNo -> rotateNo -> parts slice (sorted by most left up)
+	for i := 0; i < 3; i++ {    // partsNo
 		partsMap[i] = [4][][2]int{}
 		parts := partsSl[i]
 
-		for j := 0; j < 4; j++ {
-			partsMap[i][j] = make([][2]int, len(parts)-1)
+		for j := 0; j < 4; j++ { // rotateNo
+			partsMap[i][j] = make([][2]int, len(parts))
 
-			basePart := parts[0]
-			basePart[0], basePart[1] = RotateSquareGridCell(4, basePart[0], basePart[1], j)
-
-			for k := 1; k < len(parts); k++ {
-				partsMap[i][j][k-1] = [2]int{parts[k][0] - basePart[0], parts[k][1] - basePart[1]}
+			for k := 0; k < len(parts); k++ {
+				ni, nj := RotateSquareGridCell(4, parts[k][0], parts[k][1], j)
+				partsMap[i][j][k] = [2]int{ni, nj}
 			}
+
+			sort.Slice(partsMap[i][j], func(a, b int) bool {
+				if partsMap[i][j][a][0] == partsMap[i][j][b][0] {
+					return partsMap[i][j][a][1] < partsMap[i][j][b][1]
+				}
+				return partsMap[i][j][a][0] < partsMap[i][j][b][0]
+			})
 		}
 	}
-
-	// fmt.Printf("p1: %v\n", p1)
-	// fmt.Printf("p2: %v\n", p2)
-	// fmt.Printf("p3: %v\n", p3)
 
 	var dfs func(mostLeftUp [2]int, partsNoPerm []int, permIdx int, grid [][]string) bool
 	dfs = func(mostLeftUp [2]int, partsNoPerm []int, permIdx int, grid [][]string) bool {
@@ -69,28 +71,30 @@ func main() {
 			panic("can't reach here")
 		}
 
-		fmt.Printf("mostLeftUp: %v, partsNoPerm: %v, permIdx: %d\n", mostLeftUp, partsNoPerm, permIdx)
+		dump("mostLeftUp: %v, partsNoPerm: %v, permIdx: %d\n", mostLeftUp, partsNoPerm, permIdx)
 
 	Outer1:
 		for i := 0; i <= 3; i++ {
 			cgrid := CopyGrid(grid)
-			cgrid[mostLeftUp[0]][mostLeftUp[1]] = "#"
 
 			parts := partsMap[partsNoPerm[permIdx]][i]
+			delta := [2]int{mostLeftUp[0] - parts[0][0], mostLeftUp[1] - parts[0][1]}
+
+			dump("parts: %v\n", parts)
+			dump("delta: %v\n", delta)
 
 			for _, part := range parts {
-				nh, nw := part[0]+mostLeftUp[0], part[1]+mostLeftUp[1]
+				nh, nw := part[0]+delta[0], part[1]+delta[1]
 				c := Coordinate{nh, nw}
 				if !c.IsValid(4, 4) || cgrid[c.h][c.w] == "#" {
-					// fmt.Printf("invalid, i: %d, part: %v\n", i, part)
 					continue Outer1
 				}
 				cgrid[c.h][c.w] = "#"
 			}
 
-			for h := 0; h < 4; h++ {
-				fmt.Println(cgrid[h])
-			}
+			// for h := 0; h < 4; h++ {
+			// 	fmt.Println(cgrid[h])
+			// }
 
 			var newMostLeftUp *[2]int
 		Outer2:
@@ -105,8 +109,7 @@ func main() {
 			if newMostLeftUp == nil {
 				return true
 			}
-			fmt.Printf("newMostLeftUp: %v\n", *newMostLeftUp)
-			fmt.Println("")
+			dump("newMostLeftUp: %v\n\n", *newMostLeftUp)
 
 			newPartsIdx := permIdx + 1
 
