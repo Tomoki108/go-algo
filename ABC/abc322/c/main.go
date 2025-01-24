@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,19 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, _ := read2Ints(r)
+	As := readIntArr(r)
+
+	for i := 0; i < N; i++ {
+		idx := sort.Search(len(As), func(j int) bool {
+			return As[j] >= i+1
+		})
+
+		A := As[idx]
+		diff := A - i - 1
+
+		fmt.Fprintln(w, diff)
+	}
 }
 
 //////////////
