@@ -46,7 +46,10 @@ func main() {
 	for i := 0; i < 3; i++ {
 		partsMap[i] = [4][][2]int{}
 		parts := partsSl[i]
+
 		for j := 0; j < 4; j++ {
+			partsMap[i][j] = make([][2]int, len(parts)-1)
+
 			basePart := parts[0]
 			basePart[0], basePart[1] = RotateSquareGridCell(4, basePart[0], basePart[1], j)
 
@@ -60,25 +63,27 @@ func main() {
 	// fmt.Printf("p2: %v\n", p2)
 	// fmt.Printf("p3: %v\n", p3)
 
-	var dfs func(mostLeftUp [2]int, partsSl [3][][2]int, partsIdx int, grid [][]string) bool
-	dfs = func(mostLeftUp [2]int, partsSl [3][][2]int, partsIdx int, grid [][]string) bool {
-		if partsIdx >= 3 {
+	var dfs func(mostLeftUp [2]int, partsNoPerm []int, permIdx int, grid [][]string) bool
+	dfs = func(mostLeftUp [2]int, partsNoPerm []int, permIdx int, grid [][]string) bool {
+		if permIdx >= 3 {
 			panic("can't reach here")
 		}
 
-		parts := partsSl[partsIdx]
-		newParts := make([][2]int, 0, len(parts))
-		for _, part := range parts {
-			newParts = append(newParts, [2]int{part[0] + mostLeftUp[0], part[1] + mostLeftUp[1]})
-		}
+		// parts := partsNoPerm[partsIdx]
+		// newParts := make([][2]int, 0, len(parts))
+		// for _, part := range parts {
+		// 	newParts = append(newParts, [2]int{part[0] + mostLeftUp[0], part[1] + mostLeftUp[1]})
+		// }
 
 	Outer:
 		for i := 0; i <= 3; i++ {
 			cgrid := CopyGrid(grid)
 			cgrid[mostLeftUp[0]][mostLeftUp[1]] = "#"
 
-			for _, part := range newParts {
-				nh, nw := RotateSquareGridCell(4, part[0], part[1], i)
+			parts := partsMap[partsNoPerm[permIdx]][i]
+
+			for _, part := range parts {
+				nh, nw := part[0]+mostLeftUp[0], part[1]+mostLeftUp[1]
 				c := Coordinate{nh, nw}
 				if !c.IsValid(4, 4) || cgrid[c.h][c.w] == "#" {
 					// fmt.Printf("invalid, i: %d, part: %v\n", i, part)
@@ -99,23 +104,22 @@ func main() {
 				return true
 			}
 
-			newPartsIdx := partsIdx + 1
+			newPartsIdx := permIdx + 1
 
-			return dfs(*newMostLeftUp, partsSl, newPartsIdx, cgrid)
+			return dfs(*newMostLeftUp, partsNoPerm, newPartsIdx, cgrid)
 		}
 
 		return false
 	}
 
-	perm := []int{0, 1, 2}
+	partsNoPerm := []int{0, 1, 2}
 	next := true
 	for next {
-		newPartsSl := [3][][2]int{partsSl[perm[0]], partsSl[perm[1]], partsSl[perm[2]]}
-		if dfs([2]int{0, 0}, newPartsSl, 0, createGrid(4, 4, ".")) {
+		if dfs([2]int{0, 0}, partsNoPerm, 0, createGrid(4, 4, ".")) {
 			fmt.Fprintln(w, "Yes")
 			return
 		}
-		next = NextPermutation(perm)
+		next = NextPermutation(partsNoPerm)
 	}
 
 	fmt.Fprintln(w, "No")
