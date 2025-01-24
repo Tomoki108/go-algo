@@ -21,6 +21,42 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r) // N <= M
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	T := readStr(r)
+	Ts := strings.Split(T, "")
+
+	isPrefix := true
+	for i := 0; i < N; i++ {
+		if Ss[i] != Ts[i] {
+			isPrefix = false
+			break
+		}
+	}
+
+	isSuffix := true
+	for i := 0; i < N; i++ {
+		if Ss[i] != Ts[M-N+i] {
+			isSuffix = false
+			break
+		}
+	}
+
+	if isPrefix && isSuffix {
+		fmt.Println(0)
+		return
+	} else if isPrefix {
+		fmt.Println(1)
+		return
+	} else if isSuffix {
+		fmt.Println(2)
+		return
+	} else {
+		fmt.Println(3)
+		return
+	}
+
 }
 
 //////////////
