@@ -21,6 +21,19 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readStr(r)
+	Ns := strings.Split(N, "")
+
+	max := atoi(Ns[0])
+	for i := 1; i < len(Ns); i++ {
+		if atoi(Ns[i]) >= max {
+			fmt.Println("No")
+			return
+		}
+		max = atoi(Ns[i])
+	}
+
+	fmt.Println("Yes")
 }
 
 //////////////
