@@ -41,6 +41,11 @@ func main() {
 	p1 := getParts(grid1)
 	p2 := getParts(grid2)
 	p3 := getParts(grid3)
+	if len(p1)+len(p2)+len(p3) != 16 {
+		fmt.Fprintln(w, "No")
+		return
+	}
+
 	partsSl := [3][][2]int{p1, p2, p3}
 
 	var partsMap [3][4][][2]int // partsNo -> rotateNo -> parts slice (sorted by most left up)
