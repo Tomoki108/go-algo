@@ -26,12 +26,12 @@ func main() {
 	grid2 := readGrid(r, 4)
 	grid3 := readGrid(r, 4)
 
-	getParts := func(grid [][]string) [][2]int {
-		var pSlice [][2]int
+	getParts := func(grid [][]string) []Coordinate {
+		var pSlice []Coordinate
 		for i := 0; i < 4; i++ {
 			for j := 0; j < 4; j++ {
 				if grid[i][j] == "#" {
-					pSlice = append(pSlice, [2]int{i, j})
+					pSlice = append(pSlice, Coordinate{i, j})
 				}
 			}
 		}
@@ -46,26 +46,26 @@ func main() {
 		return
 	}
 
-	partsSl := [3][][2]int{p1, p2, p3}
+	partsSl := [3][]Coordinate{p1, p2, p3}
 
-	var partsMap [3][4][][2]int // partsNo -> rotateNo -> parts slice (sorted by most left up)
-	for i := 0; i < 3; i++ {    // partsNo
-		partsMap[i] = [4][][2]int{}
+	var partsMap [3][4][]Coordinate // partsNo -> rotateNo -> parts slice (sorted by most left up)
+	for i := 0; i < 3; i++ {        // partsNo
+		partsMap[i] = [4][]Coordinate{}
 		parts := partsSl[i]
 
 		for j := 0; j < 4; j++ { // rotateNo
-			partsMap[i][j] = make([][2]int, len(parts))
+			partsMap[i][j] = make([]Coordinate, len(parts))
 
 			for k := 0; k < len(parts); k++ {
-				ni, nj := RotateSquareGridCell(4, parts[k][0], parts[k][1], j)
-				partsMap[i][j][k] = [2]int{ni, nj}
+				ni, nj := RotateSquareGridCell(4, parts[k].h, parts[k].w, j)
+				partsMap[i][j][k] = Coordinate{ni, nj}
 			}
 
 			sort.Slice(partsMap[i][j], func(a, b int) bool {
-				if partsMap[i][j][a][0] == partsMap[i][j][b][0] {
-					return partsMap[i][j][a][1] < partsMap[i][j][b][1]
+				if partsMap[i][j][a].h == partsMap[i][j][b].h {
+					return partsMap[i][j][a].w < partsMap[i][j][b].w
 				}
-				return partsMap[i][j][a][0] < partsMap[i][j][b][0]
+				return partsMap[i][j][a].h < partsMap[i][j][b].h
 			})
 		}
 	}
@@ -83,18 +83,18 @@ func main() {
 			cgrid := CopyGrid(grid)
 
 			parts := partsMap[partsNoPerm[permIdx]][i]
-			delta := [2]int{mostLeftUp[0] - parts[0][0], mostLeftUp[1] - parts[0][1]}
+			delta := [2]int{mostLeftUp[0] - parts[0].h, mostLeftUp[1] - parts[0].w}
 
 			dump("parts: %v\n", parts)
 			dump("delta: %v\n", delta)
 
 			for _, part := range parts {
-				nh, nw := part[0]+delta[0], part[1]+delta[1]
-				c := Coordinate{nh, nw}
-				if !c.IsValid(4, 4) || cgrid[c.h][c.w] == "#" {
+				part.h += delta[0]
+				part.w += delta[1]
+				if !part.IsValid(4, 4) || cgrid[part.h][part.w] == "#" {
 					continue Outer1
 				}
-				cgrid[c.h][c.w] = "#"
+				cgrid[part.h][part.w] = "#"
 			}
 
 			// for h := 0; h < 4; h++ {
