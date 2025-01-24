@@ -21,6 +21,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	for i := 0; i < N-2; i++ {
+		if Ss[i] == "A" && Ss[i+1] == "B" && Ss[i+2] == "C" {
+			fmt.Println(i + 1)
+			return
+		}
+	}
+
+	fmt.Println(-1)
 }
 
 //////////////
