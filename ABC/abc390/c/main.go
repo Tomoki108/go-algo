@@ -21,6 +21,77 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	H, W := read2Ints(r)
+	grid := readGrid(r, H)
+
+	mostUp, mostDown, mosLeft, mostRight := -1, -1, -1, -1
+Outer1:
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "#" {
+				mostUp = i
+				break Outer1
+			}
+		}
+	}
+
+Outer2:
+	for i := H - 1; i >= 0; i-- {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "#" {
+				mostDown = i
+				break Outer2
+			}
+		}
+	}
+
+Outer3:
+	for j := 0; j < W; j++ {
+		for i := 0; i < H; i++ {
+			if grid[i][j] == "#" {
+				mosLeft = j
+				break Outer3
+			}
+		}
+	}
+
+Outer4:
+	for j := W - 1; j >= 0; j-- {
+		for i := 0; i < H; i++ {
+			if grid[i][j] == "#" {
+				mostRight = j
+				break Outer4
+			}
+		}
+	}
+
+	dump("mostUp: %d, mostDown: %d, mosLeft: %d, mostRight: %d\n", mostUp, mostDown, mosLeft, mostRight)
+
+	if mostUp == -1 && mostDown == -1 && mosLeft == -1 && mostRight == -1 {
+		for i := 0; i < H; i++ {
+			for j := 0; j < W; j++ {
+				if grid[i][j] == "#" || grid[i][j] == "?" {
+					fmt.Fprintln(w, "Yes")
+					return
+				}
+			}
+		}
+
+		fmt.Fprintln(w, "No")
+		return
+	}
+
+	mostLeftUp := [2]int{mostUp, mosLeft}
+	mostRightDown := [2]int{mostDown, mostRight}
+	for i := mostLeftUp[0]; i <= mostRightDown[0]; i++ {
+		for j := mostLeftUp[1]; j <= mostRightDown[1]; j++ {
+			if grid[i][j] == "." {
+				fmt.Fprintln(w, "No")
+				return
+			}
+		}
+	}
+	fmt.Fprintln(w, "Yes")
 }
 
 //////////////
