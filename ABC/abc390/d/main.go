@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -28,6 +29,18 @@ func main() {
 	for i := 0; i < N; i++ {
 		current = current ^ As[i]
 	}
+
+	genkey := func(iarr []int) string {
+		sort.Ints(iarr)
+
+		key := ""
+		for _, i := range iarr {
+			key += strconv.Itoa(i) + "_"
+		}
+		return key
+	}
+
+	memos := make(map[string]struct{})
 
 	ansMap := make(map[int]struct{})
 	ansMap[current] = struct{}{}
@@ -60,6 +73,11 @@ func main() {
 				newIarr = append(newIarr, i)
 				xor = xor ^ i
 			}
+
+			if _, ok := memos[genkey(newIarr)]; ok {
+				continue
+			}
+			memos[genkey(newIarr)] = struct{}{}
 
 			ansMap[xor] = struct{}{}
 
