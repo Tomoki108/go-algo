@@ -45,11 +45,20 @@ func main() {
 			xor := newI
 			newIarr := make([]int, 0, len(iarr)-1)
 			newIarr = append(newIarr, newI)
+
+			p1deleted := false
+			p2deleted := false
 			for _, i := range iarr {
-				if i != pair[0] && i != pair[1] {
-					newIarr = append(newIarr, i)
-					xor = xor ^ i
+				if i == pair[0] && !p1deleted {
+					p1deleted = true
+					continue
 				}
+				if i == pair[1] && !p2deleted {
+					p2deleted = true
+					continue
+				}
+				newIarr = append(newIarr, i)
+				xor = xor ^ i
 			}
 
 			ansMap[xor] = struct{}{}
