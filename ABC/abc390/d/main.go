@@ -52,11 +52,6 @@ func main() {
 			return
 		}
 
-		if _, ok := memos[genkey(iarr)]; ok {
-			return
-		}
-		memos[genkey(iarr)] = struct{}{}
-
 		toMerge := PickN([]int{}, iarr, 2)
 		for _, pair := range toMerge {
 			newI := pair[0] + pair[1]
@@ -78,6 +73,11 @@ func main() {
 				newIarr = append(newIarr, i)
 				xor = xor ^ i
 			}
+
+			if _, ok := memos[genkey(newIarr)]; ok {
+				continue
+			}
+			memos[genkey(newIarr)] = struct{}{}
 
 			ansMap[xor] = struct{}{}
 
