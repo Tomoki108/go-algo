@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +23,25 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	As := readIntArr(r)
+
+	cAs := make([]int, len(As))
+	copy(cAs, As)
+	sort.Ints(cAs)
+
+	for i := 0; i < len(As)-1; i++ {
+		copyAs := make([]int, len(As))
+		copy(copyAs, As)
+
+		copyAs[i], copyAs[i+1] = copyAs[i+1], copyAs[i]
+
+		if reflect.DeepEqual(copyAs, cAs) {
+			fmt.Println("Yes")
+			return
+		}
+	}
+
+	fmt.Println("No")
 }
 
 //////////////
