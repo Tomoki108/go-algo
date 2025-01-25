@@ -21,6 +21,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	if N == 2 {
+		fmt.Println("Yes")
+		return
+	}
+
+	for i := 1; i < N-1; i++ {
+		a := As[i-1]
+		b := As[i]
+		c := As[i+1]
+
+		if b*b != a*c {
+			fmt.Println("No")
+			return
+		}
+	}
+
+	fmt.Println("Yes")
 }
 
 //////////////
