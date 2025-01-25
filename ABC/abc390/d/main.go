@@ -21,11 +21,75 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	current := 0
+	for i := 0; i < N; i++ {
+		current = current ^ As[i]
+	}
+
+	ansMap := make(map[int]struct{})
+	ansMap[current] = struct{}{}
+
+	var dfs func(iarr []int)
+	dfs = func(iarr []int) {
+		if len(iarr) == 1 {
+			ansMap[iarr[0]] = struct{}{}
+			return
+		}
+
+		toMerge := PickN([]int{}, iarr, 2)
+		for _, pair := range toMerge {
+			newI := pair[0] + pair[1]
+			xor := newI
+			newIarr := make([]int, 0, len(iarr)-1)
+			newIarr = append(newIarr, newI)
+			for _, i := range iarr {
+				if i != pair[0] && i != pair[1] {
+					newIarr = append(newIarr, i)
+					xor = xor ^ i
+				}
+			}
+
+			ansMap[xor] = struct{}{}
+
+			dfs(newIarr)
+		}
+	}
+
+	dfs(As)
+
+	fmt.Println(len(ansMap))
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(nCr) n: len(options), r: n
+// optionsから N個選ぶ組み合わせを全列挙する
+// optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
+func PickN[T comparable](current, options []T, n int) [][]T {
+	var results [][]T
+
+	if n == 0 {
+		return [][]T{current}
+	}
+
+	for i, o := range options {
+		newCurrent := make([]T, len(current), len(current)+1)
+		copy(newCurrent, current)
+		newCurrent = append(newCurrent, o)
+
+		newOptions := make([]T, len(options[i+1:]))
+		copy(newOptions, options[i+1:])
+
+		results = append(results, PickN(newCurrent, newOptions, n-1)...)
+	}
+
+	return results
+}
 
 //////////////
 // Helpers //
