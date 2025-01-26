@@ -21,6 +21,34 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	factors := make([]int, 0)
+	for i := 1; i <= 9; i++ {
+		if N%i == 0 {
+			factors = append(factors, i)
+		}
+	}
+
+	ans := ""
+	for i := 0; i <= N; i++ {
+
+		minF := -1
+		for _, f := range factors {
+			if i%(N/f) == 0 {
+				minF = f
+				break
+			}
+		}
+
+		if minF == -1 {
+			ans += "-"
+		} else {
+			ans += strconv.Itoa(minF)
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
