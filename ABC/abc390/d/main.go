@@ -40,7 +40,7 @@ func main() {
 		return key
 	}
 
-	memos := make(map[string]struct{})
+	memos := make(map[string]struct{}, N*N*N)
 
 	ansMap := make(map[int]struct{})
 	ansMap[current] = struct{}{}
@@ -56,6 +56,7 @@ func main() {
 		for _, pair := range toMerge {
 			newI := pair[0] + pair[1]
 			xor := newI
+
 			newIarr := make([]int, 0, len(iarr)-1)
 			newIarr = append(newIarr, newI)
 
