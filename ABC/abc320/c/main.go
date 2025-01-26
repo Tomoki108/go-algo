@@ -21,6 +21,44 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	M := readInt(r)
+	S1 := readStr(r)
+	S2 := readStr(r)
+	S3 := readStr(r)
+
+	S1s := strings.Split(S1, "")
+	S2s := strings.Split(S2, "")
+	S3s := strings.Split(S3, "")
+
+	minK := INT_MAX
+	for i := 0; i <= 3*M-2; i++ {
+		for j := i + 1; j <= 3*M-1; j++ {
+			for k := j + 1; k <= 3*M; k++ {
+				idx1 := i % M
+				idx2 := j % M
+				idx3 := k % M
+
+				if S1s[idx1] == S2s[idx2] && S2s[idx2] == S3s[idx3] ||
+					S1s[idx1] == S2s[idx3] && S2s[idx3] == S3s[idx2] ||
+					S1s[idx2] == S2s[idx1] && S2s[idx1] == S3s[idx3] ||
+					S1s[idx2] == S2s[idx3] && S2s[idx3] == S3s[idx1] ||
+					S1s[idx3] == S2s[idx1] && S2s[idx1] == S3s[idx2] ||
+					S1s[idx3] == S2s[idx2] && S2s[idx2] == S3s[idx1] {
+
+					// if k == 10 {
+					// 	dump("i: %d, j: %d, k: %d\n", i, j, k)
+					// }
+					minK = min(minK, k)
+				}
+			}
+		}
+	}
+
+	if minK == INT_MAX {
+		fmt.Fprintln(w, -1)
+	} else {
+		fmt.Fprintln(w, minK)
+	}
 }
 
 //////////////
