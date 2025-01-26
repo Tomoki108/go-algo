@@ -41,3 +41,66 @@ func PickN[T comparable](current, options []T, n int) [][]T {
 
 	return results
 }
+
+// スライスを、任意の数の区別のないグループに分けるパターンを全列挙する
+// O(B(n, n))
+//   - n: len(sl)
+//   - B(n, n): ベル数
+func Grouping[T any](sl []T) [][][]T {
+	var results [][][]T
+	groups := make([][]T, 0, len(sl))
+
+	var dfs func(idx int)
+	dfs = func(idx int) {
+		if idx == len(sl) {
+			results = append(results, groups)
+			return
+		}
+
+		for _, g := range groups {
+			g = append(g, sl[idx])
+			dfs(idx + 1)
+			g = g[:len(g)-1]
+		}
+
+		groups = append(groups, []T{sl[idx]})
+		dfs(idx + 1)
+		groups = groups[:len(groups)-1]
+	}
+
+	dfs(0)
+	return results
+}
+
+// スライスを、区別のあるsize個のグループに分けるパターンを全列挙する
+// O(n! * B(n, size))
+//   - n: len(sl)
+//   - B(n, n): ベル数
+func GroupingDistintBySize[T any](sl []T, size int) [][][]T {
+	groups := make([][]T, size)
+
+	var results [][][]T
+
+	var dfs func(idx int)
+	dfs = func(idx int) {
+		if idx == len(sl) {
+			for _, g := range groups {
+				if len(g) == 0 {
+					return
+				}
+			}
+
+			results = append(results, groups)
+			return
+		}
+
+		for gi := range groups {
+			groups[gi] = append(groups[gi], sl[idx])
+			dfs(idx + 1)
+			groups[gi] = groups[gi][:len(groups[gi])-1]
+		}
+	}
+
+	dfs(0)
+	return results
+}
