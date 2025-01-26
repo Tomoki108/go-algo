@@ -37,44 +37,44 @@ func main() {
 
 	dump("list: %v\n", list)
 
-	zero := 0
-	ans := make([][2]*int, N)
-	ans[0] = [2]*int{&zero, &zero}
-	for i := 1; i < N; i++ {
-		ans[i] = [2]*int{nil, nil}
+	type xy struct {
+		x, y int
 	}
+
+	ans := make([]*xy, N)
+	ans[0] = &xy{0, 0}
 
 	q := NewQueue[int]()
 	q.Enqueue(0)
 
 	for !q.IsEmpty() {
 		subject, _ := q.Dequeue()
-		subjectX, subjectY := ans[subject][0], ans[subject][1]
-		if subjectX == nil || subjectY == nil {
+		subjectXY := ans[subject]
+		if subjectXY == nil {
 			panic("subjectX or subjectY is nil")
 		}
 
 		for _, objInfo := range list[subject] {
-			objectX, objectY := ans[objInfo[0]][0], ans[objInfo[0]][1]
-			if objectX != nil && objectY != nil {
+			objectXY := ans[objInfo[0]]
+			if objectXY != nil {
 				continue
 			}
 
 			object, xDelta, yDelta := objInfo[0], objInfo[1], objInfo[2]
-			newX := *subjectX + xDelta
-			newY := *subjectY + yDelta
+			newX := subjectXY.x + xDelta
+			newY := subjectXY.y + yDelta
 
-			ans[object] = [2]*int{&newX, &newY}
+			ans[object] = &xy{newX, newY}
 
 			q.Enqueue(object)
 		}
 	}
 
 	for _, a := range ans {
-		if a[0] == nil || a[1] == nil {
+		if a == nil {
 			fmt.Fprintln(w, "undecidable")
 		} else {
-			fmt.Fprintln(w, *a[0], *a[1])
+			fmt.Fprintln(w, a.x, a.y)
 		}
 	}
 }
