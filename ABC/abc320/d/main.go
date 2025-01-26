@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -21,11 +22,112 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	list := make([][][3]int, N) // [subject_idx][][3]int{object_idx, x_delta, y_delta}
+	for i := 0; i < M; i++ {
+		iarr := readIntArr(r)
+		A, B, X, Y := iarr[0], iarr[1], iarr[2], iarr[3]
+		A--
+		B--
+
+		list[A] = append(list[A], [3]int{B, X, Y})
+		list[B] = append(list[B], [3]int{A, -X, -Y})
+	}
+
+	dump("list: %v\n", list)
+
+	zero := 0
+	ans := make([][2]*int, N)
+	ans[0] = [2]*int{&zero, &zero}
+	for i := 1; i < N; i++ {
+		ans[i] = [2]*int{nil, nil}
+	}
+
+	q := NewQueue[int]()
+	q.Enqueue(0)
+
+	for !q.IsEmpty() {
+		subject, _ := q.Dequeue()
+		subjectX, subjectY := ans[subject][0], ans[subject][1]
+		if subjectX == nil || subjectY == nil {
+			panic("subjectX or subjectY is nil")
+		}
+
+		for _, objInfo := range list[subject] {
+			objectX, objectY := ans[objInfo[0]][0], ans[objInfo[0]][1]
+			if objectX != nil && objectY != nil {
+				continue
+			}
+
+			object, xDelta, yDelta := objInfo[0], objInfo[1], objInfo[2]
+			newX := *subjectX + xDelta
+			newY := *subjectY + yDelta
+
+			ans[object] = [2]*int{&newX, &newY}
+
+			q.Enqueue(object)
+		}
+	}
+
+	for _, a := range ans {
+		if a[0] == nil || a[1] == nil {
+			fmt.Fprintln(w, "undecidable")
+		} else {
+			fmt.Fprintln(w, *a[0], *a[1])
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers //
