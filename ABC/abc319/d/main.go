@@ -24,10 +24,15 @@ func main() {
 	N, M := read2Ints(r)
 	Ls := readIntArr(r)
 
+	minWindowSize := INT_MAX
+	for _, l := range Ls {
+		minWindowSize = min(minWindowSize, l)
+	}
+
 	lspsum := PrefixSum(Ls)
 	maxWindowSize := lspsum[len(lspsum)-1] + N - 1
 
-	ans := AscIntSearch(1, maxWindowSize, func(windowSize int) bool {
+	ans := DescIntSearch(maxWindowSize, minWindowSize, func(windowSize int) bool {
 		currentSize := -1
 		rows := 1
 		for i := 0; i < N; i++ {
@@ -40,13 +45,13 @@ func main() {
 		}
 
 		if rows > M {
-			return false
-		} else {
 			return true
+		} else {
+			return false
 		}
 	})
 
-	fmt.Fprintln(w, ans)
+	fmt.Fprintln(w, ans+1)
 }
 
 //////////////
