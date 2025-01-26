@@ -21,6 +21,22 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	m := map[string]int{
+		"tourist":    3858,
+		"ksun48":     3679,
+		"Benq":       3658,
+		"Um_nik":     3648,
+		"apiad":      3638,
+		"Stonefeang": 3630,
+		"ecnerwala":  3613,
+		"mnbvmar":    3555,
+		"newbiedmy":  3516,
+		"semiexp":    3481,
+	}
+
+	S := readStr(r)
+
+	fmt.Fprintln(w, m[S])
 }
 
 //////////////
