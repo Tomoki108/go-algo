@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -25,68 +24,32 @@ func main() {
 	N := readInt(r)
 	As := readIntArr(r)
 
-	current := 0
-	for i := 0; i < N; i++ {
-		current = current ^ As[i]
-	}
-
-	genkey := func(iarr []int) string {
-		sort.Ints(iarr)
-
-		key := ""
-		for _, i := range iarr {
-			key += strconv.Itoa(i) + "_"
-		}
-		return key
-	}
-
-	memos := make(map[string]struct{}, N*N*N)
-
 	ansMap := make(map[int]struct{})
-	ansMap[current] = struct{}{}
 
-	var dfs func(iarr []int)
-	dfs = func(iarr []int) {
-		if len(iarr) == 1 {
-			ansMap[iarr[0]] = struct{}{}
+	groups := make([]int, 0, N)
+	var dfs func(idx int)
+	dfs = func(idx int) {
+		if idx == N {
+			xor := 0
+			for _, g := range groups {
+				xor ^= g
+			}
+			ansMap[xor] = struct{}{}
 			return
 		}
 
-		toMerge := PickN([]int{}, iarr, 2)
-		for _, pair := range toMerge {
-			newI := pair[0] + pair[1]
-			xor := newI
-
-			newIarr := make([]int, 0, len(iarr)-1)
-			newIarr = append(newIarr, newI)
-
-			p1deleted := false
-			p2deleted := false
-			for _, i := range iarr {
-				if i == pair[0] && !p1deleted {
-					p1deleted = true
-					continue
-				}
-				if i == pair[1] && !p2deleted {
-					p2deleted = true
-					continue
-				}
-				newIarr = append(newIarr, i)
-				xor = xor ^ i
-			}
-
-			if _, ok := memos[genkey(newIarr)]; ok {
-				continue
-			}
-			memos[genkey(newIarr)] = struct{}{}
-
-			ansMap[xor] = struct{}{}
-
-			dfs(newIarr)
+		for gi := range groups {
+			groups[gi] += As[idx]
+			dfs(idx + 1)
+			groups[gi] -= As[idx]
 		}
+
+		groups = append(groups, As[idx])
+		dfs(idx + 1)
+		groups = groups[:len(groups)-1]
 	}
 
-	dfs(As)
+	dfs(0)
 
 	fmt.Println(len(ansMap))
 }
@@ -94,30 +57,6 @@ func main() {
 //////////////
 // Libs    //
 /////////////
-
-// O(nCr) n: len(options), r: n
-// optionsから N個選ぶ組み合わせを全列挙する
-// optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
-func PickN[T comparable](current, options []T, n int) [][]T {
-	var results [][]T
-
-	if n == 0 {
-		return [][]T{current}
-	}
-
-	for i, o := range options {
-		newCurrent := make([]T, len(current), len(current)+1)
-		copy(newCurrent, current)
-		newCurrent = append(newCurrent, o)
-
-		newOptions := make([]T, len(options[i+1:]))
-		copy(newOptions, options[i+1:])
-
-		results = append(results, PickN(newCurrent, newOptions, n-1)...)
-	}
-
-	return results
-}
 
 //////////////
 // Helpers //
