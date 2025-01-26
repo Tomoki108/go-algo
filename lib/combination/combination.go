@@ -90,13 +90,17 @@ func GroupingDistintBySize[T any](sl []T, size int) [][][]T {
 	var dfs func(idx int)
 	dfs = func(idx int) {
 		if idx == len(sl) {
-			for _, g := range groups {
+			copyGroups := make([][]T, len(groups))
+			for i, g := range groups {
 				if len(g) == 0 {
 					return
 				}
+				copyG := make([]T, len(g))
+				copy(copyG, g)
+				copyGroups[i] = copyG
 			}
 
-			results = append(results, groups)
+			results = append(results, copyGroups)
 			return
 		}
 
