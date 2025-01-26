@@ -31,28 +31,44 @@ func main() {
 	S3s := strings.Split(S3, "")
 
 	minK := INT_MAX
-	for i := 0; i <= 3*M-2; i++ {
-		for j := i + 1; j <= 3*M-1; j++ {
-			for k := j + 1; k <= 3*M; k++ {
+	for i := 0; i <= 3*M-3; i++ {
+		for j := 0; j <= 3*M-3; j++ {
+			for k := 0; k <= 3*M-3; k++ {
+				if i == k || i == j || j == k {
+					continue
+				}
+
 				idx1 := i % M
 				idx2 := j % M
 				idx3 := k % M
 
-				if S1s[idx1] == S2s[idx2] && S2s[idx2] == S3s[idx3] ||
-					S1s[idx1] == S2s[idx3] && S2s[idx3] == S3s[idx2] ||
-					S1s[idx2] == S2s[idx1] && S2s[idx1] == S3s[idx3] ||
-					S1s[idx2] == S2s[idx3] && S2s[idx3] == S3s[idx1] ||
-					S1s[idx3] == S2s[idx1] && S2s[idx1] == S3s[idx2] ||
-					S1s[idx3] == S2s[idx2] && S2s[idx2] == S3s[idx1] {
-
-					// if k == 10 {
-					// 	dump("i: %d, j: %d, k: %d\n", i, j, k)
-					// }
-					minK = min(minK, k)
+				if S1s[idx1] == S2s[idx2] && S2s[idx2] == S3s[idx3] {
+					minK = min(minK, max(max(i, j), k))
 				}
 			}
 		}
 	}
+
+	// 別のやり方
+	// for i := 0; i <= 3*M-5; i++ {
+	// 	for j := i + 1; j <= 3*M-4; j++ {
+	// 		for k := j + 1; k <= 3*M-3; k++ {
+	// 			idx1 := i % M
+	// 			idx2 := j % M
+	// 			idx3 := k % M
+
+	// 			if S1s[idx1] == S2s[idx2] && S2s[idx2] == S3s[idx3] ||
+	// 				S1s[idx1] == S2s[idx3] && S2s[idx3] == S3s[idx2] ||
+	// 				S1s[idx2] == S2s[idx1] && S2s[idx1] == S3s[idx3] ||
+	// 				S1s[idx2] == S2s[idx3] && S2s[idx3] == S3s[idx1] ||
+	// 				S1s[idx3] == S2s[idx1] && S2s[idx1] == S3s[idx2] ||
+	// 				S1s[idx3] == S2s[idx2] && S2s[idx2] == S3s[idx1] {
+
+	// 				minK = min(minK, k)
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	if minK == INT_MAX {
 		fmt.Fprintln(w, -1)
