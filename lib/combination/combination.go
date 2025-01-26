@@ -53,14 +53,20 @@ func Grouping[T any](sl []T) [][][]T {
 	var dfs func(idx int)
 	dfs = func(idx int) {
 		if idx == len(sl) {
-			results = append(results, groups)
+			copyGroups := make([][]T, len(groups))
+			for i, g := range groups {
+				copyG := make([]T, len(g))
+				copy(copyG, g)
+				copyGroups[i] = copyG
+			}
+			results = append(results, copyGroups)
 			return
 		}
 
-		for _, g := range groups {
-			g = append(g, sl[idx])
+		for i := 0; i < len(groups); i++ {
+			groups[i] = append(groups[i], sl[idx])
 			dfs(idx + 1)
-			g = g[:len(g)-1]
+			groups[i] = groups[i][:len(groups[i])-1]
 		}
 
 		groups = append(groups, []T{sl[idx]})

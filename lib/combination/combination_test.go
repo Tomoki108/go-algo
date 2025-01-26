@@ -6,10 +6,6 @@ import (
 )
 
 func TestPickN(t *testing.T) {
-	type iors interface {
-		~int | ~string
-	}
-
 	tests := []struct {
 		name     string
 		options  []int
@@ -45,6 +41,39 @@ func TestPickN(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			actual := PickN([]int{}, tt.options, tt.n)
+			if len(actual) != len(tt.expected) {
+				t.Fatalf("got %v, expect %v", actual, tt.expected)
+			}
+
+			if !reflect.DeepEqual(actual, tt.expected) {
+				t.Fatalf("got %v, expect %v", actual, tt.expected)
+			}
+		})
+	}
+}
+
+func TestGrouping(t *testing.T) {
+	tests := []struct {
+		name     string
+		sl       []int
+		expected [][][]int
+	}{
+		{
+			name: "example1",
+			sl:   []int{1, 2, 3},
+			expected: [][][]int{
+				{{1, 2, 3}},
+				{{1, 2}, {3}},
+				{{1, 3}, {2}},
+				{{1}, {2, 3}},
+				{{1}, {2}, {3}},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := Grouping(tt.sl)
 			if len(actual) != len(tt.expected) {
 				t.Fatalf("got %v, expect %v", actual, tt.expected)
 			}
