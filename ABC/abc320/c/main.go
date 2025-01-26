@@ -31,9 +31,9 @@ func main() {
 	S3s := strings.Split(S3, "")
 
 	minK := INT_MAX
-	for i := 0; i <= 3*M-3; i++ {
-		for j := 0; j <= 3*M-3; j++ {
-			for k := 0; k <= 3*M-3; k++ {
+	for i := 0; i <= 3*M-1; i++ {
+		for j := 0; j <= 3*M-1; j++ {
+			for k := 0; k <= 3*M-1; k++ {
 				if i == k || i == j || j == k {
 					continue
 				}
@@ -50,9 +50,9 @@ func main() {
 	}
 
 	// 別のやり方
-	// for i := 0; i <= 3*M-5; i++ {
-	// 	for j := i + 1; j <= 3*M-4; j++ {
-	// 		for k := j + 1; k <= 3*M-3; k++ {
+	// for i := 0; i <= 3*M-3; i++ {
+	// 	for j := i + 1; j <= 3*M-2; j++ {
+	// 		for k := j + 1; k <= 3*M-1; k++ {
 	// 			idx1 := i % M
 	// 			idx2 := j % M
 	// 			idx3 := k % M
