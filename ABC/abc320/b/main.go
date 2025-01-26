@@ -21,11 +21,34 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	for subStrLen := len(Ss); subStrLen > 0; subStrLen-- {
+		for i := 0; i+subStrLen <= len(Ss); i++ {
+			target := Ss[i : i+subStrLen]
+			if IsPallindrome(target) {
+				fmt.Fprintln(w, subStrLen)
+				return
+			}
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n/2)
+func IsPallindrome(ss []string) bool {
+	for i := 0; i < len(ss)/2; i++ {
+		if ss[i] != ss[len(ss)-1-i] {
+			return false
+		}
+	}
+
+	return true
+}
 
 //////////////
 // Helpers //
