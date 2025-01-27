@@ -33,7 +33,7 @@ func main() {
 	lspsum := PrefixSum(Ls)
 	maxWindowSize := lspsum[len(lspsum)-1] + N - 1
 
-	ans := DescIntSearch(maxWindowSize, minWindowSize, func(windowSize int) bool {
+	ans := AscIntSearch(minWindowSize, maxWindowSize, func(windowSize int) bool {
 		currentSize := -1
 		rows := 1
 		for i := 0; i < N; i++ {
@@ -45,14 +45,14 @@ func main() {
 			}
 		}
 
-		if rows > M {
+		if rows <= M {
 			return true
 		} else {
 			return false
 		}
 	})
 
-	fmt.Fprintln(w, ans+1)
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
@@ -71,29 +71,29 @@ func PrefixSum(sl []int) []int {
 }
 
 // O(log(high-low))
-// high, high-1, ..., lowの範囲で条件を満たす最大の値を二分探索する
-// high~lowは条件に対して単調増加性を満たす必要がある
-// 条件を満たす値が見つからない場合はhigh+1を返す
-func DescIntSearch(high, low int, f func(num int) bool) int {
-	initialHigh := high
+// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
+// low~highは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はlow-1を返す
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	initialLow := low
 
 	for low < high {
-		// オーバーフローを防ぐための式.
-		// 中央値はhigh側に寄る（+1しているため）
-		mid := low + (high-low+1)/2
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
 		if f(mid) {
-			low = mid // 条件を満たす場合、よりhigh側の範囲を探索
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
 		} else {
-			high = mid - 1 // 条件を満たさない場合、よりlow側の範囲を探索
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
 		}
 	}
 
-	// 最後に high(=low) が条件を満たしているかを確認
-	if f(high) {
-		return high
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
 	}
 
-	return initialHigh + 1 // 条件を満たす値が見つからない場合
+	return initialLow - 1 // 条件を満たす値が見つからない場合
 }
 
 //////////////
