@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,15 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	_, H, X := iarr[0], iarr[1], iarr[2]
+	Ps := readIntArr(r)
+
+	idx := sort.Search(len(Ps), func(i int) bool {
+		return H+Ps[i] >= X
+	})
+
+	fmt.Fprintln(w, idx+1)
 }
 
 //////////////
