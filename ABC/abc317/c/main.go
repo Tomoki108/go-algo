@@ -21,6 +21,48 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	graph := make([][][2]int, N) // (to, weight)
+
+	for i := 0; i < M; i++ {
+		iarr := readIntArr(r)
+		A, B, C := iarr[0]-1, iarr[1]-1, iarr[2]
+
+		graph[A] = append(graph[A], [2]int{B, C})
+		graph[B] = append(graph[B], [2]int{A, C})
+	}
+
+	visited := make(map[int]bool, N)
+
+	ans := INT_MIN
+	var dfs func(node, weightSum int)
+	dfs = func(node, weightSum int) {
+		adjacents := graph[node]
+
+		for _, adj := range adjacents {
+			next_node := adj[0]
+			next_weight := adj[1]
+
+			if visited[next_node] {
+				continue
+			}
+			visited[next_node] = true
+
+			dfs(next_node, weightSum+next_weight)
+			visited[next_node] = false
+		}
+
+		ans = max(ans, weightSum)
+	}
+
+	for i := 0; i < N; i++ {
+		visited[i] = true
+		dfs(i, 0)
+		visited[i] = false
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
