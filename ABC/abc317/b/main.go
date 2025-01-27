@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	sort.Ints(As)
+
+	for i := 1; i < N; i++ {
+		diff := As[i] - As[i-1]
+		if diff > 1 {
+			fmt.Fprintln(w, As[i-1]+1)
+			return
+		}
+	}
+
+	panic("unreachable")
 }
 
 //////////////
