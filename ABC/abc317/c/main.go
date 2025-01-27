@@ -33,7 +33,9 @@ func main() {
 		graph[B] = append(graph[B], [2]int{A, C})
 	}
 
-	visited := make(map[int]bool, N)
+	// mapだと1000ms、sliceだと200msかかる。mapのread/writeはO(1)だが、定数倍が重い。
+	// visited := make(map[int]bool, N)
+	visited := make([]bool, N)
 
 	ans := INT_MIN
 	var dfs func(node, weightSum int)
