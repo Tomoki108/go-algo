@@ -29,17 +29,34 @@ func main() {
 	sort.Ints(Fs)
 	psum := PrefixSum(Fs)
 
-	ans := 0
-	for i := N; i >= D; i-- {
-		sum := psum[i] - psum[i-D]
-		if sum > P {
-			ans += P
+	dump("%v\n", psum)
 
-			i = i - D + 1 // +1は、i--を相殺するため
-			continue
+	ans := 0
+	for i := N; i >= 0; i-- {
+		dump("i: %d, ans: %d\n", i, ans)
+
+		var sum int
+		if i-D >= 0 {
+			sum := psum[i] - psum[i-D]
+
+			if sum > P {
+				ans += P
+				i = i - D + 1 // +1はi--を相殺するため
+				continue
+			} else {
+				ans += psum[i]
+				break
+			}
 		} else {
-			ans += psum[i]
-			break
+			sum = psum[i]
+
+			if sum > P {
+				ans += P
+				break
+			} else {
+				ans += psum[i]
+				break
+			}
 		}
 	}
 
