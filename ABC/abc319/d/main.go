@@ -24,10 +24,11 @@ func main() {
 	N, M := read2Ints(r)
 	Ls := readIntArr(r)
 
-	minWindowSize := INT_MAX
+	maxL := INT_MIN
 	for _, l := range Ls {
-		minWindowSize = min(minWindowSize, l)
+		maxL = max(maxL, l)
 	}
+	minWindowSize := maxL
 
 	lspsum := PrefixSum(Ls)
 	maxWindowSize := lspsum[len(lspsum)-1] + N - 1
@@ -70,34 +71,12 @@ func PrefixSum(sl []int) []int {
 }
 
 // O(log(high-low))
-// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
-// low~highは条件に対して単調増加性を満たす必要がある
-// 条件を満たす値が見つからない場合はlow-1を返す
-func AscIntSearch(low, high int, f func(num int) bool) int {
-	for low < high {
-		// オーバーフローを防ぐための立式
-		// 中央値はlow側に寄る
-		mid := low + (high-low)/2
-		if f(mid) {
-			high = mid // 条件を満たす場合、よりlow側の範囲を探索
-		} else {
-			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
-		}
-	}
-
-	// 最後に low(=high) が条件を満たしているかを確認
-	if f(low) {
-		return low
-	}
-
-	return low - 1 // 条件を満たす値が見つからない場合
-}
-
-// O(log(high-low))
-// high, high-1, ..., lowの範囲で条件を満たす最小の値を二分探索する
+// high, high-1, ..., lowの範囲で条件を満たす最大の値を二分探索する
 // high~lowは条件に対して単調増加性を満たす必要がある
 // 条件を満たす値が見つからない場合はhigh+1を返す
 func DescIntSearch(high, low int, f func(num int) bool) int {
+	initialHigh := high
+
 	for low < high {
 		// オーバーフローを防ぐための式.
 		// 中央値はhigh側に寄る（+1しているため）
@@ -114,7 +93,7 @@ func DescIntSearch(high, low int, f func(num int) bool) int {
 		return high
 	}
 
-	return high + 1 // 条件を満たす値が見つからない場合
+	return initialHigh + 1 // 条件を満たす値が見つからない場合
 }
 
 //////////////
