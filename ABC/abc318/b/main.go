@@ -21,6 +21,35 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	grid := createGrid(100, 100, ".")
+
+	for i := 0; i < N; i++ {
+		iarr := readIntArr(r)
+		A, B, C, D := iarr[0], iarr[1], iarr[2], iarr[3]
+
+		// A <= x <= B
+		// C <= y <= D
+		// [low, high)に塗りつぶす
+
+		for h := C; h < D; h++ {
+			for w := A; w < B; w++ {
+				grid[h][w] = "#"
+			}
+		}
+	}
+
+	ans := 0
+	for i := 0; i < 100; i++ {
+		for j := 0; j < 100; j++ {
+			if grid[i][j] == "#" {
+				ans++
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
