@@ -21,6 +21,56 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	graph := make([][]int, N)
+	for i := 0; i < N; i++ {
+		graph[i] = make([]int, N)
+	}
+
+	for i := 0; i < N-1; i++ {
+		iarr := readIntArr(r)
+
+		for target, weight := range iarr {
+			target += i + 1
+
+			graph[i][target] = weight
+			graph[target][i] = weight
+		}
+	}
+
+	nodeMap := make(map[int]struct{})
+	for i := 0; i < N; i++ {
+		nodeMap[i] = struct{}{}
+	}
+
+	dump("%v\n", graph)
+
+	ans := 0
+	var dfs func(node, weightSum int)
+	dfs = func(node, weightSum int) {
+		if node == N {
+			ans = max(ans, weightSum)
+			return
+		}
+
+		if _, ok := nodeMap[node]; !ok {
+			dfs(node+1, weightSum)
+			return
+		}
+
+		for target := node + 1; target < N; target++ {
+			if _, ok := nodeMap[target]; ok {
+				delete(nodeMap, target)
+				dfs(node+1, weightSum+graph[node][target])
+				nodeMap[target] = struct{}{}
+			}
+		}
+	}
+
+	dfs(0, 0)
+
+	fmt.Println(ans)
 }
 
 //////////////
