@@ -67,7 +67,7 @@ func main() {
 			}
 		}
 
-		if !skipped {
+		if !skipped && N%2 == 1 {
 			dfs(node+1, weightSum, true)
 		}
 	}
