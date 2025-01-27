@@ -47,28 +47,32 @@ func main() {
 	dump("%v\n", graph)
 
 	ans := 0
-	var dfs func(node, weightSum int)
-	dfs = func(node, weightSum int) {
+	var dfs func(node, weightSum int, skipped bool)
+	dfs = func(node, weightSum int, skipped bool) {
 		if node == N {
 			ans = max(ans, weightSum)
 			return
 		}
 
 		if _, ok := nodeMap[node]; !ok {
-			dfs(node+1, weightSum)
+			dfs(node+1, weightSum, skipped)
 			return
 		}
 
 		for target := node + 1; target < N; target++ {
 			if _, ok := nodeMap[target]; ok {
 				delete(nodeMap, target)
-				dfs(node+1, weightSum+graph[node][target])
+				dfs(node+1, weightSum+graph[node][target], skipped)
 				nodeMap[target] = struct{}{}
 			}
 		}
+
+		if !skipped {
+			dfs(node+1, weightSum, true)
+		}
 	}
 
-	dfs(0, 0)
+	dfs(0, 0, false)
 
 	fmt.Println(ans)
 }
