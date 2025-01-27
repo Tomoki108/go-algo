@@ -47,7 +47,7 @@ func TestAscIntSearch(t *testing.T) {
 }
 
 func TestDescIntSearch(t *testing.T) {
-	sl1 := []int{1, 4, 5, 5, 6, 20, 21, 22, 22}
+	sl1 := []int{1, 1, 5, 5, 5, 6, 20, 21, 22, 22}
 	sl2 := []int{5}
 	sl3 := []int{9}
 
@@ -60,10 +60,10 @@ func TestDescIntSearch(t *testing.T) {
 	}{
 		{
 			name: "example1",
-			high: 6,
+			high: 8,
 			low:  0,
 			f:    func(num int) bool { return sl1[num] <= 5 },
-			want: 3,
+			want: 4,
 		},
 		{
 			name: "example2",
