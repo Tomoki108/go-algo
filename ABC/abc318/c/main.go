@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +22,44 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, D, P := iarr[0], iarr[1], iarr[2]
+	Fs := readIntArr(r)
+
+	sort.Ints(Fs)
+	psum := PrefixSum(Fs)
+
+	ans := 0
+	for i := N; i >= D; i-- {
+		sum := psum[i] - psum[i-D]
+		if sum > P {
+			ans += P
+
+			i = i - D + 1 // +1は、i--を相殺するため
+			continue
+		} else {
+			ans += psum[i]
+			break
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers //
