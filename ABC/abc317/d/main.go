@@ -21,6 +21,13 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	for i := 0; i < N; i++ {
+		iarr := readIntArr(r)
+		X, Y, Z := iarr[0], iarr[1], iarr[2]
+	}
+
 }
 
 //////////////
