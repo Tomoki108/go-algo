@@ -31,42 +31,50 @@ func main() {
 
 	grid := readGrid(r, H)
 
-	rowColorSetMaps := make([]map[string]*set.Set[int], H) // color -> [col1, col2, ...]
-	colColorSetMaps := make([]map[string]*set.Set[int], W) // color -> [row1, row2, ...]
+	rowColorColSetMaps := make([]map[string]*set.Set[int], H) // color -> [col1, col2, ...]
+	colColorRowSetMaps := make([]map[string]*set.Set[int], W) // color -> [row1, row2, ...]
 	for row := 0; row < H; row++ {
-		rowColorSetMaps[row] = make(map[string]*set.Set[int])
+		rowColorColSetMaps[row] = make(map[string]*set.Set[int])
 		for col := 0; col < W; col++ {
 			color := grid[row][col]
-			if _, ok := rowColorSetMaps[row][color]; !ok {
-				rowColorSetMaps[row][color] = NewIntSetAsc()
+			if _, ok := rowColorColSetMaps[row][color]; !ok {
+				rowColorColSetMaps[row][color] = NewIntSetAsc()
 			}
-			rowColorSetMaps[row][color].Insert(col)
+			rowColorColSetMaps[row][color].Insert(col)
 		}
 	}
 	for col := 0; col < W; col++ {
-		colColorSetMaps[col] = make(map[string]*set.Set[int])
+		colColorRowSetMaps[col] = make(map[string]*set.Set[int])
 		for row := 0; row < H; row++ {
 			color := grid[row][col]
-			if _, ok := colColorSetMaps[col][color]; !ok {
-				colColorSetMaps[col][color] = NewIntSetAsc()
+			if _, ok := colColorRowSetMaps[col][color]; !ok {
+				colColorRowSetMaps[col][color] = NewIntSetAsc()
 			}
-			colColorSetMaps[col][color].Insert(row)
+			colColorRowSetMaps[col][color].Insert(row)
 		}
 	}
+
+	dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
+	dump("colColorSetMaps: %v\n", colColorRowSetMaps)
 
 	changed := true
 	for changed {
 		changed = false
 
-		for row, rowColorSetMap := range rowColorSetMaps {
+	Outer1:
+		for row, rowColorSetMap := range rowColorColSetMaps {
 			if len(rowColorSetMap) == 1 {
 				for color, colSet := range rowColorSetMap { // only 1 iterate
+					if colSet.Size() < 2 {
+						continue Outer1
+					}
+
 					it := colSet.First()
 					for it.IsValid() {
 						col := it.Value()
-						colColorSetMaps[col][color].Erase(row)
-						if colColorSetMaps[col][color].Size() == 0 {
-							delete(colColorSetMaps[col], color)
+						colColorRowSetMaps[col][color].Erase(row)
+						if colColorRowSetMaps[col][color].Size() == 0 {
+							delete(colColorRowSetMaps[col], color)
 						}
 						it.Next()
 					}
@@ -78,15 +86,15 @@ func main() {
 			}
 		}
 
-		for col, colColorSetMap := range colColorSetMaps {
+		for col, colColorSetMap := range colColorRowSetMaps {
 			if len(colColorSetMap) == 1 {
 				for color, rowSet := range colColorSetMap { // only 1 iterate
 					it := rowSet.First()
 					for it.IsValid() {
 						row := it.Value()
-						rowColorSetMaps[row][color].Erase(col)
-						if rowColorSetMaps[row][color].Size() == 0 {
-							delete(rowColorSetMaps[row], color)
+						rowColorColSetMaps[row][color].Erase(col)
+						if rowColorColSetMaps[row][color].Size() == 0 {
+							delete(rowColorColSetMaps[row], color)
 						}
 						it.Next()
 					}
@@ -97,14 +105,22 @@ func main() {
 				changed = true
 			}
 		}
+
+		dump("\n")
+		dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
+		dump("colColorSetMaps: %v\n", colColorRowSetMaps)
+		dump("\n")
 	}
 
 	ans := 0
-	for _, rowColorSetMap := range rowColorSetMaps {
+	for _, rowColorSetMap := range rowColorColSetMaps {
 		for _, colSet := range rowColorSetMap {
 			ans += colSet.Size()
 		}
 	}
+
+	dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
+	dump("colColorSetMaps: %v\n", colColorRowSetMaps)
 
 	fmt.Println(ans)
 }
