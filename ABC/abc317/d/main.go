@@ -35,13 +35,15 @@ func main() {
 		total += Z
 
 		cost := max(0, (Y-X+1)/2)
-		costVals = append(costVals, [2]int{cost, 2 * Z}) // 票数が過半数を取ればいい => 票数の二倍が全数以上になればいい
+		costVals = append(costVals, [2]int{cost, Z})
 	}
+
+	winLine := total/2 + 1
 
 	// dp[i][j]: i番目（not index）までの選挙区を処理したときに、j票を獲得している場合の最小コスト
 	// 	- dp[i][total]に関してのみ、total票以上獲得する最小コスト
 	//  - 0番目の選挙区・0票のために、行・列には1を追加する。
-	dp := createGrid(N+1, total+1, INF)
+	dp := createGrid(N+1, winLine+1, INF)
 	dp[0][0] = 0
 
 	dump("dp: %v\n", dp)
@@ -51,14 +53,14 @@ func main() {
 	for i := 0; i < N; i++ {
 		cost, val := costVals[i][0], costVals[i][1]
 
-		for j := 0; j < total+1; j++ {
+		for j := 0; j < total/2+2; j++ {
 			// すでに別の遷移でセルが埋まっている可能性があるので、そのセルの値とこれから埋めようとしている値のminを取る
-			updateToMin(&dp[i+1][j], dp[i][j])                      // index iの選挙区を使わない場合
-			updateToMin(&dp[i+1][min(total, j+val)], dp[i][j]+cost) // index iの選挙区を使う場合
+			updateToMin(&dp[i+1][j], dp[i][j])                        // index iの選挙区を使わない場合
+			updateToMin(&dp[i+1][min(winLine, j+val)], dp[i][j]+cost) // index iの選挙区を使う場合
 		}
 	}
 
-	ans := dp[N][total]
+	ans := dp[N][winLine]
 	fmt.Println(ans)
 }
 
