@@ -27,125 +27,99 @@ func main() {
 		colorCode[string(i)] = int(i - 'a')
 	}
 
-	rowColorColSetMaps := make([]map[int]map[int]struct{}, H) // color -> [col1, col2, ...]
-	colColorRowSetMaps := make([]map[int]map[int]struct{}, W) // color -> [row1, row2, ...]
-	for row := 0; row < H; row++ {
-		rowColorColSetMaps[row] = make(map[int]map[int]struct{})
-		for col := 0; col < W; col++ {
-			color := colorCode[grid[row][col]]
+	rowsColorCount := make([][]int, H)
+	for i := 0; i < H; i++ {
+		rowsColorCount[i] = make([]int, 26)
+	}
+	colsColorCount := make([][]int, W)
+	for i := 0; i < W; i++ {
+		colsColorCount[i] = make([]int, 26)
+	}
 
-			if _, ok := rowColorColSetMaps[row][color]; !ok {
-				rowColorColSetMaps[row][color] = make(map[int]struct{})
-			}
-			rowColorColSetMaps[row][color][col] = struct{}{}
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			color := colorCode[grid[i][j]]
+			rowsColorCount[i][color]++
+			colsColorCount[j][color]++
 		}
 	}
-	for col := 0; col < W; col++ {
-		colColorRowSetMaps[col] = make(map[int]map[int]struct{})
-		for row := 0; row < H; row++ {
-			color := colorCode[grid[row][col]]
 
-			if _, ok := colColorRowSetMaps[col][color]; !ok {
-				colColorRowSetMaps[col][color] = make(map[int]struct{})
-			}
-			colColorRowSetMaps[col][color][row] = struct{}{}
-		}
-	}
+	rowsDeleted := make([]bool, H)
+	colsDeleted := make([]bool, W)
 
 	changed := true
 	for changed {
 		changed = false
 
-		q1 := make([]qItem1, 0)
-		q2 := make([]qItem2, 0)
+		deletedRows := make([]int, 0)
+		deletedCols := make([]int, 0)
 
-	Outer1:
-		for row, rowColorSetMap := range rowColorColSetMaps {
-			if len(rowColorSetMap) == 1 {
-				for color, colSet := range rowColorSetMap { // only 1 iterate
-					if len(colSet) < 2 {
-						continue Outer1
-					}
+		for i := 0; i < H; i++ {
+			if rowsDeleted[i] {
+				continue
+			}
 
-					qi := qItem1{
-						color: color,
-						cols:  mapKeys(colSet),
-						row:   row,
-					}
-					q1 = append(q1, qi)
-
-					delete(rowColorSetMap, color)
+			total := 0
+			kinds := 0
+			for _, count := range rowsColorCount[i] {
+				total += count
+				if count != 0 {
+					kinds++
 				}
+			}
 
+			if total >= 2 && kinds == 1 {
+				rowsDeleted[i] = true
+				deletedRows = append(deletedRows, i)
 				changed = true
 			}
 		}
 
-	Outer2:
-		for col, colColorSetMap := range colColorRowSetMaps {
-			if len(colColorSetMap) == 1 {
-				for color, rowSet := range colColorSetMap { // only 1 iterate
-					if len(rowSet) < 2 {
-						continue Outer2
-					}
+		for i := 0; i < W; i++ {
+			if colsDeleted[i] {
+				continue
+			}
 
-					qi := qItem2{
-						color: color,
-						rows:  mapKeys(rowSet),
-						col:   col,
-					}
-					q2 = append(q2, qi)
-
-					delete(colColorSetMap, color)
+			total := 0
+			kinds := 0
+			for _, count := range colsColorCount[i] {
+				total += count
+				if count != 0 {
+					kinds++
 				}
+			}
 
+			if total >= 2 && kinds == 1 {
+				colsDeleted[i] = true
+				deletedCols = append(deletedCols, i)
 				changed = true
 			}
 		}
 
-		for _, qi := range q1 {
-			color := qi.color
-			cols := qi.cols
-			row := qi.row
-
-			for _, col := range cols {
-				if len(colColorRowSetMaps[col][color]) == 1 {
-					delete(colColorRowSetMaps[col], color)
-				} else {
-					delete(colColorRowSetMaps[col][color], row)
-				}
+		for _, row := range deletedRows {
+			for i := 0; i < W; i++ {
+				color := colorCode[grid[row][i]]
+				rowsColorCount[row][color]--
+				colsColorCount[i][color]--
 			}
 		}
-
-		for _, qi := range q2 {
-			color := qi.color
-			rows := qi.rows
-			col := qi.col
-
-			for _, row := range rows {
-				if len(rowColorColSetMaps[row][color]) == 1 {
-					delete(rowColorColSetMaps[row], color)
-				} else {
-					delete(rowColorColSetMaps[row][color], col)
-				}
+		for _, col := range deletedCols {
+			for i := 0; i < H; i++ {
+				color := colorCode[grid[i][col]]
+				colsColorCount[col][color]--
+				rowsColorCount[i][color]--
 			}
 		}
-
-		// dump("\n")
-		// dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
-		// dump("colColorSetMaps: %v\n", colColorRowSetMaps)
-		// dump("\n")
 	}
 
 	ans := 0
-	for _, rowColorSetMap := range rowColorColSetMaps {
-		for _, colSet := range rowColorSetMap {
-			ans += len(colSet)
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if !rowsDeleted[i] && !colsDeleted[j] {
+				ans++
+			}
 		}
 	}
-
-	// dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
-	// dump("colColorSetMaps: %v\n", colColorRowSetMaps)
 
 	fmt.Println(ans)
 }
