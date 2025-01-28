@@ -34,16 +34,17 @@ func main() {
 	for row := 0; row < H; row++ {
 		rowColorColSetMaps[row] = make(map[string]map[int]struct{})
 		for col := 0; col < W; col++ {
-			if row == 0 {
-				colColorRowSetMaps[col] = make(map[string]map[int]struct{})
-			}
-
 			color := grid[row][col]
 			if _, ok := rowColorColSetMaps[row][color]; !ok {
 				rowColorColSetMaps[row][color] = make(map[int]struct{})
 			}
 			rowColorColSetMaps[row][color][col] = struct{}{}
-
+		}
+	}
+	for col := 0; col < W; col++ {
+		colColorRowSetMaps[col] = make(map[string]map[int]struct{})
+		for row := 0; row < H; row++ {
+			color := grid[row][col]
 			if _, ok := colColorRowSetMaps[col][color]; !ok {
 				colColorRowSetMaps[col][color] = make(map[int]struct{})
 			}
@@ -108,9 +109,10 @@ func main() {
 		for !q1.IsEmpty() {
 			qi, _ := q1.Dequeue()
 			color := qi.color
+			cols := qi.cols
 			row := qi.row
 
-			for _, col := range qi.cols {
+			for _, col := range cols {
 				if len(colColorRowSetMaps[col][color]) == 1 {
 					delete(colColorRowSetMaps[col], color)
 				} else {
@@ -121,9 +123,10 @@ func main() {
 		for !q2.IsEmpty() {
 			qi, _ := q2.Dequeue()
 			color := qi.color
+			rows := qi.rows
 			col := qi.col
 
-			for _, row := range qi.rows {
+			for _, row := range rows {
 				if len(rowColorColSetMaps[row][color]) == 1 {
 					delete(rowColorColSetMaps[row], color)
 				} else {
