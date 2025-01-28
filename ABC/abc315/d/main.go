@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -16,15 +15,9 @@ const INT_MAX = math.MaxInt
 // -9223372036854775808, 19 digits, -1 * 2^63
 const INT_MIN = math.MinInt
 
-// 1000000000000000000, 19 digits, 10^18
-const INF = int(1e18)
-
 var r = bufio.NewReader(os.Stdin)
-var w = bufio.NewWriter(os.Stdout)
 
 func main() {
-	defer w.Flush()
-
 	H, W := read2Ints(r)
 
 	grid := readGrid(r, H)
@@ -58,9 +51,6 @@ func main() {
 			colColorRowSetMaps[col][color][row] = struct{}{}
 		}
 	}
-
-	// dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
-	// dump("colColorSetMaps: %v\n", colColorRowSetMaps)
 
 	changed := true
 	for changed {
@@ -175,52 +165,6 @@ type qItem2 struct {
 //////////////
 // Libs    //
 /////////////
-
-type Queue[T any] struct {
-	list *list.List
-}
-
-func NewQueue[T any]() *Queue[T] {
-	return &Queue[T]{
-		list: list.New(),
-	}
-}
-
-func (q *Queue[T]) Enqueue(value T) {
-	q.list.PushBack(value)
-}
-
-func (q *Queue[T]) Dequeue() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	q.list.Remove(front)
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) IsEmpty() bool {
-	return q.list.Len() == 0
-}
-
-func (q *Queue[T]) Size() int {
-	return q.list.Len()
-}
-
-// Peek returns the front element without removing it
-func (q *Queue[T]) Peek() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) Clear() {
-	q.list.Init()
-}
 
 //////////////
 // Helpers //
@@ -430,16 +374,3 @@ func pow(base, exp int) int {
 //////////////
 // Debug   //
 /////////////
-
-var dumpFlag bool
-
-func init() {
-	args := os.Args
-	dumpFlag = len(args) > 1 && args[1] == "-dump"
-}
-
-func dump(format string, a ...interface{}) {
-	if dumpFlag {
-		fmt.Printf(format, a...)
-	}
-}
