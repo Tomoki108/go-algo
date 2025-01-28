@@ -15,6 +15,9 @@ const INT_MAX = math.MaxInt
 // -9223372036854775808, 19 digits, -1 * 2^63
 const INT_MIN = math.MinInt
 
+// 1000000000000000000, 19 digits, 10^18
+const INF = int(1e18)
+
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
@@ -22,12 +25,42 @@ func main() {
 	defer w.Flush()
 
 	N := readInt(r)
+	total := 0
 
+	costVals := make([][2]int, 0, N) // [cost, val]
 	for i := 0; i < N; i++ {
 		iarr := readIntArr(r)
 		X, Y, Z := iarr[0], iarr[1], iarr[2]
+
+		total += Z
+
+		cost := max(0, (Y-X+1)/2)
+		costVals = append(costVals, [2]int{cost, 2 * Z}) // 票数が過半数を取ればいい => 票数の二倍が全数以上になればいい
 	}
 
+	// dp[i][j]: i番目（not index）までの選挙区を処理したときに、j票を獲得している場合の最小コスト
+	// 	- dp[i][total]に関してのみ、total票以上獲得する最小コスト
+	//  - 0番目の選挙区・0票のために、行・列には1を追加する。
+	// 	- 範囲外アクセスを防ぐため、totalに2を掛ける。
+	dp := createGrid(N+1, total+1, INF)
+	dp[0][0] = 0
+
+	dump("dp: %v\n", dp)
+	dump("costVals: %v\n", costVals)
+	dump("total: %v\n", total)
+
+	for i := 0; i < N; i++ {
+		cost, val := costVals[i][0], costVals[i][1]
+
+		for j := 0; j < total+1; j++ {
+			// すでに別の遷移でセルが埋まっている可能性があるので、そのセルの値とこれから埋めようとしている値のminを取る
+			updateToMin(&dp[i+1][j], dp[i][j])                      // index iの選挙区を使わない場合
+			updateToMin(&dp[i+1][min(total, j+val)], dp[i][j]+cost) // index iの選挙区を使う場合
+		}
+	}
+
+	ans := dp[N][total]
+	fmt.Println(ans)
 }
 
 //////////////
@@ -203,6 +236,18 @@ func abs(a int) int {
 		return -a
 	}
 	return a
+}
+
+func updateToMin(a *int, b int) {
+	if *a > b {
+		*a = b
+	}
+}
+
+func updateToMax(a *int, b int) {
+	if *a < b {
+		*a = b
+	}
 }
 
 // O(log(exp))

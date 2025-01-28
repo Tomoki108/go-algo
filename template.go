@@ -15,6 +15,9 @@ const INT_MAX = math.MaxInt
 // -9223372036854775808, 19 digits, -1 * 2^63
 const INT_MIN = math.MinInt
 
+// 1000000000000000000, 19 digits, 10^18
+const INF = int(1e18)
+
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
@@ -189,6 +192,18 @@ func max(i, j int) int {
 		return i
 	}
 	return j
+}
+
+func updateToMin(a *int, b int) {
+	if *a > b {
+		*a = b
+	}
+}
+
+func updateToMax(a *int, b int) {
+	if *a < b {
+		*a = b
+	}
 }
 
 func abs(a int) int {
