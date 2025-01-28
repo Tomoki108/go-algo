@@ -32,21 +32,21 @@ func main() {
 	rowColorColSetMaps := make([]map[string]map[int]struct{}, H) // color -> [col1, col2, ...]
 	colColorRowSetMaps := make([]map[string]map[int]struct{}, W) // color -> [row1, row2, ...]
 	for row := 0; row < H; row++ {
-		rowColorColSetMaps[row] = make(map[string]map[int]struct{})
+		rowColorColSetMaps[row] = make(map[string]map[int]struct{}, 26)
 		for col := 0; col < W; col++ {
 			color := grid[row][col]
 			if _, ok := rowColorColSetMaps[row][color]; !ok {
-				rowColorColSetMaps[row][color] = make(map[int]struct{})
+				rowColorColSetMaps[row][color] = make(map[int]struct{}, W)
 			}
 			rowColorColSetMaps[row][color][col] = struct{}{}
 		}
 	}
 	for col := 0; col < W; col++ {
-		colColorRowSetMaps[col] = make(map[string]map[int]struct{})
+		colColorRowSetMaps[col] = make(map[string]map[int]struct{}, 26)
 		for row := 0; row < H; row++ {
 			color := grid[row][col]
 			if _, ok := colColorRowSetMaps[col][color]; !ok {
-				colColorRowSetMaps[col][color] = make(map[int]struct{})
+				colColorRowSetMaps[col][color] = make(map[int]struct{}, H)
 			}
 			colColorRowSetMaps[col][color][row] = struct{}{}
 		}
