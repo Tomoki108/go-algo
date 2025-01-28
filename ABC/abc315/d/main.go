@@ -55,12 +55,12 @@ func main() {
 	dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
 	dump("colColorSetMaps: %v\n", colColorRowSetMaps)
 
-	q1 := NewQueue[qItem1]()
-	q2 := NewQueue[qItem2]()
-
 	changed := true
 	for changed {
 		changed = false
+
+		q1 := make([]qItem1, 0)
+		q2 := make([]qItem2, 0)
 
 	Outer1:
 		for row, rowColorSetMap := range rowColorColSetMaps {
@@ -75,7 +75,7 @@ func main() {
 						cols:  mapKeys(colSet),
 						row:   row,
 					}
-					q1.Enqueue(qi)
+					q1 = append(q1, qi)
 
 					delete(rowColorSetMap, color)
 				}
@@ -97,7 +97,7 @@ func main() {
 						rows:  mapKeys(rowSet),
 						col:   col,
 					}
-					q2.Enqueue(qi)
+					q2 = append(q2, qi)
 
 					delete(colColorSetMap, color)
 				}
@@ -106,8 +106,7 @@ func main() {
 			}
 		}
 
-		for !q1.IsEmpty() {
-			qi, _ := q1.Dequeue()
+		for _, qi := range q1 {
 			color := qi.color
 			cols := qi.cols
 			row := qi.row
@@ -120,8 +119,8 @@ func main() {
 				}
 			}
 		}
-		for !q2.IsEmpty() {
-			qi, _ := q2.Dequeue()
+
+		for _, qi := range q2 {
 			color := qi.color
 			rows := qi.rows
 			col := qi.col
