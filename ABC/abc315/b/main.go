@@ -24,6 +24,29 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	Ds := readIntArr(r)
+
+	total := 0
+	for _, d := range Ds {
+		total += d
+	}
+
+	var month int
+	var day int
+
+	rem := total/2 + 1
+	for i := 0; i < len(Ds); i++ {
+		rem -= Ds[i]
+
+		if rem <= 0 {
+			month = i + 1
+			day = Ds[i] + rem
+			break
+		}
+	}
+
+	fmt.Fprintln(w, month, day)
 }
 
 //////////////
