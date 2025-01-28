@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -31,31 +32,34 @@ func main() {
 
 	grid := readGrid(r, H)
 
-	rowColorColSetMaps := make([]map[string]*set.Set[int], H) // color -> [col1, col2, ...]
-	colColorRowSetMaps := make([]map[string]*set.Set[int], W) // color -> [row1, row2, ...]
+	rowColorColSetMaps := make([]map[string]map[int]struct{}, H) // color -> [col1, col2, ...]
+	colColorRowSetMaps := make([]map[string]map[int]struct{}, W) // color -> [row1, row2, ...]
 	for row := 0; row < H; row++ {
-		rowColorColSetMaps[row] = make(map[string]*set.Set[int])
+		rowColorColSetMaps[row] = make(map[string]map[int]struct{})
 		for col := 0; col < W; col++ {
 			color := grid[row][col]
 			if _, ok := rowColorColSetMaps[row][color]; !ok {
-				rowColorColSetMaps[row][color] = NewIntSetAsc()
+				rowColorColSetMaps[row][color] = make(map[int]struct{})
 			}
-			rowColorColSetMaps[row][color].Insert(col)
+			rowColorColSetMaps[row][color][col] = struct{}{}
 		}
 	}
 	for col := 0; col < W; col++ {
-		colColorRowSetMaps[col] = make(map[string]*set.Set[int])
+		colColorRowSetMaps[col] = make(map[string]map[int]struct{})
 		for row := 0; row < H; row++ {
 			color := grid[row][col]
 			if _, ok := colColorRowSetMaps[col][color]; !ok {
-				colColorRowSetMaps[col][color] = NewIntSetAsc()
+				colColorRowSetMaps[col][color] = make(map[int]struct{})
 			}
-			colColorRowSetMaps[col][color].Insert(row)
+			colColorRowSetMaps[col][color][row] = struct{}{}
 		}
 	}
 
 	dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
 	dump("colColorSetMaps: %v\n", colColorRowSetMaps)
+
+	q1 := NewQueue[qItem1]()
+	q2 := NewQueue[qItem2]()
 
 	changed := true
 	for changed {
@@ -65,19 +69,16 @@ func main() {
 		for row, rowColorSetMap := range rowColorColSetMaps {
 			if len(rowColorSetMap) == 1 {
 				for color, colSet := range rowColorSetMap { // only 1 iterate
-					if colSet.Size() < 2 {
+					if len(colSet) < 2 {
 						continue Outer1
 					}
 
-					it := colSet.First()
-					for it.IsValid() {
-						col := it.Value()
-						colColorRowSetMaps[col][color].Erase(row)
-						if colColorRowSetMaps[col][color].Size() == 0 {
-							delete(colColorRowSetMaps[col], color)
-						}
-						it.Next()
+					qi := qItem1{
+						color: color,
+						cols:  mapKeys(colSet),
+						row:   row,
 					}
+					q1.Enqueue(qi)
 
 					delete(rowColorSetMap, color)
 				}
@@ -86,23 +87,52 @@ func main() {
 			}
 		}
 
+	Outer2:
 		for col, colColorSetMap := range colColorRowSetMaps {
 			if len(colColorSetMap) == 1 {
 				for color, rowSet := range colColorSetMap { // only 1 iterate
-					it := rowSet.First()
-					for it.IsValid() {
-						row := it.Value()
-						rowColorColSetMaps[row][color].Erase(col)
-						if rowColorColSetMaps[row][color].Size() == 0 {
-							delete(rowColorColSetMaps[row], color)
-						}
-						it.Next()
+					if len(rowSet) < 2 {
+						continue Outer2
 					}
+
+					qi := qItem2{
+						color: color,
+						rows:  mapKeys(rowSet),
+						col:   col,
+					}
+					q2.Enqueue(qi)
 
 					delete(colColorSetMap, color)
 				}
 
 				changed = true
+			}
+		}
+
+		for !q1.IsEmpty() {
+			qi, _ := q1.Dequeue()
+			color := qi.color
+			cols := qi.cols
+			row := qi.row
+
+			for _, col := range cols {
+				delete(colColorRowSetMaps[col][color], row)
+				if len(colColorRowSetMaps[col][color]) == 0 {
+					delete(colColorRowSetMaps[col], color)
+				}
+			}
+		}
+		for !q2.IsEmpty() {
+			qi, _ := q2.Dequeue()
+			color := qi.color
+			rows := qi.rows
+			col := qi.col
+
+			for _, row := range rows {
+				delete(rowColorColSetMaps[row][color], col)
+				if len(rowColorColSetMaps[row][color]) == 0 {
+					delete(rowColorColSetMaps[row], color)
+				}
 			}
 		}
 
@@ -115,7 +145,7 @@ func main() {
 	ans := 0
 	for _, rowColorSetMap := range rowColorColSetMaps {
 		for _, colSet := range rowColorSetMap {
-			ans += colSet.Size()
+			ans += len(colSet)
 		}
 	}
 
@@ -125,12 +155,82 @@ func main() {
 	fmt.Println(ans)
 }
 
+type qItem1 struct {
+	color string
+	cols  []int
+	row   int
+}
+
+type qItem2 struct {
+	color string
+	rows  []int
+	col   int
+}
+
 //////////////
 // Libs    //
 /////////////
 
 func NewIntSetAsc() *set.Set[int] {
 	return set.New(comparator.IntComparator)
+}
+
+func SetValues[T any](s *set.Set[T]) []T {
+	it := s.First()
+
+	values := make([]T, 0, s.Size())
+	for it.IsValid() {
+		values = append(values, it.Value())
+		it.Next()
+	}
+
+	return values
+}
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
 }
 
 //////////////
