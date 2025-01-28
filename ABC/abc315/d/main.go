@@ -8,9 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/liyue201/gostl/ds/set"
-	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -170,22 +167,6 @@ type qItem2 struct {
 //////////////
 // Libs    //
 /////////////
-
-func NewIntSetAsc() *set.Set[int] {
-	return set.New(comparator.IntComparator)
-}
-
-func SetValues[T any](s *set.Set[T]) []T {
-	it := s.First()
-
-	values := make([]T, 0, s.Size())
-	for it.IsValid() {
-		values = append(values, it.Value())
-		it.Next()
-	}
-
-	return values
-}
 
 type Queue[T any] struct {
 	list *list.List
