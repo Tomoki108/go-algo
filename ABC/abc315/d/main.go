@@ -34,17 +34,16 @@ func main() {
 	for row := 0; row < H; row++ {
 		rowColorColSetMaps[row] = make(map[string]map[int]struct{})
 		for col := 0; col < W; col++ {
+			if row == 0 {
+				colColorRowSetMaps[col] = make(map[string]map[int]struct{})
+			}
+
 			color := grid[row][col]
 			if _, ok := rowColorColSetMaps[row][color]; !ok {
 				rowColorColSetMaps[row][color] = make(map[int]struct{})
 			}
 			rowColorColSetMaps[row][color][col] = struct{}{}
-		}
-	}
-	for col := 0; col < W; col++ {
-		colColorRowSetMaps[col] = make(map[string]map[int]struct{})
-		for row := 0; row < H; row++ {
-			color := grid[row][col]
+
 			if _, ok := colColorRowSetMaps[col][color]; !ok {
 				colColorRowSetMaps[col][color] = make(map[int]struct{})
 			}
@@ -71,9 +70,9 @@ func main() {
 					}
 
 					qi := qItem1{
-						color:  color,
-						colSet: colSet,
-						row:    row,
+						color: color,
+						cols:  mapKeys(colSet),
+						row:   row,
 					}
 					q1.Enqueue(qi)
 
@@ -93,9 +92,9 @@ func main() {
 					}
 
 					qi := qItem2{
-						color:  color,
-						rowSet: rowSet,
-						col:    col,
+						color: color,
+						rows:  mapKeys(rowSet),
+						col:   col,
 					}
 					q2.Enqueue(qi)
 
@@ -109,26 +108,26 @@ func main() {
 		for !q1.IsEmpty() {
 			qi, _ := q1.Dequeue()
 			color := qi.color
-			colSet := qi.colSet
 			row := qi.row
 
-			for col := range colSet {
-				delete(colColorRowSetMaps[col][color], row)
-				if len(colColorRowSetMaps[col][color]) == 0 {
+			for _, col := range qi.cols {
+				if len(colColorRowSetMaps[col][color]) == 1 {
 					delete(colColorRowSetMaps[col], color)
+				} else {
+					delete(colColorRowSetMaps[col][color], row)
 				}
 			}
 		}
 		for !q2.IsEmpty() {
 			qi, _ := q2.Dequeue()
 			color := qi.color
-			rowSet := qi.rowSet
 			col := qi.col
 
-			for row := range rowSet {
-				delete(rowColorColSetMaps[row][color], col)
-				if len(rowColorColSetMaps[row][color]) == 0 {
+			for _, row := range qi.rows {
+				if len(rowColorColSetMaps[row][color]) == 1 {
 					delete(rowColorColSetMaps[row], color)
+				} else {
+					delete(rowColorColSetMaps[row][color], col)
 				}
 			}
 		}
@@ -153,15 +152,15 @@ func main() {
 }
 
 type qItem1 struct {
-	color  string
-	colSet map[int]struct{}
-	row    int
+	color string
+	cols  []int
+	row   int
 }
 
 type qItem2 struct {
-	color  string
-	rowSet map[int]struct{}
-	col    int
+	color string
+	rows  []int
+	col   int
 }
 
 //////////////
