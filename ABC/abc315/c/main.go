@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,37 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	fss := make(map[int][]int, N)
+
+	for i := 0; i < N; i++ {
+		F, S := read2Ints(r)
+		if _, ok := fss[F]; !ok {
+			fss[F] = make([]int, 0)
+		}
+		fss[F] = append(fss[F], S)
+	}
+
+	ans := INT_MIN
+
+	topSs := make([]int, 0, N)
+	for _, ss := range fss {
+		sort.Ints(ss)
+		if len(ss) >= 2 {
+			maxVal := ss[len(ss)-1] + ss[len(ss)-2]/2
+			ans = max(ans, maxVal)
+		}
+		topSs = append(topSs, ss[len(ss)-1])
+	}
+
+	sort.Ints(topSs)
+	if len(topSs) >= 2 {
+		maxVal := topSs[len(topSs)-1] + topSs[len(topSs)-2]
+		ans = max(ans, maxVal)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
