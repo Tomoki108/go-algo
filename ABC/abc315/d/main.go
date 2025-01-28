@@ -52,8 +52,8 @@ func main() {
 		}
 	}
 
-	dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
-	dump("colColorSetMaps: %v\n", colColorRowSetMaps)
+	// dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
+	// dump("colColorSetMaps: %v\n", colColorRowSetMaps)
 
 	changed := true
 	for changed {
@@ -134,10 +134,10 @@ func main() {
 			}
 		}
 
-		dump("\n")
-		dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
-		dump("colColorSetMaps: %v\n", colColorRowSetMaps)
-		dump("\n")
+		// dump("\n")
+		// dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
+		// dump("colColorSetMaps: %v\n", colColorRowSetMaps)
+		// dump("\n")
 	}
 
 	ans := 0
@@ -147,8 +147,8 @@ func main() {
 		}
 	}
 
-	dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
-	dump("colColorSetMaps: %v\n", colColorRowSetMaps)
+	// dump("rowColorSetMaps: %v\n", rowColorColSetMaps)
+	// dump("colColorSetMaps: %v\n", colColorRowSetMaps)
 
 	fmt.Println(ans)
 }

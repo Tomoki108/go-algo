@@ -246,6 +246,7 @@ func init() {
 	dumpFlag = len(args) > 1 && args[1] == "-dump"
 }
 
+// NOTE: ループの中で使うとわずかに遅くなることに注意
 func dump(format string, a ...interface{}) {
 	if dumpFlag {
 		fmt.Printf(format, a...)
