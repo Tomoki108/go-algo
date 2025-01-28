@@ -29,12 +29,18 @@ func main() {
 
 	grid := readGrid(r, H)
 
-	rowColorColSetMaps := make([]map[string]map[int]struct{}, H) // color -> [col1, col2, ...]
-	colColorRowSetMaps := make([]map[string]map[int]struct{}, W) // color -> [row1, row2, ...]
+	colorCode := make(map[string]int)
+	for i := 'a'; i <= 'z'; i++ {
+		colorCode[string(i)] = int(i - 'a')
+	}
+
+	rowColorColSetMaps := make([]map[int]map[int]struct{}, H) // color -> [col1, col2, ...]
+	colColorRowSetMaps := make([]map[int]map[int]struct{}, W) // color -> [row1, row2, ...]
 	for row := 0; row < H; row++ {
-		rowColorColSetMaps[row] = make(map[string]map[int]struct{})
+		rowColorColSetMaps[row] = make(map[int]map[int]struct{})
 		for col := 0; col < W; col++ {
-			color := grid[row][col]
+			color := colorCode[grid[row][col]]
+
 			if _, ok := rowColorColSetMaps[row][color]; !ok {
 				rowColorColSetMaps[row][color] = make(map[int]struct{})
 			}
@@ -42,9 +48,10 @@ func main() {
 		}
 	}
 	for col := 0; col < W; col++ {
-		colColorRowSetMaps[col] = make(map[string]map[int]struct{})
+		colColorRowSetMaps[col] = make(map[int]map[int]struct{})
 		for row := 0; row < H; row++ {
-			color := grid[row][col]
+			color := colorCode[grid[row][col]]
+
 			if _, ok := colColorRowSetMaps[col][color]; !ok {
 				colColorRowSetMaps[col][color] = make(map[int]struct{})
 			}
@@ -154,13 +161,13 @@ func main() {
 }
 
 type qItem1 struct {
-	color string
+	color int
 	cols  []int
 	row   int
 }
 
 type qItem2 struct {
-	color string
+	color int
 	rows  []int
 	col   int
 }
