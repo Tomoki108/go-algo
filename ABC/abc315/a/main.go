@@ -24,6 +24,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	ng := map[string]struct{}{
+		"a": {},
+		"e": {},
+		"i": {},
+		"o": {},
+		"u": {},
+	}
+
+	ans := make([]string, 0)
+	for i := 0; i < len(Ss); i++ {
+		if _, ok := ng[Ss[i]]; ok {
+			continue
+		}
+		ans = append(ans, Ss[i])
+	}
+
+	writeSliceWithoutSpace(w, ans)
 }
 
 //////////////
