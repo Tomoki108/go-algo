@@ -54,17 +54,17 @@ func main() {
 	}
 
 	ansSl := make([]int, N)
-	for i := 0; i < K; i++ {
+	for i := 0; i <= K; i++ {
 		ansSl[i] = sumUpToKPlus1 ^ base[i]
 	}
 
 	sumUpToKMinus1 := 0
-	for i := 0; i < K; i++ {
+	for i := 0; i < K-1; i++ {
 		sumUpToKMinus1 ^= ansSl[i]
 	}
 
 	baseQ := "?"
-	for i := 1; i < K; i++ {
+	for i := 1; i <= K-1; i++ {
 		baseQ += " " + itoa(i)
 	}
 
