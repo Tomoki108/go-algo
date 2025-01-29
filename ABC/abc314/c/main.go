@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,45 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	Cs := readIntArr(r)
+
+	colorIndexes := make(map[int][]int, M)
+	for i := 0; i < N; i++ {
+		c := Cs[i]
+		if _, ok := colorIndexes[c]; !ok {
+			colorIndexes[c] = make([]int, 0)
+		}
+		colorIndexes[c] = append(colorIndexes[c], i)
+	}
+	for c := range colorIndexes {
+		sort.Ints(colorIndexes[c])
+	}
+
+	for i := 1; i <= M; i++ {
+		indexes := colorIndexes[i]
+
+		updateMap := make(map[int]string)
+
+		for _, idx := range indexes {
+			char := Ss[idx]
+			newIdx := idx + 1
+			if newIdx > indexes[len(indexes)-1] {
+				newIdx = 0
+			}
+			updateMap[newIdx] = char
+		}
+
+		for idx, char := range updateMap {
+			Ss[idx] = char
+		}
+	}
+
+	writeSlice(w, Ss)
 }
 
 //////////////
