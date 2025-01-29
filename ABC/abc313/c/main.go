@@ -51,31 +51,42 @@ Outer:
 		nextAs := make([]int, 0, N)
 
 		for dq.Size() > 1 {
+			// dump("before:")
+			// dq.Dump()
+
 			minA := dq.PopFront()
 			maxA := dq.PopBack()
-
 			diff := maxA - minA
-			if diff <= 1 {
-				break Outer
-			}
 
 			operation := diff / 2
-			if operation%2 == 0 {
+			if operation >= 2 {
 				operation--
 			}
 
 			nextAs = append(nextAs, minA+operation)
 			nextAs = append(nextAs, maxA-operation)
 			ans += operation
+
+			// dump("after:")
+			dump("ans: %d, nextAs: %v\n", ans, nextAs)
+			// dq.Dump()
+			// dump("\n")
 		}
 
 		if dq.Size() == 1 {
 			nextAs = append(nextAs, dq.PopFront())
 		}
 		sort.Ints(nextAs)
+		dump("nextAs(before next loop): %v\n", nextAs)
+
+		if nextAs[len(nextAs)-1]-nextAs[0] <= 1 {
+			break Outer
+		}
+
 		for _, a := range nextAs {
 			dq.PushBack(a)
 		}
+
 	}
 
 	fmt.Fprintln(w, ans)
