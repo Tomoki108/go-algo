@@ -24,6 +24,40 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	graph := make([][]int, N) // 強い人から弱い人に向けた有効辺が貼られたグラフ
+	for i := 0; i < M; i++ {
+		A, B := read2Ints(r)
+		A--
+		B--
+		graph[A] = append(graph[A], B)
+	}
+
+	ans := -1
+
+	var dfs func(node int) int
+	dfs = func(node int) int {
+		inferiors := graph[node]
+		wins := len(inferiors)
+
+		for _, inferior := range inferiors {
+			wins += dfs(inferior)
+		}
+
+		return wins
+
+	}
+
+	for i := 0; i < N; i++ {
+		wins := dfs(i)
+		if wins == N-1 {
+			ans = i + 1
+			break
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
