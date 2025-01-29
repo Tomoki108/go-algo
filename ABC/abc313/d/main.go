@@ -26,17 +26,19 @@ func main() {
 
 	N, K := read2Ints(r)
 
-	upToK := make([]int, 0, K-1)
-	for i := 1; i <= K; i++ {
-		upToK = append(upToK, i)
+	upToKPlus1 := make([]int, 0, K-1)
+	for i := 1; i <= K+1; i++ {
+		upToKPlus1 = append(upToKPlus1, i)
 	}
 
-	base := make([]int, K) // index iには、1~K番目の数字から、i+1番目の数字を除いたものの合計（0 or 1）が入る
+	dump("%v\n", upToKPlus1)
 
-	sumUpToK := 0             // 0: 偶数、1: 奇数
-	for i := 1; i <= K; i++ { // どの番目の数字を飛ばすか
+	base := make([]int, K+1) // index iには、1~K+1番目の数字から、i+1番目の数字を除いたものの合計（0 or 1）が入る
+
+	sumUpToK := 0               // 0: 偶数、1: 奇数
+	for i := 1; i <= K+1; i++ { // どの番目の数字を飛ばすか
 		q := "?"
-		for _, a := range upToK {
+		for _, a := range upToKPlus1 {
 			if a == i {
 				continue
 			}
@@ -61,7 +63,7 @@ func main() {
 		baseQ += " " + itoa(i)
 	}
 
-	for i := K + 1; i <= N; i++ {
+	for i := K + 2; i <= N; i++ {
 		q := baseQ
 		q += " " + itoa(i)
 
