@@ -79,6 +79,7 @@ func main() {
 		ansSl[i-1] = ans ^ sumUpToKMinus1
 	}
 
+	fmt.Fprint(w, "! ")
 	writeSlice(w, ansSl)
 }
 
