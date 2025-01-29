@@ -24,6 +24,66 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	Q := readInt(r)
+
+	type TXC struct {
+		t int    // type
+		x int    // index
+		c string // char
+	}
+
+	queries := make([]TXC, 0, Q)
+	for i := 0; i < Q; i++ {
+		sarr := readStrArr(r)
+		t := atoi(sarr[0])
+		x := atoi(sarr[1])
+		c := sarr[2]
+
+		if t == 1 {
+			Ss[x-1] = c
+		}
+
+		queries = append(queries, TXC{t, x, c})
+	}
+
+	var lastUpdatedType int // 0: none, 1: updated to upper, 2: updated to lower
+	nonChangedIndexes := make(map[int]struct{}, N)
+	for i := Q - 1; i >= 0; i-- {
+		t := queries[i].t
+
+		switch t {
+		case 1:
+			nonChangedIndexes[queries[i].x-1] = struct{}{}
+		case 2:
+			lastUpdatedType = 2
+			break
+		case 3:
+			lastUpdatedType = 1
+			break
+		}
+
+		lastUpdatedType = 0
+	}
+
+	for i := 0; i < N; i++ {
+		switch lastUpdatedType {
+		case 0:
+			break
+		case 1:
+			if _, ok := nonChangedIndexes[i]; !ok {
+				Ss[i] = strings.ToUpper(Ss[i])
+			}
+		case 2:
+			if _, ok := nonChangedIndexes[i]; !ok {
+				Ss[i] = strings.ToLower(Ss[i])
+			}
+		}
+	}
+
+	writeSliceWithoutSpace(w, Ss)
 }
 
 //////////////
