@@ -44,26 +44,32 @@ func main() {
 		sort.Ints(colorIndexes[c])
 	}
 
+	dump("colorIndexes: %v\n", colorIndexes)
+
 	for i := 1; i <= M; i++ {
-		indexes := colorIndexes[i]
+		indexes, ok := colorIndexes[i]
+		if !ok {
+			continue
+		}
 
 		updateMap := make(map[int]string)
+		updateMap[indexes[0]] = Ss[indexes[len(indexes)-1]]
 
-		for _, idx := range indexes {
-			char := Ss[idx]
-			newIdx := idx + 1
-			if newIdx > indexes[len(indexes)-1] {
-				newIdx = 0
-			}
-			updateMap[newIdx] = char
+		prevChar := Ss[indexes[0]]
+		for j := 1; j < len(indexes); j++ {
+			idx := indexes[j]
+			updateMap[idx] = prevChar
+			prevChar = Ss[idx]
 		}
+
+		dump("updateMap: %v\n", updateMap)
 
 		for idx, char := range updateMap {
 			Ss[idx] = char
 		}
 	}
 
-	writeSlice(w, Ss)
+	writeSliceWithoutSpace(w, Ss)
 }
 
 //////////////
