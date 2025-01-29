@@ -46,18 +46,36 @@ func main() {
 		maxVal++
 	}
 
-	ans := 0
-	for i := 0; i < N; i++ {
-		if As[i] <= minVal {
-			diff := minVal - As[i]
-			ans += diff
-			continue
-		}
+	numOfMinValTarget := N - rem
+	numOfMinVal := 0
 
-		break
+	negativeCost := 0
+	positiveCost := 0
+	for i := 0; i < N; i++ {
+		if numOfMinVal < numOfMinValTarget {
+			diff := minVal - As[i]
+			if diff < 0 {
+				negativeCost += diff
+			} else {
+				positiveCost += diff
+			}
+			numOfMinVal++
+		} else {
+			diff := maxVal - As[i]
+			if diff < 0 {
+				negativeCost += diff
+			} else {
+				positiveCost += diff
+			}
+		}
 	}
 
-	fmt.Fprintln(w, ans)
+	if positiveCost+negativeCost != 0 {
+		dump("positiveCost: %d, negativeCost: %d\n", positiveCost, negativeCost)
+		panic("invalid")
+	}
+
+	fmt.Fprintln(w, positiveCost)
 }
 
 //////////////
