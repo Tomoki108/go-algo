@@ -36,20 +36,29 @@ func main() {
 
 	ans := -1
 
+	visited := make([]bool, N)
+
 	var dfs func(node int) int
 	dfs = func(node int) int {
 		inferiors := graph[node]
 		wins := len(inferiors)
 
 		for _, inferior := range inferiors {
+			if visited[inferior] {
+				continue
+			}
+
 			wins += dfs(inferior)
+			visited[inferior] = true
 		}
 
 		return wins
-
 	}
 
 	for i := 0; i < N; i++ {
+		visited = make([]bool, N)
+		visited[i] = true
+
 		wins := dfs(i)
 		if wins == N-1 {
 			ans = i + 1
