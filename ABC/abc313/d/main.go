@@ -35,7 +35,7 @@ func main() {
 
 	base := make([]int, K+1) // index iには、1~K+1番目の数字から、i+1番目の数字を除いたものの合計（0 or 1）が入る
 
-	sumUpToK := 0               // 0: 偶数、1: 奇数
+	sumUpToKPlus1 := 0          // 0: 偶数、1: 奇数
 	for i := 1; i <= K+1; i++ { // どの番目の数字を飛ばすか
 		q := "?"
 		for _, a := range upToKPlus1 {
@@ -49,17 +49,22 @@ func main() {
 		w.Flush()
 
 		ans := readInt(r)
-		sumUpToK ^= ans
+		sumUpToKPlus1 ^= ans
 		base[i-1] = ans
 	}
 
 	ansSl := make([]int, N)
 	for i := 0; i < K; i++ {
-		ansSl[i] = sumUpToK ^ base[i]
+		ansSl[i] = sumUpToKPlus1 ^ base[i]
+	}
+
+	sumUpToKMinus1 := 0
+	for i := 0; i < K; i++ {
+		sumUpToKMinus1 ^= ansSl[i]
 	}
 
 	baseQ := "?"
-	for i := 2; i <= K; i++ {
+	for i := 1; i < K; i++ {
 		baseQ += " " + itoa(i)
 	}
 
@@ -71,7 +76,7 @@ func main() {
 		w.Flush()
 
 		ans := readInt(r)
-		ansSl[i-1] = ans
+		ansSl[i-1] = ans ^ sumUpToKMinus1
 	}
 
 	writeSlice(w, ansSl)
