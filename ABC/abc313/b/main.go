@@ -41,13 +41,13 @@ func main() {
 	var dfs func(node int) int
 	dfs = func(node int) int {
 		inferiors := graph[node]
-		wins := len(inferiors)
+		wins := 0
 
 		for _, inferior := range inferiors {
 			if visited[inferior] {
-				wins--
 				continue
 			}
+			wins++
 
 			wins += dfs(inferior)
 			visited[inferior] = true
