@@ -51,6 +51,7 @@ func main() {
 
 	var lastUpdatedType int // 0: none, 1: updated to upper, 2: updated to lower
 	nonChangedIndexes := make(map[int]struct{}, N)
+Outer:
 	for i := Q - 1; i >= 0; i-- {
 		t := queries[i].t
 
@@ -59,14 +60,17 @@ func main() {
 			nonChangedIndexes[queries[i].x-1] = struct{}{}
 		case 2:
 			lastUpdatedType = 2
-			break
+			break Outer
 		case 3:
 			lastUpdatedType = 1
-			break
+			break Outer
 		}
 
 		lastUpdatedType = 0
 	}
+
+	dump("lastUpdatedType: %v\n", lastUpdatedType)
+	dump("nonChangedIndexes: %v\n", nonChangedIndexes)
 
 	for i := 0; i < N; i++ {
 		switch lastUpdatedType {
