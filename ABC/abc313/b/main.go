@@ -45,6 +45,7 @@ func main() {
 
 		for _, inferior := range inferiors {
 			if visited[inferior] {
+				wins--
 				continue
 			}
 
