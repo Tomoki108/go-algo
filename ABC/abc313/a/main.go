@@ -28,26 +28,23 @@ func main() {
 	N := readInt(r)
 	Ps := readIntArr(r)
 
-	ans := make([]int, 0, N)
-	for i := 0; i < N; i++ {
-		others := make([]int, 0, N-1)
-		others = append(others, Ps[:i]...)
-		others = append(others, Ps[i+1:]...)
-
-		sort.Ints(others)
-
-		highest := others[len(others)-1]
-
-		if Ps[i] <= highest {
-			ans = append(ans, highest-Ps[i]+1)
-		} else {
-			ans = append(ans, 0)
-		}
-
-		break
+	if N == 1 {
+		fmt.Fprintln(w, 0)
+		return
 	}
 
-	writeSlice(w, ans)
+	others := Ps[1:]
+	sort.Ints(others)
+
+	highest := others[N-2]
+
+	if Ps[0] <= highest {
+		fmt.Fprintln(w, highest-Ps[0]+1)
+		return
+	} else {
+		fmt.Fprintln(w, 0)
+		return
+	}
 }
 
 //////////////
