@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,29 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Ps := readIntArr(r)
+
+	ans := make([]int, 0, N)
+	for i := 0; i < N; i++ {
+		others := make([]int, 0, N-1)
+		others = append(others, Ps[:i]...)
+		others = append(others, Ps[i+1:]...)
+
+		sort.Ints(others)
+
+		highest := others[len(others)-1]
+
+		if Ps[i] <= highest {
+			ans = append(ans, highest-Ps[i]+1)
+		} else {
+			ans = append(ans, 0)
+		}
+
+		break
+	}
+
+	writeSlice(w, ans)
 }
 
 //////////////
