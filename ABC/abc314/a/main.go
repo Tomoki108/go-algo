@@ -24,6 +24,17 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	pi := "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679"
+	pis := strings.Split(pi, "")
+
+	N := readInt(r)
+
+	ans := make([]string, 0, N+2)
+	ans = append(ans, "3", ".")
+	ans = append(ans, pis[2:2+N]...)
+
+	writeSliceWithoutSpace(w, ans)
+
 }
 
 //////////////
