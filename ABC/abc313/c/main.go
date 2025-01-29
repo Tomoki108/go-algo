@@ -30,63 +30,34 @@ func main() {
 	defer w.Flush()
 
 	N := readInt(r)
-	As := readIntArr(r)
-
 	if N == 1 {
 		fmt.Fprintln(w, 0)
 		return
 	}
 
+	As := readIntArr(r)
 	sort.Ints(As)
 
-	dq := NewDeque[int](N)
-	for _, a := range As {
-		dq.PushBack(a)
-	}
+	psum := PrefixSum(As)
+	total := psum[N]
+
+	quo := total / N
+	//	rem := total % N
+
+	minVal := quo
+	// maxVal := quo
+	// if rem > 0 {
+	// 	maxVal++
+	// }
 
 	ans := 0
-
-Outer:
-	for true {
-		nextAs := make([]int, 0, N)
-
-		for dq.Size() > 1 {
-			// dump("before:")
-			// dq.Dump()
-
-			minA := dq.PopFront()
-			maxA := dq.PopBack()
-			diff := maxA - minA
-
-			operation := diff / 2
-			if operation >= 2 {
-				operation--
-			}
-
-			nextAs = append(nextAs, minA+operation)
-			nextAs = append(nextAs, maxA-operation)
-			ans += operation
-
-			// dump("after:")
-			dump("ans: %d, nextAs: %v\n", ans, nextAs)
-			// dq.Dump()
-			// dump("\n")
+	for i := 0; i < N; i++ {
+		diff := minVal - As[i]
+		if diff <= 0 {
+			break
 		}
 
-		if dq.Size() == 1 {
-			nextAs = append(nextAs, dq.PopFront())
-		}
-		sort.Ints(nextAs)
-		dump("nextAs(before next loop): %v\n", nextAs)
-
-		if nextAs[len(nextAs)-1]-nextAs[0] <= 1 {
-			break Outer
-		}
-
-		for _, a := range nextAs {
-			dq.PushBack(a)
-		}
-
+		ans += diff
 	}
 
 	fmt.Fprintln(w, ans)
@@ -95,6 +66,17 @@ Outer:
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 // 先頭、末尾へのデータ追加、削除がO(1)で行える。インデックスアクセスもO(1)で可能
 type Deque[T any] struct {
