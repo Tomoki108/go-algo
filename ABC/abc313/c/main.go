@@ -8,10 +8,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/liyue201/gostl/ds/rbtree"
-	"github.com/liyue201/gostl/ds/set"
-	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -42,22 +38,23 @@ func main() {
 	total := psum[N]
 
 	quo := total / N
-	//	rem := total % N
+	rem := total % N
 
 	minVal := quo
-	// maxVal := quo
-	// if rem > 0 {
-	// 	maxVal++
-	// }
+	maxVal := quo
+	if rem > 0 {
+		maxVal++
+	}
 
 	ans := 0
 	for i := 0; i < N; i++ {
-		diff := minVal - As[i]
-		if diff <= 0 {
-			break
+		if As[i] <= minVal {
+			diff := minVal - As[i]
+			ans += diff
+			continue
 		}
 
-		ans += diff
+		break
 	}
 
 	fmt.Fprintln(w, ans)
@@ -76,236 +73,6 @@ func PrefixSum(sl []int) []int {
 		res[i+1] = res[i] + sl[i]
 	}
 	return res
-}
-
-// 先頭、末尾へのデータ追加、削除がO(1)で行える。インデックスアクセスもO(1)で可能
-type Deque[T any] struct {
-	data       []T
-	head, tail int // 先頭と末尾のインデックス
-	capacity   int // デックの容量
-	size       int // 現在の要素数
-}
-
-func NewDeque[T any](initialCapacity int) *Deque[T] {
-	return &Deque[T]{
-		data:     make([]T, initialCapacity),
-		capacity: initialCapacity,
-	}
-}
-
-// O(1)
-func (d *Deque[T]) PushFront(value T) {
-	if d.IsFull() {
-		d.resize()
-	}
-	// headを逆方向に進めて要素を追加
-	d.head = (d.head - 1 + d.capacity) % d.capacity
-	d.data[d.head] = value
-	d.size++
-}
-
-// O(1)
-func (d *Deque[T]) PushBack(value T) {
-	if d.IsFull() {
-		d.resize()
-	}
-	// 要素を追加し、tailを進める
-	d.data[d.tail] = value
-	d.tail = (d.tail + 1) % d.capacity
-	d.size++
-}
-
-// O(1)
-func (d *Deque[T]) PopFront() T {
-	if d.IsEmpty() {
-		panic("deque is empty")
-	}
-	// 要素を取得し、headを進める
-	value := d.data[d.head]
-	d.head = (d.head + 1) % d.capacity
-	d.size--
-	return value
-}
-
-// O(1)
-func (d *Deque[T]) PopBack() T {
-	if d.IsEmpty() {
-		panic("deque is empty")
-	}
-	// tailを逆方向に進めて要素を取得
-	d.tail = (d.tail - 1 + d.capacity) % d.capacity
-	value := d.data[d.tail]
-	d.size--
-	return value
-}
-
-// O(1)
-func (d *Deque[T]) Front() T {
-	if d.IsEmpty() {
-		panic("deque is empty")
-	}
-	return d.data[d.head]
-}
-
-// O(1)
-func (d *Deque[T]) Back() T {
-	if d.IsEmpty() {
-		panic("deque is empty")
-	}
-	// tailの直前の要素を取得
-	return d.data[(d.tail-1+d.capacity)%d.capacity]
-}
-
-// O(1)
-func (d *Deque[T]) At(index int) T {
-	if index < 0 || index >= d.size {
-		panic("index out of range")
-	}
-
-	physicalIndex := (d.head + index) % d.capacity
-	return d.data[physicalIndex]
-}
-
-func (d *Deque[T]) IsEmpty() bool {
-	return d.size == 0
-}
-
-func (d *Deque[T]) IsFull() bool {
-	return d.size == d.capacity
-}
-
-func (d *Deque[T]) Size() int {
-	return d.size
-}
-
-func (d *Deque[T]) Dump() {
-	fmt.Printf("head: %d, tail: %d, data: %v\n", d.head, d.tail, d.data)
-}
-
-// O(current size)
-// デックの容量を2倍に拡張する
-func (d *Deque[T]) resize() {
-	newCapacity := d.capacity * 2
-	newData := make([]T, newCapacity)
-
-	// 現在のデータを新しい配列にコピー（リングバッファの順序を維持）
-	for i := 0; i < d.size; i++ {
-		newData[i] = d.data[(d.head+i)%d.capacity]
-	}
-
-	// 配列とインデックスを更新
-	d.data = newData
-	d.head = 0
-	d.tail = d.size
-	d.capacity = newCapacity
-}
-
-func NewIntSetAsc() *set.Set[int] {
-	return set.New(comparator.IntComparator)
-}
-
-func NewIntMultiSetAsc() *MultiSet[int] {
-	return NewMultiSet(comparator.IntComparator)
-}
-
-func NewIntMultiSetDesc() *MultiSet[int] {
-	return NewMultiSet(comparator.Reverse(comparator.IntComparator))
-}
-
-// NOTE:
-// gostlのNativeのMultiSetは、Erace()が同一の値を全て削除してしまうためこちらを使う。
-// nodeから値を取得するときは以下の様になることに注意。
-// 	- multiSet.First().Key() => 値: T型
-// 	- multiSet.First().Value() => 個数: int型
-
-type MultiSet[T any] struct {
-	tree *rbtree.RbTree[T, int]
-}
-
-// O(1)
-func NewMultiSet[T any](compare comparator.Comparator[T]) *MultiSet[T] {
-	return &MultiSet[T]{
-		tree: rbtree.New[T, int](compare),
-	}
-}
-
-// O(log n)
-func (ms *MultiSet[T]) Insert(value T) {
-	if node := ms.tree.FindNode(value); node != nil {
-		node.SetValue(node.Value() + 1)
-	} else {
-		ms.tree.Insert(value, 1)
-	}
-}
-
-// Erase は、要素を1つだけ削除します。（カウントが1の場合はキーごと削除）
-// O(log n)
-func (ms *MultiSet[T]) Erase(value T) {
-	if node := ms.tree.FindNode(value); node != nil {
-		count := node.Value()
-		if count > 1 {
-			node.SetValue(count - 1)
-		} else {
-			ms.tree.Delete(node)
-			return
-		}
-	}
-}
-
-// Count は、指定した要素の出現回数を返します。
-// O(log n)
-func (ms *MultiSet[T]) Count(value T) int {
-	if node := ms.tree.FindNode(value); node != nil {
-		return node.Value()
-	}
-	return 0
-}
-
-// Values は、マルチセット内の全ての要素をソートされた順序（比較関数に準ずる）で重複も含めてスライスとして返します。
-// O(n + k)
-//   - n はユニークなキーの数
-//   - k は要素の総数（重複含む）
-func (ms *MultiSet[T]) Values() []T {
-	var result []T
-	it := ms.tree.IterFirst()
-	for it.IsValid() {
-		key, count := it.Key(), it.Value()
-		for i := 0; i < count; i++ {
-			result = append(result, key)
-		}
-
-		it = it.Next().(*rbtree.RbTreeIterator[T, int])
-	}
-	return result
-}
-
-// Size は、マルチセットに含まれる要素の総数（重複含む）を返します。
-// O(n)
-//   - n はユニークなキーの数（RBTree 全体を走査）
-func (ms *MultiSet[T]) Size() int {
-	total := 0
-	it := ms.tree.IterFirst()
-	for it.IsValid() {
-		_, count := it.Key(), it.Value()
-		total += count
-
-		it = it.Next().(*rbtree.RbTreeIterator[T, int])
-	}
-	return total
-}
-
-// Clear は、マルチセットを空にします。
-// O(1) （実装上、要素数に依存しないクリア処理を行うため）
-func (ms *MultiSet[T]) Clear() {
-	ms.tree.Clear()
-}
-
-func (ms *MultiSet[T]) First() *rbtree.RbTreeIterator[T, int] {
-	return ms.tree.IterFirst()
-}
-
-func (ms *MultiSet[T]) Last() *rbtree.RbTreeIterator[T, int] {
-	return ms.tree.IterLast()
 }
 
 //////////////
