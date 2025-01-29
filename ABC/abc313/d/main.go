@@ -24,6 +24,55 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, K := read2Ints(r)
+
+	upToK := make([]int, 0, K-1)
+	for i := 1; i <= K; i++ {
+		upToK = append(upToK, i)
+	}
+
+	base := make([]int, K) // index iには、1~K番目の数字から、i+1番目の数字を除いたものの合計（0 or 1）が入る
+
+	sumUpToK := 0             // 0: 偶数、1: 奇数
+	for i := 1; i <= K; i++ { // どの番目の数字を飛ばすか
+		q := "?"
+		for _, a := range upToK {
+			if a == i {
+				continue
+			}
+			q += " " + itoa(a)
+		}
+
+		fmt.Fprintln(w, q)
+		w.Flush()
+
+		ans := readInt(r)
+		sumUpToK ^= ans
+		base[i-1] = ans
+	}
+
+	ansSl := make([]int, N)
+	for i := 0; i < K; i++ {
+		ansSl[i] = sumUpToK ^ base[i]
+	}
+
+	baseQ := "?"
+	for i := 2; i <= K; i++ {
+		baseQ += " " + itoa(i)
+	}
+
+	for i := K + 1; i <= N; i++ {
+		q := baseQ
+		q += " " + itoa(i)
+
+		fmt.Fprintln(w, q)
+		w.Flush()
+
+		ans := readInt(r)
+		ansSl[i-1] = ans
+	}
+
+	writeSlice(w, ansSl)
 }
 
 //////////////
