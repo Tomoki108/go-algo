@@ -26,7 +26,7 @@ func main() {
 
 	N, M := read2Ints(r)
 
-	graph := make([][]int, N) // 強い人から弱い人に向けた有効辺が貼られたグラフ
+	graph := make([][]int, N) // 強い人から弱い人に向けた有向辺が貼られたグラフ
 	for i := 0; i < M; i++ {
 		A, B := read2Ints(r)
 		A--
