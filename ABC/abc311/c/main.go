@@ -88,7 +88,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("No")
+	fmt.Fprintln(w, "No")
 	return
 
 }
