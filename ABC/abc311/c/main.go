@@ -37,44 +37,50 @@ func main() {
 
 	visited := make([]int, N)
 
-	var dfs func(node int, vs []int, visitedFlag int) (bool, []int)
-	dfs = func(node int, vs []int, visitedFlag int) (bool, []int) {
+	var dfs func(node int, vsStr string, visitedFlag int) (bool, []string)
+	dfs = func(node int, vsStr string, visitedFlag int) (bool, []string) {
 		adjacents := graph[node]
 		for _, adj := range adjacents {
 			if visited[adj] == visitedFlag {
 				idx := 0
+				vs := strings.Split(vsStr, " ")
 				for i, v := range vs {
-					if v != adj+1 {
+					if v != itoa(adj+1) {
 						continue
 					}
 					idx = i
 				}
-				ret := vs[idx:]
 
-				return true, ret
+				return true, vs[idx:]
 			}
+
+			if visited[adj] != 0 {
+				continue
+			}
+
 			visited[adj] = visitedFlag
+			newVsStr := vsStr + " " + itoa(adj+1)
 
-			newVs := make([]int, len(vs))
-			copy(newVs, vs)
-			newVs = append(newVs, adj+1)
-
-			ok, retVs := dfs(adj, newVs, visitedFlag)
+			ok, retVs := dfs(adj, newVsStr, visitedFlag)
 			if ok {
 				return true, retVs
 			}
 		}
 
-		return false, []int{}
+		return false, []string{}
 	}
 
 	for i := 0; i < N; i++ {
-		if visited[i] != 0 {
+		node := i
+		visitedFlag := i + 1
+
+		if visited[node] != 0 {
 			continue
 		}
-		visited[i] = i + 1
+		visited[i] = visitedFlag
 
-		ok, vs := dfs(i, []int{i + 1}, i+1)
+		vsStr := itoa(node + 1)
+		ok, vs := dfs(i, vsStr, visitedFlag)
 		if ok {
 			fmt.Fprintln(w, len(vs))
 			writeSlice(w, vs)
