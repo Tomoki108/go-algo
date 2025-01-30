@@ -35,13 +35,13 @@ func main() {
 
 	dump("graph: %v\n", graph)
 
-	var visited []bool
+	visited := make([]int, N)
 
-	var dfs func(node int, vs []int) (bool, []int)
-	dfs = func(node int, vs []int) (bool, []int) {
+	var dfs func(node int, vs []int, visitedFlag int) (bool, []int)
+	dfs = func(node int, vs []int, visitedFlag int) (bool, []int) {
 		adjacents := graph[node]
 		for _, adj := range adjacents {
-			if visited[adj] {
+			if visited[adj] == visitedFlag {
 				idx := 0
 				for i, v := range vs {
 					if v != adj+1 {
@@ -53,13 +53,13 @@ func main() {
 
 				return true, ret
 			}
-			visited[adj] = true
+			visited[adj] = visitedFlag
 
 			newVs := make([]int, len(vs))
 			copy(newVs, vs)
 			newVs = append(newVs, adj+1)
 
-			ok, retVs := dfs(adj, newVs)
+			ok, retVs := dfs(adj, newVs, visitedFlag)
 			if ok {
 				return true, retVs
 			}
@@ -68,14 +68,13 @@ func main() {
 		return false, []int{}
 	}
 
-	visited = make([]bool, N)
 	for i := 0; i < N; i++ {
-		if visited[i] {
+		if visited[i] != 0 {
 			continue
 		}
-		visited[i] = true
+		visited[i] = i + 1
 
-		ok, vs := dfs(i, []int{i + 1})
+		ok, vs := dfs(i, []int{i + 1}, i+1)
 		if ok {
 			fmt.Fprintln(w, len(vs))
 			writeSlice(w, vs)
