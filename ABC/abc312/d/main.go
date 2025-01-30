@@ -21,9 +21,62 @@ const INF = int(1e18)
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+const MOD = 998244353
+
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	memo := createGrid(len(Ss), len(Ss), -1)
+
+	// sIdx: sIdx-1 文字目まで決定済み
+	// latterStock: 後")"を何個付けなければならないという在庫
+	// return: 引数の状況の時のパターン数
+	var dp func(sIdx, latterStock int) int
+	dp = func(sIdx, latterStock int) int {
+		if latterStock < 0 {
+			return 0
+		}
+
+		if sIdx == len(Ss) {
+			if latterStock == 0 {
+				return 1
+			} else {
+				return 0
+			}
+		}
+
+		if memo[sIdx][latterStock] != -1 {
+			return memo[sIdx][latterStock]
+		}
+
+		if len(Ss)-(sIdx) < latterStock {
+			return 0
+		}
+
+		ret := 0
+
+		char := Ss[sIdx]
+		switch char {
+		case "(":
+			ret += dp(sIdx+1, latterStock+1)
+		case ")":
+			ret += dp(sIdx+1, latterStock-1)
+		case "?":
+			ret += dp(sIdx+1, latterStock+1)
+			ret += dp(sIdx+1, latterStock-1)
+		}
+		ret %= MOD
+		memo[sIdx][latterStock] = ret
+
+		return ret
+	}
+
+	ans := dp(0, 0)
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
