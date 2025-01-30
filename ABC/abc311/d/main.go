@@ -24,11 +24,124 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	grid := readGrid(r, N)
+
+	type log int
+	const (
+		NEVER log = iota
+		STOPPED
+		PASSED
+	)
+	visited := createGrid(N, M, NEVER)
+	visited[1][1] = STOPPED
+
+	type direction int
+	const (
+		UP direction = iota
+		DOWN
+		LEFT
+		RIGHT
+	)
+	dirs := []direction{UP, DOWN, LEFT, RIGHT}
+
+	var dfs func(h, w int, dir direction)
+	dfs = func(h, w int, dir direction) {
+		nh, nw := h, w
+
+		switch dir {
+		case UP:
+			nh--
+			canMove := grid[nh][nw] == "."
+			for canMove {
+				visited[nh][nw] = PASSED
+				nh--
+				canMove = grid[nh][nw] == "."
+			}
+			nh++ // 壁なので戻る
+		case DOWN:
+			nh++
+			canMove := grid[nh][nw] == "."
+			for canMove {
+				visited[nh][nw] = PASSED
+				nh++
+				canMove = grid[nh][nw] == "."
+			}
+			nh--
+		case LEFT:
+			nw--
+			canMove := grid[nh][nw] == "."
+			for canMove {
+				visited[nh][nw] = PASSED
+				nw--
+				canMove = grid[nh][nw] == "."
+			}
+			nw++
+		case RIGHT:
+			nw++
+			canMove := grid[nh][nw] == "."
+			for canMove {
+				visited[nh][nw] = PASSED
+				nw++
+				canMove = grid[nh][nw] == "."
+			}
+			nw--
+		}
+
+		if visited[nh][nw] == STOPPED {
+			return
+		}
+		visited[nh][nw] = STOPPED
+
+		for _, d := range dirs {
+			if d == dir {
+				continue
+			}
+			dfs(nh, nw, d)
+		}
+	}
+
+	for _, d := range dirs {
+		dfs(1, 1, d)
+	}
+
+	ans := 1
+	for i := 0; i < N; i++ {
+		for j := 0; j < M; j++ {
+			if visited[i][j] != NEVER {
+				ans++
+			}
+		}
+	}
+
+	// for i := 0; i < N; i++ {
+	// 	writeSlice(w, visited[i])
+	// }
+	// fmt.Fprintln(w)
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers //
