@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,40 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	_, M := read2Ints(r)
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	sort.Ints(As)
+	sort.Ints(Bs)
+
+	// sort.Slice(Bs, func(i, j int) bool {
+	// 	return Bs[i] > Bs[j]
+	// })
+
+	ans := INT_MAX
+	for i, a := range As {
+		idx := sort.Search(len(Bs), func(i int) bool {
+			return Bs[i] >= a
+		})
+		if idx == len(Bs) {
+			break
+		}
+
+		affordable := M - idx
+		sellable := i + 1
+
+		if sellable >= affordable {
+			ans = min(ans, a)
+		}
+	}
+
+	if ans == INT_MAX {
+		fmt.Fprintln(w, Bs[M-1]+1)
+		return
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
