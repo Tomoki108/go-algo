@@ -38,14 +38,12 @@ func main() {
 	var visited []bool
 	var startNode int
 
-	var dfs func(node int, vs []int) (bool, []int)
-	dfs = func(node int, vs []int) (bool, []int) {
-		vs = append(vs, node+1)
-
+	var dfs func(node int, vsStr string) (bool, string)
+	dfs = func(node int, vsStr string) (bool, string) {
 		adjacents := graph[node]
 		for _, adj := range adjacents {
 			if adj == startNode {
-				return true, vs
+				return true, vsStr
 			}
 
 			if visited[adj] {
@@ -53,16 +51,14 @@ func main() {
 			}
 			visited[adj] = true
 
-			cvs := make([]int, len(vs))
-			copy(cvs, vs)
-
-			ok, retVs := dfs(adj, cvs)
+			newStr := vsStr + " " + itoa(adj+1)
+			ok, retStr := dfs(adj, newStr)
 			if ok {
-				return true, retVs
+				return true, retStr
 			}
 		}
 
-		return false, []int{}
+		return false, ""
 	}
 
 	for i := 0; i < N; i++ {
@@ -70,10 +66,12 @@ func main() {
 		startNode = i
 		visited[i] = true
 
-		ok, ans := dfs(i, []int{})
+		ok, ansStr := dfs(i, itoa(i+1))
 		if ok {
-			fmt.Fprintln(w, len(ans))
-			writeSlice(w, ans)
+			vs := strings.Fields(ansStr)
+
+			fmt.Fprintln(w, len(vs))
+			writeSlice(w, vs)
 			return
 
 		}
