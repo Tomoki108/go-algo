@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -37,15 +38,16 @@ func main() {
 
 	visited := make([]int, N)
 
-	var dfs func(node int, vsStr string, visitedFlag int) (bool, []string)
-	dfs = func(node int, vsStr string, visitedFlag int) (bool, []string) {
+	var dfs func(node int, vs []int, visitedFlag int) (bool, []int)
+	dfs = func(node int, vs []int, visitedFlag int) (bool, []int) {
+		dump("node: %v\n", node)
+
 		adjacents := graph[node]
 		for _, adj := range adjacents {
 			if visited[adj] == visitedFlag {
 				idx := 0
-				vs := strings.Split(vsStr, " ")
 				for i, v := range vs {
-					if v != itoa(adj+1) {
+					if v != adj+1 {
 						continue
 					}
 					idx = i
@@ -59,15 +61,16 @@ func main() {
 			}
 
 			visited[adj] = visitedFlag
-			newVsStr := vsStr + " " + itoa(adj+1)
 
-			ok, retVs := dfs(adj, newVsStr, visitedFlag)
+			vs := append(vs, adj+1)
+			ok, retVs := dfs(adj, vs, visitedFlag)
 			if ok {
 				return true, retVs
 			}
+			vs = vs[:len(vs)-1]
 		}
 
-		return false, []string{}
+		return false, []int{}
 	}
 
 	for i := 0; i < N; i++ {
@@ -79,8 +82,7 @@ func main() {
 		}
 		visited[i] = visitedFlag
 
-		vsStr := itoa(node + 1)
-		ok, vs := dfs(i, vsStr, visitedFlag)
+		ok, vs := dfs(i, []int{node + 1}, visitedFlag)
 		if ok {
 			fmt.Fprintln(w, len(vs))
 			writeSlice(w, vs)
@@ -96,6 +98,48 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+type Stack[T any] struct {
+	list *list.List
+}
+
+func NewStack[T any]() *Stack[T] {
+	return &Stack[T]{
+		list: list.New(),
+	}
+}
+
+func (s *Stack[T]) Push(value T) {
+	s.list.PushBack(value)
+}
+
+func (s *Stack[T]) Pop() (T, bool) {
+	back := s.list.Back()
+	if back == nil {
+		var zero T
+		return zero, false
+	}
+	s.list.Remove(back)
+	return back.Value.(T), true
+}
+
+// Peek returns the back element without removing it
+func (s *Stack[T]) Peek() (T, bool) {
+	back := s.list.Back()
+	if back == nil {
+		var zero T
+		return zero, false
+	}
+	return back.Value.(T), true
+}
+
+func (s *Stack[T]) Len() int {
+	return s.list.Len()
+}
+
+func (s *Stack[T]) Clear() {
+	s.list.Init()
+}
 
 //////////////
 // Helpers //
