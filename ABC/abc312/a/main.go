@@ -24,6 +24,17 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+
+	sl := []string{"ACE", "BDF", "CEG", "DFA", "EGB", "FAC", "GBD"}
+	for _, s := range sl {
+		if S == s {
+			fmt.Fprintln(w, "Yes")
+			return
+		}
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
