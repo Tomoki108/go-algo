@@ -24,11 +24,46 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, D := read2Ints(r)
+
+	current := 1<<D - 1
+	for i := 0; i < N; i++ {
+		S := readStr(r)
+		Ss := strings.Split(S, "")
+
+		now := 0
+		for j := 0; j < D; j++ {
+			if Ss[j] == "o" {
+				now += 1 << (D - j - 1)
+			}
+		}
+		current &= now
+	}
+
+	ans := 0
+	currentLen := 0
+	for i := 0; i < D; i++ {
+		if IsBitPop(uint64(current), i) {
+			currentLen++
+			ans = max(ans, currentLen)
+		} else {
+			currentLen = 0
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// k桁目のビットが1かどうかを判定（一番右を0桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << k はビットマスク。1をk桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << k)) != 0
+}
 
 //////////////
 // Helpers //
