@@ -27,6 +27,50 @@ func main() {
 	N := readInt(r)
 	As := readIntArr(r)
 
+	graph := make([]int, N)
+	for i := 0; i < N; i++ {
+		to := As[i] - 1
+		graph[i] = to
+	}
+
+	visited := make([]bool, N)
+	visitedNode := make([]int, 0, N)
+
+	node := 0
+	for !visited[node] {
+		visited[node] = true
+		visitedNode = append(visitedNode, node)
+
+		node = graph[node]
+	}
+
+	startNode := node
+	var startIdx int
+	for i, v := range visitedNode {
+		if v == startNode {
+			startIdx = i
+			break
+		}
+	}
+
+	ans := visitedNode[startIdx:]
+	fmt.Fprintln(w, len(ans))
+	for i, v := range ans {
+		fmt.Fprint(w, v+1)
+		if i != len(ans)-1 {
+			fmt.Fprint(w, " ")
+		} else {
+			fmt.Fprintln(w)
+		}
+	}
+}
+
+func alt() {
+	defer w.Flush()
+
+	N := readInt(r)
+	As := readIntArr(r)
+
 	graph := make([][]int, N)
 	for i := 0; i < N; i++ {
 		to := As[i] - 1
