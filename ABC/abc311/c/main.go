@@ -24,6 +24,64 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	graph := make([][]int, N)
+	for i := 0; i < N; i++ {
+		to := As[i] - 1
+		graph[i] = append(graph[i], to)
+	}
+
+	dump("graph: %v\n", graph)
+
+	var visited []bool
+	var startNode int
+
+	var dfs func(node int, vs []int) (bool, []int)
+	dfs = func(node int, vs []int) (bool, []int) {
+		vs = append(vs, node+1)
+
+		adjacents := graph[node]
+		for _, adj := range adjacents {
+			if adj == startNode {
+				return true, vs
+			}
+
+			if visited[adj] {
+				continue
+			}
+			visited[adj] = true
+
+			cvs := make([]int, len(vs))
+			copy(cvs, vs)
+
+			ok, retVs := dfs(adj, cvs)
+			if ok {
+				return true, retVs
+			}
+		}
+
+		return false, []int{}
+	}
+
+	for i := 0; i < N; i++ {
+		visited = make([]bool, N)
+		startNode = i
+		visited[i] = true
+
+		ok, ans := dfs(i, []int{})
+		if ok {
+			fmt.Fprintln(w, len(ans))
+			writeSlice(w, ans)
+			return
+
+		}
+	}
+
+	fmt.Println("No")
+	return
+
 }
 
 //////////////
