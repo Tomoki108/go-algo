@@ -24,6 +24,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	m := map[string]int{}
+
+	for i := 0; i < N; i++ {
+		m[Ss[i]]++
+
+		if len(m) == 3 {
+			fmt.Println(i + 1)
+			return
+		}
+	}
 }
 
 //////////////
