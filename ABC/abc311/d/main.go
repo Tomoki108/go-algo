@@ -113,34 +113,12 @@ func main() {
 		}
 	}
 
-	// for i := 0; i < N; i++ {
-	// 	writeSlice(w, visited[i])
-	// }
-	// fmt.Fprintln(w)
-
 	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
-
-type Coordinate struct {
-	h, w int // 0-indexed
-}
-
-func (c Coordinate) Adjacents() [4]Coordinate {
-	return [4]Coordinate{
-		{c.h - 1, c.w}, // 上
-		{c.h + 1, c.w}, // 下
-		{c.h, c.w - 1}, // 左
-		{c.h, c.w + 1}, // 右
-	}
-}
-
-func (c Coordinate) IsValid(H, W int) bool {
-	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
-}
 
 //////////////
 // Helpers //
