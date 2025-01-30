@@ -38,8 +38,12 @@ func main() {
 
 	ans := INT_MAX
 	for i, a := range As {
-		idx := sort.Search(len(Bs), func(i int) bool {
-			return Bs[i] >= a
+		// if i < N-1 && a == As[i+1] {
+		// 	continue
+		// }
+
+		idx := sort.Search(len(Bs), func(j int) bool {
+			return Bs[j] >= a
 		})
 		if idx == len(Bs) {
 			break
@@ -49,7 +53,8 @@ func main() {
 		sellable := i + 1
 
 		if sellable >= affordable {
-			ans = min(ans, a)
+			ans = a
+			break
 		}
 	}
 
