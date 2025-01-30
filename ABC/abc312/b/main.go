@@ -24,6 +24,62 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	grid := readGrid(r, N)
+
+	judge := func(baseH, baseW int) bool {
+		if baseH+9 > N || baseW+9 > M {
+			return false
+		}
+
+		for i := baseH; i < baseH+9; i++ {
+			for j := baseW; j < baseW+9; j++ {
+				cell := grid[i][j]
+				if i <= 2+baseH && j <= 2+baseW && cell != "#" {
+					return false
+				}
+				if i >= 6+baseH && j >= 6+baseW && cell != "#" {
+					return false
+				}
+
+				if i == 3+baseH && j <= 2+baseW && cell != "." {
+					return false
+				}
+				if j == 3+baseW && i <= 2+baseH && cell != "." {
+					return false
+				}
+
+				if i == 5+baseH && j >= 6+baseW && cell != "." {
+					return false
+				}
+				if j == 5+baseW && i >= 6+baseH && cell != "." {
+					return false
+				}
+			}
+		}
+
+		return true
+	}
+
+	ans := make([][2]int, 0)
+	for i := 0; i < N; i++ {
+		for j := 0; j < M; j++ {
+			if judge(i, j) {
+				ans = append(ans, [2]int{i, j})
+			}
+		}
+	}
+
+	found := false
+	for _, a := range ans {
+		found = true
+		fmt.Fprintln(w, a[0]+1, a[1]+1)
+	}
+
+	if !found {
+		fmt.Fprintln(w)
+	}
 }
 
 //////////////
