@@ -36,44 +36,50 @@ func main() {
 	dump("graph: %v\n", graph)
 
 	var visited []bool
-	var startNode int
 
-	var dfs func(node int, vsStr string) (bool, string)
-	dfs = func(node int, vsStr string) (bool, string) {
+	var dfs func(node int, vs []int) (bool, []int)
+	dfs = func(node int, vs []int) (bool, []int) {
 		adjacents := graph[node]
 		for _, adj := range adjacents {
-			if adj == startNode {
-				return true, vsStr
-			}
-
 			if visited[adj] {
-				continue
+				idx := 0
+				for i, v := range vs {
+					if v != adj+1 {
+						continue
+					}
+					idx = i
+				}
+				ret := vs[idx:]
+
+				return true, ret
 			}
 			visited[adj] = true
 
-			newStr := vsStr + " " + itoa(adj+1)
-			ok, retStr := dfs(adj, newStr)
+			newVs := make([]int, len(vs))
+			copy(newVs, vs)
+			newVs = append(newVs, adj+1)
+
+			ok, retVs := dfs(adj, newVs)
 			if ok {
-				return true, retStr
+				return true, retVs
 			}
 		}
 
-		return false, ""
+		return false, []int{}
 	}
 
+	visited = make([]bool, N)
 	for i := 0; i < N; i++ {
-		visited = make([]bool, N)
-		startNode = i
+		if visited[i] {
+			continue
+		}
 		visited[i] = true
 
-		ok, ansStr := dfs(i, itoa(i+1))
+		ok, vs := dfs(i, []int{i + 1})
 		if ok {
-			vs := strings.Fields(ansStr)
-
 			fmt.Fprintln(w, len(vs))
 			writeSlice(w, vs)
 			return
-
 		}
 	}
 
