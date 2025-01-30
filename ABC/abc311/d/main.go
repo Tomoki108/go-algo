@@ -27,11 +27,10 @@ func main() {
 	N, M := read2Ints(r)
 	grid := readGrid(r, N)
 
-	type log int
 	const (
-		NEVER log = iota
-		STOPPED
+		NEVER int = iota
 		PASSED
+		STOPPED
 	)
 	visited := createGrid(N, M, NEVER)
 	visited[1][1] = STOPPED
@@ -54,7 +53,7 @@ func main() {
 			nh--
 			canMove := grid[nh][nw] == "."
 			for canMove {
-				visited[nh][nw] = PASSED
+				updateToMax(&visited[nh][nw], PASSED)
 				nh--
 				canMove = grid[nh][nw] == "."
 			}
@@ -63,7 +62,7 @@ func main() {
 			nh++
 			canMove := grid[nh][nw] == "."
 			for canMove {
-				visited[nh][nw] = PASSED
+				updateToMax(&visited[nh][nw], PASSED)
 				nh++
 				canMove = grid[nh][nw] == "."
 			}
@@ -72,7 +71,7 @@ func main() {
 			nw--
 			canMove := grid[nh][nw] == "."
 			for canMove {
-				visited[nh][nw] = PASSED
+				updateToMax(&visited[nh][nw], PASSED)
 				nw--
 				canMove = grid[nh][nw] == "."
 			}
@@ -81,7 +80,7 @@ func main() {
 			nw++
 			canMove := grid[nh][nw] == "."
 			for canMove {
-				visited[nh][nw] = PASSED
+				updateToMax(&visited[nh][nw], PASSED)
 				nw++
 				canMove = grid[nh][nw] == "."
 			}
@@ -105,7 +104,7 @@ func main() {
 		dfs(1, 1, d)
 	}
 
-	ans := 1
+	ans := 0
 	for i := 0; i < N; i++ {
 		for j := 0; j < M; j++ {
 			if visited[i][j] != NEVER {
