@@ -158,6 +158,14 @@ func itoa(n int) string {
 	return strconv.Itoa(n)
 }
 
+func strReverse(s string) string {
+	runes := []rune(s)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
+}
+
 func sort2Ints(a, b int) (int, int) {
 	if a > b {
 		return b, a

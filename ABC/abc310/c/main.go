@@ -24,6 +24,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	m := make(map[string]int, 2*N)
+	for i := 0; i < N; i++ {
+		S := readStr(r)
+		revS := strReverse(S)
+
+		if S < revS {
+			m[S]++
+		} else {
+			m[revS]++
+		}
+	}
+
+	dump("m: %v\n", m)
+
+	fmt.Println(len(m))
 }
 
 //////////////
@@ -156,6 +173,14 @@ func atoi(s string) int {
 
 func itoa(n int) string {
 	return strconv.Itoa(n)
+}
+
+func strReverse(s string) string {
+	runes := []rune(s)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
 }
 
 func sort2Ints(a, b int) (int, int) {
