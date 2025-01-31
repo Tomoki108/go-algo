@@ -25,10 +25,15 @@ func main() {
 	defer w.Flush()
 
 	A, B := read2Ints(r)
-	A, B = sort2Ints(A, B)
+
+	if A%3 == 0 {
+		fmt.Println("No")
+		return
+	}
+
 	diff := B - A
 
-	if diff == 1 || diff == 3 {
+	if diff == 1 {
 		fmt.Println("Yes")
 	} else {
 		fmt.Println("No")
