@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -24,11 +25,141 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	H, W := read2Ints(r)
+	grid := readGrid(r, H)
+
+	dump("grid: %v\n", grid)
+
+	m := map[string]string{
+		"s": "n",
+		"n": "u",
+		"u": "k",
+		"k": "e",
+		"e": "s",
+	}
+
+	visted := createGrid(H, W, false)
+
+	type qItem struct {
+		prevChar string
+		c        Coordinate
+	}
+	q := NewQueue[qItem]()
+
+	char := grid[0][0]
+	if _, ok := m[char]; !ok {
+		fmt.Fprintln(w, "No")
+		return
+	}
+	dump("char: %v\n", char)
+
+	q.Enqueue(qItem{c: Coordinate{0, 0}, prevChar: char})
+	visted[0][0] = true
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+		nextChar, _ := m[item.prevChar]
+
+		dump("item: %v\n", item)
+		dump("nextChar: %v\n", nextChar)
+
+		for _, adj := range item.c.Adjacents() {
+			if !adj.IsValid(H, W) || visted[adj.h][adj.w] || grid[adj.h][adj.w] != nextChar {
+				continue
+			}
+
+			if adj.h == H-1 && adj.w == W-1 {
+				fmt.Fprintln(w, "Yes")
+				return
+			}
+
+			q.Enqueue(qItem{c: adj, prevChar: grid[adj.h][adj.w]})
+			visted[adj.h][adj.w] = true
+		}
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) AdjacentsWithDiagonals() [8]Coordinate {
+	return [8]Coordinate{
+		{c.h - 1, c.w},     // 上
+		{c.h + 1, c.w},     // 下
+		{c.h, c.w - 1},     // 左
+		{c.h, c.w + 1},     // 右
+		{c.h - 1, c.w - 1}, // 左上
+		{c.h - 1, c.w + 1}, // 右上
+		{c.h + 1, c.w - 1}, // 左下
+		{c.h + 1, c.w + 1}, // 右下
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers //
