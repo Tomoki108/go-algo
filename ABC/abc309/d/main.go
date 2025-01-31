@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -24,11 +25,111 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N1, N2, M := iarr[0], iarr[1], iarr[2]
+
+	graph := make([][]int, N1+N2)
+	for i := 0; i < M; i++ {
+		a, b := read2Ints(r)
+		a--
+		b--
+		graph[a] = append(graph[a], b)
+		graph[b] = append(graph[b], a)
+	}
+
+	type qItem struct {
+		node  int
+		depth int // 始点からの辺の数
+	}
+
+	depths := make([]int, N1+N2)
+
+	q := NewQueue[qItem]()
+	q.Enqueue(qItem{0, 0})
+	q.Enqueue(qItem{N1 + N2 - 1, 0})
+
+	visited := make([]bool, N1+N2)
+	visited[0] = true
+	visited[N1+N2-1] = true
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+		node, depth := item.node, item.depth
+
+		for _, next := range graph[node] {
+			if visited[next] {
+				continue
+			}
+
+			visited[next] = true
+			depths[next] = depth + 1
+			q.Enqueue(qItem{next, depth + 1})
+		}
+	}
+
+	N1_farthest := 0
+	for _, d := range depths[:N1] {
+		N1_farthest = max(N1_farthest, d)
+	}
+	N2_farthest := 0
+	for _, d := range depths[N1:] {
+		N2_farthest = max(N2_farthest, d)
+	}
+
+	ans := N1_farthest + N2_farthest + 1
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers //
