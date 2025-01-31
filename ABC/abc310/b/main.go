@@ -48,9 +48,11 @@ func main() {
 	})
 
 	for i := 0; i < N; i++ {
-		for j := i; j < N; j++ {
+		for j := i + 1; j < N; j++ {
 			fs1 := products[i].fs
 			fs2 := products[j].fs
+			p1 := products[i].p
+			p2 := products[j].p
 
 			ok := true
 			for f := range fs1 {
@@ -61,7 +63,7 @@ func main() {
 				break
 			}
 
-			if ok && (len(fs2) > len(fs1) || j < i) {
+			if ok && (len(fs2) > len(fs1) || p2 < p1) {
 				fmt.Fprintln(w, "Yes")
 				return
 			}
