@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,50 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, _ := read2Ints(r)
+
+	type Product struct {
+		p  int
+		fs map[int]bool
+	}
+
+	products := make([]Product, 0, N)
+	for i := 0; i < N; i++ {
+		iarr := readIntArr(r)
+		p := iarr[0]
+		fs := make(map[int]bool)
+		for _, f := range iarr[2:] {
+			fs[f] = true
+		}
+		products = append(products, Product{p, fs})
+	}
+
+	sort.Slice(products, func(i, j int) bool {
+		return products[i].p > products[j].p
+	})
+
+	for i := 0; i < N; i++ {
+		for j := i; j < N; j++ {
+			fs1 := products[i].fs
+			fs2 := products[j].fs
+
+			ok := true
+			for f := range fs1 {
+				if fs2[f] {
+					continue
+				}
+				ok = false
+				break
+			}
+
+			if ok && (len(fs2) > len(fs1) || j < i) {
+				fmt.Fprintln(w, "Yes")
+				return
+			}
+		}
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
