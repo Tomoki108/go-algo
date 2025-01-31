@@ -96,5 +96,19 @@ func RotateSquareGridCell(n, height, width, time int) (h, w int) {
 
 // 一辺がnの正方形グリッドのマス目(hight, width)が、最も外側のマス目達を1周目としたときに何周目にあるかを返す
 func GetSquareGridCellLayer(n, h, w int) int {
-	return int(math.Min(math.Min(float64(h), float64(w)), math.Min(float64(n-h+1), float64(n-w+1))))
+	return min(min(h+1, w+1), min(n-h, n-w))
+}
+
+func min(i, j int) int {
+	if i < j {
+		return i
+	}
+	return j
+}
+
+func max(i, j int) int {
+	if i > j {
+		return i
+	}
+	return j
 }
