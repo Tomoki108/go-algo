@@ -44,6 +44,8 @@ func main() {
 		graph[B][A] = true
 	}
 
+	dump("graph: %v\n", graph)
+
 	ans := 0
 	groups := make([][]int, 0, T)
 
@@ -52,22 +54,24 @@ func main() {
 		if idx == N {
 			if len(groups) == T {
 				ans++
+
+				dump("groups: %v\n", groups)
 			}
 			return
 		}
 
 		ngMembers := graph[idx]
 	Outer:
-		for _, g := range groups {
-			for _, member := range g {
+		for i := 0; i < len(groups); i++ {
+			for _, member := range groups[i] {
 				if ngMembers[member] {
 					continue Outer
 				}
 			}
 
-			g = append(g, idx)
+			groups[i] = append(groups[i], idx)
 			dfs(idx + 1)
-			g = g[:len(g)-1]
+			groups[i] = groups[i][:len(groups[i])-1]
 		}
 
 		if len(groups) < T {
