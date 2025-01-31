@@ -24,11 +24,81 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, K := read2Ints(r)
+
+	abs := make([][2]int, 0, N)
+	for i := 0; i < N; i++ {
+		a, b := read2Ints(r)
+		abs = append(abs, [2]int{a, b})
+	}
+
+	ans := AscIntSearch(1, pow(10, 9)+1, func(x int) bool {
+		sum := 0
+		for _, ab := range abs {
+			a, b := ab[0], ab[1]
+			if a >= x {
+				sum += b
+			}
+		}
+
+		return sum <= K
+	})
+
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log(high-low))
+// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
+// low~highは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はlow-1を返す
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	initialLow := low
+
+	for low < high {
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
+		if f(mid) {
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
+		} else {
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
+		}
+	}
+
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
+	}
+
+	return initialLow - 1 // 条件を満たす値が見つからない場合
+}
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
+
+// O(1)
+// 差分配列への区間更新を行う。[l, r)にxを加算する。
+// 更新後に累積和をとっていくと、各インデックスの値が求まる。所謂imos法
+func RangeUpdateDiffArray(sl []int, l, r, x int) {
+	if l < len(sl) {
+		sl[l] += x
+	}
+	if r < len(sl) {
+		sl[r] -= x
+	}
+}
 
 //////////////
 // Helpers //
