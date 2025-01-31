@@ -24,6 +24,16 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	A, B := read2Ints(r)
+	A, B = sort2Ints(A, B)
+	diff := B - A
+
+	if diff == 1 || diff == 3 {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
+
 }
 
 //////////////
