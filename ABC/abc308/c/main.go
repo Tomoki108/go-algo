@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,41 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	type result struct {
+		no  int
+		quo float64
+		// rem int
+	}
+
+	rs := make([]result, 0, N)
+	for i := 0; i < N; i++ {
+		A, B := read2Ints(r)
+
+		quo := float64(A) / float64(B)
+
+		rs = append(rs, result{i, quo})
+	}
+
+	sort.Slice(rs, func(i, j int) bool {
+		if rs[i].quo > rs[j].quo {
+			return true
+		} else if rs[i].quo == rs[j].quo {
+			return rs[i].no < rs[j].no
+		} else {
+			return false
+		}
+	})
+
+	for i, r := range rs {
+		fmt.Fprint(w, r.no+1)
+		if i == len(rs)-1 {
+			fmt.Fprintln(w)
+		} else {
+			fmt.Fprint(w, " ")
+		}
+	}
 }
 
 //////////////
