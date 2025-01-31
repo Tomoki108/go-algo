@@ -37,7 +37,7 @@ func main() {
 	for i := 0; i < N; i++ {
 		A, B := read2Ints(r)
 
-		quo := float64(A) / float64(B)
+		quo := float64(A) / (float64(A + B))
 
 		rs = append(rs, result{i, quo})
 	}
@@ -51,6 +51,8 @@ func main() {
 			return false
 		}
 	})
+
+	dump("rs: %v\n", rs)
 
 	for i, r := range rs {
 		fmt.Fprint(w, r.no+1)
