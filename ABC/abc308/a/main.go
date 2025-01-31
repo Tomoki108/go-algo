@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +26,25 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	Ss := readIntArr(r)
+
+	copySs := make([]int, 8)
+	copy(copySs, Ss)
+	sort.Ints(copySs)
+
+	if !reflect.DeepEqual(Ss, copySs) {
+		fmt.Println("No")
+		return
+	}
+
+	for i := 0; i < 8; i++ {
+		if !(Ss[i] >= 100 && Ss[i] <= 675 && Ss[i]%25 == 0) {
+			fmt.Println("No")
+			return
+		}
+	}
+
+	fmt.Println("Yes")
 }
 
 //////////////
