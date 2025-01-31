@@ -85,12 +85,25 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 }
 
 // height行の整数グリッドを読み込む
-func readIntGrid(r *bufio.Reader, height int) [][]int {
-	grid := make([][]int, height)
-	for i := 0; i < height; i++ {
-		grid[i] = readIntArr(r)
+func readIntGrid(r *bufio.Reader, height int, withSpace bool) [][]int {
+	if withSpace {
+		grid := make([][]int, height)
+		for i := 0; i < height; i++ {
+			grid[i] = readIntArr(r)
+		}
+		return grid
 	}
 
+	grid := make([][]int, height)
+	for i := 0; i < height; i++ {
+		str := readStr(r)
+		strs := strings.Split(str, "")
+
+		grid[i] = make([]int, len(strs))
+		for j, s := range strs {
+			grid[i][j], _ = strconv.Atoi(s)
+		}
+	}
 	return grid
 }
 

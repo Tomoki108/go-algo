@@ -24,6 +24,61 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	grid := readIntGrid(r, N, false)
+
+	dump("grid: %v\n", grid)
+
+	updates := make(map[[2]int]int, N*N)
+
+	for i := 0; i < N; i++ {
+	Outer:
+		for j := 0; j < N; j++ {
+			if i == 0 {
+				if j != N-1 {
+					updates[[2]int{i, j + 1}] = grid[i][j]
+				} else {
+					updates[[2]int{i + 1, j}] = grid[i][j]
+				}
+				continue Outer
+			}
+
+			if i == N-1 {
+				if j != 0 {
+					updates[[2]int{i, j - 1}] = grid[i][j]
+				} else {
+					updates[[2]int{i - 1, j}] = grid[i][j]
+				}
+				continue Outer
+			}
+
+			if j == 0 {
+				if i != 0 {
+					updates[[2]int{i - 1, j}] = grid[i][j]
+				} else {
+					updates[[2]int{i, j + 1}] = grid[i][j]
+				}
+				continue Outer
+			}
+
+			if j == N-1 {
+				if i != N-1 {
+					updates[[2]int{i + 1, j}] = grid[i][j]
+				} else {
+					updates[[2]int{i, j - 1}] = grid[i][j]
+				}
+				continue Outer
+			}
+		}
+	}
+
+	for k, v := range updates {
+		grid[k[0]][k[1]] = v
+	}
+
+	for i := 0; i < N; i++ {
+		writeSliceWithoutSpace(w, grid[i])
+	}
 }
 
 //////////////
@@ -85,12 +140,25 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 }
 
 // height行の整数グリッドを読み込む
-func readIntGrid(r *bufio.Reader, height int) [][]int {
-	grid := make([][]int, height)
-	for i := 0; i < height; i++ {
-		grid[i] = readIntArr(r)
+func readIntGrid(r *bufio.Reader, height int, withSpace bool) [][]int {
+	if withSpace {
+		grid := make([][]int, height)
+		for i := 0; i < height; i++ {
+			grid[i] = readIntArr(r)
+		}
+		return grid
 	}
 
+	grid := make([][]int, height)
+	for i := 0; i < height; i++ {
+		str := readStr(r)
+		strs := strings.Split(str, "")
+
+		grid[i] = make([]int, len(strs))
+		for j, s := range strs {
+			grid[i][j], _ = strconv.Atoi(s)
+		}
+	}
 	return grid
 }
 
@@ -110,6 +178,18 @@ func createGrid[T any](height, width int, val T) [][]T {
 func writeGrid(w *bufio.Writer, grid [][]string) {
 	for i := 0; i < len(grid); i++ {
 		fmt.Fprint(w, strings.Join(grid[i], ""), "\n")
+	}
+}
+
+func writeIntGrid(w *bufio.Writer, grid [][]int) {
+	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[i]); j++ {
+			if j == len(grid[i])-1 {
+				fmt.Fprintln(w, grid[i][j])
+			} else {
+				fmt.Fprint(w, grid[i][j], " ")
+			}
+		}
 	}
 }
 
