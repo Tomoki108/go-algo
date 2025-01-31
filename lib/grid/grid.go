@@ -79,18 +79,16 @@ func CopyGrid[T any](grid [][]T) [][]T {
 
 // 一辺がnの正方形グリッドのマス目(hight, width)を、時計回りにtime回回転させたときの座標を返す
 func RotateSquareGridCell(n, height, width, time int) (h, w int) {
-	n-- // 長さをmax indexに直す
-
 	time = time % 4
 	switch time {
 	case 0:
 		return height, width
 	case 1:
-		return width, n - height
+		return width, n - height - 1
 	case 2:
-		return n - height, n - width
+		return n - height - 1, n - width - 1
 	case 3:
-		return n - width, height
+		return n - width - 1, height
 	}
 
 	panic("can't reach here")
