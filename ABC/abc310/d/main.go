@@ -24,6 +24,62 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, T, M := iarr[0], iarr[1], iarr[2]
+
+	graph := make([]map[int]bool, N)
+	for i := 0; i < M; i++ {
+		A, B := read2Ints(r)
+		A--
+		B--
+
+		if graph[A] == nil {
+			graph[A] = make(map[int]bool)
+		}
+		graph[A][B] = true
+
+		if graph[B] == nil {
+			graph[B] = make(map[int]bool)
+		}
+		graph[B][A] = true
+	}
+
+	ans := 0
+	groups := make([][]int, 0, T)
+
+	var dfs func(idx int)
+	dfs = func(idx int) {
+		if idx == N {
+			if len(groups) == T {
+				ans++
+			}
+			return
+		}
+
+		ngMembers := graph[idx]
+	Outer:
+		for _, g := range groups {
+			for _, member := range g {
+				if ngMembers[member] {
+					continue Outer
+				}
+			}
+
+			g = append(g, idx)
+			dfs(idx + 1)
+			g = g[:len(g)-1]
+		}
+
+		if len(groups) < T {
+			groups = append(groups, []int{idx})
+			dfs(idx + 1)
+			groups = groups[:len(groups)-1]
+		}
+	}
+
+	dfs(0)
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
