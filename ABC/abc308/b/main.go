@@ -24,6 +24,27 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	Cs := readStrArr(r)
+
+	Ds := readStrArr(r)
+	Ps := readIntArr(r)
+
+	colorPriceMap := make(map[string]int)
+	for i := 0; i < M; i++ {
+		colorPriceMap[Ds[i]] = Ps[i+1]
+	}
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		if price, ok := colorPriceMap[Cs[i]]; ok {
+			ans += price
+		} else {
+			ans += Ps[0]
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
