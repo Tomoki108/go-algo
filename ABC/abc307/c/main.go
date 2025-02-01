@@ -56,9 +56,9 @@ func main() {
 
 	for h1 := 0; h1 < H_X; h1++ {
 		for w1 := 0; w1 < W_X; w1++ {
-			for h2 := 0; h2 < H_B; h2++ {
+			for h2 := 0; h2 < H_X; h2++ {
 			Outer:
-				for w2 := 0; w2 < W_B; w2++ {
+				for w2 := 0; w2 < W_X; w2++ {
 
 					delta_H_A := minH_A + h1
 					delta_W_A := minW_A + w1
@@ -70,18 +70,18 @@ func main() {
 						for wx := 0; wx < W_X; wx++ {
 							should := grid_X[hx][wx]
 
-							cA := Coordinate{hx + delta_H_A, wx + delta_W_A}
-							cB := Coordinate{hx + delta_H_B, wx + delta_W_B}
+							cA := Coordinate{hx - delta_H_A, wx - delta_W_A}
+							cB := Coordinate{hx - delta_H_B, wx - delta_W_B}
 
 							if should == "#" {
-								if !((cA.IsValid(H_A, W_B) && grid_A[hx+delta_H_A][wx+delta_W_A] == "#") || (cB.IsValid(H_B, W_B) && grid_B[hx+delta_H_B][wx+delta_W_B] == "#")) {
+								if !((cA.IsValid(H_A, W_B) && grid_A[cA.h][cA.w] == "#") || (cB.IsValid(H_B, W_B) && grid_B[cB.h][cB.w] == "#")) {
 									continue Outer
 								}
 							} else {
-								if cA.IsValid(H_A, W_B) && grid_A[hx+delta_H_A][wx+delta_W_A] == "#" {
+								if cA.IsValid(H_A, W_B) && grid_A[cA.h][cA.w] == "#" {
 									continue Outer
 								}
-								if cB.IsValid(H_B, W_B) && grid_B[hx+delta_H_B][wx+delta_W_B] == "#" {
+								if cB.IsValid(H_B, W_B) && grid_B[cB.h][cB.w] == "#" {
 									continue Outer
 								}
 							}
