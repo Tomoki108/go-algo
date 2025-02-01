@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,49 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	frontIndexes := make([]int, 0, N)
+	backIndexes := make([]int, 0, N)
+
+	for i := 0; i < N; i++ {
+		if Ss[i] == "(" {
+			frontIndexes = append(frontIndexes, i)
+		} else if Ss[i] == ")" {
+			backIndexes = append(backIndexes, i)
+		}
+	}
+
+	eraseM := make(map[int]int, N) // [start, end]
+
+	for i := len(frontIndexes) - 1; i >= 0; i-- {
+		frontIdx := frontIndexes[i]
+
+		tmp := sort.Search(len(backIndexes), func(j int) bool {
+			return backIndexes[j] > frontIdx
+		})
+		if tmp == len(backIndexes) {
+			continue
+		}
+		backIdx := backIndexes[tmp]
+
+		eraseM[frontIdx] = backIdx
+	}
+
+	dump("eraseM: %v\n", eraseM)
+
+	for i := 0; i < N; i++ {
+		end, ok := eraseM[i]
+		if ok {
+			i = end
+			continue
+		}
+
+		fmt.Fprint(w, Ss[i])
+	}
+	fmt.Fprintln(w)
 }
 
 //////////////
