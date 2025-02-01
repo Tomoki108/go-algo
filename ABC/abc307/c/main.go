@@ -24,11 +24,113 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	H_A, W_A := read2Ints(r)
+	grid_A := readGrid(r, H_A)
+
+	minH_A, minW_A := 0, 0
+	maxH_A, maxW_A := 0, 0
+	for h := 0; h < H_A; h++ {
+		for w := 0; w < W_A; w++ {
+			if grid_A[h][w] == "#" {
+				minH_A, minW_A = min(h, minH_A), min(w, minW_A)
+				maxH_A, maxW_A = max(h, maxH_A), max(w, maxW_A)
+			}
+		}
+	}
+
+	H_B, W_B := read2Ints(r)
+	grid_B := readGrid(r, H_B)
+	minH_B, minW_B := 0, 0
+	maxH_B, maxW_B := 0, 0
+	for h := 0; h < H_B; h++ {
+		for w := 0; w < W_B; w++ {
+			if grid_B[h][w] == "#" {
+				minH_B, minW_B = min(h, minH_B), min(w, minW_B)
+				maxH_B, maxW_B = max(h, maxH_B), max(w, maxW_B)
+			}
+		}
+	}
+
+	H_X, W_X := read2Ints(r)
+	grid_X := readGrid(r, H_X)
+
+	for h1 := 0; h1 < H_X; h1++ {
+		for w1 := 0; w1 < W_X; w1++ {
+			for h2 := 0; h2 < H_B; h2++ {
+			Outer:
+				for w2 := 0; w2 < W_B; w2++ {
+
+					delta_H_A := minH_A + h1
+					delta_W_A := minW_A + w1
+					delta_H_B := minH_B + h2
+					delta_W_B := minW_B + w2
+
+					// 正解との比較
+					for hx := 0; hx < H_X; hx++ {
+						for wx := 0; wx < W_X; wx++ {
+							should := grid_X[hx][wx]
+
+							cA := Coordinate{hx + delta_H_A, wx + delta_W_A}
+							cB := Coordinate{hx + delta_H_B, wx + delta_W_B}
+
+							if should == "#" {
+								if !((cA.IsValid(H_A, W_B) && grid_A[hx+delta_H_A][wx+delta_W_A] == "#") || (cB.IsValid(H_B, W_B) && grid_B[hx+delta_H_B][wx+delta_W_B] == "#")) {
+									continue Outer
+								}
+							} else {
+								if cA.IsValid(H_A, W_B) && grid_A[hx+delta_H_A][wx+delta_W_A] == "#" {
+									continue Outer
+								}
+								if cB.IsValid(H_B, W_B) && grid_B[hx+delta_H_B][wx+delta_W_B] == "#" {
+									continue Outer
+								}
+							}
+						}
+					}
+
+					fmt.Println("Yes")
+					return
+				}
+			}
+		}
+	}
+
+	fmt.Println("No")
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) AdjacentsWithDiagonals() [8]Coordinate {
+	return [8]Coordinate{
+		{c.h - 1, c.w},     // 上
+		{c.h + 1, c.w},     // 下
+		{c.h, c.w - 1},     // 左
+		{c.h, c.w + 1},     // 右
+		{c.h - 1, c.w - 1}, // 左上
+		{c.h - 1, c.w + 1}, // 右上
+		{c.h + 1, c.w - 1}, // 左下
+		{c.h + 1, c.w + 1}, // 右下
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers //
