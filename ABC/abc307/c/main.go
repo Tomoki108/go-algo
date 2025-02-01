@@ -27,29 +27,32 @@ func main() {
 	H_A, W_A := read2Ints(r)
 	grid_A := readGrid(r, H_A)
 
-	minH_A, minW_A := 0, 0
-	maxH_A, maxW_A := 0, 0
+	minH_A, minW_A := INT_MAX, INT_MAX
+	// maxH_A, maxW_A := 0, 0
 	for h := 0; h < H_A; h++ {
 		for w := 0; w < W_A; w++ {
 			if grid_A[h][w] == "#" {
 				minH_A, minW_A = min(h, minH_A), min(w, minW_A)
-				maxH_A, maxW_A = max(h, maxH_A), max(w, maxW_A)
+				// maxH_A, maxW_A = max(h, maxH_A), max(w, maxW_A)
 			}
 		}
 	}
 
 	H_B, W_B := read2Ints(r)
 	grid_B := readGrid(r, H_B)
-	minH_B, minW_B := 0, 0
-	maxH_B, maxW_B := 0, 0
+	minH_B, minW_B := INT_MAX, INT_MAX
+	// maxH_B, maxW_B := 0, 0
 	for h := 0; h < H_B; h++ {
 		for w := 0; w < W_B; w++ {
 			if grid_B[h][w] == "#" {
 				minH_B, minW_B = min(h, minH_B), min(w, minW_B)
-				maxH_B, maxW_B = max(h, maxH_B), max(w, maxW_B)
+				// maxH_B, maxW_B = max(h, maxH_B), max(w, maxW_B)
 			}
 		}
 	}
+
+	dump("minH_A: %d, minW_A: %d\n", minH_A, minW_A)
+	dump("minH_B: %d, minW_B: %d\n", minH_B, minW_B)
 
 	H_X, W_X := read2Ints(r)
 	grid_X := readGrid(r, H_X)
@@ -60,25 +63,27 @@ func main() {
 			Outer:
 				for w2 := 0; w2 < W_X; w2++ {
 
-					delta_H_A := minH_A + h1
-					delta_W_A := minW_A + w1
-					delta_H_B := minH_B + h2
-					delta_W_B := minW_B + w2
+					// 「h:0」の参照を「h:minH_A」の参照としたいなら、delta_H_A = +minH_A
+					// 「h:h1」の参照を「h:minH_A」の参照としたいなら、delta_H_A = +minH_A-h1
+					delta_H_A := minH_A - h1
+					delta_W_A := minW_A - w1
+					delta_H_B := minH_B - h2
+					delta_W_B := minW_B - w2
 
 					// 正解との比較
 					for hx := 0; hx < H_X; hx++ {
 						for wx := 0; wx < W_X; wx++ {
 							should := grid_X[hx][wx]
 
-							cA := Coordinate{hx - delta_H_A, wx - delta_W_A}
-							cB := Coordinate{hx - delta_H_B, wx - delta_W_B}
+							cA := Coordinate{hx + delta_H_A, wx + delta_W_A}
+							cB := Coordinate{hx + delta_H_B, wx + delta_W_B}
 
 							if should == "#" {
-								if !((cA.IsValid(H_A, W_B) && grid_A[cA.h][cA.w] == "#") || (cB.IsValid(H_B, W_B) && grid_B[cB.h][cB.w] == "#")) {
+								if !((cA.IsValid(H_A, W_A) && grid_A[cA.h][cA.w] == "#") || (cB.IsValid(H_B, W_B) && grid_B[cB.h][cB.w] == "#")) {
 									continue Outer
 								}
 							} else {
-								if cA.IsValid(H_A, W_B) && grid_A[cA.h][cA.w] == "#" {
+								if cA.IsValid(H_A, W_A) && grid_A[cA.h][cA.w] == "#" {
 									continue Outer
 								}
 								if cB.IsValid(H_B, W_B) && grid_B[cB.h][cB.w] == "#" {
