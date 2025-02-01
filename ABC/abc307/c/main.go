@@ -28,11 +28,13 @@ func main() {
 	grid_A := readGrid(r, H_A)
 
 	minH_A, minW_A := INT_MAX, INT_MAX
+	maxH_A, maxW_A := INT_MIN, INT_MIN
 	countA := 0
 	for h := 0; h < H_A; h++ {
 		for w := 0; w < W_A; w++ {
 			if grid_A[h][w] == "#" {
 				minH_A, minW_A = min(h, minH_A), min(w, minW_A)
+				maxH_A, maxW_A = max(h, maxH_A), max(w, maxW_A)
 				countA++
 			}
 		}
@@ -41,11 +43,13 @@ func main() {
 	H_B, W_B := read2Ints(r)
 	grid_B := readGrid(r, H_B)
 	minH_B, minW_B := INT_MAX, INT_MAX
+	maxH_B, maxW_B := INT_MIN, INT_MIN
 	countB := 0
 	for h := 0; h < H_B; h++ {
 		for w := 0; w < W_B; w++ {
 			if grid_B[h][w] == "#" {
 				minH_B, minW_B = min(h, minH_B), min(w, minW_B)
+				maxH_B, maxW_B = max(h, maxH_B), max(w, maxW_B)
 				countB++
 			}
 		}
@@ -86,6 +90,12 @@ func main() {
 					delta_W_A := minW_A - w1
 					delta_H_B := minH_B - h2
 					delta_W_B := minW_B - w2
+
+					tmp1 := Coordinate{maxH_A - delta_H_A, maxW_A - delta_W_A}
+					tmp2 := Coordinate{maxH_B - delta_H_B, maxW_B - delta_W_B}
+					if !tmp1.IsValid(H_X, W_X) || !tmp2.IsValid(H_X, W_X) {
+						continue Outer
+					}
 
 					// 正解との比較
 					for hx := 0; hx < H_X; hx++ {
