@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -30,13 +32,13 @@ func main() {
 	Ss := strings.Split(S, "")
 
 	frontIndexes := make([]int, 0, N)
-	backIndexes := make([]int, 0, N)
+	backIndexes := NewIntSetAsc()
 
 	for i := 0; i < N; i++ {
 		if Ss[i] == "(" {
 			frontIndexes = append(frontIndexes, i)
 		} else if Ss[i] == ")" {
-			backIndexes = append(backIndexes, i)
+			backIndexes.Insert(i)
 		}
 	}
 
@@ -45,13 +47,12 @@ func main() {
 	for i := len(frontIndexes) - 1; i >= 0; i-- {
 		frontIdx := frontIndexes[i]
 
-		tmp := sort.Search(len(backIndexes), func(j int) bool {
-			return backIndexes[j] > frontIdx
-		})
-		if tmp == len(backIndexes) {
+		it := backIndexes.UpperBound(frontIdx)
+		if !it.IsValid() {
 			continue
 		}
-		backIdx := backIndexes[tmp]
+		backIdx := it.Value()
+		backIndexes.Erase(backIdx)
 
 		eraseM[frontIdx] = backIdx
 	}
@@ -73,6 +74,10 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+func NewIntSetAsc() *set.Set[int] {
+	return set.New(comparator.IntComparator)
+}
 
 //////////////
 // Helpers //
