@@ -24,6 +24,38 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	A := readStr(r)
+	As := strings.Split(A, "")
+
+	piramid := make([][]string, N+1)
+	piramid[N] = As
+
+	for i := N - 1; i >= 0; i-- {
+		origin := piramid[i+1]
+		new := make([]string, 0, len(origin)/3)
+		for j := 0; j < len(origin)-1; j += 3 {
+
+			m := make(map[string]int, 3)
+			s1 := origin[j]
+			s2 := origin[j+1]
+			s3 := origin[j+2]
+			m[s1]++
+			m[s2]++
+			m[s3]++
+
+			if m["0"] > m["1"] {
+				new = append(new, "0")
+			} else {
+				new = append(new, "1")
+			}
+		}
+		piramid[i] = new
+	}
+
+	ans := 0
+	var dfs func()
+
 }
 
 //////////////
