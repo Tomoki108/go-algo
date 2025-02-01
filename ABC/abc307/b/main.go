@@ -24,11 +24,42 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	Ss := make([]string, 0, N)
+	for i := 0; i < N; i++ {
+		S := readStr(r)
+		Ss = append(Ss, S)
+	}
+
+	for i := 0; i < N; i++ {
+		for j := i + 1; j < N; j++ {
+			newS := Ss[i] + Ss[j]
+
+			if IsPallindromeStr(newS) {
+				fmt.Fprintln(w, "Yes")
+				return
+			}
+		}
+	}
+
+	fmt.Fprintln(w, "No")
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n/2)
+func IsPallindromeStr(s string) bool {
+	for i := 0; i < len(s)/2; i++ {
+		if s[i] != s[len(s)-1-i] {
+			return false
+		}
+	}
+
+	return true
+}
 
 //////////////
 // Helpers //
