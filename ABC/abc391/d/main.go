@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -24,11 +27,80 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, W := read2Ints(r)
+
+	type XY struct {
+		x, y int
+	}
+
+	xyNoMap := make(map[XY]int, N)        // (x, y) => No
+	xys := make(map[int]*set.Set[int], W) // x => set of y
+	for i := 0; i < N; i++ {
+		X, Y := read2Ints(r)
+
+		if xys[X] == nil {
+			xys[X] = NewIntSetAsc()
+		}
+		xys[X].Insert(Y)
+
+		xyNoMap[XY{X, Y}] = i + 1
+	}
+
+	nosMap := make(map[int]int, N) // 各Noが、時刻何に消滅するか。消滅しない場合はキーが存在しない。
+
+Outer:
+	for true {
+		maxY := INT_MIN
+		nos := make([]int, 0, W)
+		for x, yset := range xys {
+			it := yset.First()
+			if !it.IsValid() {
+				break Outer
+			}
+
+			y := it.Value()
+			yset.Erase(y)
+
+			maxY = max(maxY, y)
+			nos = append(nos, xyNoMap[XY{x, y}])
+		}
+
+		for _, no := range nos {
+			nosMap[no] = maxY
+		}
+	}
+
+	dump("nosMap: %v\n", nosMap)
+
+	Q := readInt(r)
+	for i := 0; i < Q; i++ {
+		T, A := read2Ints(r)
+
+		deletedTime, deleted := nosMap[A]
+
+		// dump("T: %v, A: %v\n", T, A)
+		dump("deletedTime: %v, deleted: %v\n\n", deletedTime, deleted)
+
+		if !deleted {
+			fmt.Fprintln(w, "Yes")
+			continue
+		}
+
+		if T < deletedTime {
+			fmt.Fprintln(w, "Yes")
+		} else {
+			fmt.Fprintln(w, "No")
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func NewIntSetAsc() *set.Set[int] {
+	return set.New(comparator.IntComparator)
+}
 
 //////////////
 // Helpers //
