@@ -34,9 +34,10 @@ func main() {
 
 	for i := 0; i < N; i++ {
 		for j := i + 1; j < N; j++ {
-			newS := Ss[i] + Ss[j]
+			newS1 := Ss[i] + Ss[j]
+			newS2 := Ss[j] + Ss[i]
 
-			if IsPallindromeStr(newS) {
+			if IsPallindromeStr(newS1) || IsPallindromeStr(newS2) {
 				fmt.Fprintln(w, "Yes")
 				return
 			}
