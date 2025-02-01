@@ -46,8 +46,15 @@ func main() {
 		xyNoMap[XY{X, Y}] = i + 1
 	}
 
-	nosMap := make(map[int]int, N) // 各Noが、時刻何に消滅するか。消滅しない場合はキーが存在しない。
+	if len(xys) != W {
+		Q := readInt(r)
+		for i := 0; i < Q; i++ {
+			fmt.Fprintln(w, "Yes")
+		}
+		return
+	}
 
+	nosMap := make(map[int]int, N) // 各Noが、時刻何に消滅するか。消滅しない場合はキーが存在しない。
 Outer:
 	for true {
 		maxY := INT_MIN
