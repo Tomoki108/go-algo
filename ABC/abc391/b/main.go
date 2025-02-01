@@ -24,6 +24,30 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	gridS := readGrid(r, N)
+	gridT := readGrid(r, M)
+
+	for i := 0; i < N; i++ {
+	Outer:
+		for j := 0; j < N; j++ {
+			deltaH := i
+			deltaW := j
+
+			for h := 0; h < M; h++ {
+				for w := 0; w < M; w++ {
+					if gridS[deltaH+h][deltaW+w] != gridT[h][w] {
+						continue Outer
+					}
+				}
+			}
+
+			fmt.Println(deltaH+1, deltaW+1)
+			return
+		}
+	}
+
 }
 
 //////////////
