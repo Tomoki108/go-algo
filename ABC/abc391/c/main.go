@@ -25,8 +25,47 @@ func main() {
 	defer w.Flush()
 
 	N, Q := read2Ints(r)
-	for i := 0; i < Q; i++ {
 
+	birdNestM := make(map[int]int, N)
+	for i := 1; i <= N; i++ {
+		birdNestM[i] = i
+	}
+
+	nestBirdCount := make(map[int]int, N)
+	for i := 1; i <= N; i++ {
+		nestBirdCount[i] = 1
+	}
+
+	q2Found := false
+	ans := 0
+	for i := 0; i < Q; i++ {
+		iarr := readIntArr(r)
+
+		q := iarr[0]
+		switch q {
+		case 1:
+			P, H := iarr[1], iarr[2]
+
+			prevNest := birdNestM[P]
+			if nestBirdCount[prevNest] == 2 {
+				ans--
+			}
+			nestBirdCount[prevNest]--
+
+			if nestBirdCount[H] == 1 {
+				ans++
+			}
+			nestBirdCount[H]++
+
+			birdNestM[P] = H
+		case 2:
+			q2Found = true
+			fmt.Fprintln(w, ans)
+		}
+	}
+
+	if !q2Found {
+		fmt.Fprintln(w)
 	}
 
 }
