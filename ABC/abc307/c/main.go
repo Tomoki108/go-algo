@@ -28,12 +28,12 @@ func main() {
 	grid_A := readGrid(r, H_A)
 
 	minH_A, minW_A := INT_MAX, INT_MAX
-	// maxH_A, maxW_A := 0, 0
+	countA := 0
 	for h := 0; h < H_A; h++ {
 		for w := 0; w < W_A; w++ {
 			if grid_A[h][w] == "#" {
 				minH_A, minW_A = min(h, minH_A), min(w, minW_A)
-				// maxH_A, maxW_A = max(h, maxH_A), max(w, maxW_A)
+				countA++
 			}
 		}
 	}
@@ -41,12 +41,12 @@ func main() {
 	H_B, W_B := read2Ints(r)
 	grid_B := readGrid(r, H_B)
 	minH_B, minW_B := INT_MAX, INT_MAX
-	// maxH_B, maxW_B := 0, 0
+	countB := 0
 	for h := 0; h < H_B; h++ {
 		for w := 0; w < W_B; w++ {
 			if grid_B[h][w] == "#" {
 				minH_B, minW_B = min(h, minH_B), min(w, minW_B)
-				// maxH_B, maxW_B = max(h, maxH_B), max(w, maxW_B)
+				countB++
 			}
 		}
 	}
@@ -56,6 +56,23 @@ func main() {
 
 	H_X, W_X := read2Ints(r)
 	grid_X := readGrid(r, H_X)
+	countX := 0
+	for h := 0; h < H_X; h++ {
+		for w := 0; w < W_X; w++ {
+			if grid_X[h][w] == "#" {
+				countX++
+			}
+		}
+	}
+
+	if max(countA, countB) > countX {
+		fmt.Println("No")
+		return
+	}
+	if countA+countB < countX {
+		fmt.Println("No")
+		return
+	}
 
 	for h1 := 0; h1 < H_X; h1++ {
 		for w1 := 0; w1 < W_X; w1++ {
