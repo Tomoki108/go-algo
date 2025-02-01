@@ -24,6 +24,21 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	for i := 0; i < N; i++ {
+		sum := 0
+		for j := 7 * i; j < 7*i+7; j++ {
+			sum += As[j]
+		}
+		fmt.Fprint(w, sum)
+		if i != N-1 {
+			fmt.Fprint(w, " ")
+		} else {
+			fmt.Fprintln(w)
+		}
+	}
 }
 
 //////////////
