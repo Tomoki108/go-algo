@@ -53,7 +53,6 @@ func main() {
 		piramid[i] = new
 	}
 
-	ans := 0
 	var dfs func()
 
 }
