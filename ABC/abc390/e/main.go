@@ -40,8 +40,7 @@ func main() {
 
 	createDP := func(v int) [][]int {
 		// dp[i][j]: i番目(1-indexed)までの食べ物を処理した時に、jカロリーで得られる最大のビタミンvの摂取量
-		dp := createGrid(N+1, X+1, -1*INF)
-		dp[0][0] = 0
+		dp := createGrid(N+1, X+1, 0)
 
 		for i := 0; i < N; i++ {
 			for j := 0; j <= X; j++ {
@@ -72,16 +71,10 @@ func main() {
 	dp2 := createDP(2)
 	dp3 := createDP(3)
 
-	dump("dp1[N]: %v\n", dp1[N])
-	dump("dp2[N]: %v\n", dp2[N])
-	dump("dp3[N]: %v\n", dp3[N])
-
 	ans := DescIntSearch(INF, 0, func(ans int) bool {
 		if dp1[N][X] < ans || dp2[N][X] < ans || dp3[N][X] < ans {
-			dump("hi, ans: %d\n", ans)
 			return false
 		}
-		dump("hi2, ans: %d\n", ans)
 
 		c1 := -1
 		c2 := -1
