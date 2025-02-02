@@ -15,6 +15,8 @@ const INT_MAX = math.MaxInt
 // -9223372036854775808, 19 digits, -1 * 2^63
 const INT_MIN = math.MinInt
 
+const INF = int(1e18)
+
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
@@ -38,7 +40,8 @@ func main() {
 
 	createDP := func(v int) [][]int {
 		// dp[i][j]: i番目(1-indexed)までの食べ物を処理した時に、jカロリーで得られる最大のビタミンvの摂取量
-		dp := createGrid(N+1, X+1, 0)
+		dp := createGrid(N+1, X+1, -1*INF)
+		dp[0][0] = 0
 
 		for i := 0; i < N; i++ {
 			for j := 0; j <= X; j++ {
@@ -49,6 +52,16 @@ func main() {
 				if foods[i].V == v && j+foods[i].C <= X {
 					updateToMax(&dp[i+1][j+foods[i].C], dp[i][j]+foods[i].A)
 				}
+			}
+		}
+
+		// 最後の列だけ、jカロリー”以下”で得られる最大のビタミンvの摂取量にする
+		prev := dp[N][0]
+		for i := 1; i <= X; i++ {
+			if dp[N][i] < prev {
+				dp[N][i] = prev
+			} else {
+				prev = dp[N][i]
 			}
 		}
 
@@ -63,7 +76,7 @@ func main() {
 	dump("dp2[N]: %v\n", dp2[N])
 	dump("dp3[N]: %v\n", dp3[N])
 
-	ans := DescIntSearch(2*pow(10, 5), 0, func(ans int) bool {
+	ans := DescIntSearch(INF, 0, func(ans int) bool {
 		if dp1[N][X] < ans || dp2[N][X] < ans || dp3[N][X] < ans {
 			dump("hi, ans: %d\n", ans)
 			return false
