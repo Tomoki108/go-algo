@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -77,20 +78,31 @@ func main() {
 			return false
 		}
 
-		c1 := -1
-		c2 := -1
-		c3 := -1
-		for i := 0; i <= X; i++ {
-			if c1 == -1 && dp1[N][i] >= ans {
-				c1 = i
-			}
-			if c2 == -1 && dp2[N][i] >= ans {
-				c2 = i
-			}
-			if c3 == -1 && dp3[N][i] >= ans {
-				c3 = i
-			}
-		}
+		c1 := sort.Search(X+1, func(i int) bool {
+			return dp1[N][i] >= ans
+		})
+		c2 := sort.Search(X+1, func(i int) bool {
+			return dp2[N][i] >= ans
+		})
+		c3 := sort.Search(X+1, func(i int) bool {
+			return dp3[N][i] >= ans
+		})
+
+		// O(X) version
+		// c1 := -1
+		// c2 := -1
+		// c3 := -1
+		// for i := 0; i <= X; i++ {
+		// 	if c1 == -1 && dp1[N][i] >= ans {
+		// 		c1 = i
+		// 	}
+		// 	if c2 == -1 && dp2[N][i] >= ans {
+		// 		c2 = i
+		// 	}
+		// 	if c3 == -1 && dp3[N][i] >= ans {
+		// 		c3 = i
+		// 	}
+		// }
 		totalCalories := c1 + c2 + c3
 
 		return totalCalories <= X
