@@ -21,11 +21,130 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, X := read2Ints(r)
+
+	type Food struct {
+		V int // 1 or 2 or 3
+		A int // amount
+		C int // calorie
+	}
+
+	foods := make([]Food, 0, N)
+	for i := 0; i < N; i++ {
+		iarr := readIntArr(r)
+		V, A, C := iarr[0], iarr[1], iarr[2]
+		foods = append(foods, Food{V, A, C})
+	}
+
+	createDP := func(v int) [][]int {
+		// dp[i][j]: i番目(1-indexed)までの食べ物を処理した時に、jカロリーで得られる最大のビタミンvの摂取量
+		dp := createGrid(N+1, X+1, 0)
+
+		for i := 0; i < N; i++ {
+			for j := 0; j <= X; j++ {
+				// 食べない場合
+				updateToMax(&dp[i+1][j], dp[i][j])
+
+				// 食べる場合
+				if foods[i].V == v && j+foods[i].C <= X {
+					updateToMax(&dp[i+1][j+foods[i].C], dp[i][j]+foods[i].A)
+				}
+			}
+		}
+
+		return dp
+	}
+
+	dp1 := createDP(1)
+	dp2 := createDP(2)
+	dp3 := createDP(3)
+
+	dump("dp1[N]: %v\n", dp1[N])
+	dump("dp2[N]: %v\n", dp2[N])
+	dump("dp3[N]: %v\n", dp3[N])
+
+	ans := DescIntSearch(2*pow(10, 5), 0, func(ans int) bool {
+		if dp1[N][X] < ans || dp2[N][X] < ans || dp3[N][X] < ans {
+			dump("hi, ans: %d\n", ans)
+			return false
+		}
+		dump("hi2, ans: %d\n", ans)
+
+		c1 := -1
+		c2 := -1
+		c3 := -1
+		for i := 0; i <= X; i++ {
+			if c1 == -1 && dp1[N][i] >= ans {
+				c1 = i
+			}
+			if c2 == -1 && dp2[N][i] >= ans {
+				c2 = i
+			}
+			if c3 == -1 && dp3[N][i] >= ans {
+				c3 = i
+			}
+		}
+		totalCalories := c1 + c2 + c3
+
+		return totalCalories <= X
+	})
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log(high-low))
+// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
+// low~highは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はlow-1を返す
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	initialLow := low
+
+	for low < high {
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
+		if f(mid) {
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
+		} else {
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
+		}
+	}
+
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
+	}
+
+	return initialLow - 1 // 条件を満たす値が見つからない場合
+}
+
+// O(log(high-low))
+// high, high-1, ..., lowの範囲で条件を満たす最大の値を二分探索する
+// high~lowは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はhigh+1を返す
+func DescIntSearch(high, low int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための式.
+		// 中央値はhigh側に寄る（+1しているため）
+		mid := low + (high-low+1)/2
+		if f(mid) {
+			low = mid // 条件を満たす場合、よりhigh側の範囲を探索
+		} else {
+			high = mid - 1 // 条件を満たさない場合、よりlow側の範囲を探索
+		}
+	}
+
+	// 最後に high(=low) が条件を満たしているかを確認
+	if f(high) {
+		return high
+	}
+
+	return high + 1 // 条件を満たす値が見つからない場合
+}
 
 //////////////
 // Helpers //
@@ -189,6 +308,18 @@ func max(i, j int) int {
 		return i
 	}
 	return j
+}
+
+func updateToMin(a *int, b int) {
+	if *a > b {
+		*a = b
+	}
+}
+
+func updateToMax(a *int, b int) {
+	if *a < b {
+		*a = b
+	}
 }
 
 func abs(a int) int {
