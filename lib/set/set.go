@@ -13,7 +13,7 @@ func NewIntSetDesc() *set.Set[int] {
 	return set.New(comparator.Reverse(comparator.IntComparator))
 }
 
-func SetValues[T any](s *set.Set[T]) []T {
+func GetValues[T any](s *set.Set[T]) []T {
 	it := s.First()
 
 	values := make([]T, 0, s.Size())
