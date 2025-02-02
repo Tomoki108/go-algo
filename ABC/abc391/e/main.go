@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -53,8 +54,44 @@ func main() {
 		piramid[i] = new
 	}
 
-	var dfs func()
+	var dfs func(rowIdx, colIdx int, should string) int
 
+	dfs = func(rowIdx, colIdx int, should string) int {
+		if rowIdx == N {
+			if piramid[rowIdx][colIdx] == should {
+				return 0
+			} else {
+				return 1
+			}
+		}
+
+		if piramid[rowIdx][colIdx] == should {
+			return 0
+		}
+
+		childColIndexes := []int{colIdx * 3, colIdx*3 + 1, colIdx*3 + 2}
+
+		costs := make([]int, 0, 3)
+		for _, childColIdx := range childColIndexes {
+			costs = append(costs, dfs(rowIdx+1, childColIdx, should))
+		}
+		sort.Ints(costs)
+
+		return costs[0] + costs[1]
+	}
+
+	top := piramid[0][0]
+
+	var should string
+	if top == "0" {
+		should = "1"
+	} else {
+		should = "0"
+	}
+
+	ans := dfs(0, 0, should)
+
+	fmt.Println(ans)
 }
 
 //////////////
