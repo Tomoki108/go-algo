@@ -39,7 +39,7 @@ func main() {
 	}
 
 	createDP := func(v int) [][]int {
-		// dp[i][j]: i番目(1-indexed)までの食べ物を処理した時に、jカロリーで得られる最大のビタミンvの摂取量
+		// dp[i][j]: i番目(1-indexed)までの食べ物を処理した時に、丁度jカロリーで得られる最大のビタミンvの摂取量
 		dp := createGrid(N+1, X+1, 0)
 
 		for i := 0; i < N; i++ {
@@ -54,15 +54,16 @@ func main() {
 			}
 		}
 
+		// NOTE: 無くても通った。これをしなくても単調増加っぽい。
 		// 最後の列だけ、jカロリー”以下”で得られる最大のビタミンvの摂取量にする
-		prev := dp[N][0]
-		for i := 1; i <= X; i++ {
-			if dp[N][i] < prev {
-				dp[N][i] = prev
-			} else {
-				prev = dp[N][i]
-			}
-		}
+		// prev := dp[N][0]
+		// for i := 1; i <= X; i++ {
+		// 	if dp[N][i] < prev {
+		// 		dp[N][i] = prev
+		// 	} else {
+		// 		prev = dp[N][i]
+		// 	}
+		// }
 
 		return dp
 	}
