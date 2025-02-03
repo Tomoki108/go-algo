@@ -34,19 +34,30 @@ func main() {
 	strength := grid[P-1][Q-1]
 	for len(pq) > 0 {
 		item := pq.PopItem()
+		dump("item: %v\n", item)
 
-		if strength > item.strength {
-			strength += item.strength / X
-
-			adjacents := item.c.Adjacents()
-			for _, adj := range adjacents {
-				if adj.IsValid(H, W) && !visited[adj.h][adj.w] {
-					item := &pqItem{strength: grid[adj.h][adj.w] * X, c: adj}
-					pq.PushItem(item)
-					visited[adj.h][adj.w] = true
-				}
+		quo := strength / X
+		rem := strength % X
+		if rem == 0 {
+			if !(quo > item.strength) {
+				continue
+			}
+		} else {
+			if !(quo >= item.strength) {
+				continue
 			}
 		}
+		strength += item.strength
+
+		adjacents := item.c.Adjacents()
+		for _, adj := range adjacents {
+			if adj.IsValid(H, W) && !visited[adj.h][adj.w] {
+				item := &pqItem{strength: grid[adj.h][adj.w], c: adj}
+				pq.PushItem(item)
+				visited[adj.h][adj.w] = true
+			}
+		}
+
 	}
 
 	fmt.Fprintln(w, strength)
@@ -269,4 +280,22 @@ func abs(a int) int {
 		return -a
 	}
 	return a
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
