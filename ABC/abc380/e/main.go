@@ -29,16 +29,22 @@ func main() {
 
 	N, Q := read2Ints(r)
 
-	uf := NewUnionFind(N) // 同じ色なら同じグループ
+	uf := NewUnionFind(N) // ”隣接していて”同じ色なら同じグループ
 
-	rootsColor := make([]int, N) // 各rootの色
+	colorsCount := make([]int, N) // 各色の数
 	for i := 0; i < N; i++ {
-		rootsColor[i] = i
+		colorsCount[i] = 1
 	}
-	colorsRoots := make(map[int]*set.Set[int], N) // 各色のrootの集合
+
+	// ufの各グループの左端、右端の座標. rootIdx -> idx
+	ls := make([]int, N)
+	rs := make([]int, N)
+	// ufの各グループの色. rootIdx -> color
+	colors := make([]int, N)
 	for i := 0; i < N; i++ {
-		colorsRoots[i] = NewIntSetAsc()
-		colorsRoots[i].Insert(i)
+		ls[i] = i
+		rs[i] = i
+		colors[i] = i
 	}
 
 	for i := 0; i < Q; i++ {
@@ -52,52 +58,43 @@ func main() {
 			c--
 
 			prevRoot := uf.Find(x)
-			prevColor := rootsColor[prevRoot]
-			if c == prevColor {
-				continue
-			}
+			prevColor := colors[prevRoot]
+			prezSize := uf.GroupSize(prevRoot)
+			colorsCount[prevColor] -= prezSize
+			colorsCount[c] += prezSize
 
-			if x == prevRoot {
-				colorsRoots[prevColor].Erase(prevRoot)
-			}
-
-			if x+1 < N && !uf.IsSameRoot(x, x+1) {
-				rightRoot := uf.Find(x + 1)
-				rightColor := rootsColor[rightRoot]
-				if rightColor == c {
-					colorsRoots[c].Erase(uf.Find(x + 1))
-					uf.Union(x, x+1)
-				}
-			}
-
-			if x-1 >= 0 && !uf.IsSameRoot(x, x-1) {
-				leftRoot := uf.Find(x - 1)
-				leftColor := rootsColor[leftRoot]
+			newLeft := ls[prevRoot]
+			if ls[prevRoot]-1 >= 0 {
+				leftRoot := uf.Find(ls[prevRoot] - 1)
+				leftColor := colors[leftRoot]
 				if leftColor == c {
-					colorsRoots[c].Erase(leftRoot)
-					uf.Union(x, x-1)
+					uf.Union(leftRoot, x)
+					newLeft = ls[leftRoot]
 				}
 			}
 
-			root := uf.Find(x)
-			colorsRoots[c].Insert(root)
-			rootsColor[root] = c
+			newRight := rs[prevRoot]
+			if rs[prevRoot]+1 < N {
+				rightRoot := uf.Find(rs[prevRoot] + 1)
+				rightColor := colors[rightRoot]
+				if rightColor == c {
+					uf.Union(rightRoot, x)
+					newRight = rs[rightRoot]
+				}
+			}
+
+			newRoot := uf.Find(x)
+			colors[newRoot] = c
+			ls[newRoot] = newLeft
+			rs[newRoot] = newRight
 		case 2:
 			c := iarr[1]
 			c--
 
-			roots := colorsRoots[c]
-			count := 0
-			for _, root := range GetValues(roots) {
-				count += uf.GroupSize(root)
-			}
-			fmt.Fprintln(w, count)
+			fmt.Fprintln(w, colorsCount[c])
 		}
 	}
 
-	dump("uf: %v\n", uf)
-	dump("rootsColor: %v\n", rootsColor)
-	dump("colorsRoot: %v\n", colorsRoots)
 }
 
 //////////////
