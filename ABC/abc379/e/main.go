@@ -39,46 +39,20 @@ func main() {
 	currentGeoSum := big.NewInt(0)
 	currentGeoSum.Exp(TEN, N_big_plus_1, nil).Sub(currentGeoSum, ONE).Div(currentGeoSum, NINE)
 
-	adeded := make([]*big.Int, 0, N)
 	for i := 0; i < N; i++ {
+		i_big_plus_1 := big.NewInt(int64(i + 1))
 		// これをやりたい：num * (1 * (10^terms -1) / (10 -1))
 
 		num := big.NewInt(int64(atoi(Ss[i])))
 		currentGeoSum.Div(currentGeoSum, TEN)
 
 		toAdd := big.NewInt(0)
-		toAdd.Mul(currentGeoSum, num)
-		adeded = append(adeded, toAdd)
+		toAdd.Mul(currentGeoSum, num).Mul(toAdd, i_big_plus_1)
 
 		sum.Add(sum, toAdd)
 	}
 
-	ans := big.NewInt(0)
-	ans.Add(ans, sum)
-
-	prevSum := big.NewInt(0)
-	prevSum.Add(prevSum, sum)
-
-	for i := 0; i < N; i++ {
-		ans.Add(ans, prevSum).Sub(ans, adeded[i])
-		prevSum.Sub(prevSum, adeded[i])
-
-		// i_big := big.NewInt(int64(i))
-		// num := big.NewInt(int64(atoi(Ss[i])))
-
-		// // これをやりたい：num * (1 * (10^terms -1) / (10 -1))
-		// terms := &big.Int{}
-		// terms.Sub(N_big, i_big)
-
-		// current := &big.Int{}
-		// current.Exp(TEN, terms, nil).Sub(current, ONE).Div(current, NINE).Mul(current, num)
-
-		// ans.Add(ans, prevSum).Sub(ans, current)
-		// prevSum.Sub(prevSum, current)
-	}
-
-	fmt.Println(ans)
-
+	fmt.Println(sum)
 }
 
 //////////////
