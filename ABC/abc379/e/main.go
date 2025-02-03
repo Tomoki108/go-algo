@@ -22,33 +22,35 @@ const INF = int(1e18)
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
+// do not use their methods for immutability
+var TEN = big.NewInt(10)
+var NINE = big.NewInt(9)
+var ONE = big.NewInt(1)
+
 func main() {
 	defer w.Flush()
 
 	N := readInt(r)
-	N_big := big.NewInt(int64(N))
+	N_big_plus_1 := big.NewInt(int64(N + 1))
 	S := readStr(r)
 	Ss := strings.Split(S, "")
 
 	sum := big.NewInt(0)
-	for i := 0; i < N; i++ {
-		i_big := big.NewInt(int64(i))
-		num := big.NewInt(int64(atoi(Ss[i])))
+	currentGeoSum := big.NewInt(0)
+	currentGeoSum.Exp(TEN, N_big_plus_1, nil).Sub(currentGeoSum, ONE).Div(currentGeoSum, NINE)
 
+	adeded := make([]*big.Int, 0, N)
+	for i := 0; i < N; i++ {
 		// これをやりたい：num * (1 * (10^terms -1) / (10 -1))
 
-		terms := &big.Int{}
-		terms.Sub(N_big, i_big)
+		num := big.NewInt(int64(atoi(Ss[i])))
+		currentGeoSum.Div(currentGeoSum, TEN)
 
-		// do not use their methods for immutability
-		ten := big.NewInt(10)
-		nine := big.NewInt(9)
-		one := big.NewInt(1)
+		toAdd := big.NewInt(0)
+		toAdd.Mul(currentGeoSum, num)
+		adeded = append(adeded, toAdd)
 
-		current := &big.Int{}
-		current.Exp(ten, terms, nil).Sub(current, one).Div(current, nine).Mul(current, num)
-
-		sum.Add(sum, current)
+		sum.Add(sum, toAdd)
 	}
 
 	ans := big.NewInt(0)
@@ -58,25 +60,21 @@ func main() {
 	prevSum.Add(prevSum, sum)
 
 	for i := 0; i < N; i++ {
-		dump("prevSum: %v\n", prevSum)
+		ans.Add(ans, prevSum).Sub(ans, adeded[i])
+		prevSum.Sub(prevSum, adeded[i])
 
-		i_big := big.NewInt(int64(i))
-		num := big.NewInt(int64(atoi(Ss[i])))
+		// i_big := big.NewInt(int64(i))
+		// num := big.NewInt(int64(atoi(Ss[i])))
 
-		// これをやりたい：num * (1 * (10^terms -1) / (10 -1))
-		terms := &big.Int{}
-		terms.Sub(N_big, i_big)
+		// // これをやりたい：num * (1 * (10^terms -1) / (10 -1))
+		// terms := &big.Int{}
+		// terms.Sub(N_big, i_big)
 
-		// do not use their methods for immutability
-		ten := big.NewInt(10)
-		nine := big.NewInt(9)
-		one := big.NewInt(1)
+		// current := &big.Int{}
+		// current.Exp(TEN, terms, nil).Sub(current, ONE).Div(current, NINE).Mul(current, num)
 
-		current := &big.Int{}
-		current.Exp(ten, terms, nil).Sub(current, one).Div(current, nine).Mul(current, num)
-
-		ans.Add(ans, prevSum).Sub(ans, current)
-		prevSum.Sub(prevSum, current)
+		// ans.Add(ans, prevSum).Sub(ans, current)
+		// prevSum.Sub(prevSum, current)
 	}
 
 	fmt.Println(ans)
