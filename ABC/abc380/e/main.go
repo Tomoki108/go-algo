@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -26,15 +29,16 @@ func main() {
 
 	N, Q := read2Ints(r)
 
-	uf := NewUnionFind(N)
+	uf := NewUnionFind(N) // 同じ色なら同じグループ
 
-	rootsColor := make([]int, N)
+	rootsColor := make([]int, N) // 各rootの色
 	for i := 0; i < N; i++ {
 		rootsColor[i] = i
 	}
-	colorRoots := make(map[int]int)
+	colorsRoots := make(map[int]*set.Set[int], N) // 各色のrootの集合
 	for i := 0; i < N; i++ {
-		colorRoots[i] = i
+		colorsRoots[i] = NewIntSetAsc()
+		colorsRoots[i].Insert(i)
 	}
 
 	for i := 0; i < Q; i++ {
@@ -47,46 +51,78 @@ func main() {
 			x--
 			c--
 
-			root := uf.Find(x)
-			prevColor := rootsColor[root]
-			if x == root {
-				colorRoots[prevColor] = -1
+			prevRoot := uf.Find(x)
+			prevColor := rootsColor[prevRoot]
+			if c == prevColor {
+				continue
 			}
-			rootsColor[root] = c
+
+			if x == prevRoot {
+				colorsRoots[prevColor].Erase(prevRoot)
+			}
 
 			if x+1 < N && !uf.IsSameRoot(x, x+1) {
-				rightColor := rootsColor[uf.Find(x+1)]
+				rightRoot := uf.Find(x + 1)
+				rightColor := rootsColor[rightRoot]
 				if rightColor == c {
+					colorsRoots[c].Erase(uf.Find(x + 1))
 					uf.Union(x, x+1)
 				}
-				colorRoots[c] = uf.Find(x)
 			}
 
 			if x-1 >= 0 && !uf.IsSameRoot(x, x-1) {
-				leftColor := rootsColor[uf.Find(x-1)]
+				leftRoot := uf.Find(x - 1)
+				leftColor := rootsColor[leftRoot]
 				if leftColor == c {
+					colorsRoots[c].Erase(leftRoot)
 					uf.Union(x, x-1)
 				}
-				colorRoots[c] = uf.Find(x)
 			}
+
+			root := uf.Find(x)
+			colorsRoots[c].Insert(root)
+			rootsColor[root] = c
 		case 2:
 			c := iarr[1]
 			c--
 
-			root := colorRoots[c]
-			if root == -1 {
-				fmt.Fprintln(w, 0)
-			} else {
-				count := uf.GroupSize(root)
-				fmt.Fprintln(w, count)
+			roots := colorsRoots[c]
+			count := 0
+			for _, root := range GetValues(roots) {
+				count += uf.GroupSize(root)
 			}
+			fmt.Fprintln(w, count)
 		}
 	}
+
+	dump("uf: %v\n", uf)
+	dump("rootsColor: %v\n", rootsColor)
+	dump("colorsRoot: %v\n", colorsRoots)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func NewIntSetAsc() *set.Set[int] {
+	return set.New(comparator.IntComparator)
+}
+
+func NewIntSetDesc() *set.Set[int] {
+	return set.New(comparator.Reverse(comparator.IntComparator))
+}
+
+func GetValues[T any](s *set.Set[T]) []T {
+	it := s.First()
+
+	values := make([]T, 0, s.Size())
+	for it.IsValid() {
+		values = append(values, it.Value())
+		it.Next()
+	}
+
+	return values
+}
 
 type UnionFind struct {
 	parent []int // len(parent)分のノードを考え、各ノードの親を記録している
