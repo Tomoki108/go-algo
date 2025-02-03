@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,11 +18,120 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H, W, X := iarr[0], iarr[1], iarr[2]
+	P, Q := read2Ints(r)
+
+	grid := readIntGrid(r, H, true)
+
+	visited := createGrid(H, W, false)
+
+	pq := Heap[*pqItem]{}
+	start := Coordinate{P - 1, Q - 1}
+	pq.PushItem(&pqItem{strength: 0, c: start})
+	visited[P-1][Q-1] = true
+
+	strength := grid[P-1][Q-1]
+	for len(pq) > 0 {
+		item := pq.PopItem()
+
+		if strength > item.strength {
+			strength += item.strength / X
+
+			adjacents := item.c.Adjacents()
+			for _, adj := range adjacents {
+				if adj.IsValid(H, W) && !visited[adj.h][adj.w] {
+					item := &pqItem{strength: grid[adj.h][adj.w] * X, c: adj}
+					pq.PushItem(item)
+					visited[adj.h][adj.w] = true
+				}
+			}
+		}
+	}
+
+	fmt.Fprintln(w, strength)
+}
+
+type pqItem struct {
+	strength int
+	c        Coordinate
+}
+
+func (p *pqItem) Priority() int {
+	return p.strength
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) AdjacentsWithDiagonals() [8]Coordinate {
+	return [8]Coordinate{
+		{c.h - 1, c.w},     // 上
+		{c.h + 1, c.w},     // 下
+		{c.h, c.w - 1},     // 左
+		{c.h, c.w + 1},     // 右
+		{c.h - 1, c.w - 1}, // 左上
+		{c.h - 1, c.w + 1}, // 右上
+		{c.h + 1, c.w - 1}, // 左下
+		{c.h + 1, c.w + 1}, // 右下
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
+
+type HeapItem interface {
+	Priority() int
+}
+
+type Heap[T HeapItem] []T
+
+func (h *Heap[T]) PushItem(item T) {
+	heap.Push(h, item)
+}
+
+func (h *Heap[T]) PopItem() T {
+	return heap.Pop(h).(T)
+}
+
+// to implement sort.Interface
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+
+	*h = append(*h, x.(T))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
 
 //////////////
 // Helpers  //
@@ -79,6 +189,41 @@ func readGrid(r *bufio.Reader, height int) [][]string {
 		grid[i] = strings.Split(str, "")
 	}
 
+	return grid
+}
+
+// height行の整数グリッドを読み込む
+func readIntGrid(r *bufio.Reader, height int, withSpace bool) [][]int {
+	if withSpace {
+		grid := make([][]int, height)
+		for i := 0; i < height; i++ {
+			grid[i] = readIntArr(r)
+		}
+		return grid
+	}
+
+	grid := make([][]int, height)
+	for i := 0; i < height; i++ {
+		str := readStr(r)
+		strs := strings.Split(str, "")
+
+		grid[i] = make([]int, len(strs))
+		for j, s := range strs {
+			grid[i][j], _ = strconv.Atoi(s)
+		}
+	}
+	return grid
+}
+
+// height行、width列のT型グリッドを作成
+func createGrid[T any](height, width int, val T) [][]T {
+	grid := make([][]T, height)
+	for i := 0; i < height; i++ {
+		grid[i] = make([]T, width)
+		for j := 0; j < width; j++ {
+			grid[i][j] = val
+		}
+	}
 	return grid
 }
 
