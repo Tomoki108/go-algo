@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"math"
+	"math/big"
 	"os"
 	"strconv"
 	"strings"
@@ -23,6 +24,62 @@ var w = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer w.Flush()
+
+	N := readInt(r)
+	N_big := big.NewInt(int64(N))
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	sum := big.NewInt(0)
+	for i := 0; i < N; i++ {
+		i_big := big.NewInt(int64(i))
+		num := big.NewInt(int64(atoi(Ss[i])))
+
+		// これをやりたい：num * (1 * (10^terms -1) / (10 -1))
+
+		terms := &big.Int{}
+		terms.Sub(N_big, i_big)
+
+		// do not use their methods for immutability
+		ten := big.NewInt(10)
+		nine := big.NewInt(9)
+		one := big.NewInt(1)
+
+		current := &big.Int{}
+		current.Exp(ten, terms, nil).Sub(current, one).Div(current, nine).Mul(current, num)
+
+		sum.Add(sum, current)
+	}
+
+	ans := big.NewInt(0)
+	ans.Add(ans, sum)
+
+	prevSum := big.NewInt(0)
+	prevSum.Add(prevSum, sum)
+
+	for i := 0; i < N; i++ {
+		dump("prevSum: %v\n", prevSum)
+
+		i_big := big.NewInt(int64(i))
+		num := big.NewInt(int64(atoi(Ss[i])))
+
+		// これをやりたい：num * (1 * (10^terms -1) / (10 -1))
+		terms := &big.Int{}
+		terms.Sub(N_big, i_big)
+
+		// do not use their methods for immutability
+		ten := big.NewInt(10)
+		nine := big.NewInt(9)
+		one := big.NewInt(1)
+
+		current := &big.Int{}
+		current.Exp(ten, terms, nil).Sub(current, one).Div(current, nine).Mul(current, num)
+
+		ans.Add(ans, prevSum).Sub(ans, current)
+		prevSum.Sub(prevSum, current)
+	}
+
+	fmt.Println(ans)
 
 }
 
