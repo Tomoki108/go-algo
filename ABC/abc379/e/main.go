@@ -31,25 +31,29 @@ func main() {
 	defer w.Flush()
 
 	N := readInt(r)
-	N_big_plus_1 := big.NewInt(int64(N + 1))
 	S := readStr(r)
 	Ss := strings.Split(S, "")
 
 	sum := big.NewInt(0)
-	currentGeoSum := big.NewInt(0)
-	currentGeoSum.Exp(TEN, N_big_plus_1, nil).Sub(currentGeoSum, ONE).Div(currentGeoSum, NINE)
+	currentGeoSeqSum := big.NewInt(1) // 10^0 + 10^1 + ... + 10^N
+	lastTerm := big.NewInt(1)
 
-	for i := 0; i < N; i++ {
+	for i := N - 1; i >= 0; i-- {
 		i_big_plus_1 := big.NewInt(int64(i + 1))
-		// これをやりたい：num * (1 * (10^terms -1) / (10 -1))
 
 		num := big.NewInt(int64(atoi(Ss[i])))
-		currentGeoSum.Div(currentGeoSum, TEN)
+
+		if i != N-1 {
+			lastTerm.Mul(lastTerm, TEN)
+			currentGeoSeqSum.Add(currentGeoSeqSum, lastTerm)
+		}
 
 		toAdd := big.NewInt(0)
-		toAdd.Mul(currentGeoSum, num).Mul(toAdd, i_big_plus_1)
+		toAdd.Mul(currentGeoSeqSum, num).Mul(toAdd, i_big_plus_1)
 
 		sum.Add(sum, toAdd)
+
+		dump("num: %d, sum: %v, currentGeoSeqSum: %v, toAdd: %v\n", num, sum, currentGeoSeqSum, toAdd)
 	}
 
 	fmt.Println(sum)
