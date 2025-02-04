@@ -70,12 +70,14 @@ func main() {
 				fmt.Fprintln(w, -1)
 			} else {
 				ans := 0
-				nodes := make([]int, 0, 10-k)
-				for i := 0; i <= 10-k; i++ {
+				nodes := make([]int, 0, 11-k)
+
+				size := nodesHeap.Len()
+				for nth := size; nth >= k; nth-- {
 					ans = nodesHeap.PopI()
 					nodes = append(nodes, ans)
 				}
-				fmt.Fprintln(w, ans)
+				fmt.Fprintln(w, ans+1)
 
 				for _, node := range nodes {
 					nodesHeap.PushI(node)
