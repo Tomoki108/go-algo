@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,11 +26,116 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	T := readInt(r)
+	for i := 0; i < T; i++ {
+		solve()
+	}
+}
+
+func solve() {
+	N, K := read2Ints(r)
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	type AB struct {
+		A, B int
+	}
+
+	ABs := make([]AB, N)
+	for i := 0; i < N; i++ {
+		ABs[i] = AB{As[i], Bs[i]}
+	}
+	sort.Slice(ABs, func(i, j int) bool {
+		return ABs[i].A < ABs[j].A
+	})
+
+	pq := NewIntHeap(MaxIntHeap)
+
+	ans := INT_MAX
+	bSum := 0
+	for i := 0; i < N; i++ {
+		A := ABs[i].A
+		B := ABs[i].B
+
+		pq.PushI(B)
+		bSum += B
+
+		if pq.Len() > K {
+			maxB := pq.PopI()
+			bSum -= maxB
+		}
+
+		if pq.Len() < K {
+			continue
+		}
+
+		ans = min(ans, A*bSum)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type IntHeap struct {
+	iarr        []int
+	IntHeapType IntHeapType
+}
+
+func NewIntHeap(t IntHeapType) *IntHeap {
+	return &IntHeap{
+		iarr:        make([]int, 0),
+		IntHeapType: t,
+	}
+}
+
+type IntHeapType int
+
+const (
+	MinIntHeap IntHeapType = iota // 小さい方が優先して取り出される
+	MaxIntHeap                    // 大きい方が優先して取り出される
+)
+
+// O(logN)
+func (h *IntHeap) PushI(i int) {
+	heap.Push(h, i)
+}
+
+// O(logN)
+func (h *IntHeap) PopI() int {
+	return heap.Pop(h).(int)
+}
+
+// to implement sort.Interface
+func (h *IntHeap) Len() int { return len(h.iarr) }
+func (h *IntHeap) Less(i, j int) bool {
+	if h.IntHeapType == MaxIntHeap {
+		return h.iarr[i] > h.iarr[j]
+	} else {
+		return h.iarr[i] < h.iarr[j]
+	}
+}
+func (h *IntHeap) Swap(i, j int) { h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *IntHeap) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	h.iarr = append(h.iarr, x.(int))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *IntHeap) Pop() any {
+	oldiarr := h.iarr
+	n := len(oldiarr)
+	x := oldiarr[n-1]
+	h.iarr = oldiarr[0 : n-1]
+	return x
+}
 
 //////////////
 // Helpers //
