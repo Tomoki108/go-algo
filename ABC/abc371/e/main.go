@@ -17,30 +17,29 @@ func main() {
 	N := readInt(r)
 	As := readIntArr(r)
 
-	kindCounts := make([]int, 0, N)
-	kinds := make(map[int]struct{})
-	for _, a := range As {
-		kinds[a] = struct{}{}
-		kindCounts = append(kindCounts, len(kinds))
+	numIndxes := make(map[int][]int, N)
+	for i, a := range As {
+		numIndxes[a] = append(numIndxes[a], i)
 	}
-
-	kcDiff := DiffArray(kindCounts)
-	kcDiffPsum := PrefixSum(kcDiff)
-
-	dump("kindCounts: %v\n", kindCounts)
-	dump("kcDiff: %v\n", kcDiff)
-	dump("kcPsum: %d\n", kcDiffPsum)
 
 	ans := 0
-	for _, psum := range kcDiffPsum {
-		ans += psum
-	}
 
-	prev := ans
-	for i := 1; i <= N; i++ {
-		sum := prev - kcDiffPsum[i]*(N-i)
-		ans += sum
-		prev = sum
+	// N個の要素の間に二つの仕切りを置いて、仕切りの間を区間とする
+	// 仕切りは先頭の要素の前、末尾の要素の後ろに置いてもいい
+	allSections := CombinationNum(N+1, 2)
+
+	for _, indexes := range numIndxes {
+		indexes = append(indexes, N)
+
+		nonexistentSections := 0
+		prevIdx := -1
+		for _, idx := range indexes {
+			secLen := (idx - 1) - prevIdx
+			nonexistentSections += CombinationNum(secLen+1, 2)
+			prevIdx = idx
+		}
+
+		ans += allSections - nonexistentSections
 	}
 
 	fmt.Println(ans)
@@ -50,26 +49,22 @@ func main() {
 // Libs    //
 /////////////
 
-// O(n)
-// intスライスの差分配列を返す
-func DiffArray(sl []int) []int {
-	res := make([]int, 0, len(sl))
-	res = append(res, sl[0])
-	for i := 1; i < len(sl); i++ {
-		res = append(res, sl[i]-sl[i-1])
+// O(r)
+// nCrの計算
+// (n * (n-1) ... * (n-r+1)) / r!
+func CombinationNum(n, r int) int {
+	if r > n {
+		return 0
 	}
-	return res
-}
-
-// O(n)
-// 一次元累積和を返す（index0には0を入れる。）
-func PrefixSum(sl []int) []int {
-	n := len(sl)
-	res := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		res[i+1] = res[i] + sl[i]
+	if r > n/2 {
+		r = n - r // Use smaller r for efficiency
 	}
-	return res
+	result := 1
+	for i := 0; i < r; i++ {
+		result *= (n - i)
+		result /= (i + 1)
+	}
+	return result
 }
 
 //////////////
