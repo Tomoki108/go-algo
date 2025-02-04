@@ -34,6 +34,45 @@ func main() {
 	S := readStr(r)
 	Ss := strings.Split(S, "")
 
+	SsMulI := make([]int, N)
+	for i := 0; i < N; i++ {
+		SsMulI[i] = atoi(Ss[i]) * (i + 1)
+	}
+	SsMulIPrefsum := PrefixSum(SsMulI)
+
+	digitSum := make([]int, N+50) // 1桁目の数の和, 2桁目の数の和, ... N桁目の数の和
+	for i := 0; i < N; i++ {
+		digitSum[i] = SsMulIPrefsum[N] - SsMulIPrefsum[i]
+	}
+
+	for i := 0; i < N+49; i++ {
+		digitSum[i+1] = digitSum[i] / 10
+		digitSum[i] %= 10
+	}
+
+	toTruncate := 0
+	for i := N + 50 - 1; i >= 0; i-- {
+		if digitSum[i] != 0 {
+			break
+		}
+		toTruncate++
+	}
+	digitSum = digitSum[:N+50-toTruncate]
+
+	for i := len(digitSum) - 1; i >= 0; i-- {
+		fmt.Fprint(w, digitSum[i])
+	}
+	fmt.Fprintln(w)
+}
+
+// 多倍長整数を使うとTLE
+func alt() {
+	defer w.Flush()
+
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
 	sum := big.NewInt(0)
 	currentGeoSeqSum := big.NewInt(1) // 10^0 + 10^1 + ... + 10^N
 	lastTerm := big.NewInt(1)
@@ -52,8 +91,6 @@ func main() {
 		toAdd.Mul(currentGeoSeqSum, num).Mul(toAdd, i_big_plus_1)
 
 		sum.Add(sum, toAdd)
-
-		dump("num: %d, sum: %v, currentGeoSeqSum: %v, toAdd: %v\n", num, sum, currentGeoSeqSum, toAdd)
 	}
 
 	fmt.Println(sum)
@@ -62,6 +99,17 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers //
