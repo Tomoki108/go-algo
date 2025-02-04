@@ -14,6 +14,62 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	kindCounts := make([]int, 0, N)
+	kinds := make(map[int]struct{})
+	for _, a := range As {
+		kinds[a] = struct{}{}
+		kindCounts = append(kindCounts, len(kinds))
+	}
+
+	kcDiff := DiffArray(kindCounts)
+	kcDiffPsum := PrefixSum(kcDiff)
+
+	dump("kindCounts: %v\n", kindCounts)
+	dump("kcDiff: %v\n", kcDiff)
+	dump("kcPsum: %d\n", kcDiffPsum)
+
+	ans := 0
+	for _, psum := range kcDiffPsum {
+		ans += psum
+	}
+
+	prev := ans
+	for i := 1; i <= N; i++ {
+		sum := prev - kcDiffPsum[i]*(N-i)
+		ans += sum
+		prev = sum
+	}
+
+	fmt.Println(ans)
+}
+
+//////////////
+// Libs    //
+/////////////
+
+// O(n)
+// intスライスの差分配列を返す
+func DiffArray(sl []int) []int {
+	res := make([]int, 0, len(sl))
+	res = append(res, sl[0])
+	for i := 1; i < len(sl); i++ {
+		res = append(res, sl[i]-sl[i-1])
+	}
+	return res
+}
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
 }
 
 //////////////
@@ -109,5 +165,23 @@ func max(i, j int) int {
 func slReverse[S ~[]E, E any](s S) {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
+	}
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
 	}
 }
