@@ -24,6 +24,42 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	type Dish struct {
+		poisoneous bool
+		yum        int
+	}
+
+	dishes := make([]Dish, 0, N)
+	for i := 0; i < N; i++ {
+		X, Y := read2Ints(r)
+		dishes = append(dishes, Dish{
+			poisoneous: X == 1,
+			yum:        Y,
+		})
+	}
+
+	// row: 何皿目まで食べたか
+	// col: 0: not poisoned, 1: poisoned
+	// cell: max yum
+	dp := createGrid(N+1, 2, 0)
+	dp[0][0] = 0
+	dp[0][1] = -1 * INF
+
+	for i := 0; i < N; i++ {
+		d := dishes[i]
+		if d.poisoneous {
+			dp[i+1][0] = dp[i][0]                      // 素面を持ち越す
+			dp[i+1][1] = max(dp[i][0]+d.yum, dp[i][1]) // 素面から食べるか、毒からスルーか
+		} else {
+			dp[i+1][0] = max(max(dp[i][0]+d.yum, dp[i][1]+d.yum), dp[i][0]) // 素面から食べるか、毒から食べるか、スルーか
+			dp[i+1][1] = dp[i][1]                                           // スルー
+		}
+	}
+
+	ans := max(dp[N][0], dp[N][1])
+	fmt.Println(ans)
 }
 
 //////////////
