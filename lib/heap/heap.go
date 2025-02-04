@@ -41,7 +41,7 @@ func (h *Heap[T]) Pop() any {
 }
 
 type IntHeap struct {
-	iarr        []int
+	iarr        []int // iarrは昇順/降順になっているとは限らないため、インデックスアクセスしないこと。
 	IntHeapType IntHeapType
 }
 
