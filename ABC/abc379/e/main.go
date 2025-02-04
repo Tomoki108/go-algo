@@ -34,30 +34,34 @@ func main() {
 	S := readStr(r)
 	Ss := strings.Split(S, "")
 
-	SsMulI := make([]int, N)
+	digitSum := make([]int, N) // N桁目の数の和, N-1桁目の数の和, ... 1桁目の数の和
+	prev := 0
 	for i := 0; i < N; i++ {
-		SsMulI[i] = atoi(Ss[i]) * (i + 1)
+		num := atoi(Ss[i])
+		sum := prev + num*(i+1)
+		digitSum[N-1-i] = sum
+		prev = sum
 	}
-	SsMulIPrefsum := PrefixSum(SsMulI)
+	RevSl(digitSum)
 
-	digitSum := make([]int, N+50) // 1桁目の数の和, 2桁目の数の和, ... N桁目の数の和
-	for i := 0; i < N; i++ {
-		digitSum[i] = SsMulIPrefsum[N] - SsMulIPrefsum[i]
+	// 50桁のバッファを用意
+	for i := 0; i < 50; i++ {
+		digitSum = append(digitSum, 0)
 	}
 
-	for i := 0; i < N+49; i++ {
-		digitSum[i+1] = digitSum[i] / 10
+	for i := 0; i < len(digitSum)-1; i++ {
+		digitSum[i+1] += digitSum[i] / 10
 		digitSum[i] %= 10
 	}
 
 	toTruncate := 0
-	for i := N + 50 - 1; i >= 0; i-- {
+	for i := len(digitSum) - 1; i >= 0; i-- {
 		if digitSum[i] != 0 {
 			break
 		}
 		toTruncate++
 	}
-	digitSum = digitSum[:N+50-toTruncate]
+	digitSum = digitSum[:len(digitSum)-toTruncate]
 
 	for i := len(digitSum) - 1; i >= 0; i-- {
 		fmt.Fprint(w, digitSum[i])
@@ -101,14 +105,14 @@ func alt() {
 /////////////
 
 // O(n)
-// 一次元累積和を返す（index0には0を入れる。）
-func PrefixSum(sl []int) []int {
-	n := len(sl)
-	res := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		res[i+1] = res[i] + sl[i]
+func RevSl[S ~[]E, E any](s S) S {
+	lenS := len(s)
+	revS := make(S, lenS)
+	for i := 0; i < lenS; i++ {
+		revS[i] = s[lenS-1-i]
 	}
-	return res
+
+	return revS
 }
 
 //////////////
