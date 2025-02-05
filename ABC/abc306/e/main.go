@@ -67,20 +67,29 @@ func main() {
 			}
 		} else {
 			topK.Erase(prevVal)
-			restBest := rest.First().Key()
+			restBestIt := rest.First()
 
-			if Y >= restBest {
+			if !restBestIt.IsValid() {
 				topK.Insert(Y)
 
 				ans -= prevVal
 				ans += Y
 			} else {
-				rest.Erase(restBest)
-				topK.Insert(restBest)
-				rest.Insert(Y)
+				restBest := rest.First().Key()
 
-				ans -= prevVal
-				ans += restBest
+				if Y >= restBest {
+					topK.Insert(Y)
+
+					ans -= prevVal
+					ans += Y
+				} else {
+					rest.Erase(restBest)
+					topK.Insert(restBest)
+					rest.Insert(Y)
+
+					ans -= prevVal
+					ans += restBest
+				}
 			}
 		}
 
