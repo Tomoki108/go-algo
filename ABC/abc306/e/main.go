@@ -31,10 +31,8 @@ func main() {
 	N, K, Q := iarr[0], iarr[1], iarr[2]
 
 	idxValMap := make(map[int]int)
-	s := NewIntMultiSetDesc()
 	for i := 0; i < N; i++ {
 		idxValMap[i] = 0
-		s.Insert(0)
 	}
 
 	topK := NewIntMultiSetDesc()
