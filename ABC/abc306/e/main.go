@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/rbtree"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -24,11 +27,262 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, K, Q := iarr[0], iarr[1], iarr[2]
+
+	idxValMap := make(map[int]int)
+	s := NewIntMultiSetDesc()
+	for i := 0; i < N; i++ {
+		idxValMap[i] = 0
+		s.Insert(0)
+	}
+
+	topK := NewIntMultiSetDesc()
+	rest := NewIntMultiSetDesc()
+	for i := 0; i < K; i++ {
+		topK.Insert(0)
+	}
+	for i := K; i < N; i++ {
+		rest.Insert(0)
+	}
+
+	ans := 0
+	for i := 0; i < Q; i++ {
+		X, Y := read2Ints(r)
+		prevVal := idxValMap[X-1]
+		idxValMap[X-1] = Y
+
+		countInRest := rest.Count(prevVal)
+		if countInRest > 0 {
+			rest.Erase(prevVal)
+			topKWorst := topK.Last().Key()
+
+			if Y > topKWorst {
+				topK.Insert(Y)
+				topK.Erase(topKWorst)
+				rest.Insert(topKWorst)
+
+				ans += Y
+				ans -= topKWorst
+			} else {
+				rest.Insert(Y)
+			}
+		} else {
+			topK.Erase(prevVal)
+			restBest := rest.First().Key()
+
+			if Y >= restBest {
+				topK.Insert(Y)
+
+				ans -= prevVal
+				ans += Y
+			} else {
+				rest.Erase(restBest)
+				topK.Insert(restBest)
+				rest.Insert(Y)
+
+				ans -= prevVal
+				ans += restBest
+			}
+		}
+
+		fmt.Fprintln(w, ans)
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func NewIntMultiSetAsc() *MultiSet[int] {
+	return NewMultiSet(comparator.IntComparator)
+}
+
+func NewIntMultiSetDesc() *MultiSet[int] {
+	return NewMultiSet(comparator.Reverse(comparator.IntComparator))
+}
+
+// NOTE:
+// gostlのNativeのMultiSetは、Erace()が同一の値を全て削除してしまうためこちらを使う。
+// nodeから値を取得するときは以下の様になることに注意。
+// 	- multiSet.First().Key() => 値: T型
+// 	- multiSet.First().Value() => 個数: int型
+
+type MultiSet[T any] struct {
+	tree *rbtree.RbTree[T, int]
+}
+
+// O(1)
+func NewMultiSet[T any](compare comparator.Comparator[T]) *MultiSet[T] {
+	return &MultiSet[T]{
+		tree: rbtree.New[T, int](compare),
+	}
+}
+
+// O(log n)
+func (ms *MultiSet[T]) Insert(value T) {
+	if node := ms.tree.FindNode(value); node != nil {
+		node.SetValue(node.Value() + 1)
+	} else {
+		ms.tree.Insert(value, 1)
+	}
+}
+
+// Erase は、要素を1つだけ削除します。（カウントが1の場合はキーごと削除）
+// O(log n)
+func (ms *MultiSet[T]) Erase(value T) {
+	if node := ms.tree.FindNode(value); node != nil {
+		count := node.Value()
+		if count > 1 {
+			node.SetValue(count - 1)
+		} else {
+			ms.tree.Delete(node)
+			return
+		}
+	}
+}
+
+// Count は、指定した要素の出現回数を返します。
+// O(log n)
+func (ms *MultiSet[T]) Count(value T) int {
+	if node := ms.tree.FindNode(value); node != nil {
+		return node.Value()
+	}
+	return 0
+}
+
+// Values は、マルチセット内の全ての要素をソートされた順序（比較関数に準ずる）で重複も含めてスライスとして返します。
+// O(n + k)
+//   - n はユニークなキーの数
+//   - k は要素の総数（重複含む）
+func (ms *MultiSet[T]) Values() []T {
+	var result []T
+	it := ms.tree.IterFirst()
+	for it.IsValid() {
+		key, count := it.Key(), it.Value()
+		for i := 0; i < count; i++ {
+			result = append(result, key)
+		}
+
+		it = it.Next().(*rbtree.RbTreeIterator[T, int])
+	}
+	return result
+}
+
+// Size は、マルチセットに含まれる要素の総数（重複含む）を返します。
+// O(n)
+//   - n はユニークなキーの数（RBTree 全体を走査）
+func (ms *MultiSet[T]) Size() int {
+	total := 0
+	it := ms.tree.IterFirst()
+	for it.IsValid() {
+		_, count := it.Key(), it.Value()
+		total += count
+
+		it = it.Next().(*rbtree.RbTreeIterator[T, int])
+	}
+	return total
+}
+
+// Clear は、マルチセットを空にします。
+// O(1) （実装上、要素数に依存しないクリア処理を行うため）
+func (ms *MultiSet[T]) Clear() {
+	ms.tree.Clear()
+}
+
+func (ms *MultiSet[T]) First() *rbtree.RbTreeIterator[T, int] {
+	return ms.tree.IterFirst()
+}
+
+func (ms *MultiSet[T]) Last() *rbtree.RbTreeIterator[T, int] {
+	return ms.tree.IterLast()
+}
+
+func (ms *MultiSet[T]) FirstMit() *MultiSetIterator[T] {
+	return NewIterator(ms.First())
+}
+
+func (ms *MultiSet[T]) LastMit() *MultiSetIterator[T] {
+	return NewIterator(ms.Last())
+}
+
+// MultiSetIterator は、gostl の rbtree のイテレーターをラップし、
+// C++ の std::multiset のように重複要素を個別に巡回できるようにします。
+type MultiSetIterator[T any] struct {
+	// underlying は、gostl の rbtree のノードイテレーターを指します。
+	// このノードはユニークなキーと、そのキーの出現回数 (int) を保持しています。
+	underlying *rbtree.RbTreeIterator[T, int]
+	// countIndex は、現在のノード内で何個目の要素を指しているか（0-indexed）
+	countIndex int
+}
+
+// NewIterator は、新しい MultiSetIterator を生成します。
+// 引数の it が nil または有効でない場合は、nil を返します。
+func NewIterator[T any](it *rbtree.RbTreeIterator[T, int]) *MultiSetIterator[T] {
+	if it == nil || !it.IsValid() {
+		return nil
+	}
+	return &MultiSetIterator[T]{
+		underlying: it,
+		countIndex: 0,
+	}
+}
+
+// IsValid returns true if the iterator is valid.
+func (it *MultiSetIterator[T]) IsValid() bool {
+	return it != nil && it.underlying != nil && it.underlying.IsValid()
+}
+
+// Value returns the current element's value.
+// C++ でいう *it のようなものです。
+func (it *MultiSetIterator[T]) Value() T {
+	return it.underlying.Key()
+}
+
+// Next advances the iterator to the next element.
+// C++ の ++it のように、もし同じノード内にまだ残っている場合は countIndex を進め、
+// そのノードの出現数を超えたら underlying の Next() で次のノードへ進みます。
+func (it *MultiSetIterator[T]) Next() *MultiSetIterator[T] {
+	if !it.IsValid() {
+		return it
+	}
+
+	// 現在のノードが保持している出現回数
+	count := it.underlying.Value()
+	if it.countIndex < count-1 {
+		// 同じキーの中で、次の出現へ移行
+		it.countIndex++
+		return it
+	} else {
+		// 次のノードへ移動し、カウントインデックスを 0 にリセット
+		nextNode := it.underlying.Next().(*rbtree.RbTreeIterator[T, int])
+		return NewIterator(nextNode)
+	}
+}
+
+// Prev moves the iterator to the previous element.
+// C++ の --it のように、もし現在のノード内でまだ前の出現があるなら countIndex を戻し、
+// countIndex が 0 の場合は underlying の Prev() で前のノードに移動し、そのノードの最後の出現に移動します。
+func (it *MultiSetIterator[T]) Prev() *MultiSetIterator[T] {
+	if !it.IsValid() {
+		return it
+	}
+
+	if it.countIndex > 0 {
+		it.countIndex--
+		return it
+	} else {
+		prevNode := it.underlying.Prev().(*rbtree.RbTreeIterator[T, int])
+		if prevNode == nil || !prevNode.IsValid() {
+			// すでに最初の要素の場合は nil または無効な iterator を返す（またはエラー処理）
+			return NewIterator[T](prevNode)
+		}
+		// 前のノードに移動し、最後の出現に位置を設定
+		newIt := NewIterator(prevNode)
+		newIt.countIndex = prevNode.Value() - 1
+		return newIt
+	}
+}
 
 //////////////
 // Helpers //
