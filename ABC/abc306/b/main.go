@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"math"
+	"math/big"
 	"os"
 	"strconv"
 	"strings"
@@ -24,6 +25,22 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	As := readIntArr(r)
+
+	ans := big.NewInt(0)
+	for i := 0; i < 64; i++ {
+		A := As[i]
+		if A == 0 {
+			continue
+		}
+
+		A_big := big.NewInt(int64(A))
+		one := big.NewInt(1)
+
+		ans.Add(ans, A_big.Mul(A_big, one.Lsh(one, uint(i))))
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
