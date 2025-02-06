@@ -17,11 +17,51 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	pXor := PrefixXOR(As)
+
+	N++
+	ans := 0
+	// 10^8 = 101111101011110000100000000 = 27
+	for digit := 0; digit < 27; digit++ {
+		popped := 0
+		for i := 0; i < N; i++ {
+			if IsBitPop(uint64(pXor[i]), digit) {
+				popped++
+			}
+		}
+		ans += (1 << digit) * (N - popped) * popped
+	}
+	for i := 0; i < N-1; i++ {
+		ans -= As[i]
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元累積XORを返す（index0には0を入れる。）
+func PrefixXOR(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] ^ sl[i]
+	}
+	return res
+}
+
+// k桁目のビットが1かどうかを判定（一番右を0桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << k はビットマスク。1をk桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << k)) != 0
+}
 
 //////////////
 // Helpers  //
@@ -124,4 +164,22 @@ func abs(a int) int {
 		return -a
 	}
 	return a
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }

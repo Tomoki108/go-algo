@@ -123,3 +123,14 @@ func SumFrom3DPrefixSum(sumCube [][][]int, Lx, Rx, Ly, Ry, Lz, Rz int) int {
 
 	return result
 }
+
+// O(n)
+// 一次元累積XORを返す（index0には0を入れる。）
+func PrefixXOR(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] ^ sl[i]
+	}
+	return res
+}
