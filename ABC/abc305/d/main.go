@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -23,6 +24,68 @@ var w = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer w.Flush()
+
+	N := readInt(r)
+	As := readIntArr(r)
+	Q := readInt(r)
+
+	type Log struct {
+		time      int // 起床時刻
+		lastSleep int
+		sleepSum  int
+	}
+	logs := make([]Log, 0, N/2+1)
+
+	lastSleepedAt := 0
+	prevSleepSum := 0
+	for i := 0; i < N; i += 2 {
+		wokenUpAt := As[i]
+		sleep := wokenUpAt - lastSleepedAt
+
+		log := Log{
+			time:      As[i],
+			lastSleep: sleep,
+			sleepSum:  sleep + prevSleepSum,
+		}
+		logs = append(logs, log)
+
+		if i+1 < N {
+			lastSleepedAt = As[i+1]
+			prevSleepSum = sleep + prevSleepSum
+		}
+	}
+
+	dump("logs: %v\n", logs)
+
+	getSleepSum := func(t int) int {
+		idx := sort.Search(len(logs), func(i int) bool {
+			return logs[i].time >= t
+		})
+
+		time := logs[idx].time
+		sleepSum := logs[idx].sleepSum
+		lastSleep := logs[idx].lastSleep
+
+		diff := time - t
+		if diff <= lastSleep {
+			return sleepSum - diff
+		} else {
+			return sleepSum - lastSleep
+		}
+	}
+
+	for i := 0; i < Q; i++ {
+		left, right := read2Ints(r)
+
+		ra := getSleepSum(right)
+		la := getSleepSum(left)
+
+		// dump("right: %v, left: %v\n", right, left)
+		// dump("ra: %v, la: %v\n", ra, la)
+
+		ans := ra - la
+		fmt.Fprintln(w, ans)
+	}
 
 }
 
