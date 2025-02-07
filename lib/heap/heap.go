@@ -2,6 +2,7 @@ package heap
 
 import "container/heap"
 
+// 最小ヒープ（小さい値が優先）
 type HeapItem interface {
 	Priority() int
 }

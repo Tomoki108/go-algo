@@ -2,11 +2,11 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"container/list"
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -38,61 +38,56 @@ func main() {
 		graph[b] = append(graph[b], a)
 	}
 
-	guarded := make([]int, N)
+	fixedHealths := make([]int, N)
 	for i := 0; i < N; i++ {
-		guarded[i] = -1
+		fixedHealths[i] = -1
 	}
-	q := NewQueue[qItem]()
 
-	phs := make([]qItem, 0, K)
+	nodeHealths := Heap[*pqItem]{}
 	for i := 0; i < K; i++ {
 		p, h := read2Ints(r)
 		p--
-		guarded[p] = h
-		phs = append(phs, qItem{node: p, remain: h})
-	}
-	sort.Slice(phs, func(i, j int) bool {
-		return phs[i].remain > phs[j].remain
-	})
 
-	for _, ph := range phs {
-		if guarded[ph.node] > ph.remain {
+		nodeHealths.PushItem(&pqItem{node: p, health: h})
+	}
+
+	for nodeHealths.Len() > 0 {
+		item := nodeHealths.PopItem()
+
+		if fixedHealths[item.node] != -1 {
 			continue
 		}
+		fixedHealths[item.node] = item.health
 
-		q.Enqueue(ph)
-		for !q.IsEmpty() {
-			item, _ := q.Dequeue()
-
-			node, remain := item.node, item.remain
-			if remain == 0 {
+		if item.health == 0 {
+			continue
+		}
+		for _, next := range graph[item.node] {
+			if fixedHealths[next] != -1 {
 				continue
 			}
-
-			for _, next := range graph[node] {
-				if guarded[next] >= remain {
-					continue
-				}
-
-				q.Enqueue(qItem{node: next, remain: remain - 1})
-				guarded[next] = remain - 1
-			}
+			nodeHealths.PushItem(&pqItem{node: next, health: item.health - 1})
 		}
 	}
-
-	dump("guarded: %v\n", guarded)
 
 	ans := make([]int, 0, N)
-	for i, g := range guarded {
-		if g >= 0 {
-			ans = append(ans, i+1)
+	for nodeIdx, h := range fixedHealths {
+		if h != -1 {
+			ans = append(ans, nodeIdx+1)
 		}
 	}
-
-	sort.Ints(ans)
 
 	fmt.Fprintln(w, len(ans))
 	writeSlice(w, ans)
+}
+
+type pqItem struct {
+	node   int
+	health int
+}
+
+func (p *pqItem) Priority() int {
+	return -1 * p.health
 }
 
 type qItem struct {
@@ -103,6 +98,44 @@ type qItem struct {
 //////////////
 // Libs    //
 /////////////
+
+type HeapItem interface {
+	Priority() int
+}
+
+type Heap[T HeapItem] []T
+
+func (h *Heap[T]) PushItem(item T) {
+	heap.Push(h, item)
+}
+
+func (h *Heap[T]) PopItem() T {
+	return heap.Pop(h).(T)
+}
+
+// to implement sort.Interface
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+
+	*h = append(*h, x.(T))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
 
 type Queue[T any] struct {
 	list *list.List
