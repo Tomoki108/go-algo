@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,11 +26,121 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, M, K := iarr[0], iarr[1], iarr[2]
+
+	graph := make([][]int, N)
+	for i := 0; i < M; i++ {
+		a, b := read2Ints(r)
+		a--
+		b--
+		graph[a] = append(graph[a], b)
+		graph[b] = append(graph[b], a)
+	}
+
+	dump("graph: %v\n", graph)
+	return
+
+	guarded := make([]int, N)
+	for i := 0; i < N; i++ {
+		guarded[i] = -1
+	}
+	q := NewQueue[qItem]()
+
+	for i := 0; i < K; i++ {
+		p, h := read2Ints(r)
+		p--
+		q.Enqueue(qItem{node: p, remain: h})
+		guarded[p] = h
+	}
+
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+
+		node, remain := item.node, item.remain
+		if remain == 0 {
+			continue
+		}
+
+		for _, next := range graph[node] {
+			if guarded[next] >= remain {
+				continue
+			}
+
+			q.Enqueue(qItem{node: next, remain: remain - 1})
+			guarded[next] = remain - 1
+		}
+	}
+
+	dump("guarded: %v\n", guarded)
+
+	ans := make([]int, 0, N)
+	for i, g := range guarded {
+		if g >= 0 {
+			ans = append(ans, i+1)
+		}
+	}
+
+	sort.Ints(ans)
+
+	fmt.Fprintln(w, len(ans))
+	writeSlice(w, ans)
+}
+
+type qItem struct {
+	node   int
+	remain int
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers //
