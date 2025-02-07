@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,52 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	read2Ints(r)
+	N := readInt(r)
+
+	pqs := make([][2]int, 0, N) // x, y
+	for i := 0; i < N; i++ {
+		p, q := read2Ints(r)
+		pqs = append(pqs, [2]int{p, q})
+	}
+
+	A := readInt(r)
+	As := readIntArr(r)
+	B := readInt(r)
+	Bs := readIntArr(r)
+
+	genKey := func(aIdx, bIdx int) string {
+		return fmt.Sprintf("%d_%d", aIdx, bIdx)
+	}
+
+	countMap := make(map[string]int, N)
+
+	for _, xy := range pqs {
+		x, y := xy[0], xy[1]
+
+		AIdx := sort.Search(A, func(i int) bool {
+			return As[i] > x
+		})
+		BIdx := sort.Search(B, func(i int) bool {
+			return Bs[i] > y
+		})
+
+		key := genKey(AIdx, BIdx)
+		countMap[key]++
+	}
+
+	maxAns := INT_MIN
+	minAns := INT_MAX
+	for _, count := range countMap {
+		maxAns = max(maxAns, count)
+		minAns = min(minAns, count)
+	}
+
+	if len(countMap) < A*B {
+		minAns = 0
+	}
+
+	fmt.Fprintf(w, "%d %d\n", minAns, maxAns)
 }
 
 //////////////
