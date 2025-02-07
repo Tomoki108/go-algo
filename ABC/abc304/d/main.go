@@ -66,7 +66,7 @@ func main() {
 		minAns = min(minAns, count)
 	}
 
-	if len(countMap) < A*B {
+	if len(countMap) < (A+1)*(B+1) {
 		minAns = 0
 	}
 
