@@ -41,13 +41,15 @@ func main() {
 		x--
 		y--
 
-		x, y = sort2Ints(x, y)
+		xRoot := uf.Find(x)
+		yRoot := uf.Find(y)
+		xRoot, yRoot = sort2Ints(xRoot, yRoot)
 
-		_, exist := ngMap[x]
+		_, exist := ngMap[xRoot]
 		if !exist {
-			ngMap[x] = make(map[int]struct{})
+			ngMap[xRoot] = make(map[int]struct{})
 		}
-		ngMap[x][y] = struct{}{}
+		ngMap[xRoot][yRoot] = struct{}{}
 	}
 
 	Q := readInt(r)
