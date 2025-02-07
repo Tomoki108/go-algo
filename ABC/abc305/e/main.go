@@ -38,37 +38,45 @@ func main() {
 		graph[b] = append(graph[b], a)
 	}
 
-	dump("graph: %v\n", graph)
-	return
-
 	guarded := make([]int, N)
 	for i := 0; i < N; i++ {
 		guarded[i] = -1
 	}
 	q := NewQueue[qItem]()
 
+	phs := make([]qItem, 0, K)
 	for i := 0; i < K; i++ {
 		p, h := read2Ints(r)
 		p--
-		q.Enqueue(qItem{node: p, remain: h})
 		guarded[p] = h
+		phs = append(phs, qItem{node: p, remain: h})
 	}
+	sort.Slice(phs, func(i, j int) bool {
+		return phs[i].remain > phs[j].remain
+	})
 
-	for !q.IsEmpty() {
-		item, _ := q.Dequeue()
-
-		node, remain := item.node, item.remain
-		if remain == 0 {
+	for _, ph := range phs {
+		if guarded[ph.node] > ph.remain {
 			continue
 		}
 
-		for _, next := range graph[node] {
-			if guarded[next] >= remain {
+		q.Enqueue(ph)
+		for !q.IsEmpty() {
+			item, _ := q.Dequeue()
+
+			node, remain := item.node, item.remain
+			if remain == 0 {
 				continue
 			}
 
-			q.Enqueue(qItem{node: next, remain: remain - 1})
-			guarded[next] = remain - 1
+			for _, next := range graph[node] {
+				if guarded[next] >= remain {
+					continue
+				}
+
+				q.Enqueue(qItem{node: next, remain: remain - 1})
+				guarded[next] = remain - 1
+			}
 		}
 	}
 
