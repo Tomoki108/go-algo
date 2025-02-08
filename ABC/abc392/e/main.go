@@ -24,11 +24,163 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	uf := NewUnionFind(N)
+
+	edges := make(map[string][]int, N)
+
+	for i := 0; i < M; i++ {
+		A, B := read2Ints(r)
+		A--
+		B--
+
+		A, B = sort2Ints(A, B)
+		uf.Union(A, B)
+
+		key := itoa(A) + "_" + itoa(B)
+		edges[key] = append(edges[key], i+1)
+	}
+
+	rootNodes := make(map[int]struct{})
+	for i := 0; i < N; i++ {
+		rootNode := uf.Find(i)
+		rootNodes[rootNode] = struct{}{}
+	}
+
+	if len(rootNodes) == 1 {
+		fmt.Fprintln(w, 0)
+		return
+	}
+
+	ans := make([][3]int, 0, M)
+	for edgeKey, edgeNos := range edges {
+		vs := strings.Split(edgeKey, "_")
+		v1, v2 := atoi(vs[0]), atoi(vs[1])
+
+		if v1 != v2 && len(edgeNos) == 1 {
+			continue
+		}
+
+		var toOperate int
+		if v1 == v2 {
+			toOperate = len(edgeNos)
+		} else {
+			toOperate = len(edgeNos) - 1
+		}
+
+		vRoot := uf.Find(v1)
+
+	Middle:
+		for i := 0; i < toOperate; i++ {
+			edgeNo := edgeNos[i]
+
+			for rootNode := range rootNodes {
+				if vRoot == rootNode {
+					continue
+				}
+
+				uf.Union(vRoot, rootNode)
+				ans = append(ans, [3]int{edgeNo, v2 + 1, rootNode + 1})
+
+				newRoot := uf.Find(vRoot)
+
+				var toDelete int
+				if vRoot == newRoot {
+					toDelete = rootNode
+				} else {
+					toDelete = vRoot
+				}
+
+				delete(rootNodes, toDelete)
+				break
+			}
+
+			if len(rootNodes) == 1 {
+				break Middle
+			}
+		}
+	}
+
+	fmt.Fprintln(w, len(ans))
+	for _, a := range ans {
+		fmt.Fprintln(w, a[0], a[1], a[2])
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type UnionFind struct {
+	parent []int // len(parent)分のノードを考え、各ノードの親を記録している
+	size   []int // そのノードを頂点とする部分木の頂点数
+}
+
+func NewUnionFind(size int) *UnionFind {
+	parent := make([]int, size)
+	s := make([]int, size)
+	for i := range parent {
+		parent[i] = i
+		s[i] = 1
+	}
+	return &UnionFind{parent, s}
+}
+
+// O(α(N))　※定数時間。α(N)はアッカーマン関数の逆関数
+// xの親を見つける
+func (uf *UnionFind) Find(xIdx int) int {
+	if uf.parent[xIdx] != xIdx {
+		uf.parent[xIdx] = uf.Find(uf.parent[xIdx]) // 経路圧縮
+	}
+	return uf.parent[xIdx]
+}
+
+// O(α(N))
+// xとyを同じグループに統合する（サイズが大きい方に統合）
+func (uf *UnionFind) Union(xIdx, yIdx int) {
+	rootX := uf.Find(xIdx)
+	rootY := uf.Find(yIdx)
+
+	if rootX != rootY {
+		if uf.size[rootX] < uf.size[rootY] {
+			uf.parent[rootX] = rootY
+			uf.size[rootY] += uf.size[rootX]
+		} else if uf.size[rootX] > uf.size[rootY] {
+			uf.parent[rootY] = rootX
+			uf.size[rootX] += uf.size[rootY]
+		} else {
+			uf.parent[rootY] = rootX
+			uf.size[rootX] += uf.size[rootY]
+		}
+	}
+}
+
+// O(1)
+func (uf *UnionFind) IsRoot(xIdx int) bool {
+	return uf.parent[xIdx] == xIdx
+}
+
+// O(α(N))
+func (uf *UnionFind) IsSameRoot(xIdx, yIdx int) bool {
+	return uf.Find(xIdx) == uf.Find(yIdx)
+}
+
+// O(N)
+func (uf *UnionFind) CountRoots() int {
+	count := 0
+	for i := range uf.parent {
+		if uf.parent[i] == i {
+			count++
+		}
+	}
+	return count
+}
+
+// O(α(N))
+func (uf *UnionFind) GroupSize(xIdx int) int {
+	return uf.size[uf.Find(xIdx)]
+}
 
 //////////////
 // Helpers //
