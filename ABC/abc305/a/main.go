@@ -24,6 +24,15 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	q := N / 5
+	rem := N % 5
+	if rem <= 2 {
+		fmt.Fprintln(w, 5*q)
+	} else {
+		fmt.Fprintln(w, 5*(q+1))
+	}
 }
 
 //////////////
