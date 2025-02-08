@@ -24,6 +24,31 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Ps := readIntArr(r)
+	Qs := readIntArr(r)
+
+	m := make(map[int]int)   // 見てる人の番号、見られてる人の番号
+	rm := make(map[int]int)  // ゼッケン、人の番号
+	rrm := make(map[int]int) // 人の番号、ゼッケン
+	for i := 0; i < N; i++ {
+		P := Ps[i]
+		Q := Qs[i]
+
+		m[i+1] = P
+		rm[Q] = i + 1
+		rrm[i+1] = Q
+	}
+
+	ans := make([]int, 0, N)
+	for i := 1; i <= N; i++ {
+		personNoOfIZekken := rm[i]
+		seenPersonNo := m[personNoOfIZekken]
+
+		ans = append(ans, rrm[seenPersonNo])
+	}
+
+	writeSlice(w, ans)
 }
 
 //////////////
