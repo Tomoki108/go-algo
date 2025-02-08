@@ -24,6 +24,25 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	m := map[string]int{
+		"A": 0,
+		"B": 3,
+		"C": 4,
+		"D": 8,
+		"E": 9,
+		"F": 14,
+		"G": 23,
+	}
+
+	sarr := readStrArr(r)
+	p, q := sarr[0], sarr[1]
+	if p < q {
+		p, q = q, p
+	}
+
+	ans := m[p] - m[q]
+	fmt.Fprintln(w, ans)
+
 }
 
 //////////////
