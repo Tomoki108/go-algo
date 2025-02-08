@@ -24,11 +24,91 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	H, W := read2Ints(r)
+	grid := readGrid(r, H)
+
+	var left, up = INT_MAX, INT_MAX
+	var right, down = INT_MIN, INT_MIN
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "#" {
+				left = min(left, j)
+				up = min(up, i)
+				right = max(right, j)
+				down = max(down, i)
+			}
+		}
+	}
+
+	dump("left: %d, up: %d, right: %d, down: %d\n", left, up, right, down)
+
+	for i := up; i <= down; i++ {
+		for j := left; j <= right; j++ {
+			if grid[i][j] == "." {
+				fmt.Fprintln(w, i+1, j+1)
+				return
+			}
+		}
+	}
+
+	beforeLeft := Coordinate{up, left - 1}
+	if beforeLeft.IsValid(H, W) && grid[up][left-1] == "." {
+		fmt.Fprintln(w, up+1, left)
+		return
+	}
+
+	afterRight := Coordinate{up, right + 1}
+	if afterRight.IsValid(H, W) && grid[up][right+1] == "." {
+		fmt.Fprintln(w, up+1, right+2)
+		return
+	}
+
+	aboveUp := Coordinate{up - 1, left}
+	if aboveUp.IsValid(H, W) && grid[up-1][left] == "." {
+		fmt.Fprintln(w, up, left+1)
+		return
+	}
+
+	belowDown := Coordinate{down + 1, left}
+	if belowDown.IsValid(H, W) && grid[down+1][left] == "." {
+		fmt.Fprintln(w, down+2, left+1)
+		return
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) AdjacentsWithDiagonals() [8]Coordinate {
+	return [8]Coordinate{
+		{c.h - 1, c.w},     // 上
+		{c.h + 1, c.w},     // 下
+		{c.h, c.w - 1},     // 左
+		{c.h, c.w + 1},     // 右
+		{c.h - 1, c.w - 1}, // 左上
+		{c.h - 1, c.w + 1}, // 右上
+		{c.h + 1, c.w - 1}, // 左下
+		{c.h + 1, c.w + 1}, // 右下
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers //
