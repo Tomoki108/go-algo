@@ -24,6 +24,47 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	type SA struct {
+		S string
+		A int
+	}
+
+	minA := INT_MAX
+	minAIdx := INT_MAX
+	sas := make([]SA, 0, N)
+	for i := 0; i < N; i++ {
+		sarr := readStrArr(r)
+		S := sarr[0]
+		A := atoi(sarr[1])
+		sas = append(sas, SA{S, A})
+
+		if A < minA {
+			minAIdx = i
+			minA = A
+		}
+	}
+
+	ans := make([]string, 0, N)
+	for i := minAIdx; i < N; i++ {
+		ans = append(ans, sas[i].S)
+	}
+	for i := 0; i < minAIdx; i++ {
+		ans = append(ans, sas[i].S)
+	}
+
+	ans = append(ans)
+
+	writeSliceByLine(w, ans)
+}
+
+// O(n)
+// slices.Reverce() と同じ（Goのバージョンが1.21以前だと使えないため）
+func SlRev[S ~[]E, E any](s S) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
 }
 
 //////////////
