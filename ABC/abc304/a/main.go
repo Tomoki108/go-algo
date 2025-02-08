@@ -54,8 +54,6 @@ func main() {
 		ans = append(ans, sas[i].S)
 	}
 
-	ans = append(ans)
-
 	writeSliceByLine(w, ans)
 }
 
