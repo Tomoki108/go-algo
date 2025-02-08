@@ -28,87 +28,68 @@ func main() {
 
 	uf := NewUnionFind(N)
 
-	edges := make(map[string][]int, N)
+	edges := make([][3]int, 0, N)
 
 	for i := 0; i < M; i++ {
 		A, B := read2Ints(r)
 		A--
 		B--
 
-		A, B = sort2Ints(A, B)
-		uf.Union(A, B)
-
-		key := itoa(A) + "_" + itoa(B)
-		edges[key] = append(edges[key], i+1)
+		if uf.IsSameRoot(A, B) {
+			edges = append(edges, [3]int{i + 1, A, B})
+		} else {
+			uf.Union(A, B)
+		}
 	}
 
 	rootNodes := make(map[int]struct{})
 	for i := 0; i < N; i++ {
-		rootNode := uf.Find(i)
-		rootNodes[rootNode] = struct{}{}
+		rootNodes[uf.Find(i)] = struct{}{}
 	}
 
-	if len(rootNodes) == 1 {
-		fmt.Fprintln(w, 0)
-		return
-	}
+	dump("rootNodes: %v\n", rootNodes)
+	dump("edges: %v\n", edges)
 
-	ans := make([][3]int, 0, M)
-Outer:
-	for edgeKey, edgeNos := range edges {
-		vs := strings.Split(edgeKey, "_")
-		v1, v2 := atoi(vs[0]), atoi(vs[1])
+	ans := make([][3]int, 0, N)
+	for _, e := range edges {
+		no, A, B := e[0], e[1], e[2]
 
-		if v1 != v2 && len(edgeNos) == 1 {
-			continue
-		}
+		for rootNode := range rootNodes {
+			ARoot := uf.Find(A)
+			dump("rootNode: %d\n", rootNode)
+			dump("ARoot: %d\n", ARoot)
 
-		var toOperate int
-		if v1 == v2 {
-			toOperate = len(edgeNos)
-		} else {
-			toOperate = len(edgeNos) - 1
-		}
-
-		vRoot := uf.Find(v1)
-
-		for i := 0; i < toOperate; i++ {
-			edgeNo := edgeNos[i]
-
-			for rootNode := range rootNodes {
-				if vRoot == rootNode {
-					continue
-				}
-
-				uf.Union(vRoot, rootNode)
-				ans = append(ans, [3]int{edgeNo, v2 + 1, rootNode + 1})
-
-				newRoot := uf.Find(vRoot)
-
-				var toDelete int
-				if vRoot == newRoot {
-					toDelete = rootNode
-				} else {
-					toDelete = vRoot
-				}
-
-				delete(rootNodes, toDelete)
-				break
+			if ARoot == rootNode {
+				continue
 			}
+			uf.Union(ARoot, rootNode)
 
-			if len(rootNodes) == 1 {
-				break Outer
+			newRoot := uf.Find(A)
+			var deleteNode int
+			if newRoot == ARoot {
+				deleteNode = rootNode
+			} else {
+				deleteNode = ARoot
 			}
+			delete(rootNodes, deleteNode)
+			ans = append(ans, [3]int{no, B + 1, rootNode + 1})
+
+			break
 		}
 
 		if len(rootNodes) == 1 {
-			break Outer
+			break
 		}
+
 	}
 
 	fmt.Fprintln(w, len(ans))
 	for _, a := range ans {
 		fmt.Fprintln(w, a[0], a[1], a[2])
+	}
+
+	if len(rootNodes) != 1 {
+		panic("error")
 	}
 }
 
