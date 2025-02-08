@@ -27,68 +27,50 @@ func main() {
 
 	N := readInt(r)
 
-	numPecentages := make(map[int]*Heap[hItem]) // 各数字の出現割合
-
+	diceNumCnts := make([]map[int]int, 0, N)
+	diceKs := make([]int, 0, N)
 	for i := 0; i < N; i++ {
 		iarr := readIntArr(r)
 		K := iarr[0]
+		diceKs = append(diceKs, K)
 
-		numCount := make(map[int]int, K)
-		for j := 1; j < K; j++ {
-
-			numCount[iarr[j]]++
+		diceNumCnt := make(map[int]int)
+		for j := 1; j <= K; j++ {
+			diceNumCnt[iarr[j]]++
 		}
 
-		for num, cnt := range numCount {
-			if numPecentages[num] == nil {
-				numPecentages[num] = &Heap[hItem]{}
-			}
-			numPecentages[num].PushItem(hItem{diceIdx: i, cnt: cnt, K: K})
-		}
+		diceNumCnts = append(diceNumCnts, diceNumCnt)
 	}
 
-	ansMap := make(map[string]float64, N*N)
-
-	for num, pernumPecentages := range numPecentages {
-		if pernumPecentages.Len() < 2 {
-			continue
-		}
-
-		item1 := pernumPecentages.PopItem()
-		item2 := pernumPecentages.PopItem()
-
-		key := fmt.Sprintf("%d-%d", item1.diceIdx, item2.diceIdx)
-
-		dump("num: %v\n", num)
-		dump("item1: %v, item2: %v\n", item1, item2)
-
-		p1 := item1.Priority()
-		p2 := item2.Priority()
-
-		expect := p1 * p2
-		ansMap[key] += expect
-	}
-
-	dump("ansMap: %v\n", ansMap)
+	dump("diceNumCnts: %v\n", diceNumCnts)
 
 	ans := float64(0)
-	for _, v := range ansMap {
-		if v > ans {
-			ans = v
+	for i := 0; i < N; i++ {
+		for j := i + 1; j < N; j++ {
+
+			cnt1 := diceNumCnts[i]
+			cnt2 := diceNumCnts[j]
+			K1 := diceKs[i]
+			K2 := diceKs[j]
+
+			if len(cnt1) > len(cnt2) {
+				cnt1, cnt2 = cnt2, cnt1
+			}
+
+			patterns := 0
+			for num, count := range cnt1 {
+				patterns += count * cnt2[num]
+			}
+
+			dump("i: %d, j: %d, patterns: %d\n", i, j, patterns)
+			dump("K1*K2: %d\n\n", K1*K2)
+
+			expect := float64(patterns) / float64(K1*K2)
+			ans = math.Max(ans, expect)
 		}
 	}
 
-	fmt.Println(ans)
-}
-
-type hItem struct {
-	diceIdx int
-	cnt     int
-	K       int
-}
-
-func (h hItem) Priority() float64 {
-	return float64(h.cnt) / float64(h.K)
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
