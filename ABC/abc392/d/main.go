@@ -43,11 +43,12 @@ func main() {
 			if numPecentages[num] == nil {
 				numPecentages[num] = &Heap[hItem]{}
 			}
-			numPecentages[num].PushItem(hItem{cnt: cnt, K: K})
+			numPecentages[num].PushItem(hItem{diceIdx: i, cnt: cnt, K: K})
 		}
 	}
 
-	ans := float64(-1)
+	ansMap := make(map[string]float64, N*N)
+
 	for num, pernumPecentages := range numPecentages {
 		if pernumPecentages.Len() < 2 {
 			continue
@@ -56,6 +57,8 @@ func main() {
 		item1 := pernumPecentages.PopItem()
 		item2 := pernumPecentages.PopItem()
 
+		key := fmt.Sprintf("%d-%d", item1.diceIdx, item2.diceIdx)
+
 		dump("num: %v\n", num)
 		dump("item1: %v, item2: %v\n", item1, item2)
 
@@ -63,15 +66,25 @@ func main() {
 		p2 := item2.Priority()
 
 		expect := p1 * p2
-		ans = math.Max(ans, float64(expect))
+		ansMap[key] += expect
+	}
+
+	dump("ansMap: %v\n", ansMap)
+
+	ans := float64(0)
+	for _, v := range ansMap {
+		if v > ans {
+			ans = v
+		}
 	}
 
 	fmt.Println(ans)
 }
 
 type hItem struct {
-	cnt int
-	K   int
+	diceIdx int
+	cnt     int
+	K       int
 }
 
 func (h hItem) Priority() float64 {
