@@ -54,6 +54,7 @@ func main() {
 	}
 
 	ans := make([][3]int, 0, M)
+Outer:
 	for edgeKey, edgeNos := range edges {
 		vs := strings.Split(edgeKey, "_")
 		v1, v2 := atoi(vs[0]), atoi(vs[1])
@@ -71,7 +72,6 @@ func main() {
 
 		vRoot := uf.Find(v1)
 
-	Middle:
 		for i := 0; i < toOperate; i++ {
 			edgeNo := edgeNos[i]
 
@@ -97,8 +97,12 @@ func main() {
 			}
 
 			if len(rootNodes) == 1 {
-				break Middle
+				break Outer
 			}
+		}
+
+		if len(rootNodes) == 1 {
+			break Outer
 		}
 	}
 
