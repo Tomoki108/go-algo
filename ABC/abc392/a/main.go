@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -25,9 +26,11 @@ func main() {
 	defer w.Flush()
 
 	As := readIntArr(r)
+	dump("As: %v\n", As)
+
+	sort.Ints(As)
 
 	next := true
-
 	for next {
 		B_1 := As[0]
 		B_2 := As[1]
@@ -35,6 +38,7 @@ func main() {
 
 		if B_1*B_2 == B_3 {
 			fmt.Println("Yes")
+			dump("B_1: %d, B_2: %d, B_3: %d\n", B_1, B_2, B_3)
 			return
 		}
 
