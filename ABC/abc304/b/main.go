@@ -24,6 +24,20 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	if N <= pow(10, 3)-1 {
+
+	} else if N <= pow(10, 3) && N <= pow(10, 4)-1 {
+		fmt.Fprintln(w, N)
+	} else if N <= pow(10, 4) && N <= pow(10, 5)-1 {
+	} else if N <= pow(10, 5) && N <= pow(10, 6)-1 {
+	} else if N <= pow(10, 6) && N <= pow(10, 7)-1 {
+	} else if N <= pow(10, 7) && N <= pow(10, 8)-1 {
+	} else if N <= pow(10, 8) && N <= pow(10, 9)-1 {
+
+	}
+
 }
 
 //////////////
