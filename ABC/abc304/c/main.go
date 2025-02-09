@@ -24,6 +24,55 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, D := read2Ints(r)
+	DS := D * D
+
+	xys := make([][2]int, 0, N)
+	for i := 0; i < N; i++ {
+		x, y := read2Ints(r)
+		xys = append(xys, [2]int{x, y})
+	}
+
+	graph := make([][]int, N)
+	for i := 0; i < N; i++ {
+		for j := i + 1; j < N; j++ {
+			distS := pow(xys[i][0]-xys[j][0], 2) + pow(xys[i][1]-xys[j][1], 2)
+
+			dump("i: %d, j: %d\n", i, j)
+			dump("distS: %d\n", distS)
+
+			if distS <= DS {
+				graph[i] = append(graph[i], j)
+				graph[j] = append(graph[j], i)
+			}
+		}
+	}
+
+	dump("graph: %v\n", graph)
+
+	infected := make([]bool, N)
+	infected[0] = true
+
+	var dfs func(node int)
+	dfs = func(node int) {
+		for _, next := range graph[node] {
+			if infected[next] {
+				continue
+			}
+			infected[next] = true
+
+			dfs(next)
+		}
+	}
+	dfs(0)
+
+	for i := 0; i < N; i++ {
+		if infected[i] {
+			fmt.Fprintln(w, "Yes")
+		} else {
+			fmt.Fprintln(w, "No")
+		}
+	}
 }
 
 //////////////
