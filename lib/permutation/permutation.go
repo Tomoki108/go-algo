@@ -2,6 +2,7 @@ package permutation
 
 // NOTE:
 // next := true; for next { some(sl); next = NextPermutation(sl); } で使う
+// [重要] 最初の呼び出し時の引数には、昇順ソートしたスライスを渡すこと
 //
 // O(len(sl)*len(sl)!)
 // sl の要素を並び替えて、次の辞書順の順列にする
