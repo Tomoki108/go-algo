@@ -25,17 +25,28 @@ func main() {
 	defer w.Flush()
 
 	N := readInt(r)
+	str := strconv.Itoa(N)
 
 	if N <= pow(10, 3)-1 {
-
-	} else if N <= pow(10, 3) && N <= pow(10, 4)-1 {
-		fmt.Fprintln(w, N)
-	} else if N <= pow(10, 4) && N <= pow(10, 5)-1 {
-	} else if N <= pow(10, 5) && N <= pow(10, 6)-1 {
-	} else if N <= pow(10, 6) && N <= pow(10, 7)-1 {
-	} else if N <= pow(10, 7) && N <= pow(10, 8)-1 {
-	} else if N <= pow(10, 8) && N <= pow(10, 9)-1 {
-
+		fmt.Fprintln(w, str)
+	} else if N >= pow(10, 3) && N <= pow(10, 4)-1 {
+		trimed := str[:len(str)-1] + "0"
+		fmt.Fprintln(w, trimed)
+	} else if N >= pow(10, 4) && N <= pow(10, 5)-1 {
+		trimed := str[:len(str)-2] + "00"
+		fmt.Fprintln(w, trimed)
+	} else if N >= pow(10, 5) && N <= pow(10, 6)-1 {
+		trimed := str[:len(str)-3] + "000"
+		fmt.Fprintln(w, trimed)
+	} else if N >= pow(10, 6) && N <= pow(10, 7)-1 {
+		trimed := str[:len(str)-4] + "0000"
+		fmt.Fprintln(w, trimed)
+	} else if N >= pow(10, 7) && N <= pow(10, 8)-1 {
+		trimed := str[:len(str)-5] + "00000"
+		fmt.Fprintln(w, trimed)
+	} else if N >= pow(10, 8) && N <= pow(10, 9)-1 {
+		trimed := str[:len(str)-6] + "000000"
+		fmt.Fprintln(w, trimed)
 	}
 
 }
