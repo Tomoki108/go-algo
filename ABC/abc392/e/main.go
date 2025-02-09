@@ -44,11 +44,10 @@ func main() {
 
 	rootNodes := make(map[int]struct{})
 	for i := 0; i < N; i++ {
-		rootNodes[uf.Find(i)] = struct{}{}
+		if uf.IsRoot(i) {
+			rootNodes[i] = struct{}{}
+		}
 	}
-
-	dump("rootNodes: %v\n", rootNodes)
-	dump("edges: %v\n", edges)
 
 	ans := make([][3]int, 0, N)
 	for _, e := range edges {
@@ -56,15 +55,13 @@ func main() {
 
 		for rootNode := range rootNodes {
 			ARoot := uf.Find(A)
-			dump("rootNode: %d\n", rootNode)
-			dump("ARoot: %d\n", ARoot)
-
 			if ARoot == rootNode {
 				continue
 			}
 			uf.Union(ARoot, rootNode)
 
 			newRoot := uf.Find(A)
+
 			var deleteNode int
 			if newRoot == ARoot {
 				deleteNode = rootNode
@@ -80,7 +77,6 @@ func main() {
 		if len(rootNodes) == 1 {
 			break
 		}
-
 	}
 
 	fmt.Fprintln(w, len(ans))

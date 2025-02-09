@@ -65,6 +65,17 @@ func (uf *UnionFind) CountRoots() int {
 	return count
 }
 
+// O(N)
+func (uf *UnionFind) Roots() []int {
+	roots := make([]int, 0)
+	for i := range uf.parent {
+		if uf.parent[i] == i {
+			roots = append(roots, i)
+		}
+	}
+	return roots
+}
+
 // O(α(N))
 func (uf *UnionFind) GroupSize(xIdx int) int {
 	return uf.size[uf.Find(xIdx)]
