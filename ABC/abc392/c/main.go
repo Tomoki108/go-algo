@@ -28,24 +28,24 @@ func main() {
 	Ps := readIntArr(r)
 	Qs := readIntArr(r)
 
-	m := make(map[int]int)   // 見てる人の番号、見られてる人の番号
-	rm := make(map[int]int)  // ゼッケン、人の番号
-	rrm := make(map[int]int) // 人の番号、ゼッケン
+	noSeenNo := make(map[int]int) // 見てる人の番号、見られてる人の番号
+	bibNo := make(map[int]int)    // ゼッケン、人の番号
+	noBib := make(map[int]int)    // 人の番号、ゼッケン
 	for i := 0; i < N; i++ {
 		P := Ps[i]
 		Q := Qs[i]
 
-		m[i+1] = P
-		rm[Q] = i + 1
-		rrm[i+1] = Q
+		noSeenNo[i+1] = P
+		bibNo[Q] = i + 1
+		noBib[i+1] = Q
 	}
 
 	ans := make([]int, 0, N)
 	for i := 1; i <= N; i++ {
-		personNoOfIZekken := rm[i]
-		seenPersonNo := m[personNoOfIZekken]
+		no := bibNo[i]
+		seenNo := noSeenNo[no]
 
-		ans = append(ans, rrm[seenPersonNo])
+		ans = append(ans, noBib[seenNo])
 	}
 
 	writeSlice(w, ans)
