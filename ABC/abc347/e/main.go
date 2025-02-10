@@ -21,6 +21,80 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r)
+	Xs := readIntArr(r)
+
+	type Incremental struct {
+		Diff      int
+		Increment *int
+	}
+	S := make(map[int]struct{})
+
+	Incrementals := make(map[int]Incremental) // key: idx, value: Incremental
+	SuspendedIncrementals := make(map[int]Incremental)
+	increment := 0
+
+	for i := 0; i < Q; i++ {
+		X := Xs[i]
+		X--
+
+		if _, ok := S[X]; ok {
+			delete(S, X)
+
+			inc := Incrementals[X]
+			newInc := Incremental{
+				Diff:      inc.Diff + *inc.Increment,
+				Increment: nil,
+			}
+			SuspendedIncrementals[X] = newInc
+
+			delete(Incrementals, X)
+		} else {
+			S[X] = struct{}{}
+
+			sinc, ok := SuspendedIncrementals[X]
+			if ok {
+				newInc := Incremental{
+					Diff:      -increment + sinc.Diff,
+					Increment: &increment,
+				}
+				Incrementals[X] = newInc
+
+				delete(SuspendedIncrementals, X)
+			} else {
+				Incrementals[X] = Incremental{Diff: -increment, Increment: &increment}
+			}
+		}
+
+		increment += len(S)
+	}
+
+	dump("S: %v\n", S)
+	dump("increment: %d\n", increment)
+	dump("Incrementals:\n")
+	for k, v := range Incrementals {
+		dump("key: %d, diff: %d, increment: %d\n", k, v.Diff, *v.Increment)
+	}
+	dump("SuspendedIncrementals:\n")
+	for k, v := range SuspendedIncrementals {
+		dump("key: %d, diff: %d\n", k, v.Diff)
+	}
+
+	ans := make([]int, N)
+	for i := 0; i < N; i++ {
+		var toIncrement int
+		if inc, ok := Incrementals[i]; ok {
+			toIncrement = inc.Diff + *inc.Increment
+		} else {
+			inc := SuspendedIncrementals[i]
+			toIncrement = inc.Diff
+		}
+
+		ans[i] += toIncrement
+	}
+
+	writeSlice(w, ans)
+
 }
 
 //////////////
@@ -157,4 +231,22 @@ func pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
