@@ -24,6 +24,48 @@ func main() {
 	N, Q := read2Ints(r)
 	Xs := readIntArr(r)
 
+	S := make(map[int]struct{})
+	idxInOuts := make([][]int, N) // idx => in, out, in, out, ...
+
+	incrementPsum := make([]int, Q+1)
+
+	for i := 0; i < Q; i++ {
+		X := Xs[i]
+		X--
+		if _, ok := S[X]; ok {
+			delete(S, X)
+			idxInOuts[X] = append(idxInOuts[X], i)
+		} else {
+			S[X] = struct{}{}
+			idxInOuts[X] = append(idxInOuts[X], i)
+		}
+		incrementPsum[i+1] = incrementPsum[i] + len(S)
+	}
+
+	ans := make([]int, N)
+	for i := 0; i < N; i++ {
+		inOuts := idxInOuts[i]
+		if len(inOuts)%2 != 0 {
+			inOuts = append(inOuts, Q)
+		}
+
+		for j := 0; j < len(inOuts); j += 2 {
+			in := inOuts[j]
+			out := inOuts[j+1]
+
+			ans[i] += incrementPsum[out] - incrementPsum[in]
+		}
+	}
+
+	writeSlice(w, ans)
+}
+
+func alt() {
+	defer w.Flush()
+
+	N, Q := read2Ints(r)
+	Xs := readIntArr(r)
+
 	type Incremental struct {
 		Diff      int
 		Increment *int
