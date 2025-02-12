@@ -25,6 +25,60 @@ func main() {
 	iarr := readIntArr(r)
 	H, W, M := iarr[0], iarr[1], iarr[2]
 
+	rowUsed := make([]bool, H)
+	colUsed := make([]bool, W)
+
+	type Query struct {
+		T, A, X int
+	}
+	qs := make([]Query, 0, M)
+	for i := 0; i < M; i++ {
+		iarr = readIntArr(r)
+		T, A, X := iarr[0], iarr[1], iarr[2]
+		qs = append(qs, Query{T, A - 1, X})
+	}
+
+	colorCount := make(map[int]int)
+	rh := H
+	rw := W
+	for i := M - 1; i >= 0; i-- {
+		q := qs[i]
+		T, A, X := q.T, q.A, q.X
+
+		if T == 1 {
+			if !rowUsed[A] && rw > 0 {
+				rowUsed[A] = true
+				colorCount[X] += rw
+				rh--
+			}
+		} else {
+			if !colUsed[A] && rh > 0 {
+				colUsed[A] = true
+				colorCount[X] += rh
+				rw--
+			}
+		}
+	}
+	if rh*rw > 0 {
+		colorCount[0] += rh * rw
+	}
+
+	dump("colorCount: %v\n", colorCount)
+
+	fmt.Fprintln(w, len(colorCount))
+	for i := 0; i <= 2*pow(10, 5); i++ {
+		if count, ok := colorCount[i]; ok && count > 0 {
+			fmt.Fprintln(w, i, count)
+		}
+	}
+}
+
+func alt() {
+	defer w.Flush()
+
+	iarr := readIntArr(r)
+	H, W, M := iarr[0], iarr[1], iarr[2]
+
 	type Change struct {
 		queryIdx int
 		color    int
