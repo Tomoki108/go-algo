@@ -52,24 +52,39 @@ func main() {
 		return colChanges[i].queryIdx < colChanges[j].queryIdx
 	})
 
+	totalCount := 0
 	colorCount := make(map[int]int)
 	for _, rowChange := range rowChanges {
+		if rowChange.queryIdx == 0 {
+			continue
+		}
+
 		count := sort.Search(len(colChanges), func(j int) bool {
-			return colChanges[j].queryIdx >= rowChange.queryIdx
+			return colChanges[j].queryIdx > rowChange.queryIdx
 		})
 
 		if count > 0 {
 			colorCount[rowChange.color] += count
+			totalCount += count
 		}
 	}
 	for _, colChange := range colChanges {
+		if colChange.queryIdx == 0 {
+			continue
+		}
+
 		count := sort.Search(len(rowChanges), func(j int) bool {
-			return rowChanges[j].queryIdx >= colChange.queryIdx
+			return rowChanges[j].queryIdx > colChange.queryIdx
 		})
 
 		if count > 0 {
 			colorCount[colChange.color] += count
+			totalCount += count
 		}
+	}
+
+	if H*W-totalCount > 0 {
+		colorCount[0] += H*W - totalCount
 	}
 
 	fmt.Fprintln(w, len(colorCount))
@@ -214,4 +229,22 @@ func pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
