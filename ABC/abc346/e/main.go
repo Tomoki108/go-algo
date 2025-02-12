@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,6 +22,74 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H, W, M := iarr[0], iarr[1], iarr[2]
+
+	type Change struct {
+		queryIdx int
+		color    int
+	}
+
+	rowChanges := make([]*Change, H)
+	colChanges := make([]*Change, W)
+	for i := 0; i < M; i++ {
+		iarr = readIntArr(r)
+		T, A, X := iarr[0], iarr[1], iarr[2]
+		A--
+
+		switch T {
+		case 1:
+			rowChanges[A] = &Change{queryIdx: i, color: X}
+		case 2:
+			colChanges[A] = &Change{queryIdx: i, color: X}
+		}
+	}
+	newRowChanges := make([]Change, 0, len(rowChanges))
+	for _, c := range rowChanges {
+		if c != nil {
+			newRowChanges = append(newRowChanges, *c)
+		}
+	}
+	newColChanges := make([]Change, 0, len(colChanges))
+	for _, c := range colChanges {
+		if c != nil {
+			newColChanges = append(newColChanges, *c)
+		}
+	}
+
+	sort.Slice(newRowChanges, func(i, j int) bool {
+		return newRowChanges[i].queryIdx < newRowChanges[j].queryIdx
+	})
+	sort.Slice(newColChanges, func(i, j int) bool {
+		return newColChanges[i].queryIdx < newColChanges[j].queryIdx
+	})
+
+	colorCount := make(map[int]int)
+	for _, rowChange := range newRowChanges {
+		count := sort.Search(len(newColChanges), func(j int) bool {
+			return newColChanges[j].queryIdx >= rowChange.queryIdx
+		})
+
+		if count > 0 {
+			colorCount[rowChange.color] += count
+		}
+	}
+	for _, colChange := range newColChanges {
+		count := sort.Search(len(newRowChanges), func(j int) bool {
+			return newRowChanges[j].queryIdx >= colChange.queryIdx
+		})
+
+		if count > 0 {
+			colorCount[colChange.color] += count
+		}
+	}
+
+	fmt.Fprintln(w, len(colorCount))
+	for i := 0; i <= 2*pow(10, 5); i++ {
+		if count, ok := colorCount[i]; ok && count > 0 {
+			fmt.Fprintln(w, i, count)
+		}
+	}
 }
 
 //////////////
