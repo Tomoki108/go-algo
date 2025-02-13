@@ -7,9 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/liyue201/gostl/ds/rbtree"
-	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -26,50 +23,71 @@ func main() {
 
 	N := readInt(r)
 	As := readIntArr(r)
-	Q := readInt(r)
 
-	numWeight := rbtree.New[int, int](comparator.IntComparator)
+	type Node struct {
+		val  int
+		prev *Node
+		next *Node
+	}
+	nodeMap := make(map[int]*Node, N)
 
-	weightTolerance := 2 * pow(10, 5)
-	weightBuff := 0
-	for i := 0; i < N; i++ {
-		numWeight.Insert(As[i], i+weightBuff)
-		weightBuff += weightTolerance
+	prevNode := &Node{val: As[0], prev: nil, next: nil}
+	nodeMap[As[0]] = prevNode
+	for i := 1; i < N; i++ {
+		node := &Node{val: As[i], prev: prevNode, next: nil}
+		prevNode.next = node
+		nodeMap[As[i]] = node
+		prevNode = node
 	}
 
+	dump("nodeMap: %v", nodeMap)
+
+	Q := readInt(r)
 	for i := 0; i < Q; i++ {
 		iarr := readIntArr(r)
 		q := iarr[0]
-
 		if q == 1 {
 			x, y := iarr[1], iarr[2]
-			xw, _ := numWeight.Find(x)
-			numWeight.Insert(y, xw+1)
+			xNode := nodeMap[x]
+			xNodeNext := xNode.next
+
+			yNode := &Node{val: y, prev: xNode, next: xNodeNext}
+			xNode.next = yNode
+			nodeMap[y] = yNode
 		} else {
 			x := iarr[1]
-			xw := numWeight.FindNode(x)
-			numWeight.Delete(xw)
+
+			xNode := nodeMap[x]
+			xNodePrev := xNode.prev
+			xNodeNext := xNode.next
+
+			if xNodePrev != nil {
+				xNodePrev.next = xNodeNext
+			}
+			if xNodeNext != nil {
+				xNodeNext.prev = xNodePrev
+			}
+
+			delete(nodeMap, x)
 		}
 	}
 
-	weightNum := rbtree.New[int, int](comparator.IntComparator)
-	node := numWeight.Begin()
-	for node != nil {
-		weight, num := node.Key(), node.Value()
-		weightNum.Insert(num, weight)
-		node = node.Next()
+	var start *Node
+	for node := range nodeMap {
+		if nodeMap[node].prev == nil {
+			start = nodeMap[node]
+			break
+		}
 	}
 
-	node = weightNum.Begin()
-	isFirst := true
-	for node != nil {
-		if isFirst {
-			isFirst = false
+	current := start
+	for current != nil {
+		if current == start {
+			fmt.Fprint(w, current.val)
 		} else {
-			fmt.Fprint(w, " ")
+			fmt.Fprint(w, " ", current.val)
 		}
-		fmt.Fprint(w, node.Value())
-		node = node.Next()
+		current = current.next
 	}
 	fmt.Fprintln(w)
 }
@@ -218,4 +236,22 @@ func pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
