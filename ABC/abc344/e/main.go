@@ -21,26 +21,10 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	N := readInt(r)
+	readInt(r)
 	As := readIntArr(r)
 
-	type Node struct {
-		val  int
-		prev *Node
-		next *Node
-	}
-	nodeMap := make(map[int]*Node, N)
-
-	prevNode := &Node{val: As[0], prev: nil, next: nil}
-	nodeMap[As[0]] = prevNode
-	for i := 1; i < N; i++ {
-		node := &Node{val: As[i], prev: prevNode, next: nil}
-		prevNode.next = node
-		nodeMap[As[i]] = node
-		prevNode = node
-	}
-
-	dump("nodeMap: %v", nodeMap)
+	_, nodeMap := CreateBDList(As)
 
 	Q := readInt(r)
 	for i := 0; i < Q; i++ {
@@ -48,45 +32,26 @@ func main() {
 		q := iarr[0]
 		if q == 1 {
 			x, y := iarr[1], iarr[2]
-
 			xNode := nodeMap[x]
-			xNodeNext := xNode.next
-
-			yNode := &Node{val: y, prev: xNode, next: xNodeNext}
-			xNode.next = yNode
-			if xNodeNext != nil {
-				xNodeNext.prev = yNode
-			}
-			nodeMap[y] = yNode
+			xNode.InsertAfter(y)
+			nodeMap[y] = xNode.next
 		} else {
 			x := iarr[1]
-
 			xNode := nodeMap[x]
-			xNodePrev := xNode.prev
-			xNodeNext := xNode.next
-
-			if xNodePrev != nil {
-				xNodePrev.next = xNodeNext
-			}
-			if xNodeNext != nil {
-				xNodeNext.prev = xNodePrev
-			}
-
+			xNode.Remove()
 			delete(nodeMap, x)
 		}
 	}
 
-	var start *Node
-	for node := range nodeMap {
-		if nodeMap[node].prev == nil {
-			start = nodeMap[node]
-			break
-		}
+	var head *NodeBD[int]
+	for _, node := range nodeMap {
+		head = node.Head()
+		break
 	}
 
-	current := start
+	current := head
 	for current != nil {
-		if current == start {
+		if current == head {
 			fmt.Fprint(w, current.val)
 		} else {
 			fmt.Fprint(w, " ", current.val)
@@ -99,6 +64,62 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+type NodeBD[T comparable] struct {
+	val  T
+	prev *NodeBD[T]
+	next *NodeBD[T]
+}
+
+func (n *NodeBD[T]) Head() *NodeBD[T] {
+	for n.prev != nil {
+		n = n.prev
+	}
+	return n
+}
+
+func (n *NodeBD[T]) Tail() *NodeBD[T] {
+	for n.next != nil {
+		n = n.next
+	}
+	return n
+}
+
+func (n *NodeBD[T]) Remove() {
+	if n.prev != nil {
+		n.prev.next = n.next
+	}
+	if n.next != nil {
+		n.next.prev = n.prev
+	}
+}
+
+func (n *NodeBD[T]) InsertAfter(val T) {
+	node := &NodeBD[T]{val: val, prev: n, next: n.next}
+	if n.next != nil {
+		n.next.prev = node
+	}
+	n.next = node
+}
+
+func CreateBDList[T comparable](sl []T) (head *NodeBD[T], nodeMap map[T]*NodeBD[T]) {
+	if len(sl) == 0 {
+		return nil, nil
+	}
+
+	head = &NodeBD[T]{val: sl[0]}
+	nodeMap = make(map[T]*NodeBD[T])
+	nodeMap[sl[0]] = head
+
+	prev := head
+	for i := 1; i < len(sl); i++ {
+		node := &NodeBD[T]{val: sl[i], prev: prev}
+		prev.next = node
+		prev = node
+		nodeMap[sl[i]] = node
+	}
+	return head, nodeMap
+}
 
 //////////////
 // Helpers  //
