@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/rbtree"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,6 +24,54 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+	Q := readInt(r)
+
+	numWeight := rbtree.New[int, int](comparator.IntComparator)
+
+	weightTolerance := 2 * pow(10, 5)
+	weightBuff := 0
+	for i := 0; i < N; i++ {
+		numWeight.Insert(As[i], i+weightBuff)
+		weightBuff += weightTolerance
+	}
+
+	for i := 0; i < Q; i++ {
+		iarr := readIntArr(r)
+		q := iarr[0]
+
+		if q == 1 {
+			x, y := iarr[1], iarr[2]
+			xw, _ := numWeight.Find(x)
+			numWeight.Insert(y, xw+1)
+		} else {
+			x := iarr[1]
+			xw := numWeight.FindNode(x)
+			numWeight.Delete(xw)
+		}
+	}
+
+	weightNum := rbtree.New[int, int](comparator.IntComparator)
+	node := numWeight.Begin()
+	for node != nil {
+		weight, num := node.Key(), node.Value()
+		weightNum.Insert(num, weight)
+		node = node.Next()
+	}
+
+	node = weightNum.Begin()
+	isFirst := true
+	for node != nil {
+		if isFirst {
+			isFirst = false
+		} else {
+			fmt.Fprint(w, " ")
+		}
+		fmt.Fprint(w, node.Value())
+		node = node.Next()
+	}
+	fmt.Fprintln(w)
 }
 
 //////////////
