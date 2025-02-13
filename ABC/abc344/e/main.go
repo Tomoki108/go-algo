@@ -48,11 +48,15 @@ func main() {
 		q := iarr[0]
 		if q == 1 {
 			x, y := iarr[1], iarr[2]
+
 			xNode := nodeMap[x]
 			xNodeNext := xNode.next
 
 			yNode := &Node{val: y, prev: xNode, next: xNodeNext}
 			xNode.next = yNode
+			if xNodeNext != nil {
+				xNodeNext.prev = yNode
+			}
 			nodeMap[y] = yNode
 		} else {
 			x := iarr[1]
