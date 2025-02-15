@@ -51,7 +51,7 @@ func (seg *LazySegmentTree) Query(l, r int) int {
 	return seg.queryRec(l, r, 1, 0, seg.size)
 }
 
-// updateRec は区間 [l, r) に対して値 val を加算します。（再帰処理）
+// 区間 [l, r) に対して値 val を加算（再帰処理）
 func (seg *LazySegmentTree) updateRec(l, r, val, node, nl, nr int) {
 	// 遅延情報を先に処理
 	seg.push(node, nl, nr)
@@ -73,7 +73,7 @@ func (seg *LazySegmentTree) updateRec(l, r, val, node, nl, nr int) {
 	seg.data[node] = seg.data[2*node] + seg.data[2*node+1]
 }
 
-// queryRec は区間 [l, r) の和を取得する再帰処理です。
+// 区間 [l, r) の和を取得する再帰処理
 func (seg *LazySegmentTree) queryRec(l, r, node, nl, nr int) int {
 	seg.push(node, nl, nr)
 	// 完全に区間外の場合
@@ -91,7 +91,7 @@ func (seg *LazySegmentTree) queryRec(l, r, node, nl, nr int) int {
 	return left + right
 }
 
-// push は遅延情報を子ノードに伝搬し、現在のノードの値を更新します。
+// 遅延情報を子ノードに伝搬し、現在のノードの値を更新
 func (seg *LazySegmentTree) push(node, nl, nr int) {
 	if seg.lazy[node] != 0 {
 		// 現在の区間の総和に対して、遅延値を反映
