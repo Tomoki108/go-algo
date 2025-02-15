@@ -24,6 +24,53 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	oneIndexes := make([]int, 0)
+	for i, s := range Ss {
+		if s == "1" {
+			oneIndexes = append(oneIndexes, i)
+		}
+	}
+
+	if len(oneIndexes) == 1 {
+		fmt.Fprintln(w, 0)
+		return
+	}
+
+	mids := make([]int, 0)
+	if len(oneIndexes)%2 == 0 {
+		midIdx1 := oneIndexes[len(oneIndexes)/2-1]
+		midIdx2 := oneIndexes[len(oneIndexes)/2]
+		mids = append(mids, midIdx1, midIdx2)
+	} else {
+		mids = append(mids, oneIndexes[len(oneIndexes)/2])
+	}
+
+	ans := INT_MAX
+	for _, mid := range mids {
+		ope := 0
+		leftBuff := 0
+		rightBuff := 0
+		for _, oneIdx := range oneIndexes {
+			if oneIdx == mid {
+				continue
+			}
+
+			if oneIdx < mid {
+				ope += mid - 1 - leftBuff - oneIdx
+				leftBuff++
+			} else {
+				ope += oneIdx - (mid + 1 + rightBuff)
+				rightBuff++
+			}
+		}
+		ans = min(ans, ope)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
