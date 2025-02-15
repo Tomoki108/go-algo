@@ -24,6 +24,27 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	T := readStr(r)
+	Ts := strings.Split(T, "")
+
+	for i := 0; i < N; i++ {
+		if Ss[i] == Ts[i] {
+			continue
+		}
+		if (Ss[i] == "0" && Ts[i] == "o") || Ss[i] == "o" && Ts[i] == "0" {
+			continue
+		}
+		if (Ss[i] == "1" && Ts[i] == "l") || Ss[i] == "l" && Ts[i] == "1" {
+			continue
+		}
+		fmt.Println("No")
+		return
+	}
+
+	fmt.Println("Yes")
 }
 
 //////////////
