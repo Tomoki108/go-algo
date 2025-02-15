@@ -24,6 +24,26 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	maxDist := (len(Ss) - 3) / 2
+	// dump("maxDist: %v\n", maxDist)
+
+	ans := 0
+	for dist := 0; dist <= maxDist; dist++ {
+		d := dist
+		for i := 0; i+2+2*d < len(Ss); i++ {
+			// dump("i, dist: %v, %v\n", i, dist)
+			dump("Ss[i], Ss[i+1+d], Ss[i+2+d]: %v, %v, %v\n\n", Ss[i], Ss[i+1+d], Ss[i+2+2*d])
+			if Ss[i] == "A" && Ss[i+1+d] == "B" && Ss[i+2+d+d] == "C" {
+				ans++
+			}
+		}
+	}
+
+	// AABAAABBAEDCCCD
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
