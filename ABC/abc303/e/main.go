@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -26,46 +27,61 @@ func main() {
 	defer w.Flush()
 
 	N := readInt(r)
-	graph := make([][]int, N)
+	graph := make([]map[int]struct{}, N)
 	for i := 0; i < N-1; i++ {
 		u, v := read2Ints(r)
 		u--
 		v--
-		graph[u] = append(graph[u], v)
-		graph[v] = append(graph[v], u)
+		if graph[u] == nil {
+			graph[u] = make(map[int]struct{})
+		}
+		if graph[v] == nil {
+			graph[v] = make(map[int]struct{})
+		}
+		graph[u][v] = struct{}{}
+		graph[v][u] = struct{}{}
 	}
 
-	vs := make(map[int]struct{}, N)      // 星の頂点の候補（=次数2以上）
-	vDegrees := make(map[int]int, N)     // 頂点の次数
-	fixedVs := make(map[int]struct{}, N) // 確定した星の頂点
+	startNode := -1
 	for i := 0; i < N; i++ {
-		vDegrees[i] = len(graph[i])
-		if len(graph[i]) >= 2 {
-			vs[i] = struct{}{}
+		if len(graph[i]) == 1 {
+			startNode = i
+			break
 		}
 	}
 
-	for v := range vs {
-		adjacents := graph[v]
+	if startNode == -1 {
+		panic("startNode not found")
+	}
 
-		// 次数2以上の隣接頂点が1つだけの場合、その頂点を星の頂点として確定する
-		cnt := 0
-		for _, adj := range adjacents {
-			if _, ok := vs[adj]; ok {
-				cnt++
-			}
+	leafQueue := NewQueue[int]()
+	leafQueue.Enqueue(startNode)
+
+	starVs := make(map[int]struct{})
+	for leafQueue.Size() > 0 {
+		leafNode, _ := leafQueue.Dequeue()
+
+		var starV int
+		for node := range graph[leafNode] {
+			starVs[node] = struct{}{}
+			starV = node
 		}
-		if cnt == 1 {
-			fixedVs[v] = struct{}{}
-			for _, adj := range adjacents {
-				delete(vs, adj)
+
+		for node := range graph[starV] {
+			adjacents := graph[node]
+			for adj := range adjacents {
+				if adj == starV {
+					continue
+				}
+				delete(graph[adj], node)
+				leafQueue.Enqueue(adj)
 			}
 		}
 	}
 
-	levels := make([]int, 0, len(fixedVs))
-	for v := range fixedVs {
-		levels = append(levels, len(graph[v]))
+	levels := make([]int, 0, len(starVs))
+	for starV := range starVs {
+		levels = append(levels, len(graph[starV]))
 	}
 	sort.Ints(levels)
 
@@ -75,6 +91,52 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers //
