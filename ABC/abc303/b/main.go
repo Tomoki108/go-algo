@@ -24,11 +24,64 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	ps := make([]int, 0, N)
+	for i := 1; i <= N; i++ {
+		ps = append(ps, i)
+	}
+
+	combinations := PickN([]int{}, ps, 2)
+	type comb struct {
+		x, y int
+	}
+	combs := make([]comb, 0, len(combinations))
+	for _, c := range combinations {
+		combs = append(combs, comb{c[0], c[1]})
+	}
+
+	okMap := make(map[comb]bool)
+
+	for i := 0; i < M; i++ {
+		as := readIntArr(r)
+		for i := 0; i < len(as)-1; i++ {
+			x, y := as[i], as[i+1]
+			x, y = sort2Ints(x, y)
+			okMap[comb{x, y}] = true
+		}
+	}
+
+	ans := len(combs) - len(okMap)
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(nCr) n: len(options), r: n
+// optionsから N個選ぶ組み合わせを全列挙する
+// optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
+func PickN[T comparable](current, options []T, n int) [][]T {
+	var results [][]T
+
+	if n == 0 {
+		return [][]T{current}
+	}
+
+	for i, o := range options {
+		newCurrent := make([]T, len(current), len(current)+1)
+		copy(newCurrent, current)
+		newCurrent = append(newCurrent, o)
+
+		newOptions := make([]T, len(options[i+1:]))
+		copy(newOptions, options[i+1:])
+
+		results = append(results, PickN(newCurrent, newOptions, n-1)...)
+	}
+
+	return results
+}
 
 //////////////
 // Helpers //
