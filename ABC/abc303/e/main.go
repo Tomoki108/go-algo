@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,51 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	graph := make([][]int, N)
+	for i := 0; i < N-1; i++ {
+		u, v := read2Ints(r)
+		u--
+		v--
+		graph[u] = append(graph[u], v)
+		graph[v] = append(graph[v], u)
+	}
+
+	vs := make(map[int]struct{}, N)      // 星の頂点の候補（=次数2以上）
+	vDegrees := make(map[int]int, N)     // 頂点の次数
+	fixedVs := make(map[int]struct{}, N) // 確定した星の頂点
+	for i := 0; i < N; i++ {
+		vDegrees[i] = len(graph[i])
+		if len(graph[i]) >= 2 {
+			vs[i] = struct{}{}
+		}
+	}
+
+	for v := range vs {
+		adjacents := graph[v]
+
+		// 次数2以上の隣接頂点が1つだけの場合、その頂点を星の頂点として確定する
+		cnt := 0
+		for _, adj := range adjacents {
+			if _, ok := vs[adj]; ok {
+				cnt++
+			}
+		}
+		if cnt == 1 {
+			fixedVs[v] = struct{}{}
+			for _, adj := range adjacents {
+				delete(vs, adj)
+			}
+		}
+	}
+
+	levels := make([]int, 0, len(fixedVs))
+	for v := range fixedVs {
+		levels = append(levels, len(graph[v]))
+	}
+	sort.Ints(levels)
+
+	writeSlice(w, levels)
 }
 
 //////////////
