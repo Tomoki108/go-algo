@@ -24,6 +24,18 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	sarr := readStrArr(r)
+	s1, s2 := sarr[0], sarr[1]
+
+	if s1 == "sick" && s2 == "sick" {
+		fmt.Fprintln(w, "1")
+	} else if s1 == "sick" && s2 == "fine" {
+		fmt.Fprintln(w, "2")
+	} else if s1 == "fine" && s2 == "sick" {
+		fmt.Fprintln(w, "3")
+	} else {
+		fmt.Fprintln(w, "4")
+	}
 }
 
 //////////////
