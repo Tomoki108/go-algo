@@ -1,13 +1,12 @@
 package segtree
 
-// LazySegmentTree は区間加算と区間和取得を行う遅延セグメント木の例です。
+// LazySegmentTree は区間加算と区間和取得を行う遅延セグメント木
 type LazySegmentTree struct {
 	n, size int
 	data    []int // 各区間の和を保持（ノードの値）
 	lazy    []int // 遅延伝搬用配列
 }
 
-// NewLazySegmentTree は要素数 n の遅延セグメント木を初期化します。
 // 遅延セグメント木とは：https://qiita.com/Kept1994/items/d156a1ac1fe28553bf94
 func NewLazySegmentTree(n int) *LazySegmentTree {
 	size := 1
@@ -25,7 +24,6 @@ func NewLazySegmentTree(n int) *LazySegmentTree {
 	}
 }
 
-// build は元の配列 arr からセグメント木を構築します。
 func (seg *LazySegmentTree) Build(arr []int) {
 	// 葉ノードに値を設定
 	for i := 0; i < len(arr); i++ {
@@ -41,12 +39,14 @@ func (seg *LazySegmentTree) Build(arr []int) {
 	}
 }
 
-// Update は区間 [l, r) に対して値 val を加算する外部インターフェースです。
+// O(log N) N: 元々の配列の要素数
+// 区間 [l, r) に対して値 val を加算する外部インターフェースです。
 func (seg *LazySegmentTree) Update(l, r, val int) {
 	seg.updateRec(l, r, val, 1, 0, seg.size)
 }
 
-// Query は区間 [l, r) の和を取得する外部インターフェースです。
+// O(log N)
+// 区間 [l, r) の和を取得する
 func (seg *LazySegmentTree) Query(l, r int) int {
 	return seg.queryRec(l, r, 1, 0, seg.size)
 }
