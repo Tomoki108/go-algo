@@ -24,6 +24,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	X, Y, Z := iarr[0], iarr[1], iarr[2]
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	// dp[i][j]
+	// i: i"番目"の文字まで処理した。
+	// j: j=0: CapsLock OFF, j=1: CapsLock ON
+	// val: 最短秒数
+	dp := createGrid(len(Ss)+1, 2, INF)
+	dp[0][0] = 0
+	dp[0][1] = Z
+
+	for i := 0; i < len(Ss); i++ {
+		s := Ss[i]
+		if s == "a" {
+			dp[i+1][0] = min(min(dp[i][0]+X, dp[i][0]+Z+Y+Z), min(dp[i][1]+Z+X, dp[i][1]+Y+Z))
+			dp[i+1][1] = min(min(dp[i][0]+Z+Y, dp[i][0]+X+Z), min(dp[i][1]+Y, dp[i][1]+Z+X+Z))
+		} else {
+			dp[i+1][0] = min(min(dp[i][0]+Y, dp[i][0]+Z+X+Z), min(dp[i][1]+Z+Y, dp[i][1]+X+Z))
+			dp[i+1][1] = min(min(dp[i][0]+Z+X, dp[i][0]+Y+Z), min(dp[i][1]+X, dp[i][1]+Z+Y+Z))
+		}
+	}
+
+	ans := INT_MAX
+	for _, v := range dp[len(Ss)] {
+		updateToMin(&ans, v)
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
