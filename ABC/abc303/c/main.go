@@ -23,7 +23,51 @@ var w = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer w.Flush()
+	iarr := readIntArr(r)
+	N, M, H, K := iarr[0], iarr[1], iarr[2], iarr[3]
+	S := readStr(r)
+	Ss := strings.Split(S, "")
 
+	type coordinate struct {
+		x, y int
+	}
+	items := make(map[coordinate]struct{}, M)
+
+	for i := 0; i < M; i++ {
+		xy := readIntArr(r)
+		x, y := xy[0], xy[1]
+		items[coordinate{x, y}] = struct{}{}
+	}
+
+	current := coordinate{0, 0}
+	health := H
+	for i := 0; i < N; i++ {
+		health--
+		if health < 0 {
+			fmt.Println("No")
+			return
+		}
+
+		s := Ss[i]
+		switch s {
+		case "R":
+			current.x++
+		case "L":
+			current.x--
+		case "U":
+			current.y++
+		case "D":
+			current.y--
+		}
+
+		_, ok := items[current]
+		if ok && health < K {
+			health = K
+			delete(items, current)
+		}
+	}
+
+	fmt.Println("Yes")
 }
 
 //////////////
