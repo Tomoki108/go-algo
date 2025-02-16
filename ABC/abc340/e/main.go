@@ -25,7 +25,7 @@ func main() {
 	As := readIntArr(r)
 	Bs := readIntArr(r)
 
-	segtree := NewLazySegmentTree(N)
+	segtree := NewLazySegTreeSum(N)
 	segtree.Build(As)
 
 	for i := 0; i < M; i++ {
@@ -61,88 +61,75 @@ func main() {
 // ////////////
 // Libs    //
 // ///////////
-type LazySegmentTree struct {
-	n, size int
-	data    []int // 各区間の和を保持（ノードの値）
-	lazy    []int // 遅延伝搬用配列
+// 区間和の遅延セグメント木
+// 遅延セグメント木とは：https://qiita.com/Kept1994/items/d156a1ac1fe28553bf94
+type LazySegTreeSum struct {
+	originSize int
+	leafSize   int
+	data       []int
+	lazy       []int // 遅延伝搬用配列
 }
 
-// NewLazySegmentTree は要素数 n の遅延セグメント木を初期化します。
-func NewLazySegmentTree(n int) *LazySegmentTree {
-	size := 1
-	for size < n {
-		size *= 2
+// O(N) N: 元々の配列の要素数
+func NewLazySegTreeSum(n int) *LazySegTreeSum {
+	leafSize := 1
+	for leafSize < n {
+		leafSize *= 2
 	}
-	// 2*size は完全2分木のノード数の上限
-	data := make([]int, 2*size)
-	lazy := make([]int, 2*size)
-	return &LazySegmentTree{
-		n:    n,
-		size: size,
-		data: data,
-		lazy: lazy,
+	data := make([]int, 2*leafSize)
+	lazy := make([]int, 2*leafSize)
+	return &LazySegTreeSum{
+		originSize: n,
+		leafSize:   leafSize,
+		data:       data,
+		lazy:       lazy,
 	}
 }
 
-// build は元の配列 arr からセグメント木を構築します。
-func (seg *LazySegmentTree) Build(arr []int) {
-	// 葉ノードに値を設定
+// O(N) N: 元々の配列の要素数
+func (seg *LazySegTreeSum) Build(arr []int) {
 	for i := 0; i < len(arr); i++ {
-		seg.data[i+seg.size] = arr[i]
+		seg.data[i+seg.leafSize] = arr[i]
 	}
-	// 足りない葉は単位元（ここでは0）で初期化
-	for i := len(arr); i < seg.size; i++ {
-		seg.data[i+seg.size] = 0
-	}
-	// 内部ノードの値を構築（ここでは和）
-	for i := seg.size - 1; i > 0; i-- {
+	for i := seg.leafSize - 1; i > 0; i-- {
 		seg.data[i] = seg.data[2*i] + seg.data[2*i+1]
 	}
 }
 
-// push は遅延情報を子ノードに伝搬し、現在のノードの値を更新します。
-func (seg *LazySegmentTree) push(node, nl, nr int) {
-	if seg.lazy[node] != 0 {
-		// 現在の区間の総和に対して、遅延値を反映
-		seg.data[node] += seg.lazy[node] * (nr - nl)
-		// 子ノードが存在する場合は、遅延情報を子へ伝搬
-		if node < seg.size {
-			seg.lazy[2*node] += seg.lazy[node]
-			seg.lazy[2*node+1] += seg.lazy[node]
-		}
-		seg.lazy[node] = 0
-	}
+// O(log N) N: 元々の配列の要素数
+// [originL, originR) に対して値 val を加算
+func (seg *LazySegTreeSum) Update(originL, originR, val int) {
+	seg.updateRec(originL, originR, val, 1, 0, seg.leafSize)
 }
 
-// updateRec は区間 [l, r) に対して値 val を加算します。（再帰処理）
-func (seg *LazySegmentTree) updateRec(l, r, val, node, nl, nr int) {
+// O(log N) N: 元々の配列の要素数
+// [originL, originR) の和を取得
+func (seg *LazySegTreeSum) Query(l, r int) int {
+	return seg.queryRec(l, r, 1, 0, seg.leafSize)
+}
+
+func (seg *LazySegTreeSum) updateRec(originL, originR, val, currentNode, nl, nr int) {
 	// 遅延情報を先に処理
-	seg.push(node, nl, nr)
+	seg.push(currentNode, nl, nr)
 	// 完全に区間外の場合
-	if r <= nl || nr <= l {
+	if originR <= nl || nr <= originL {
 		return
 	}
 	// 完全に区間内の場合
-	if l <= nl && nr <= r {
-		seg.lazy[node] += val
-		seg.push(node, nl, nr)
+	if originL <= nl && nr <= originR {
+		seg.lazy[currentNode] += val
+		seg.push(currentNode, nl, nr)
 		return
 	}
 	// 部分的に区間と重なる場合は子に伝搬
 	mid := (nl + nr) / 2
-	seg.updateRec(l, r, val, 2*node, nl, mid)
-	seg.updateRec(l, r, val, 2*node+1, mid, nr)
+	seg.updateRec(originL, originR, val, 2*currentNode, nl, mid)
+	seg.updateRec(originL, originR, val, 2*currentNode+1, mid, nr)
 	// 子の値から親の値を再計算
-	seg.data[node] = seg.data[2*node] + seg.data[2*node+1]
+	seg.data[currentNode] = seg.data[2*currentNode] + seg.data[2*currentNode+1]
 }
 
-// Update は区間 [l, r) に対して値 val を加算する外部インターフェースです。
-func (seg *LazySegmentTree) Update(l, r, val int) {
-	seg.updateRec(l, r, val, 1, 0, seg.size)
-}
-
-// queryRec は区間 [l, r) の和を取得する再帰処理です。
-func (seg *LazySegmentTree) queryRec(l, r, node, nl, nr int) int {
+func (seg *LazySegTreeSum) queryRec(l, r, node, nl, nr int) int {
 	seg.push(node, nl, nr)
 	// 完全に区間外の場合
 	if r <= nl || nr <= l {
@@ -159,20 +146,18 @@ func (seg *LazySegmentTree) queryRec(l, r, node, nl, nr int) int {
 	return left + right
 }
 
-// Query は区間 [l, r) の和を取得する外部インターフェースです。
-func (seg *LazySegmentTree) Query(l, r int) int {
-	return seg.queryRec(l, r, 1, 0, seg.size)
-}
-
-// O(n)
-// 一次元累積和を返す（index0には0を入れる。）
-func PrefixSum(sl []int) []int {
-	n := len(sl)
-	res := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		res[i+1] = res[i] + sl[i]
+// 遅延情報を子ノードに伝搬し、現在のノードの値を更新
+func (seg *LazySegTreeSum) push(node, nl, nr int) {
+	if seg.lazy[node] != 0 {
+		// 現在の区間の総和に対して、遅延値を反映
+		seg.data[node] += seg.lazy[node] * (nr - nl)
+		// 子ノードが存在する場合は、遅延情報を子へ伝搬
+		if node < seg.leafSize {
+			seg.lazy[2*node] += seg.lazy[node]
+			seg.lazy[2*node+1] += seg.lazy[node]
+		}
+		seg.lazy[node] = 0
 	}
-	return res
 }
 
 //////////////
