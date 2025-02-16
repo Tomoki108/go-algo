@@ -27,6 +27,33 @@ func main() {
 	N, K := read2Ints(r)
 	As := readIntArr(r)
 
+	maxA := 0
+	numCnt := make(map[int]int, N)
+	for _, A := range As {
+		numCnt[A]++
+		maxA = max(maxA, A)
+	}
+
+	multipleCnt := make(map[int]int, N)
+	for i := 1; i <= maxA; i++ {
+		for j := i; j <= maxA; j += i {
+			multipleCnt[i] += numCnt[j]
+		}
+	}
+
+	ansSl := make([]int, maxA)   // ansSl[i]: Aがi+1のときの最大の約数
+	for i := 1; i <= maxA; i++ { // 1~maxAまでの約数を試す
+		if multipleCnt[i] < K {
+			continue
+		}
+		for n := i; n <= maxA; n += i { // 現在の約数の倍数であるnについて、最大の約数を更新
+			ansSl[n-1] = max(ansSl[n-1], i)
+		}
+	}
+
+	for _, A := range As {
+		fmt.Fprintln(w, ansSl[A-1])
+	}
 }
 
 //////////////
