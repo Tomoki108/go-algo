@@ -15,3 +15,17 @@ func TestSegTreeSum(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
+
+func TestSegTreeMin(t *testing.T) {
+	st := NewSegTreeMin(5)
+	st.Build([]int{1, 2, 3, 4, 5})
+
+	if got, want := st.Query(0, 3), 1; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	st.Update(2, 10)
+	if got, want := st.Query(0, 3), 1; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
