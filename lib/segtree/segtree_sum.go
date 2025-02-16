@@ -1,14 +1,14 @@
 package segtree
 
 // 区間和のセグメント木
-// セグメント木とは：https://qiita.com/Kept1994/items/d156a1ac1fe28553bf94#%E3%81%9D%E3%82%82%E3%81%9D%E3%82%82%E3%82%BB%E3%82%B0%E6%9C%A8%E3%81%A8%E3%81%AF
+// セグメント木とは：https://qiita.com/Kept1994/items/d156a1ac1fe28553bf94
 type SegTreeSum struct {
 	originSize int
 	leafSize   int
 	data       []int
 }
 
-// O(N)
+// O(N) N: 元々の配列の要素数
 func NewSegTreeSum(n int) *SegTreeSum {
 	leafSize := 1
 	for leafSize < n {
@@ -27,7 +27,7 @@ func NewSegTreeSum(n int) *SegTreeSum {
 	}
 }
 
-// O(N)
+// O(N) N: 元々の配列の要素数
 func (st *SegTreeSum) Build(arr []int) {
 	// 葉ノードに値を設定
 	for i := 0; i < len(arr); i++ {
@@ -39,7 +39,7 @@ func (st *SegTreeSum) Build(arr []int) {
 	}
 }
 
-// O(log N)
+// O(log N) N: 元々の配列の要素数
 // idx番目の値をvalueに更新
 func (st *SegTreeSum) Update(originIdx, value int) {
 	idx := originIdx + st.leafSize
@@ -50,7 +50,7 @@ func (st *SegTreeSum) Update(originIdx, value int) {
 	}
 }
 
-// O(log N)
+// O(log N) N: 元々の配列の要素数
 // [originL, originR) の範囲の和を取得
 func (st *SegTreeSum) Query(originL, originR int) int {
 	return st.queryRec(originL, originR, 1, 0, st.leafSize)
