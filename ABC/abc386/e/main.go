@@ -29,24 +29,33 @@ func main() {
 	}
 
 	ans := intMin
-	if K < N-K {
-		combinations := PickN([]int{}, As, K)
-		for _, as := range combinations {
+
+	var dfs func(current []int, n, idx int, complementary bool)
+	dfs = func(current []int, idx, n int, complementary bool) {
+		if len(current) == n {
 			xor := 0
-			for _, a := range as {
+			for _, a := range current {
 				xor ^= a
 			}
+			if complementary {
+				xor = xorAll ^ xor
+			}
 			ans = max(ans, xor)
+			return
 		}
+
+		short := n - len(current)
+		for i := idx + 1; i < N-(short-1); i++ {
+			current = append(current, As[i])
+			dfs(current, i, n, complementary)
+			current = current[:len(current)-1]
+		}
+	}
+
+	if K < N-K {
+		dfs([]int{}, -1, K, false)
 	} else {
-		combinations := PickN([]int{}, As, N-K)
-		for _, as := range combinations {
-			xor := xorAll
-			for _, a := range as {
-				xor ^= a
-			}
-			ans = max(ans, xor)
-		}
+		dfs([]int{}, -1, N-K, true)
 	}
 
 	fmt.Fprintln(w, ans)
@@ -55,30 +64,6 @@ func main() {
 //////////////
 // Libs    //
 /////////////
-
-// O(nCr) n: len(options), r: n
-// optionsから N個選ぶ組み合わせを全列挙する
-// optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
-func PickN[T comparable](current, options []T, n int) [][]T {
-	var results [][]T
-
-	if n == 0 {
-		return [][]T{current}
-	}
-
-	for i, o := range options {
-		newCurrent := make([]T, len(current), len(current)+1)
-		copy(newCurrent, current)
-		newCurrent = append(newCurrent, o)
-
-		newOptions := make([]T, len(options[i+1:]))
-		copy(newOptions, options[i+1:])
-
-		results = append(results, PickN(newCurrent, newOptions, n-1)...)
-	}
-
-	return results
-}
 
 //////////////
 // Helpers  //

@@ -42,7 +42,7 @@ func reverse[T ~int | ~string](sl []T) {
 	}
 }
 
-// NOTE: スライスのcopyが多く、n = 10 程度で致命的に遅い。NetxPermutationを推奨。
+// NOTE: スライスのcopyが多く、n = 10 程度で致命的に遅い. NetxPermutationを推奨.
 //
 // O(n!) n: len(options)
 // 順列のパターンを全列挙する

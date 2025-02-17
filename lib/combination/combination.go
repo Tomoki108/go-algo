@@ -18,25 +18,28 @@ func CombinationNum(n, r int) int {
 	return result
 }
 
+// // NOTE: スライスのcopyが多く、n = 10 程度で致命的に遅い.
+
 // O(nCr) n: len(options), r: n
 // optionsから N個選ぶ組み合わせを全列挙する
-// optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
+// optionsにはソート済みのスライスを渡すこと（戻り値が辞書順になる）
+// 同じ値を区別しない場合は、要素に重複のないスライスを渡すこと（重複組み合わせが排除される）
 func PickN[T comparable](current, options []T, n int) [][]T {
 	var results [][]T
 
 	if n == 0 {
-		return [][]T{current}
+		ccurrent := make([]T, len(current))
+		copy(ccurrent, current)
+		return [][]T{ccurrent}
 	}
 
 	for i, o := range options {
-		newCurrent := make([]T, len(current), len(current)+1)
-		copy(newCurrent, current)
-		newCurrent = append(newCurrent, o)
-
+		current = append(current, o)
 		newOptions := make([]T, len(options[i+1:]))
 		copy(newOptions, options[i+1:])
 
-		results = append(results, PickN(newCurrent, newOptions, n-1)...)
+		results = append(results, PickN(current, newOptions, n-1)...)
+		current = current[:len(current)-1]
 	}
 
 	return results
