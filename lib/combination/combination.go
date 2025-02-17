@@ -18,8 +18,8 @@ func CombinationNum(n, r int) int {
 	return result
 }
 
-// // NOTE: スライスのcopyが多く、n = 10 程度で致命的に遅い.
-
+// NOTE: スライスのcopyが多く、n = 10 程度で致命的に遅い. DFSで組み合わせに対して逐次処理をすることを推奨.
+//
 // O(nCr) n: len(options), r: n
 // optionsから N個選ぶ組み合わせを全列挙する
 // optionsにはソート済みのスライスを渡すこと（戻り値が辞書順になる）
