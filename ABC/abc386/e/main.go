@@ -20,11 +20,65 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, K := read2Ints(r)
+	As := readIntArr(r)
+
+	xorAll := 0
+	for _, a := range As {
+		xorAll ^= a
+	}
+
+	ans := intMin
+	if K < N-K {
+		combinations := PickN([]int{}, As, K)
+		for _, as := range combinations {
+			xor := 0
+			for _, a := range as {
+				xor ^= a
+			}
+			ans = max(ans, xor)
+		}
+	} else {
+		combinations := PickN([]int{}, As, N-K)
+		for _, as := range combinations {
+			xor := xorAll
+			for _, a := range as {
+				xor ^= a
+			}
+			ans = max(ans, xor)
+		}
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(nCr) n: len(options), r: n
+// optionsから N個選ぶ組み合わせを全列挙する
+// optionsにはソート済みかつ要素に重複のないスライスを渡すこと（戻り値が辞書順になり、重複組み合わせも排除される）
+func PickN[T comparable](current, options []T, n int) [][]T {
+	var results [][]T
+
+	if n == 0 {
+		return [][]T{current}
+	}
+
+	for i, o := range options {
+		newCurrent := make([]T, len(current), len(current)+1)
+		copy(newCurrent, current)
+		newCurrent = append(newCurrent, o)
+
+		newOptions := make([]T, len(options[i+1:]))
+		copy(newOptions, options[i+1:])
+
+		results = append(results, PickN(newCurrent, newOptions, n-1)...)
+	}
+
+	return results
+}
 
 //////////////
 // Helpers  //
