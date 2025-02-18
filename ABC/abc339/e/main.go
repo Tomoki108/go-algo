@@ -24,7 +24,7 @@ func main() {
 	N, D := read2Ints(r)
 	As := readIntArr(r)
 
-	memos := make(map[string]bool, N)
+	memos := make(map[string]int, N)
 	genKey := func(idx, lastNum int) string {
 		return fmt.Sprintf("%d-%d", idx, lastNum)
 	}
@@ -36,20 +36,23 @@ func main() {
 		if idx == N {
 			return
 		}
+		if currentLen+(N-idx) <= maxAns {
+			return
+		}
 
 		key := genKey(idx, lastNum)
-		if memos[key] {
+		if val, ok := memos[key]; ok && val >= currentLen {
 			return
 		}
 
 		if lastNum == -1 || abs(lastNum-As[idx]) <= D {
-			memos[genKey(idx, As[idx])] = true
+			memos[genKey(idx, As[idx])] = currentLen + 1
 			maxAns = max(maxAns, currentLen+1)
 
 			dp(idx+1, As[idx], currentLen+1)
 		}
 
-		memos[genKey(idx, lastNum)] = true
+		memos[genKey(idx, lastNum)] = currentLen
 		dp(idx+1, lastNum, currentLen)
 	}
 
