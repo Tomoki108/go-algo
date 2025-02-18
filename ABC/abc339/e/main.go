@@ -21,6 +21,41 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, D := read2Ints(r)
+	As := readIntArr(r)
+
+	memos := make(map[string]bool, N)
+	genKey := func(idx, lastNum int) string {
+		return fmt.Sprintf("%d-%d", idx, lastNum)
+	}
+
+	maxAns := 0
+
+	var dp func(idx, lastNum, currentLen int)
+	dp = func(idx, lastNum, currentLen int) {
+		if idx == N {
+			return
+		}
+
+		key := genKey(idx, lastNum)
+		if memos[key] {
+			return
+		}
+
+		if lastNum == -1 || abs(lastNum-As[idx]) <= D {
+			memos[genKey(idx, As[idx])] = true
+			maxAns = max(maxAns, currentLen+1)
+
+			dp(idx+1, As[idx], currentLen+1)
+		}
+
+		memos[genKey(idx, lastNum)] = true
+		dp(idx+1, lastNum, currentLen)
+	}
+
+	dp(0, -1, 0)
+
+	fmt.Fprintln(w, maxAns)
 }
 
 //////////////
