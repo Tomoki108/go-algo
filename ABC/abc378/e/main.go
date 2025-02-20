@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,11 +25,55 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	As := readIntArr(r)
+
+	psum := PrefixSum(As)
+
+	sum := 0
+	for i := 0; i < N; i++ {
+		// appearCountForward := N - i
+		// appearCountBackward := i
+		// appearCout := appearCountForward * appearCountBackward
+		sum += As[i] * (N - i) * (i + 1)
+
+		limit := M
+		for {
+			idx := sort.Search(len(psum), func(j int) bool {
+				return psum[j]-psum[i] >= limit
+			})
+			if idx == len(psum) {
+				break
+			}
+			idx-- // 累積和の番兵分を引く
+
+			appearCountForward := N - i
+			lowerCountForward := idx - i
+			upperCountForward := appearCountForward - lowerCountForward
+
+			sum -= upperCountForward * M
+			limit += M
+		}
+
+	}
+
+	fmt.Fprintln(w, sum)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers //
