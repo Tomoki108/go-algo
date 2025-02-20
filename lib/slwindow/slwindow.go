@@ -7,7 +7,7 @@ func SlWindowExample(sl []int, targetSum int) string {
 	// sl := []int{1, 2, 29, 4, 11, 6, 2, 9, 9}
 	// targetSum := 17
 
-	// (lefgt, right] の範囲の和を考える
+	// (left, right] の範囲の和を考える
 	left := 0
 	right := 0
 	currentSum := 0

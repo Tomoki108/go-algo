@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -31,34 +30,40 @@ func main() {
 		As[i] %= M
 	}
 
-	psum := PrefixSum(As)
-
 	sum := 0
 	for i := 0; i < N; i++ {
-		// appearCountForward := N - i
-		// appearCountBackward := i
-		// appearCout := appearCountForward * appearCountBackward
 		sum += As[i] * (N - i) * (i + 1)
+	}
 
-		limit := M
-		for {
-			idx := sort.Search(len(psum), func(j int) bool {
-				return psum[j]-psum[i] >= limit
-			})
-			if idx == len(psum) {
+	cnt := 0
+
+	// [left, right)
+	left := 0
+	right := 1
+	currentSum := As[0]
+	for right < N {
+		currentSum += As[right]
+		right++
+
+		if currentSum < M {
+			continue
+		}
+
+		for currentSum >= M {
+			cnt += N - (right - 1)
+
+			currentSum -= As[left]
+			left++
+
+			if left == right {
+				currentSum = 0
 				break
 			}
-			idx-- // 累積和の番兵分を引く
-
-			appearCountForward := N - i
-			lowerCountForward := idx - i
-			upperCountForward := appearCountForward - lowerCountForward
-
-			sum -= upperCountForward * M
-			limit += M
 		}
 
 	}
+
+	sum -= cnt * M
 
 	fmt.Fprintln(w, sum)
 }
