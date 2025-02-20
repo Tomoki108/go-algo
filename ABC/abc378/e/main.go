@@ -27,6 +27,9 @@ func main() {
 
 	N, M := read2Ints(r)
 	As := readIntArr(r)
+	for i := 0; i < N; i++ {
+		As[i] %= M
+	}
 
 	psum := PrefixSum(As)
 
