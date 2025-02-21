@@ -20,40 +20,64 @@ var w = bufio.NewWriter(os.Stdout)
 
 func main() {
 	N := readInt(r)
+	M := Log(N)
 
-	M := N - 1
 	fmt.Fprintln(w, M)
+
+	toDrink := make([][]int, M)
+	for i := 0; i < N; i++ { // bit pattern, iはi+1本目のジュースに対応
+		for j := 0; j < M; j++ {
+			if IsBitPop(uint64(i), j) {
+				toDrink[M-1-j] = append(toDrink[M-1-j], i+1)
+			}
+		}
+	}
+
+	for _, v := range toDrink {
+		fmt.Fprint(w, len(v), " ")
+		writeSlice(w, v)
+	}
 	w.Flush()
 
-	end := N - 1
-	for i := 1; i <= M; i++ {
-		toDrink := make([]string, 0, end)
-		for j := 1; j <= end; j++ {
-			toDrink = append(toDrink, strconv.Itoa(j))
-		}
-
-		fmt.Fprintln(w, end, strings.Join(toDrink, " "))
-		w.Flush()
-		end--
-	}
-
 	S := readStr(r)
-	Ss := strings.Split(S, "")
-	candidate := N
+	sb, _ := strconv.ParseInt(S, 2, 64)
+
+	ans := 0
 	for i := 0; i < M; i++ {
-		if Ss[i] == "0" {
-			fmt.Fprintln(w, candidate)
-			w.Flush()
-			return
+		if IsBitPop(uint64(sb), i) {
+			ans += pow(2, i)
 		}
-		candidate--
 	}
 
+	fmt.Fprintln(w, ans+1)
+	w.Flush()
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log(n))
+// log_2_nを返す
+func Log(n int) int {
+	ans := 1
+	for {
+		if n == 1 {
+			break
+		}
+		n /= 2
+		ans++
+	}
+
+	return ans
+}
+
+// k桁目のビットが1かどうかを判定（一番右を0桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << k はビットマスク。1をk桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << k)) != 0
+}
 
 //////////////
 // Helpers  //

@@ -78,3 +78,18 @@ func LCM(a, b int) int {
 	gcd, _, _ := GCD(a, b)
 	return a * b / gcd
 }
+
+// O(log(n))
+// log_2_nを返す
+func Log(n int) int {
+	ans := 1
+	for {
+		if n == 1 {
+			break
+		}
+		n /= 2
+		ans++
+	}
+
+	return ans
+}
