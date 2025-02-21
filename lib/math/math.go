@@ -79,17 +79,16 @@ func LCM(a, b int) int {
 	return a * b / gcd
 }
 
-// O(log(n))
-// log_2_nを返す
-func Log(n int) int {
-	ans := 1
-	for {
-		if n == 1 {
-			break
-		}
-		n /= 2
-		ans++
+func Log2Ceil(n int) int {
+	// nが1の場合はビット数0 (ただし問題設定に応じて1にすべきかは要考慮)
+	if n <= 1 {
+		return 0
 	}
 
+	ans := 0
+	// 1 << ans (2^ans) が n に追いつくまで回す
+	for (1 << ans) < n {
+		ans++
+	}
 	return ans
 }

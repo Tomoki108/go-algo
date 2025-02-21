@@ -20,7 +20,7 @@ var w = bufio.NewWriter(os.Stdout)
 
 func main() {
 	N := readInt(r)
-	M := Log(N)
+	M := Log2Ceil(N)
 
 	fmt.Fprintln(w, M)
 
@@ -42,14 +42,14 @@ func main() {
 	S := readStr(r)
 	sb, _ := strconv.ParseInt(S, 2, 64)
 
-	ans := 0
-	for i := 0; i < M; i++ {
-		if IsBitPop(uint64(sb), i) {
-			ans += pow(2, i)
-		}
-	}
+	// ans := 0
+	// for i := 0; i < M; i++ {
+	// 	if IsBitPop(uint64(sb), i) {
+	// 		ans += pow(2, i)
+	// 	}
+	// }
 
-	fmt.Fprintln(w, ans+1)
+	fmt.Fprintln(w, sb+1)
 	w.Flush()
 }
 
@@ -57,18 +57,17 @@ func main() {
 // Libs    //
 /////////////
 
-// O(log(n))
-// log_2_nを返す
-func Log(n int) int {
-	ans := 1
-	for {
-		if n == 1 {
-			break
-		}
-		n /= 2
-		ans++
+func Log2Ceil(n int) int {
+	// nが1の場合はビット数0 (ただし問題設定に応じて1にすべきかは要考慮)
+	if n <= 1 {
+		return 0
 	}
 
+	ans := 0
+	// 1 << ans (2^ans) が n に追いつくまで回す
+	for (1 << ans) < n {
+		ans++
+	}
 	return ans
 }
 
