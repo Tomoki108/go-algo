@@ -19,7 +19,35 @@ var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
 func main() {
-	defer w.Flush()
+	N := readInt(r)
+
+	M := N - 1
+	fmt.Fprintln(w, M)
+	w.Flush()
+
+	end := N - 1
+	for i := 1; i <= M; i++ {
+		toDrink := make([]string, 0, end)
+		for j := 1; j <= end; j++ {
+			toDrink = append(toDrink, strconv.Itoa(j))
+		}
+
+		fmt.Fprintln(w, end, strings.Join(toDrink, " "))
+		w.Flush()
+		end--
+	}
+
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	candidate := N
+	for i := 0; i < M; i++ {
+		if Ss[i] == "0" {
+			fmt.Fprintln(w, candidate)
+			w.Flush()
+			return
+		}
+		candidate--
+	}
 
 }
 
