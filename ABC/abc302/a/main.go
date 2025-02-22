@@ -24,6 +24,14 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	A, B := read2Ints(r)
+
+	ans := A / B
+	if A%B != 0 {
+		ans++
+	}
+	fmt.Println(ans)
+
 }
 
 //////////////
