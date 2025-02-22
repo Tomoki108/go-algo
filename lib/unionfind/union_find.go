@@ -54,22 +54,22 @@ func (uf *UnionFind) IsSameRoot(xIdx, yIdx int) bool {
 	return uf.Find(xIdx) == uf.Find(yIdx)
 }
 
-// O(N)
+// O(N * α(N))
 func (uf *UnionFind) CountRoots() int {
 	count := 0
 	for i := range uf.parent {
-		if uf.parent[i] == i {
+		if uf.Find(i) == i {
 			count++
 		}
 	}
 	return count
 }
 
-// O(N)
+// O(N * α(N))
 func (uf *UnionFind) Roots() []int {
 	roots := make([]int, 0)
 	for i := range uf.parent {
-		if uf.parent[i] == i {
+		if uf.Find(i) == i {
 			roots = append(roots, i)
 		}
 	}
