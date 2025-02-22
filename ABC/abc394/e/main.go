@@ -79,23 +79,9 @@ func main() {
 				for _, sAdjacent := range sAdjacents {
 					sMap[labels[item.startNode][sAdjacent]] = sAdjacent
 				}
-
 				eAdjacents := reverse_graph[item.endNode]
-				if i == 3 && j == 1 {
-					dump("eAdjacents: %v\n", eAdjacents)
-				}
 				for _, eAdjacent := range eAdjacents {
-
-					if i == 3 && j == 1 {
-						dump("labels[%v][%v]: %v\n", eAdjacent, item.endNode, labels[eAdjacent][item.endNode])
-					}
 					eMap[labels[eAdjacent][item.endNode]] = eAdjacent
-				}
-
-				if i == 3 && j == 1 {
-					dump("i: %v, j: %v\n", i, j)
-					dump("sMap: %v\n", sMap)
-					dump("eMap: %v\n\n", eMap)
 				}
 
 				if len(sMap) > len(eMap) {
