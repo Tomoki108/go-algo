@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -24,11 +25,156 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	graph := make([][]int, N)
+	reverse_graph := make([][]int, N)
+
+	labels := make([][]string, N)
+	for i := 0; i < N; i++ {
+		labels[i] = make([]string, N)
+	}
+
+	for i := 0; i < N; i++ {
+		Cs := readStr(r)
+		Csl := strings.Split(Cs, "")
+		for j := 0; j < N; j++ {
+			graph[i] = append(graph[i], j)
+			reverse_graph[j] = append(reverse_graph[j], i)
+			labels[i][j] = Csl[j]
+		}
+	}
+
+	ans := make([][]int, N)
+	for i := 0; i < N; i++ {
+		ans[i] = make([]int, N)
+	}
+
+	for i := 0; i < N; i++ {
+	Outer:
+		for j := 0; j < N; j++ {
+			if i == j {
+				if labels[i][j] != "-" {
+					ans[i][j] = 0
+				} else {
+					ans[i][j] = -1
+				}
+				continue
+			}
+
+			q := NewQueue[qItem]()
+			q.Enqueue(qItem{currentLen: 0, startNode: i, endNode: j})
+
+			for !q.IsEmpty() {
+				item, _ := q.Dequeue()
+
+				sMap := make(map[string]int) // nextStr -> nextNode
+				eMap := make(map[string]int) // nextStr -> nextNode
+
+				sAdjacents := graph[item.startNode]
+				for _, sAdjacent := range sAdjacents {
+					sMap[labels[item.startNode][sAdjacent]] = sAdjacent
+				}
+
+				eAdjacents := reverse_graph[item.endNode]
+				for _, eAdjacent := range eAdjacents {
+					eMap[labels[eAdjacent][item.endNode]] = eAdjacent
+				}
+
+				if len(sMap) > len(eMap) {
+					for nextString, endNextNode := range eMap {
+						if startNextNode, ok := sMap[nextString]; ok {
+							if startNextNode == endNextNode {
+								ans[i][j] = item.currentLen + 1
+								continue Outer
+							} else {
+								q.Enqueue(qItem{
+									currentLen: item.currentLen + 1,
+									startNode:  startNextNode,
+									endNode:    endNextNode,
+								})
+							}
+						}
+					}
+				} else {
+					for nextString, startNextNode := range sMap {
+						if endNextNode, ok := eMap[nextString]; ok {
+							if startNextNode == endNextNode {
+								ans[i][j] = item.currentLen + 1
+								continue Outer
+							} else {
+								q.Enqueue(qItem{
+									currentLen: item.currentLen + 1,
+									startNode:  startNextNode,
+									endNode:    endNextNode,
+								})
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	for _, sl := range ans {
+		writeSlice(w, sl)
+	}
+}
+
+type qItem struct {
+	currentLen int
+	startNode  int
+	endNode    int
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers //
