@@ -24,6 +24,28 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	var rec func(i int)
+	rec = func(i int) {
+		if i >= len(Ss)-1 || i < 0 {
+			return
+		}
+
+		if Ss[i] == "W" && Ss[i+1] == "A" {
+			Ss[i], Ss[i+1] = "A", "C"
+			rec(i - 1)
+		}
+	}
+
+	for i := 0; i < len(Ss); i++ {
+		if Ss[i] == "W" {
+			rec(i)
+		}
+	}
+
+	writeSliceWithoutSpace(w, Ss)
 }
 
 //////////////
