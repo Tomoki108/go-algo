@@ -24,18 +24,13 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
-	N, _ := read2Ints(r)
+	N, M := read2Ints(r)
 
-	Ss := make([]map[string]struct{}, N)
+	Ss := make([][]string, 0, N)
 	for i := 0; i < N; i++ {
 		s := readStr(r)
 		ss := strings.Split(s, "")
-
-		m := make(map[string]struct{})
-		for _, v := range ss {
-			m[v] = struct{}{}
-		}
-		Ss[i] = m
+		Ss = append(Ss, ss)
 	}
 
 	indexes := make([]int, 0, N)
@@ -52,8 +47,8 @@ func main() {
 			ss2 := Ss[indexes[i+1]]
 
 			diff := 0
-			for k := range ss1 {
-				if _, ok := ss2[k]; !ok {
+			for j := 0; j < M; j++ {
+				if ss1[j] != ss2[j] {
 					diff++
 				}
 			}
