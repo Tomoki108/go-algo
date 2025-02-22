@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,11 +25,84 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, M, D := iarr[0], iarr[1], iarr[2]
+
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	AsDesc := make([]int, N)
+	BsDesc := make([]int, M)
+	copy(AsDesc, As)
+	copy(BsDesc, Bs)
+	sort.Slice(AsDesc, func(i, j int) bool {
+		return AsDesc[i] > AsDesc[j]
+	})
+	sort.Slice(BsDesc, func(i, j int) bool {
+		return BsDesc[i] > BsDesc[j]
+	})
+
+	ans := INT_MIN
+	for i := 0; i < N; i++ {
+		idx1 := sort.Search(M, func(j int) bool {
+			return BsDesc[j] <= AsDesc[i]
+		})
+		if idx1 == M {
+			continue
+		}
+
+		if AsDesc[i]-BsDesc[idx1] <= D {
+			ans = max(ans, AsDesc[i]+BsDesc[idx1])
+		}
+	}
+
+	for i := 0; i < M; i++ {
+		idx1 := sort.Search(N, func(j int) bool {
+			return AsDesc[j] <= BsDesc[i]
+		})
+		if idx1 == N {
+			continue
+		}
+
+		if BsDesc[i]-AsDesc[idx1] <= D {
+			ans = max(ans, BsDesc[i]+AsDesc[idx1])
+		}
+	}
+
+	if ans == INT_MIN {
+		fmt.Fprintln(w, -1)
+	} else {
+		fmt.Fprintln(w, ans)
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log(high-low))
+// high, high-1, ..., lowの範囲で条件を満たす最大の値を二分探索する
+// high~lowは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はhigh+1を返す
+func DescIntSearch(high, low int, f func(num int) bool) int {
+	for low < high {
+		// オーバーフローを防ぐための式.
+		// 中央値はhigh側に寄る（+1しているため）
+		mid := low + (high-low+1)/2
+		if f(mid) {
+			low = mid // 条件を満たす場合、よりhigh側の範囲を探索
+		} else {
+			high = mid - 1 // 条件を満たさない場合、よりlow側の範囲を探索
+		}
+	}
+
+	// 最後に high(=low) が条件を満たしているかを確認
+	if f(high) {
+		return high
+	}
+
+	return high + 1 // 条件を満たす値が見つからない場合
+}
 
 //////////////
 // Helpers //
