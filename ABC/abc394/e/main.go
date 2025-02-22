@@ -84,65 +84,95 @@ func main() {
 					eMap[labels[eAdjacent][item.endNode]] = eAdjacent
 				}
 
-				if len(sMap) > len(eMap) {
-					for nextString, endNextNode := range eMap {
-						if startNextNode, ok := sMap[nextString]; ok {
-							if startNextNode == item.startNode && endNextNode == item.endNode {
-								continue
-							}
-
-							if startNextNode == item.endNode {
-								ans[i][j] = item.currentLen + 1
-
-								if i == 3 && j == 1 {
-									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
-								}
-								continue Outer
-							} else if startNextNode == endNextNode {
-								ans[i][j] = item.currentLen + 2
-
-								if i == 3 && j == 1 {
-									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
-								}
-								continue Outer
-							} else {
-								q.Enqueue(qItem{
-									currentLen: item.currentLen + 2,
-									startNode:  startNextNode,
-									endNode:    endNextNode,
-								})
-							}
-						}
+				for _, sAdjacent := range sAdjacents {
+					if sAdjacent == item.endNode {
+						ans[i][j] = item.currentLen + 1
+						continue Outer
 					}
-				} else {
-					for nextString, startNextNode := range sMap {
-						if endNextNode, ok := eMap[nextString]; ok {
-							if startNextNode == item.startNode && endNextNode == item.endNode {
-								continue
-							}
 
-							if startNextNode == item.endNode {
-								ans[i][j] = item.currentLen + 1
-								if i == 3 && j == 1 {
-									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
-								}
-								continue Outer
-							} else if startNextNode == endNextNode {
-								ans[i][j] = item.currentLen + 2
-								if i == 3 && j == 1 {
-									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
-								}
-								continue Outer
-							} else {
-								q.Enqueue(qItem{
-									currentLen: item.currentLen + 2,
-									startNode:  startNextNode,
-									endNode:    endNextNode,
-								})
-							}
+					sLabel := labels[item.startNode][sAdjacent]
+					for _, eAdjacent := range eAdjacents {
+						if sAdjacent == item.startNode && eAdjacent == item.endNode {
+							continue
 						}
+
+						eLabel := labels[eAdjacent][item.endNode]
+						if sLabel != eLabel {
+							continue
+						}
+
+						if sAdjacent == eAdjacent {
+							ans[i][j] = item.currentLen + 2
+							continue Outer
+						}
+
+						q.Enqueue(qItem{
+							currentLen: item.currentLen + 2,
+							startNode:  sAdjacent,
+							endNode:    eAdjacent,
+						})
 					}
 				}
+
+				// if len(sMap) > len(eMap) {
+				// 	for nextString, endNextNode := range eMap {
+				// 		if startNextNode, ok := sMap[nextString]; ok {
+				// 			if startNextNode == item.startNode && endNextNode == item.endNode {
+				// 				continue
+				// 			}
+
+				// 			if startNextNode == item.endNode {
+				// 				ans[i][j] = item.currentLen + 1
+
+				// 				if i == 3 && j == 1 {
+				// 					dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+				// 				}
+				// 				continue Outer
+				// 			} else if startNextNode == endNextNode {
+				// 				ans[i][j] = item.currentLen + 2
+
+				// 				if i == 3 && j == 1 {
+				// 					dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+				// 				}
+				// 				continue Outer
+				// 			} else {
+				// 				q.Enqueue(qItem{
+				// 					currentLen: item.currentLen + 2,
+				// 					startNode:  startNextNode,
+				// 					endNode:    endNextNode,
+				// 				})
+				// 			}
+				// 		}
+				// 	}
+				// } else {
+				// 	for nextString, startNextNode := range sMap {
+				// 		if endNextNode, ok := eMap[nextString]; ok {
+				// 			if startNextNode == item.startNode && endNextNode == item.endNode {
+				// 				continue
+				// 			}
+
+				// 			if startNextNode == item.endNode {
+				// 				ans[i][j] = item.currentLen + 1
+				// 				if i == 3 && j == 1 {
+				// 					dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+				// 				}
+				// 				continue Outer
+				// 			} else if startNextNode == endNextNode {
+				// 				ans[i][j] = item.currentLen + 2
+				// 				if i == 3 && j == 1 {
+				// 					dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+				// 				}
+				// 				continue Outer
+				// 			} else {
+				// 				q.Enqueue(qItem{
+				// 					currentLen: item.currentLen + 2,
+				// 					startNode:  startNextNode,
+				// 					endNode:    endNextNode,
+				// 				})
+				// 			}
+				// 		}
+				// 	}
+				// }
 			}
 		}
 	}
