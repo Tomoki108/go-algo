@@ -58,6 +58,10 @@ func main() {
 		}
 	}
 
+	genKey := func(i, j int) string {
+		return fmt.Sprintf("%d-%d", i, j)
+	}
+
 	for i := 0; i < N; i++ {
 	Outer:
 		for j := 0; j < N; j++ {
@@ -66,8 +70,11 @@ func main() {
 				continue
 			}
 
+			visited := make(map[string]bool, N)
+
 			q := NewQueue[qItem]()
 			q.Enqueue(qItem{currentLen: 0, startNode: i, endNode: j})
+			visited[genKey(i, j)] = true
 
 			for !q.IsEmpty() {
 				item, _ := q.Dequeue()
@@ -97,11 +104,14 @@ func main() {
 							continue Outer
 						}
 
-						q.Enqueue(qItem{
-							currentLen: item.currentLen + 2,
-							startNode:  sAdjacent,
-							endNode:    eAdjacent,
-						})
+						if !visited[genKey(sAdjacent, eAdjacent)] {
+							q.Enqueue(qItem{
+								currentLen: item.currentLen + 2,
+								startNode:  sAdjacent,
+								endNode:    eAdjacent,
+							})
+							visited[genKey(sAdjacent, eAdjacent)] = true
+						}
 					}
 				}
 			}
