@@ -24,11 +24,130 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r)
+	graph := make([]map[int]struct{}, N)
+	for i := 0; i < N; i++ {
+		graph[i] = make(map[int]struct{})
+	}
+
+	ans := N
+	for i := 0; i < Q; i++ {
+		iarr := readIntArr(r)
+		q := iarr[0]
+
+		if q == 1 {
+			u, v := iarr[1]-1, iarr[2]-1
+
+			if len(graph[u]) == 0 {
+				ans--
+			}
+			if len(graph[v]) == 0 {
+				ans--
+			}
+			graph[u][v] = struct{}{}
+			graph[v][u] = struct{}{}
+			fmt.Fprintln(w, ans)
+		} else {
+			u := iarr[1] - 1
+			if len(graph[u]) != 0 {
+				ans++
+			}
+			for v := range graph[u] {
+				if len(graph[v]) == 1 {
+					ans++
+				}
+				delete(graph[v], u)
+			}
+			graph[u] = make(map[int]struct{})
+			fmt.Fprintln(w, ans)
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type UnionFind struct {
+	parent []int // len(parent)分のノードを考え、各ノードの親を記録している
+	size   []int // そのノードを頂点とする部分木の頂点数
+}
+
+func NewUnionFind(size int) *UnionFind {
+	parent := make([]int, size)
+	s := make([]int, size)
+	for i := range parent {
+		parent[i] = i
+		s[i] = 1
+	}
+	return &UnionFind{parent, s}
+}
+
+// O(α(N))　※定数時間。α(N)はアッカーマン関数の逆関数
+// xの親を見つける
+func (uf *UnionFind) Find(xIdx int) int {
+	if uf.parent[xIdx] != xIdx {
+		uf.parent[xIdx] = uf.Find(uf.parent[xIdx]) // 経路圧縮
+	}
+	return uf.parent[xIdx]
+}
+
+// O(α(N))
+// xとyを同じグループに統合する（サイズが大きい方に統合）
+func (uf *UnionFind) Union(xIdx, yIdx int) {
+	rootX := uf.Find(xIdx)
+	rootY := uf.Find(yIdx)
+
+	if rootX != rootY {
+		if uf.size[rootX] < uf.size[rootY] {
+			uf.parent[rootX] = rootY
+			uf.size[rootY] += uf.size[rootX]
+		} else if uf.size[rootX] > uf.size[rootY] {
+			uf.parent[rootY] = rootX
+			uf.size[rootX] += uf.size[rootY]
+		} else {
+			uf.parent[rootY] = rootX
+			uf.size[rootX] += uf.size[rootY]
+		}
+	}
+}
+
+// O(1)
+func (uf *UnionFind) IsRoot(xIdx int) bool {
+	return uf.parent[xIdx] == xIdx
+}
+
+// O(α(N))
+func (uf *UnionFind) IsSameRoot(xIdx, yIdx int) bool {
+	return uf.Find(xIdx) == uf.Find(yIdx)
+}
+
+// O(N * α(N))
+func (uf *UnionFind) CountRoots() int {
+	count := 0
+	for i := range uf.parent {
+		if uf.Find(i) == i {
+			count++
+		}
+	}
+	return count
+}
+
+// O(N * α(N))
+func (uf *UnionFind) Roots() []int {
+	roots := make([]int, 0)
+	for i := range uf.parent {
+		if uf.Find(i) == i {
+			roots = append(roots, i)
+		}
+	}
+	return roots
+}
+
+// O(α(N))
+func (uf *UnionFind) GroupSize(xIdx int) int {
+	return uf.size[uf.Find(xIdx)]
+}
 
 //////////////
 // Helpers //
