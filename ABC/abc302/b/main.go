@@ -24,11 +24,111 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	H, W := read2Ints(r)
+	grid := readGrid(r, H)
+
+	output := func(coodinates [5][2]int) {
+		for _, c := range coodinates {
+			fmt.Println(c[0]+1, c[1]+1)
+		}
+	}
+
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			// row
+			{
+				end := Coordinate{i + 4, j}
+				if end.IsValid(H, W) {
+					if grid[i][j] == "s" && grid[i+1][j] == "n" && grid[i+2][j] == "u" && grid[i+3][j] == "k" && grid[i+4][j] == "e" {
+						output([5][2]int{{i, j}, {i + 1, j}, {i + 2, j}, {i + 3, j}, {i + 4, j}})
+						return
+					} else if grid[i][j] == "e" && grid[i+1][j] == "k" && grid[i+2][j] == "u" && grid[i+3][j] == "n" && grid[i+4][j] == "s" {
+						output([5][2]int{{i + 4, j}, {i + 3, j}, {i + 2, j}, {i + 1, j}, {i, j}})
+						return
+
+					}
+				}
+			}
+
+			// column
+			{
+				end := Coordinate{i, j + 4}
+				if end.IsValid(H, W) {
+					if grid[i][j] == "s" && grid[i][j+1] == "n" && grid[i][j+2] == "u" && grid[i][j+3] == "k" && grid[i][j+4] == "e" {
+						output([5][2]int{{i, j}, {i, j + 1}, {i, j + 2}, {i, j + 3}, {i, j + 4}})
+						return
+					} else if grid[i][j] == "e" && grid[i][j+1] == "k" && grid[i][j+2] == "u" && grid[i][j+3] == "n" && grid[i][j+4] == "s" {
+						output([5][2]int{{i, j + 4}, {i, j + 3}, {i, j + 2}, {i, j + 1}, {i, j}})
+						return
+					}
+				}
+			}
+
+			// diagonal 1
+			{
+				end := Coordinate{i + 4, j + 4}
+				if end.IsValid(H, W) {
+					if grid[i][j] == "s" && grid[i+1][j+1] == "n" && grid[i+2][j+2] == "u" && grid[i+3][j+3] == "k" && grid[i+4][j+4] == "e" {
+						output([5][2]int{{i, j}, {i + 1, j + 1}, {i + 2, j + 2}, {i + 3, j + 3}, {i + 4, j + 4}})
+						return
+					} else if grid[i][j] == "e" && grid[i+1][j+1] == "k" && grid[i+2][j+2] == "u" && grid[i+3][j+3] == "n" && grid[i+4][j+4] == "s" {
+						output([5][2]int{{i + 4, j + 4}, {i + 3, j + 3}, {i + 2, j + 2}, {i + 1, j + 1}, {i, j}})
+						return
+					}
+				}
+			}
+
+			// diagonal 2
+			{
+				end := Coordinate{i + 4, j - 4}
+				if end.IsValid(H, W) {
+					if grid[i][j] == "s" && grid[i+1][j-1] == "n" && grid[i+2][j-2] == "u" && grid[i+3][j-3] == "k" && grid[i+4][j-4] == "e" {
+						output([5][2]int{{i, j}, {i + 1, j - 1}, {i + 2, j - 2}, {i + 3, j - 3}, {i + 4, j - 4}})
+						return
+					} else if grid[i][j] == "e" && grid[i+1][j-1] == "k" && grid[i+2][j-2] == "u" && grid[i+3][j-3] == "n" && grid[i+4][j-4] == "s" {
+						output([5][2]int{{i + 4, j - 4}, {i + 3, j - 3}, {i + 2, j - 2}, {i + 1, j - 1}, {i, j}})
+						return
+					}
+				}
+			}
+		}
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) AdjacentsWithDiagonals() [8]Coordinate {
+	return [8]Coordinate{
+		{c.h - 1, c.w},     // 上
+		{c.h + 1, c.w},     // 下
+		{c.h, c.w - 1},     // 左
+		{c.h, c.w + 1},     // 右
+		{c.h - 1, c.w - 1}, // 左上
+		{c.h - 1, c.w + 1}, // 右上
+		{c.h + 1, c.w - 1}, // 左下
+		{c.h + 1, c.w + 1}, // 右下
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers //
