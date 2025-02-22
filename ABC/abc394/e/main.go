@@ -81,22 +81,32 @@ func main() {
 					eMap[labels[eAdjacent][item.endNode]] = eAdjacent
 				}
 
-				dump("i: %v, j: %v\n", i, j)
-				dump("sMap: %v\n", sMap)
-				dump("eMap: %v\n\n", eMap)
+				if i == 0 && j == 1 {
+					dump("i: %v, j: %v\n", i, j)
+					dump("sMap: %v\n", sMap)
+					dump("eMap: %v\n\n", eMap)
+				}
 
 				if len(sMap) > len(eMap) {
 					for nextString, endNextNode := range eMap {
 						if startNextNode, ok := sMap[nextString]; ok {
-							if startNextNode == item.endNode && endNextNode == item.startNode {
+							if startNextNode == item.startNode && endNextNode == item.endNode {
+								continue
+							}
+
+							if startNextNode == item.endNode {
 								ans[i][j] = item.currentLen + 1
 
-								dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+								if i == 0 && j == 1 {
+									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+								}
 								continue Outer
 							} else if startNextNode == endNextNode {
 								ans[i][j] = item.currentLen + 2
 
-								dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+								if i == 0 && j == 1 {
+									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+								}
 								continue Outer
 							} else {
 								q.Enqueue(qItem{
@@ -110,11 +120,21 @@ func main() {
 				} else {
 					for nextString, startNextNode := range sMap {
 						if endNextNode, ok := eMap[nextString]; ok {
-							if startNextNode == item.endNode && endNextNode == item.startNode {
+							if startNextNode == item.startNode && endNextNode == item.endNode {
+								continue
+							}
+
+							if startNextNode == item.endNode {
 								ans[i][j] = item.currentLen + 1
+								if i == 0 && j == 1 {
+									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+								}
 								continue Outer
 							} else if startNextNode == endNextNode {
 								ans[i][j] = item.currentLen + 2
+								if i == 0 && j == 1 {
+									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+								}
 								continue Outer
 							} else {
 								q.Enqueue(qItem{
