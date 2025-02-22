@@ -72,17 +72,8 @@ func main() {
 			for !q.IsEmpty() {
 				item, _ := q.Dequeue()
 
-				sMap := make(map[string]int) // nextStr -> nextNode
-				eMap := make(map[string]int) // nextStr -> nextNode
-
 				sAdjacents := graph[item.startNode]
-				for _, sAdjacent := range sAdjacents {
-					sMap[labels[item.startNode][sAdjacent]] = sAdjacent
-				}
 				eAdjacents := reverse_graph[item.endNode]
-				for _, eAdjacent := range eAdjacents {
-					eMap[labels[eAdjacent][item.endNode]] = eAdjacent
-				}
 
 				for _, sAdjacent := range sAdjacents {
 					if sAdjacent == item.endNode {
@@ -113,66 +104,6 @@ func main() {
 						})
 					}
 				}
-
-				// if len(sMap) > len(eMap) {
-				// 	for nextString, endNextNode := range eMap {
-				// 		if startNextNode, ok := sMap[nextString]; ok {
-				// 			if startNextNode == item.startNode && endNextNode == item.endNode {
-				// 				continue
-				// 			}
-
-				// 			if startNextNode == item.endNode {
-				// 				ans[i][j] = item.currentLen + 1
-
-				// 				if i == 3 && j == 1 {
-				// 					dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
-				// 				}
-				// 				continue Outer
-				// 			} else if startNextNode == endNextNode {
-				// 				ans[i][j] = item.currentLen + 2
-
-				// 				if i == 3 && j == 1 {
-				// 					dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
-				// 				}
-				// 				continue Outer
-				// 			} else {
-				// 				q.Enqueue(qItem{
-				// 					currentLen: item.currentLen + 2,
-				// 					startNode:  startNextNode,
-				// 					endNode:    endNextNode,
-				// 				})
-				// 			}
-				// 		}
-				// 	}
-				// } else {
-				// 	for nextString, startNextNode := range sMap {
-				// 		if endNextNode, ok := eMap[nextString]; ok {
-				// 			if startNextNode == item.startNode && endNextNode == item.endNode {
-				// 				continue
-				// 			}
-
-				// 			if startNextNode == item.endNode {
-				// 				ans[i][j] = item.currentLen + 1
-				// 				if i == 3 && j == 1 {
-				// 					dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
-				// 				}
-				// 				continue Outer
-				// 			} else if startNextNode == endNextNode {
-				// 				ans[i][j] = item.currentLen + 2
-				// 				if i == 3 && j == 1 {
-				// 					dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
-				// 				}
-				// 				continue Outer
-				// 			} else {
-				// 				q.Enqueue(qItem{
-				// 					currentLen: item.currentLen + 2,
-				// 					startNode:  startNextNode,
-				// 					endNode:    endNextNode,
-				// 				})
-				// 			}
-				// 		}
-				// 	}
-				// }
 			}
 		}
 	}
