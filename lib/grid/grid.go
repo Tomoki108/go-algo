@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+func CellNo(h, w, W int) int {
+	return h*W + w
+}
+
 type Coordinate struct {
 	h, w int // 0-indexed
 }
