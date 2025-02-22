@@ -46,6 +46,10 @@ func main() {
 		}
 	}
 
+	dump("labels: %v\n", labels)
+	dump("graph: %v\n", graph)
+	dump("reverse_graph: %v\n", reverse_graph)
+
 	ans := make([][]int, N)
 	for i := 0; i < N; i++ {
 		ans[i] = make([]int, N)
@@ -77,11 +81,18 @@ func main() {
 				}
 
 				eAdjacents := reverse_graph[item.endNode]
+				if i == 3 && j == 1 {
+					dump("eAdjacents: %v\n", eAdjacents)
+				}
 				for _, eAdjacent := range eAdjacents {
+
+					if i == 3 && j == 1 {
+						dump("labels[%v][%v]: %v\n", eAdjacent, item.endNode, labels[eAdjacent][item.endNode])
+					}
 					eMap[labels[eAdjacent][item.endNode]] = eAdjacent
 				}
 
-				if i == 0 && j == 1 {
+				if i == 3 && j == 1 {
 					dump("i: %v, j: %v\n", i, j)
 					dump("sMap: %v\n", sMap)
 					dump("eMap: %v\n\n", eMap)
@@ -97,14 +108,14 @@ func main() {
 							if startNextNode == item.endNode {
 								ans[i][j] = item.currentLen + 1
 
-								if i == 0 && j == 1 {
+								if i == 3 && j == 1 {
 									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
 								}
 								continue Outer
 							} else if startNextNode == endNextNode {
 								ans[i][j] = item.currentLen + 2
 
-								if i == 0 && j == 1 {
+								if i == 3 && j == 1 {
 									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
 								}
 								continue Outer
@@ -126,13 +137,13 @@ func main() {
 
 							if startNextNode == item.endNode {
 								ans[i][j] = item.currentLen + 1
-								if i == 0 && j == 1 {
+								if i == 3 && j == 1 {
 									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
 								}
 								continue Outer
 							} else if startNextNode == endNextNode {
 								ans[i][j] = item.currentLen + 2
-								if i == 0 && j == 1 {
+								if i == 3 && j == 1 {
 									dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
 								}
 								continue Outer
