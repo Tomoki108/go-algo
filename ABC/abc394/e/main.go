@@ -38,26 +38,27 @@ func main() {
 		Cs := readStr(r)
 		Csl := strings.Split(Cs, "")
 		for j := 0; j < N; j++ {
-			graph[i] = append(graph[i], j)
-			reverse_graph[j] = append(reverse_graph[j], i)
-			labels[i][j] = Csl[j]
+			if Csl[j] != "-" {
+				graph[i] = append(graph[i], j)
+				reverse_graph[j] = append(reverse_graph[j], i)
+				labels[i][j] = Csl[j]
+			}
 		}
 	}
 
 	ans := make([][]int, N)
 	for i := 0; i < N; i++ {
 		ans[i] = make([]int, N)
+		for j := 0; j < N; j++ {
+			ans[i][j] = -1
+		}
 	}
 
 	for i := 0; i < N; i++ {
 	Outer:
 		for j := 0; j < N; j++ {
 			if i == j {
-				if labels[i][j] != "-" {
-					ans[i][j] = 0
-				} else {
-					ans[i][j] = -1
-				}
+				ans[i][j] = 0
 				continue
 			}
 
@@ -80,15 +81,26 @@ func main() {
 					eMap[labels[eAdjacent][item.endNode]] = eAdjacent
 				}
 
+				dump("i: %v, j: %v\n", i, j)
+				dump("sMap: %v\n", sMap)
+				dump("eMap: %v\n\n", eMap)
+
 				if len(sMap) > len(eMap) {
 					for nextString, endNextNode := range eMap {
 						if startNextNode, ok := sMap[nextString]; ok {
-							if startNextNode == endNextNode {
+							if startNextNode == item.endNode && endNextNode == item.startNode {
 								ans[i][j] = item.currentLen + 1
+
+								dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
+								continue Outer
+							} else if startNextNode == endNextNode {
+								ans[i][j] = item.currentLen + 2
+
+								dump("ans[%v][%v]: %v\n\n", i, j, ans[i][j])
 								continue Outer
 							} else {
 								q.Enqueue(qItem{
-									currentLen: item.currentLen + 1,
+									currentLen: item.currentLen + 2,
 									startNode:  startNextNode,
 									endNode:    endNextNode,
 								})
@@ -98,12 +110,15 @@ func main() {
 				} else {
 					for nextString, startNextNode := range sMap {
 						if endNextNode, ok := eMap[nextString]; ok {
-							if startNextNode == endNextNode {
+							if startNextNode == item.endNode && endNextNode == item.startNode {
 								ans[i][j] = item.currentLen + 1
+								continue Outer
+							} else if startNextNode == endNextNode {
+								ans[i][j] = item.currentLen + 2
 								continue Outer
 							} else {
 								q.Enqueue(qItem{
-									currentLen: item.currentLen + 1,
+									currentLen: item.currentLen + 2,
 									startNode:  startNextNode,
 									endNode:    endNextNode,
 								})
