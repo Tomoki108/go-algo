@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	ss := make([]string, 0, N)
+	for i := 0; i < N; i++ {
+		s := readStr(r)
+		ss = append(ss, s)
+	}
+
+	sort.Slice(ss, func(i, j int) bool {
+		return len(ss[i]) < len(ss[j])
+	})
+
+	ans := ""
+	for i := 0; i < N; i++ {
+		ans += ss[i]
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
