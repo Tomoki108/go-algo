@@ -26,8 +26,6 @@ func main() {
 	defer w.Flush()
 
 	N := readInt(r)
-	graph := make([][]int, N)
-	reverse_graph := make([][]int, N)
 
 	labels := make([][]string, N)
 	for i := 0; i < N; i++ {
@@ -35,91 +33,65 @@ func main() {
 	}
 
 	for i := 0; i < N; i++ {
-		Cs := readStr(r)
-		Csl := strings.Split(Cs, "")
+		C := readStr(r)
+		Csl := strings.Split(C, "")
 		for j := 0; j < N; j++ {
-			if Csl[j] != "-" {
-				graph[i] = append(graph[i], j)
-				reverse_graph[j] = append(reverse_graph[j], i)
-				labels[i][j] = Csl[j]
+			labels[i][j] = Csl[j]
+		}
+	}
+
+	dist := createGrid(N, N, -1)
+	q := NewQueue[qItem]()
+
+	for i := 0; i < N; i++ {
+		// 点（辺の空集合）から始まる偶数長の回文の探索のためのアイテムをキューに追加
+		q.Enqueue(qItem{0, i, i})
+	}
+
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if i == j {
+				dist[i][j] = 0
+			}
+			if labels[i][j] != "-" {
+				if dist[i][j] == -1 {
+					dist[i][j] = 1
+				}
+				//　ある辺から始まる奇数長の回文の探索のためのアイテムをキューに追加
+				q.Enqueue(qItem{1, i, j})
 			}
 		}
 	}
 
-	dump("labels: %v\n", labels)
-	dump("graph: %v\n", graph)
-	dump("reverse_graph: %v\n", reverse_graph)
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
 
-	ans := make([][]int, N)
-	for i := 0; i < N; i++ {
-		ans[i] = make([]int, N)
-		for j := 0; j < N; j++ {
-			ans[i][j] = -1
-		}
-	}
-
-	genKey := func(i, j int) string {
-		return fmt.Sprintf("%d-%d", i, j)
-	}
-
-	for i := 0; i < N; i++ {
-	Outer:
-		for j := 0; j < N; j++ {
-			if i == j {
-				ans[i][j] = 0
+		// startNodeの隣接ノードを探索
+		for i := 0; i < N; i++ {
+			nsStr := labels[i][item.startNode]
+			if nsStr == "-" {
 				continue
 			}
 
-			visited := make(map[string]bool, N)
-
-			q := NewQueue[qItem]()
-			q.Enqueue(qItem{currentLen: 0, startNode: i, endNode: j})
-			visited[genKey(i, j)] = true
-
-			for !q.IsEmpty() {
-				item, _ := q.Dequeue()
-
-				sAdjacents := graph[item.startNode]
-				eAdjacents := reverse_graph[item.endNode]
-
-				for _, sAdjacent := range sAdjacents {
-					if sAdjacent == item.endNode {
-						ans[i][j] = item.currentLen + 1
-						continue Outer
-					}
-
-					sLabel := labels[item.startNode][sAdjacent]
-					for _, eAdjacent := range eAdjacents {
-						if sAdjacent == item.startNode && eAdjacent == item.endNode {
-							continue
-						}
-
-						eLabel := labels[eAdjacent][item.endNode]
-						if sLabel != eLabel {
-							continue
-						}
-
-						if sAdjacent == eAdjacent {
-							ans[i][j] = item.currentLen + 2
-							continue Outer
-						}
-
-						if !visited[genKey(sAdjacent, eAdjacent)] {
-							q.Enqueue(qItem{
-								currentLen: item.currentLen + 2,
-								startNode:  sAdjacent,
-								endNode:    eAdjacent,
-							})
-							visited[genKey(sAdjacent, eAdjacent)] = true
-						}
-					}
+			// endNodeの隣接ノードを探索
+			for j := 0; j < N; j++ {
+				neStr := labels[item.endNode][j]
+				if neStr == "-" {
+					continue
 				}
+
+				// 距離が確定済み || 別の文字種の場合はスキップ
+				if dist[i][j] != -1 || nsStr != neStr {
+					continue
+				}
+				dist[i][j] = item.currentLen + 2
+				q.Enqueue(qItem{item.currentLen + 2, i, j})
 			}
 		}
 	}
 
-	for _, sl := range ans {
-		writeSlice(w, sl)
+	for _, d := range dist {
+		writeSlice(w, d)
 	}
 }
 
