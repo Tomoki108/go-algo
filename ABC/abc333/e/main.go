@@ -76,8 +76,8 @@ func main() {
 
 	mKeys := mapKeys(ansMap)
 	sort.Ints(mKeys)
-	for i := 0; i < len(mKeys); i++ {
-		fmt.Fprint(w, ansMap[i])
+	for i, mKey := range mKeys {
+		fmt.Fprint(w, ansMap[mKey])
 
 		if i == len(mKeys)-1 {
 			fmt.Fprintln(w)
