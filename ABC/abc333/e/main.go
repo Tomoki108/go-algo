@@ -26,15 +26,11 @@ func main() {
 	N := readInt(r)
 
 	txs := make([][2]int, 0, N)
-	t1Indexes := make([]int, 0, N)
 	for i := 0; i < N; i++ {
 		t, x := read2Ints(r)
 		txs = append(txs, [2]int{t, x})
-		t1Indexes = append(t1Indexes, i)
 	}
 
-	// kMin := INT_MAX
-	// currentK := 0
 	ansMap := make(map[int]int, N)           // potion found idx => take or not
 	stackMap := make(map[int]*Stack[int], N) // type => stack of potion found idx
 	for i, tx := range txs {
@@ -67,9 +63,11 @@ func main() {
 	maxK := 0
 	for i, tx := range txs {
 		t, _ := tx[0], tx[1]
-		if t == 1 && ansMap[i] == 1 {
-			currentK++
-			maxK = max(maxK, currentK)
+		if t == 1 {
+			if ansMap[i] == 1 {
+				currentK++
+				maxK = max(maxK, currentK)
+			}
 		} else {
 			currentK--
 		}
