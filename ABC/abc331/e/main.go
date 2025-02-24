@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +23,113 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, M, L := iarr[0], iarr[1], iarr[2]
+
+	As := readIntArr(r)
+	Bs := readIntArr(r)
+
+	BWithIdxs := make([][2]int, 0, M) // BIdx, BVal
+	for i := 0; i < M; i++ {
+		BWithIdxs = append(BWithIdxs, [2]int{i, Bs[i]})
+	}
+	sort.Slice(BWithIdxs, func(i, j int) bool {
+		return BWithIdxs[i][1] > BWithIdxs[j][1]
+	})
+
+	ngSet := make(map[string]struct{})
+	for i := 0; i < L; i++ {
+		c, d := read2Ints(r)
+		ngSet[fmt.Sprintf("%d_%d", c-1, d-1)] = struct{}{}
+	}
+
+	pq := new(Heap[pqItem])
+	for i := 0; i < N; i++ {
+		pq.PushItem(pqItem{
+			a:           As[i],
+			b:           BWithIdxs[0][1],
+			aIdx:        i,
+			originBIdx:  BWithIdxs[0][0],
+			orderedBIdx: 0,
+		})
+	}
+
+	for pq.Len() > 0 {
+		item := pq.PopItem()
+
+		if _, exist := ngSet[fmt.Sprintf("%d_%d", item.aIdx, item.originBIdx)]; !exist {
+			fmt.Fprintln(w, item.a+item.b)
+			return
+		}
+
+		if item.orderedBIdx < M-1 {
+			next_orderedBIdx := item.orderedBIdx + 1
+			next_originBIdx := BWithIdxs[next_orderedBIdx][0]
+
+			pq.PushItem(pqItem{
+				a:           item.a,
+				b:           Bs[next_originBIdx],
+				aIdx:        item.aIdx,
+				originBIdx:  next_originBIdx,
+				orderedBIdx: next_orderedBIdx,
+			})
+		}
+	}
+}
+
+type pqItem struct {
+	a, b        int
+	aIdx        int
+	originBIdx  int
+	orderedBIdx int
+}
+
+func (p pqItem) Priority() int {
+	return p.a + p.b
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// 最大ヒープ（大きい値が優先）
+type HeapItem interface {
+	Priority() int
+}
+
+type Heap[T HeapItem] []T
+
+func (h *Heap[T]) PushItem(item T) {
+	heap.Push(h, item)
+}
+
+func (h *Heap[T]) PopItem() T {
+	return heap.Pop(h).(T)
+}
+
+// to implement sort.Interface
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() > h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+
+	*h = append(*h, x.(T))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
 
 //////////////
 // Helpers //
