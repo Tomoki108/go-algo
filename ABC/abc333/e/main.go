@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,11 +23,117 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	txs := make([][2]int, 0, N)
+	t1Indexes := make([]int, 0, N)
+	for i := 0; i < N; i++ {
+		t, x := read2Ints(r)
+		txs = append(txs, [2]int{t, x})
+		t1Indexes = append(t1Indexes, i)
+	}
+
+	// kMin := INT_MAX
+	// currentK := 0
+	ansMap := make(map[int]int, N)           // potion found idx => take or not
+	stackMap := make(map[int]*Stack[int], N) // type => stack of potion found idx
+	for i, tx := range txs {
+		t, x := tx[0], tx[1]
+
+		if t == 1 {
+			if _, ok := stackMap[x]; !ok {
+				stackMap[x] = NewStack[int]()
+			}
+			stackMap[x].Push(i)
+			ansMap[i] = 0
+		} else {
+			stack, ok := stackMap[x]
+			if !ok {
+				fmt.Fprintln(w, -1)
+				return
+			}
+
+			idx, ok := stack.Pop()
+			if !ok {
+				fmt.Fprintln(w, -1)
+				return
+			}
+
+			ansMap[idx] = 1
+		}
+	}
+
+	currentK := 0
+	maxK := 0
+	for i, tx := range txs {
+		t, _ := tx[0], tx[1]
+		if t == 1 && ansMap[i] == 1 {
+			currentK++
+			maxK = max(maxK, currentK)
+		} else {
+			currentK--
+		}
+	}
+	fmt.Fprintln(w, maxK)
+
+	mKeys := mapKeys(ansMap)
+	sort.Ints(mKeys)
+	for i := 0; i < len(mKeys); i++ {
+		fmt.Fprint(w, ansMap[i])
+
+		if i == len(mKeys)-1 {
+			fmt.Fprintln(w)
+		} else {
+			fmt.Fprint(w, " ")
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Stack[T any] struct {
+	list *list.List
+}
+
+func NewStack[T any]() *Stack[T] {
+	return &Stack[T]{
+		list: list.New(),
+	}
+}
+
+func (s *Stack[T]) Push(value T) {
+	s.list.PushBack(value)
+}
+
+func (s *Stack[T]) Pop() (T, bool) {
+	back := s.list.Back()
+	if back == nil {
+		var zero T
+		return zero, false
+	}
+	s.list.Remove(back)
+	return back.Value.(T), true
+}
+
+// Peek returns the back element without removing it
+func (s *Stack[T]) Peek() (T, bool) {
+	back := s.list.Back()
+	if back == nil {
+		var zero T
+		return zero, false
+	}
+	return back.Value.(T), true
+}
+
+func (s *Stack[T]) Len() int {
+	return s.list.Len()
+}
+
+func (s *Stack[T]) Clear() {
+	s.list.Init()
+}
 
 //////////////
 // Helpers  //
@@ -187,4 +295,30 @@ func pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+func mapKeys[T comparable, U any](m map[T]U) []T {
+	keys := make([]T, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
