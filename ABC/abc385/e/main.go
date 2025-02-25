@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -38,30 +39,35 @@ func main() {
 		graph2[v][u] = struct{}{}
 	}
 
-	childCnt := make([]int, N)
-
-	var dfs func(node, parent int) int
-	dfs = func(node, parent int) int {
-		degree := 1
-		for _, adj := range graph[node] {
-			if adj == parent {
-				continue
-			}
-			degree += dfs(adj, node)
-		}
-		childCnt[node] = degree
-
-		return degree
-	}
-
+	degrees := make([]int, N)
 	for i := 0; i < N; i++ {
-		if len(graph[i]) == 1 {
-			dfs(i, -1)
-		}
-		break
+		degrees[i] = len(graph[i])
 	}
 
-	dump("childCnt: %v\n", childCnt)
+	dump("degrees: %v\n", degrees)
+
+	streeNodeCnt := make([]int, N)
+	for i := 0; i < N; i++ {
+		x := degrees[i]
+
+		adjDegrees := make([]int, 0, x)
+		for _, adj := range graph[i] {
+			adjDegrees = append(adjDegrees, degrees[adj])
+		}
+		sort.Ints(adjDegrees)
+
+		maxCnt := 0
+		for i := 0; i < x; i++ {
+			cnt := 1 + (x - i) + (x-i)*(adjDegrees[i]-1)
+			maxCnt = max(maxCnt, cnt)
+		}
+
+		streeNodeCnt[i] = maxCnt
+	}
+
+	sort.Ints(streeNodeCnt)
+	ans := N - streeNodeCnt[N-1]
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
