@@ -17,6 +17,51 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	graph := make([][]int, N)
+	graph2 := make([]map[int]struct{}, N)
+	for i := 0; i < N-1; i++ {
+		u, v := read2Ints(r)
+		u--
+		v--
+		graph[u] = append(graph[u], v)
+		graph[v] = append(graph[v], u)
+
+		if graph2[u] == nil {
+			graph2[u] = make(map[int]struct{})
+		}
+		if graph2[v] == nil {
+			graph2[v] = make(map[int]struct{})
+		}
+		graph2[u][v] = struct{}{}
+		graph2[v][u] = struct{}{}
+	}
+
+	childCnt := make([]int, N)
+
+	var dfs func(node, parent int) int
+	dfs = func(node, parent int) int {
+		degree := 1
+		for _, adj := range graph[node] {
+			if adj == parent {
+				continue
+			}
+			degree += dfs(adj, node)
+		}
+		childCnt[node] = degree
+
+		return degree
+	}
+
+	for i := 0; i < N; i++ {
+		if len(graph[i]) == 1 {
+			dfs(i, -1)
+		}
+		break
+	}
+
+	dump("childCnt: %v\n", childCnt)
 }
 
 //////////////
@@ -134,4 +179,22 @@ func abs(a int) int {
 		return -a
 	}
 	return a
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
