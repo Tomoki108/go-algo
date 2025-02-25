@@ -21,30 +21,18 @@ func main() {
 	N := readInt(r)
 
 	graph := make([][]int, N)
-	graph2 := make([]map[int]struct{}, N)
 	for i := 0; i < N-1; i++ {
 		u, v := read2Ints(r)
 		u--
 		v--
 		graph[u] = append(graph[u], v)
 		graph[v] = append(graph[v], u)
-
-		if graph2[u] == nil {
-			graph2[u] = make(map[int]struct{})
-		}
-		if graph2[v] == nil {
-			graph2[v] = make(map[int]struct{})
-		}
-		graph2[u][v] = struct{}{}
-		graph2[v][u] = struct{}{}
 	}
 
 	degrees := make([]int, N)
 	for i := 0; i < N; i++ {
 		degrees[i] = len(graph[i])
 	}
-
-	dump("degrees: %v\n", degrees)
 
 	streeNodeCnt := make([]int, N)
 	for i := 0; i < N; i++ {
@@ -58,10 +46,10 @@ func main() {
 
 		maxCnt := 0
 		for i := 0; i < x; i++ {
-			cnt := 1 + (x - i) + (x-i)*(adjDegrees[i]-1)
+			y := adjDegrees[i] - 1
+			cnt := 1 + (x - i) + (x-i)*y
 			maxCnt = max(maxCnt, cnt)
 		}
-
 		streeNodeCnt[i] = maxCnt
 	}
 
