@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -40,31 +41,50 @@ func main() {
 			slashIndexes = append(slashIndexes, i)
 		}
 	}
-
 	psumOne := PrefixSum(ones)
 	psumTwo := PrefixSum(twos)
+
+	type SlashInfo struct {
+		idx       int
+		leftOnes  int
+		rightTwos int
+	}
+	slashInfos := make([]SlashInfo, 0, len(slashIndexes))
+	for _, slIdx := range slashIndexes {
+		leftOnes := psumOne[slIdx]
+		rightTwos := psumTwo[N] - psumTwo[slIdx+1]
+		slashInfos = append(slashInfos, SlashInfo{slIdx, leftOnes, rightTwos})
+	}
 
 	for i := 0; i < Q; i++ {
 		L, R := read2Ints(r)
 		L--
 
-		oneCnt := psumOne[R] - psumOne[L]
-		// twoCnt := psumTwo[R] - psumTwo[L]
+		idx1 := sort.Search(len(slashIndexes), func(idx int) bool {
+			return slashIndexes[idx] >= L
+		})
+		if idx1 == len(slashIndexes) {
+			fmt.Fprintln(w, 0)
+			continue
+		}
+		idx2 := sort.Search(len(slashIndexes), func(idx int) bool {
+			return slashIndexes[idx] > R
+		})
+		toSearch := slashInfos[idx1:idx2]
 
-		halfCnt := DescIntSearch(oneCnt, 1, func(cnt int) bool {
-			borderIdx := AscIntSearch(L, R, func(idx int) bool {
-				return psumOne[idx]-psumOne[L] >= cnt
+		leftBuff := psumOne[L]
+		rightBuff := psumTwo[N] - psumTwo[R]
+		maxHalfCnt := toSearch[len(toSearch)-1].leftOnes - leftBuff
+		halfCnt := DescIntSearch(maxHalfCnt, 1, func(halfCnt int) bool {
+			toSearchIdx := sort.Search(len(toSearch), func(idx int) bool {
+				return toSearch[idx].leftOnes-leftBuff >= halfCnt
 			})
-			if borderIdx == L-1 {
-				return false
-			}
 
-			centerIdx := sort.Sera
-
-			return psumTwo[R]-psumTwo[borderIdx] == cnt
+			rightTwos := toSearch[toSearchIdx].rightTwos - rightBuff
+			return rightTwos >= halfCnt
 		})
 
-		if halfCnt == oneCnt+1 {
+		if halfCnt == maxHalfCnt+1 {
 			fmt.Fprintln(w, "0")
 		} else {
 			fmt.Fprintln(w, halfCnt*2+1)
