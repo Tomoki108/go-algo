@@ -95,7 +95,7 @@ func TestDescIntSearch(t *testing.T) {
 
 func TestRangeIntSearch(t *testing.T) {
 	sl1 := []int{1, 1, 5, 5, 5, 6, 20, 21, 22, 22}
-	sl2 := []int{5}
+	sl2 := []int{5, 5}
 	sl3 := []int{9}
 
 	tests := []struct {
@@ -117,7 +117,7 @@ func TestRangeIntSearch(t *testing.T) {
 			sl:   sl2,
 			l:    5,
 			r:    5,
-			want: []int{5},
+			want: []int{5, 5},
 		},
 		{
 			name: "example3",

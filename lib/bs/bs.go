@@ -60,7 +60,7 @@ func RangeIntSearch(sl []int, l, r int) []int {
 		return nil
 	}
 	idx2 := sort.Search(len(sl), func(i int) bool { return sl[i] > r })
-	if idx2 == 0 {
+	if idx2 == idx1 {
 		return nil
 	}
 	return sl[idx1:idx2]
@@ -74,7 +74,7 @@ func RangeSearch[U any](sl []U, valuer func(item U) int, l, r int) []U {
 		return nil
 	}
 	idx2 := sort.Search(len(sl), func(i int) bool { val := valuer(sl[i]); return val > r })
-	if idx2 == 0 {
+	if idx2 == idx1 {
 		return nil
 	}
 	return sl[idx1:idx2]
