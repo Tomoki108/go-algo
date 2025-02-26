@@ -51,14 +51,17 @@ func main() {
 	}
 	slashInfos := make([]SlashInfo, 0, len(slashIndexes))
 	for _, slIdx := range slashIndexes {
-		leftOnes := psumOne[slIdx]
+		leftOnes := psumOne[slIdx+1]
 		rightTwos := psumTwo[N] - psumTwo[slIdx+1]
 		slashInfos = append(slashInfos, SlashInfo{slIdx, leftOnes, rightTwos})
 	}
 
+	// dump("slashInfos: %v\n", slashInfos)
+
 	for i := 0; i < Q; i++ {
 		L, R := read2Ints(r)
 		L--
+		R--
 
 		idx1 := sort.Search(len(slashIndexes), func(idx int) bool {
 			return slashIndexes[idx] >= L
@@ -73,9 +76,9 @@ func main() {
 		toSearch := slashInfos[idx1:idx2]
 
 		leftBuff := psumOne[L]
-		rightBuff := psumTwo[N] - psumTwo[R]
+		rightBuff := psumTwo[N] - psumTwo[R+1]
 		maxHalfCnt := toSearch[len(toSearch)-1].leftOnes - leftBuff
-		halfCnt := DescIntSearch(maxHalfCnt, 1, func(halfCnt int) bool {
+		halfCnt := DescIntSearch(maxHalfCnt, 0, func(halfCnt int) bool {
 			toSearchIdx := sort.Search(len(toSearch), func(idx int) bool {
 				return toSearch[idx].leftOnes-leftBuff >= halfCnt
 			})
@@ -84,11 +87,7 @@ func main() {
 			return rightTwos >= halfCnt
 		})
 
-		if halfCnt == maxHalfCnt+1 {
-			fmt.Fprintln(w, "0")
-		} else {
-			fmt.Fprintln(w, halfCnt*2+1)
-		}
+		fmt.Fprintln(w, halfCnt*2+1)
 	}
 }
 
