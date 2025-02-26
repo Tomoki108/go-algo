@@ -73,11 +73,18 @@ func main() {
 		idx2 := sort.Search(len(slashIndexes), func(idx int) bool {
 			return slashIndexes[idx] > R
 		})
-		toSearch := slashInfos[idx1:idx2]
+		var toSearch []SlashInfo
+		if idx1 == idx2 {
+			fmt.Fprintln(w, 0)
+			continue
+		} else {
+			toSearch = slashInfos[idx1:idx2]
+		}
 
 		leftBuff := psumOne[L]
 		rightBuff := psumTwo[N] - psumTwo[R+1]
 		maxHalfCnt := toSearch[len(toSearch)-1].leftOnes - leftBuff
+
 		halfCnt := DescIntSearch(maxHalfCnt, 0, func(halfCnt int) bool {
 			toSearchIdx := sort.Search(len(toSearch), func(idx int) bool {
 				return toSearch[idx].leftOnes-leftBuff >= halfCnt
@@ -86,6 +93,7 @@ func main() {
 			rightTwos := toSearch[toSearchIdx].rightTwos - rightBuff
 			return rightTwos >= halfCnt
 		})
+		dump("halfCnt: %d\n\n", halfCnt)
 
 		fmt.Fprintln(w, halfCnt*2+1)
 	}
