@@ -27,51 +27,75 @@ func main() {
 
 	N, M := read2Ints(r)
 	As := readIntArr(r)
+
+	psum := PrefixSum(As)
+	for i := 0; i <= N; i++ {
+		psum[i] %= M
+	}
+	N = len(psum)
+
+	ans := 0
 	for i := 0; i < N; i++ {
-		As[i] %= M
+		ans += psum[i] * i
+		ans -= psum[i] * (N - i - 1)
 	}
 
-	sum := 0
+	inversedCombinationCnt := 0
+	ft := NewFenwickTree(M)
 	for i := 0; i < N; i++ {
-		sum += As[i] * (N - i) * (i + 1)
+		inversedCombinationCnt += ft.RangeSum(psum[i]+1, M-1)
+		ft.Update(psum[i], 1)
 	}
-
-	cnt := 0
-
-	// [left, right)
-	left := 0
-	right := 1
-	currentSum := As[0]
-	for right < N {
-		currentSum += As[right]
-		right++
-
-		if currentSum < M {
-			continue
-		}
-
-		for currentSum >= M {
-			cnt += N - (right - 1)
-
-			currentSum -= As[left]
-			left++
-
-			if left == right {
-				currentSum = 0
-				break
-			}
-		}
-
-	}
-
-	sum -= cnt * M
-
-	fmt.Fprintln(w, sum)
+	ans += inversedCombinationCnt * M
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type FenwickTree struct {
+	n    int
+	tree []int
+}
+
+// O(n)
+func NewFenwickTree(n int) *FenwickTree {
+	return &FenwickTree{
+		n:    n,
+		tree: make([]int, n+1),
+	}
+}
+
+// O(log n)
+func (ft *FenwickTree) Update(i int, delta int) {
+	i++ // 内部は 1-indexed として扱うため
+	for i <= ft.n {
+		ft.tree[i] += delta
+		i += i & -i // 次の更新対象のインデックスへ
+	}
+}
+
+// O(log n)
+// 区間 [0, i] (0-indexed) の和を返す
+func (ft *FenwickTree) Sum(i int) int {
+	s := 0
+	i++ // 内部は 1-indexed として扱うため
+	for i > 0 {
+		s += ft.tree[i]
+		i -= i & -i
+	}
+	return s
+}
+
+// O(log n)
+// 区間 [l, r] (0-indexed) の和を返す
+func (ft *FenwickTree) RangeSum(l, r int) int {
+	if l == 0 {
+		return ft.Sum(r)
+	}
+	return ft.Sum(r) - ft.Sum(l-1)
+}
 
 // O(n)
 // 一次元累積和を返す（index0には0を入れる。）
