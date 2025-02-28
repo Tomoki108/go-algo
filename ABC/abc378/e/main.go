@@ -21,7 +21,6 @@ const INF = int(1e18)
 var r = bufio.NewReader(os.Stdin)
 var w = bufio.NewWriter(os.Stdout)
 
-// fenwick treeを使うらしい。諦めた。
 func main() {
 	defer w.Flush()
 
