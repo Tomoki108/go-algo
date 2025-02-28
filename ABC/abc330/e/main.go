@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,11 +24,49 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, Q := read2Ints(r)
+	As := readIntArr(r)
+
+	cntMap := make(map[int]int, N)
+	for _, a := range As {
+		cntMap[a]++
+	}
+
+	mexCandidates := NewIntSetAsc()
+	for i := 0; i <= N; i++ {
+		if cntMap[i] == 0 {
+			mexCandidates.Insert(i)
+		}
+	}
+
+	for i := 0; i < Q; i++ {
+		i, x := read2Ints(r)
+		i--
+
+		cntMap[As[i]]--
+		if cntMap[As[i]] == 0 {
+			mexCandidates.Insert(As[i])
+		}
+
+		cntMap[x]++
+		if cntMap[x] == 1 {
+			mexCandidates.Erase(x)
+		}
+
+		mex := mexCandidates.First().Value()
+		fmt.Fprintln(w, mex)
+		As[i] = x
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func NewIntSetAsc() *set.Set[int] {
+	return set.New(comparator.IntComparator)
+}
 
 //////////////
 // Helpers //
