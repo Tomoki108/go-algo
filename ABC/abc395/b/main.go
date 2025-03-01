@@ -24,11 +24,30 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	grid := createGrid(N, N, ".")
+
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			layer := GetSquareGridCellLayer(N, i, j)
+			if layer%2 == 1 {
+				grid[i][j] = "#"
+			}
+		}
+	}
+
+	writeGrid(w, grid)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// 一辺がnの正方形グリッドのマス目(hight, width)が、最も外側のマス目達を1周目としたときに何周目にあるかを返す
+func GetSquareGridCellLayer(n, h, w int) int {
+	return min(min(h+1, w+1), min(n-h, n-w))
+}
 
 //////////////
 // Helpers //
