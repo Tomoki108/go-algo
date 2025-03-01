@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -24,11 +25,132 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, M, X := iarr[0], iarr[1], iarr[2]
+
+	graph := make([][][2]int, N) // node, flipped
+	for i := 0; i < M; i++ {
+		u, v := read2Ints(r)
+		u--
+		v--
+		graph[u] = append(graph[u], [2]int{v, 0})
+		graph[v] = append(graph[v], [2]int{u, 1})
+	}
+
+	nodeCostNonFlipped := make([]int, N)
+	nodeCostsFlipped := make([]int, N)
+	for i := 0; i < N; i++ {
+		nodeCostNonFlipped[i] = INT_MAX
+		nodeCostsFlipped[i] = INT_MAX
+	}
+
+	nodeCostsFlipped[0] = X
+	nodesCosts := [2][]int{nodeCostNonFlipped, nodeCostsFlipped}
+
+	pq := &Heap[pqItem]{}
+	pq.PushItem(pqItem{node: 0, weightSum: 0, flipped: 0})
+	pq.PushItem(pqItem{node: 0, weightSum: X, flipped: 1})
+
+	isFixedNonFlipped := make([]bool, N)
+	isFixedFlipped := make([]bool, N)
+	isFixedNonFlipped[0] = true
+	isFixedFlipped[0] = true
+
+	isFixed := [2][]bool{isFixedNonFlipped, isFixedFlipped}
+
+	for pq.Len() > 0 {
+		item := pq.PopItem()
+		dump("item: %v\n", item)
+
+		if isFixed[item.flipped][item.node] {
+			continue
+		}
+		isFixed[item.flipped][item.node] = true
+
+		nodesCosts[item.flipped][item.node] = item.weightSum
+
+		adjacents := graph[item.node]
+		for _, adj := range adjacents {
+			newWeightSum := item.weightSum + 1
+			newFlipped := item.flipped
+			if adj[1] != item.flipped {
+				newWeightSum += X
+				newFlipped = adj[1]
+			}
+
+			if nodesCosts[newFlipped][adj[0]] != INT_MAX {
+				nodesCosts[newFlipped][adj[0]] = min(nodesCosts[newFlipped][adj[0]], newWeightSum)
+			} else {
+				nodesCosts[newFlipped][adj[0]] = newWeightSum
+			}
+			pq.PushItem(pqItem{
+				weightSum: newWeightSum,
+				node:      adj[0],
+				flipped:   newFlipped,
+			})
+		}
+	}
+
+	dump("nodesCosts: %v\n", nodesCosts)
+
+	costA := nodesCosts[0][N-1]
+	costB := nodesCosts[1][N-1]
+
+	fmt.Fprintln(w, min(costA, costB))
+}
+
+type pqItem struct {
+	weightSum int
+	node      int
+	flipped   int
+}
+
+func (p pqItem) Priority() int {
+	return p.weightSum
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// 最小ヒープ（小さい値が優先）
+type HeapItem interface {
+	Priority() int
+}
+
+type Heap[T HeapItem] []T
+
+func (h *Heap[T]) PushItem(item T) {
+	heap.Push(h, item)
+}
+
+func (h *Heap[T]) PopItem() T {
+	return heap.Pop(h).(T)
+}
+
+// to implement sort.Interface
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+
+	*h = append(*h, x.(T))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
 
 //////////////
 // Helpers //
