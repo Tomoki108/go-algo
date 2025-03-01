@@ -24,6 +24,36 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+
+	var winLine int
+	if N%2 == 0 {
+		winLine = N / 2
+	} else {
+		winLine = N/2 + 1
+	}
+
+	tWin := 0
+	aWin := 0
+	for i := 0; i < N; i++ {
+		if Ss[i] == "T" {
+			tWin++
+		} else {
+			aWin++
+		}
+
+		if tWin >= winLine {
+			fmt.Fprintln(w, "T")
+			return
+		}
+
+		if aWin >= winLine {
+			fmt.Fprintln(w, "A")
+			return
+		}
+	}
 }
 
 //////////////
