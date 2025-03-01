@@ -24,6 +24,84 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	T := readStr(r)
+	Ss := strings.Split(S, "")
+	Ts := strings.Split(T, "")
+
+	swappables := map[string]struct{}{
+		"a": {},
+		"t": {},
+		"c": {},
+		"o": {},
+		"d": {},
+		"e": {},
+		"r": {},
+	}
+
+	N := len(Ss)
+
+	sMap := make(map[string]int, N)
+	for _, s := range Ss {
+		sMap[s]++
+	}
+	tMap := make(map[string]int, N)
+	for _, t := range Ts {
+		tMap[t]++
+	}
+
+	sShortage := make(map[string]int, N)
+	sShortageCnt := 0
+	for str, cnt := range tMap {
+		if str == "@" {
+			continue
+		}
+		sCnt := sMap[str]
+		if sCnt < cnt {
+			sShortage[str] = cnt - sCnt
+			sShortageCnt += cnt - sCnt
+		}
+	}
+	for str := range sShortage {
+		if _, ok := swappables[str]; !ok {
+			dump("hello 1\n")
+			fmt.Fprintln(w, "No")
+			return
+		}
+	}
+	if sShortageCnt > sMap["@"] {
+		dump("hello 2\n")
+		fmt.Fprintln(w, "No")
+		return
+	}
+
+	tShortage := make(map[string]int, N)
+	tShortageCnt := 0
+	for str, cnt := range sMap {
+		if str == "@" {
+			continue
+		}
+		tCnt := tMap[str]
+		if tCnt < cnt {
+			tShortage[str] = cnt - tCnt
+			tShortageCnt += cnt - tCnt
+		}
+	}
+
+	for str := range tShortage {
+		if _, ok := swappables[str]; !ok {
+			dump("hello 3\n")
+			fmt.Fprintln(w, "No")
+			return
+		}
+	}
+	if tShortageCnt > tMap["@"] {
+		dump("hello 4\n")
+		fmt.Fprintln(w, "No")
+		return
+	}
+
+	fmt.Fprintln(w, "Yes")
 }
 
 //////////////
