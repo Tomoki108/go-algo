@@ -23,7 +23,67 @@ var w = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer w.Flush()
+	N := readInt(r)
+	As := readIntArr(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
 
+	psumM := make([][]int, 3)
+	psumX := make([][]int, 3)
+	for i := 0; i < 3; i++ {
+		psumM[i] = make([]int, N+1)
+		psumX[i] = make([]int, N+1)
+	}
+
+	for i := 0; i < N; i++ {
+		for j := 0; j < 3; j++ {
+			m := 0
+			if Ss[i] == "M" && As[i] == j {
+				m = 1
+			}
+			x := 0
+			if Ss[i] == "X" && As[i] == j {
+				x = 1
+			}
+			psumM[j][i+1] = psumM[j][i] + m
+			psumX[j][i+1] = psumX[j][i] + x
+		}
+	}
+
+	dump("psumM: %v\n", psumM)
+	dump("psumX: %v\n", psumX)
+
+	getMex := func(a, b, c int) int {
+		m := make(map[int]struct{}, 3)
+		m[a] = struct{}{}
+		m[b] = struct{}{}
+		m[c] = struct{}{}
+
+		for i := 0; i < 3; i++ {
+			if _, ok := m[i]; !ok {
+				return i
+			}
+		}
+		return 3
+	}
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		if Ss[i] != "E" {
+			continue
+		}
+
+		for a := 0; a < 3; a++ {
+			for c := 0; c < 3; c++ {
+				mex := getMex(a, As[i], c)
+				mCnt := psumM[a][i]
+				xCnt := psumX[c][N] - psumX[c][i+1]
+				ans += mCnt * xCnt * mex
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
