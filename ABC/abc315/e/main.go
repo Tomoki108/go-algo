@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -24,11 +25,82 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	requires := make([][]int, N)
+	for i := 1; i <= N; i++ {
+		iarr := readIntArr(r)
+		C := iarr[0]
+		if C != 0 {
+			requires[i-1] = iarr[1:]
+		}
+	}
+
+	q := NewQueue[qItem]()
+	q.Enqueue(qItem{bookNo: 1, depth: 0})
+
+	bookDepthMap := make(map[int]int, N)
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+
+	pres := requires[item.bookNo-1]
+
+}
+
+type qItem struct {
+	bookNo int
+	depth  int
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers //
