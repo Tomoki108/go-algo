@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"math"
+	"math/bits"
 	"os"
 	"strconv"
 	"strings"
@@ -24,6 +25,51 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	S := readStr(r)
+	Ss := strings.Split(S, "")
+	N := readInt(r)
+
+	sLen := len(Ss)
+	nLen := bits.Len(uint(N))
+
+	// digit: これから何桁目を埋めようとしているか。left-0-indexed
+	var dfs func(digit int, current int) bool
+	dfs = func(digit int, current int) bool {
+		if digit == sLen {
+			fmt.Fprintln(w, current)
+			return true
+		}
+
+		if sLen-digit > nLen {
+			return dfs(digit+1, current)
+		}
+
+		if Ss[digit] == "0" {
+			return dfs(digit+1, current)
+		} else if Ss[digit] == "1" {
+			newCurrent := current + pow(2, sLen-digit-1)
+			if newCurrent <= N {
+				return dfs(digit+1, newCurrent)
+			}
+		} else {
+			newCurrent := current + pow(2, sLen-digit-1)
+			if newCurrent <= N {
+				ret := dfs(digit+1, newCurrent)
+				if ret {
+					return true
+				}
+			}
+
+			return dfs(digit+1, current)
+		}
+
+		return false
+	}
+
+	found := dfs(0, 0)
+	if !found {
+		fmt.Fprintln(w, -1)
+	}
 }
 
 //////////////
