@@ -24,6 +24,37 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	minAns := INT_MAX
+
+	// [left, right)
+	left := 0
+	right := 0
+	currentMap := make(map[int]int, N)
+	for right < N {
+		A := As[right]
+		currentMap[A]++
+		right++
+
+		for currentMap[A] > 1 {
+			minAns = min(minAns, len(currentMap)+1)
+
+			for currentMap[A] > 1 {
+				left++
+				currentMap[As[left-1]]--
+				minAns = min(minAns, len(currentMap)+1)
+			}
+			continue
+		}
+	}
+
+	if minAns == INT_MAX {
+		fmt.Println(-1)
+	} else {
+		fmt.Println(minAns)
+	}
 }
 
 //////////////
