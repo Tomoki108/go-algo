@@ -171,6 +171,14 @@ func itoa(n int) string {
 	return strconv.Itoa(n)
 }
 
+func btoi(b string) int {
+	num, err := strconv.ParseInt(b, 2, 64)
+	if err != nil {
+		panic(err)
+	}
+	return int(num)
+}
+
 func strReverse(s string) string {
 	runes := []rune(s)
 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
