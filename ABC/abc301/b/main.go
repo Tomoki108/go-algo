@@ -24,6 +24,28 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	ans := make([]int, 0)
+
+	for i := 0; i < N-1; i++ {
+		current := As[i]
+		next := As[i+1]
+
+		if current < next {
+			for j := current; j < next; j++ {
+				ans = append(ans, j)
+			}
+		} else {
+			for j := current; j > next; j-- {
+				ans = append(ans, j)
+			}
+		}
+	}
+	ans = append(ans, As[N-1])
+
+	writeSlice(w, ans)
 }
 
 //////////////
