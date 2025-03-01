@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// 9223372036854775808, 19 digits, 2^63
+// 9223372036854775807, 19 digits, 2^63
 const INT_MAX = math.MaxInt
 
 // -9223372036854775808, 19 digits, -1 * 2^63

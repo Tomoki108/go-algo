@@ -10,11 +10,11 @@ import (
 	"strings"
 )
 
-// 9223372036854775808, 19 digits, 2^63
-const INT_MAX = math.MaxInt
+// 9223372036854775807, 19 digits, 2^63 - 1
+const INT_MAX = math.MaxInt64
 
 // -9223372036854775808, 19 digits, -1 * 2^63
-const INT_MIN = math.MinInt
+const INT_MIN = math.MinInt64
 
 // 1000000000000000000, 19 digits, 10^18
 const INF = int(1e18)
