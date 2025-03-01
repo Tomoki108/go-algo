@@ -39,12 +39,12 @@ func main() {
 		right++
 
 		for currentMap[A] > 1 {
-			minAns = min(minAns, len(currentMap)+1)
+			minAns = min(minAns, right-left+1)
 
 			for currentMap[A] > 1 {
 				left++
 				currentMap[As[left-1]]--
-				minAns = min(minAns, len(currentMap)+1)
+				minAns = min(minAns, right-left+1)
 			}
 			continue
 		}
