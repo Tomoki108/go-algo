@@ -51,6 +51,7 @@ func main() {
 			if newCurrent <= N {
 				return dfs(digit+1, newCurrent)
 			}
+			return false
 		} else {
 			newCurrent := current + pow(2, sLen-digit-1)
 			if newCurrent <= N {
@@ -59,11 +60,8 @@ func main() {
 					return true
 				}
 			}
-
 			return dfs(digit+1, current)
 		}
-
-		return false
 	}
 
 	found := dfs(0, 0)
