@@ -26,20 +26,21 @@ func main() {
 
 	N, Q := read2Ints(r)
 
-	birdsNest := make(map[int]int, N)
+	nestNoPointer := make(map[int]*int, N)
 	for i := 1; i <= N; i++ {
-		birdsNest[i] = i
+		no := i
+		nestNoPointer[i] = &no
+	}
+
+	birdsNest := make(map[int]*int, N)
+	for i := 1; i <= N; i++ {
+		birdsNest[i] = nestNoPointer[i]
 	}
 
 	nestBirds := make(map[int]map[int]struct{}, N)
 	for i := 1; i <= N; i++ {
 		nestBirds[i] = make(map[int]struct{})
 		nestBirds[i][i] = struct{}{}
-	}
-
-	nestMap := make(map[int]int, N)
-	for i := 1; i <= N; i++ {
-		nestMap[i] = i
 	}
 
 	for i := 0; i < Q; i++ {
@@ -50,20 +51,27 @@ func main() {
 		case 1:
 			a, b := iarr[1], iarr[2]
 
-			oldNest := birdsNest[a]
-			birdsNest[a] = b
+			oldNest := *birdsNest[a]
+			birdsNest[a] = nestNoPointer[b]
 
 			delete(nestBirds[oldNest], a)
 			nestBirds[b][a] = struct{}{}
 		case 2:
 			a, b := iarr[1], iarr[2]
-			nestA := nestMap[a]
-			nestB := nestMap[b]
-			nestMap[a], nestMap[b] = nestB, nestA
+
+			nestAPtr := nestNoPointer[a]
+			nestBPtr := nestNoPointer[b]
+			*nestAPtr, *nestBPtr = *nestBPtr, *nestAPtr
+			nestNoPointer[a], nestNoPointer[b] = nestNoPointer[b], nestNoPointer[a]
+
+			nestBirds[a], nestBirds[b] = nestBirds[b], nestBirds[a]
 		case 3:
 			a := iarr[1]
-			fmt.Fprintln(w, nestMap[birdsNest[a]])
+
+			nest := *birdsNest[a]
+			fmt.Fprintln(w, nest)
 		}
+
 	}
 
 }
