@@ -24,6 +24,33 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	Ps := readIntArr(r)
+	for i := 0; i < N-1; i++ {
+		Ps[i]--
+	}
+
+	// dp[i]: i番目の人が、自身から数えて何世代まで保険がかかっているか
+	dp := make([]int, N)
+	for i := 0; i < M; i++ {
+		x, y := read2Ints(r)
+		x--
+		y++
+		dp[x] = max(dp[x], y)
+	}
+
+	for i := 1; i < N; i++ {
+		dp[i] = max(dp[i], dp[Ps[i-1]]-1)
+	}
+
+	ans := 0
+	for i := 0; i < N; i++ {
+		if dp[i] > 0 {
+			ans++
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
