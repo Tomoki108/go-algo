@@ -41,7 +41,11 @@ func main() {
 		}
 
 		if sLen-digit > nLen {
-			return dfs(digit+1, current)
+			if Ss[digit] == "1" {
+				return false
+			} else {
+				return dfs(digit+1, current)
+			}
 		}
 
 		if Ss[digit] == "0" {
