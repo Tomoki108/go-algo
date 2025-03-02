@@ -36,7 +36,8 @@ func main() {
 		}
 	}
 
-	ans := TopologicalSort(graph, 0)
+	ans := TopologicalSortFrom(graph, 0)
+	ans = ans[:len(ans)-1] // remove startNode
 
 	for i := 0; i < len(ans); i++ {
 		fmt.Fprint(w, ans[i]+1)
@@ -53,9 +54,10 @@ func main() {
 /////////////
 
 // O(V + E) (V: 頂点の数, E: 辺の数)
-// トポロジカルソートを行う
+// startNodeから始まるトポロジカルソートを行う.
+// startNodeのタスクの前提となるタスクを順番に列挙する. 戻り値の末尾はstartNode自身.
 // graphにはDAG（有向非巡回グラフ）を渡すこと
-func TopologicalSort(graph [][]int, startNode int) []int {
+func TopologicalSortFrom(graph [][]int, startNode int) []int {
 	N := len(graph)
 
 	visited := make([]bool, N)
@@ -74,7 +76,7 @@ func TopologicalSort(graph [][]int, startNode int) []int {
 	}
 	dfs(startNode)
 
-	return ret[:len(ret)-1] // remove startNode
+	return ret
 }
 
 //////////////
