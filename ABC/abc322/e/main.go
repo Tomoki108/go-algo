@@ -29,15 +29,10 @@ func main() {
 		projects[i] = readIntArr(r) // cost, A1, A2, ..., AK
 	}
 
-	genKey := func(params []int) int {
-		key := 0
-		for i := 0; i < K; i++ {
-			key += (params[i] + 1) * pow(10, i)
-		}
-		return key
+	genKey := func(pIdx int, params []int) string {
+		return fmt.Sprintf("%d_%v", pIdx, params)
 	}
-
-	memos := make(map[int]int)
+	memos := make(map[string]int)
 
 	var dp func(projectIdx int, current []int, currentCost int)
 	dp = func(projectIdx int, current []int, currentCost int) {
@@ -64,7 +59,7 @@ func main() {
 				}
 			}
 
-			key := genKey(newCurrent)
+			key := genKey(projectIdx, newCurrent)
 			memoCost, ok := memos[key]
 			if ok && memoCost <= newCost {
 				return
@@ -79,6 +74,7 @@ func main() {
 		}
 	}
 
+	memos[genKey(0, make([]int, K))] = 0
 	dp(0, make([]int, K), 0)
 
 	completeParams := make([]int, K)
@@ -86,11 +82,19 @@ func main() {
 		completeParams[i] = P
 	}
 
-	ans, ok := memos[genKey(completeParams)]
-	if !ok {
+	minAns := INT_MAX
+	for i := 0; i < N; i++ {
+		ans, ok := memos[genKey(i, completeParams)]
+		if !ok {
+			continue
+		}
+		minAns = min(minAns, ans)
+	}
+
+	if minAns == INT_MAX {
 		fmt.Fprintln(w, -1)
 	} else {
-		fmt.Fprintln(w, ans)
+		fmt.Fprintln(w, minAns)
 	}
 }
 
