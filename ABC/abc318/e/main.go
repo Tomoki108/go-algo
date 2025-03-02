@@ -21,11 +21,48 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	As := readIntArr(r)
+
+	numIndexes := make(map[int][]int, N)
+	for i := 0; i < N; i++ {
+		num := As[i]
+		numIndexes[num] = append(numIndexes[num], i)
+	}
+
+	sandwichCnt := make(map[int][]int, len(numIndexes)) // num -> [sandwich counts of i and i+1, i+1 and i+2, ...]
+	for num, indexes := range numIndexes {
+		sandwichCnt[num] = make([]int, 0, len(indexes)-1)
+		for i := 0; i < len(indexes)-1; i++ {
+			cnt := indexes[i+1] - indexes[i] - 1
+			sandwichCnt[num] = append(sandwichCnt[num], cnt)
+		}
+	}
+
+	ans := 0
+	for _, cnts := range sandwichCnt {
+		psum1 := PrefixSum(cnts)
+		psum2 := PrefixSum(psum1)
+		ans += psum2[len(psum2)-1]
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers //
