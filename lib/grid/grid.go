@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-func CellNo(h, w, W int) int {
-	return h*W + w
-}
-
 type Coordinate struct {
 	h, w int // 0-indexed
 }
@@ -81,6 +77,14 @@ func CopyGrid[T any](grid [][]T) [][]T {
 	return res
 }
 
+// 以下のようなグリッドのセル番号を返す
+// 0 1 2
+// 3 4 5
+// 6 7 8
+func CellNo(h, w, W int) int {
+	return h*W + w
+}
+
 // 一辺がnの正方形グリッドのマス目(hight, width)を、時計回りにtime回回転させたときの座標を返す
 func RotateSquareGridCell(n, height, width, time int) (h, w int) {
 	time = time % 4
@@ -105,13 +109,6 @@ func GetSquareGridCellLayer(n, h, w int) int {
 
 func min(i, j int) int {
 	if i < j {
-		return i
-	}
-	return j
-}
-
-func max(i, j int) int {
-	if i > j {
 		return i
 	}
 	return j

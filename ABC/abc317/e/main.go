@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -21,11 +22,171 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	H, W := read2Ints(r)
+	grid := readGrid(r, H)
+
+	paint := func(nextC Coordinate, move func(c *Coordinate)) {
+		for grid[nextC.h][nextC.w] == "." || grid[nextC.h][nextC.w] == "!" {
+			grid[nextC.h][nextC.w] = "!"
+			move(&nextC)
+			if !nextC.IsValid(H, W) {
+				break
+			}
+		}
+	}
+
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			str := grid[i][j]
+
+			switch str {
+			case ">":
+				nextC := Coordinate{i, j + 1}
+				if nextC.IsValid(H, W) {
+					paint(nextC, func(c *Coordinate) { c.w++ })
+				}
+			case "<":
+				nextC := Coordinate{i, j - 1}
+				if nextC.IsValid(H, W) {
+					paint(nextC, func(c *Coordinate) { c.w-- })
+				}
+			case "^":
+				nextC := Coordinate{i - 1, j}
+				if nextC.IsValid(H, W) {
+					paint(nextC, func(c *Coordinate) { c.h-- })
+				}
+			case "v":
+				nextC := Coordinate{i + 1, j}
+				if nextC.IsValid(H, W) {
+					paint(nextC, func(c *Coordinate) { c.h++ })
+				}
+			}
+		}
+	}
+
+	var startC Coordinate
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if grid[i][j] == "S" {
+				startC = Coordinate{i, j}
+				break
+			}
+		}
+	}
+
+	type qItem struct {
+		c    Coordinate
+		dist int
+	}
+	q := NewQueue[qItem]()
+	q.Enqueue(qItem{startC, 0})
+
+	ans := -1
+	visited := createGrid(H, W, false)
+	visited[startC.h][startC.w] = true
+
+Outer:
+	for !q.IsEmpty() {
+		item, _ := q.Dequeue()
+
+		for _, adj := range item.c.Adjacents() {
+			if !adj.IsValid(H, W) || visited[adj.h][adj.w] {
+				continue
+			}
+
+			switch grid[adj.h][adj.w] {
+			case ".":
+				q.Enqueue(qItem{adj, item.dist + 1})
+				visited[adj.h][adj.w] = true
+			case "G":
+				ans = item.dist + 1
+				break Outer
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
+
+type Coordinate struct {
+	h, w int // 0-indexed
+}
+
+func (c Coordinate) Adjacents() [4]Coordinate {
+	return [4]Coordinate{
+		{c.h - 1, c.w}, // 上
+		{c.h + 1, c.w}, // 下
+		{c.h, c.w - 1}, // 左
+		{c.h, c.w + 1}, // 右
+	}
+}
+
+func (c Coordinate) AdjacentsWithDiagonals() [8]Coordinate {
+	return [8]Coordinate{
+		{c.h - 1, c.w},     // 上
+		{c.h + 1, c.w},     // 下
+		{c.h, c.w - 1},     // 左
+		{c.h, c.w + 1},     // 右
+		{c.h - 1, c.w - 1}, // 左上
+		{c.h - 1, c.w + 1}, // 右上
+		{c.h + 1, c.w - 1}, // 左下
+		{c.h + 1, c.w + 1}, // 右下
+	}
+}
+
+func (c Coordinate) IsValid(H, W int) bool {
+	return 0 <= c.h && c.h < H && 0 <= c.w && c.w < W
+}
 
 //////////////
 // Helpers //
