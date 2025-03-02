@@ -25,15 +25,17 @@ func main() {
 	N, K, P := iarr[0], iarr[1], iarr[2]
 
 	projects := make([][]int, N)
+	csum := 0
 	for i := 0; i < N; i++ {
 		projects[i] = readIntArr(r) // cost, A1, A2, ..., AK
+		csum += projects[i][0]
 	}
 
 	genKey := func(params []int) string {
 		return strings.Join(strings.Fields(fmt.Sprint(params)), "_")
 	}
 
-	ans := AscIntSearch(0, pow(10, 9), func(costLimt int) bool {
+	ans := AscIntSearch(0, csum, func(costLimt int) bool {
 		memos := make(map[string]int, pow(P, K)) // key => cost
 
 		var dp func(projectIdx int, current []int, currentCost int) bool
@@ -59,13 +61,12 @@ func main() {
 
 			// projectを実行する場合
 			if newCost := currentCost + cost; newCost <= costLimt {
-				ccurrent := make([]int, K)
-				copy(ccurrent, current)
+				newCurrent := make([]int, K)
 
 				achieved := true
 				for i := 0; i < K; i++ {
-					ccurrent[i] = min(ccurrent[i]+p[i+1], P)
-					if ccurrent[i] != P {
+					newCurrent[i] = min(current[i]+p[i+1], P)
+					if newCurrent[i] != P {
 						achieved = false
 					}
 				}
@@ -74,7 +75,7 @@ func main() {
 					return true
 				} else {
 					memos[key] = newCost
-					return dp(projectIdx+1, ccurrent, newCost)
+					return dp(projectIdx+1, newCurrent, newCost)
 				}
 			}
 
