@@ -25,10 +25,8 @@ func main() {
 	N, K, P := iarr[0], iarr[1], iarr[2]
 
 	projects := make([][]int, N)
-	csum := 0
 	for i := 0; i < N; i++ {
 		projects[i] = readIntArr(r) // cost, A1, A2, ..., AK
-		csum += projects[i][0]
 	}
 
 	genKey := func(params []int) int {
@@ -39,56 +37,61 @@ func main() {
 		return key
 	}
 
-	ans := AscIntSearch(0, csum, func(costLimt int) bool {
-		memos := make(map[int]int, pow(P, K)) // key => cost
+	memos := make(map[int]int)
 
-		var dp func(projectIdx int, current []int, currentCost int) bool
-		dp = func(projectIdx int, current []int, currentCost int) bool {
-			if projectIdx == N {
-				return false
-			}
-
-			p := projects[projectIdx]
-			cost := p[0]
-
-			// projectを実行しない場合
-			ret := dp(projectIdx+1, current, currentCost)
-			if ret {
-				return true
-			}
-
-			// projectを実行する場合
-			if newCost := currentCost + cost; newCost <= costLimt {
-				newCurrent := make([]int, K)
-
-				achieved := true
-				for i := 0; i < K; i++ {
-					newCurrent[i] = min(current[i]+p[i+1], P)
-					if newCurrent[i] != P {
-						achieved = false
-					}
-				}
-
-				if achieved {
-					return true
-				} else {
-					key := genKey(newCurrent)
-					memoCost, ok := memos[key]
-					if ok && memoCost <= currentCost {
-						return false
-					}
-					memos[key] = newCost
-					return dp(projectIdx+1, newCurrent, newCost)
-				}
-			}
-
-			return false
+	var dp func(projectIdx int, current []int, currentCost int)
+	dp = func(projectIdx int, current []int, currentCost int) {
+		if projectIdx == N {
+			return
 		}
 
-		return dp(0, make([]int, K), 0)
-	})
+		p := projects[projectIdx]
+		cost := p[0]
 
-	fmt.Println(ans) // 達成できない場合は元々-1が入っている
+		// projectを実行しない場合
+		dp(projectIdx+1, current, currentCost)
+
+		// projectを実行する場合
+		{
+			newCost := currentCost + cost
+			newCurrent := make([]int, K)
+
+			achieved := true
+			for i := 0; i < K; i++ {
+				newCurrent[i] = min(current[i]+p[i+1], P)
+				if newCurrent[i] != P {
+					achieved = false
+				}
+			}
+
+			key := genKey(newCurrent)
+			memoCost, ok := memos[key]
+			if ok && memoCost <= newCost {
+				return
+			}
+			memos[key] = newCost
+
+			if achieved {
+				return
+			} else {
+				dp(projectIdx+1, newCurrent, newCost)
+			}
+		}
+	}
+
+	dp(0, make([]int, K), 0)
+
+	completeParams := make([]int, K)
+	for i := 0; i < K; i++ {
+		completeParams[i] = P
+	}
+
+	ans, ok := memos[genKey(completeParams)]
+	if !ok {
+		fmt.Fprintln(w, -1)
+	} else {
+		fmt.Fprintln(w, ans)
+	}
 }
 
 //////////////
