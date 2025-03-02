@@ -3,7 +3,7 @@ package topolosort
 // O(V + E) (V: 頂点の数, E: 辺の数)
 // トポロジカルソートを行う
 // graphにはDAG（有向非巡回グラフ）を渡すこと
-func TopoLogicalSort(graph [][]int, startNode int) []int {
+func TopologicalSort(graph [][]int, startNode int) []int {
 	N := len(graph)
 
 	visited := make([]bool, N)
