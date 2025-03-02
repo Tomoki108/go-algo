@@ -31,12 +31,16 @@ func main() {
 		csum += projects[i][0]
 	}
 
-	genKey := func(params []int) string {
-		return fmt.Sprint(params)
+	genKey := func(params []int) int {
+		key := 0
+		for i := 0; i < K; i++ {
+			key += (params[i] + 1) * pow(10, i)
+		}
+		return key
 	}
 
 	ans := AscIntSearch(0, csum, func(costLimt int) bool {
-		memos := make(map[string]int, pow(P, K)) // key => cost
+		memos := make(map[int]int, pow(P, K)) // key => cost
 
 		var dp func(projectIdx int, current []int, currentCost int) bool
 		dp = func(projectIdx int, current []int, currentCost int) bool {
