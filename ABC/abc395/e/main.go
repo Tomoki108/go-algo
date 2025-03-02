@@ -44,11 +44,36 @@ func main() {
 		graph[vr] = append(graph[vr], [2]int{ur, 1})
 	}
 
-	dists := make([]int, 2*N)
-	for i := 0; i < 2*N; i++ {
-		dists[i] = INF
+	dists := Dijkstra(graph, 0)
+
+	ans := min(dists[N-1], dists[2*N-1]) // Nに到達可能（ansがINFでないこと）が制約で保証されている.
+	fmt.Fprintln(w, ans)
+
+}
+
+//////////////
+// Libs    //
+/////////////
+
+type pqItem struct {
+	node    int
+	distSum int
+}
+
+func (p pqItem) Priority() int {
+	return p.distSum
+}
+
+// O(E * log V) (E: 辺の数, V: 頂点の数)
+// ダイクストラ法で、始点から各頂点への最短距離を求める
+func Dijkstra(graph [][][2]int, startNode int) (dists []int) {
+	N := len(graph)
+	dists = make([]int, N)
+
+	for i := 0; i < N; i++ {
+		dists[i] = 1<<63 - 1 // INT_MAX
 	}
-	fixed := make([]bool, 2*N)
+	fixed := make([]bool, N)
 
 	pq := Heap[pqItem]{}
 	pq.PushItem(pqItem{0, 0})
@@ -66,23 +91,8 @@ func main() {
 		}
 	}
 
-	ans := min(dists[N-1], dists[2*N-1]) // Nに到達可能（ansがINFでないこと）が制約で保証されている.
-	fmt.Fprintln(w, ans)
-
+	return dists
 }
-
-type pqItem struct {
-	node    int
-	distSum int
-}
-
-func (p pqItem) Priority() int {
-	return p.distSum
-}
-
-//////////////
-// Libs    //
-/////////////
 
 // 最小ヒープ（小さい値が優先）
 type HeapItem interface {
