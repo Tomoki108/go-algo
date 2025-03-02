@@ -30,9 +30,10 @@ func main() {
 		numIndexes[num] = append(numIndexes[num], i)
 	}
 
-	sandwichCnt := make(map[int][]int, len(numIndexes)) // num -> [sandwich counts of i and i+1, i+1 and i+2, ...]
+	sandwichCnt := make(map[int][]int, len(numIndexes)) // num -> [sandwich counts between i and i+1, i+1 and i+2, ...]
 	for num, indexes := range numIndexes {
 		sandwichCnt[num] = make([]int, 0, len(indexes)-1)
+
 		for i := 0; i < len(indexes)-1; i++ {
 			cnt := indexes[i+1] - indexes[i] - 1
 			sandwichCnt[num] = append(sandwichCnt[num], cnt)
@@ -41,9 +42,11 @@ func main() {
 
 	ans := 0
 	for _, cnts := range sandwichCnt {
-		psum1 := PrefixSum(cnts)
-		psum2 := PrefixSum(psum1)
-		ans += psum2[len(psum2)-1]
+		sum := 0
+		for i := 1; i <= len(cnts); i++ {
+			sum += cnts[i-1] * i * (len(cnts) - i + 1)
+		}
+		ans += sum
 	}
 
 	fmt.Println(ans)
