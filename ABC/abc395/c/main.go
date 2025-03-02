@@ -52,6 +52,37 @@ func main() {
 	}
 }
 
+func alt() {
+	defer w.Flush()
+
+	N := readInt(r)
+	As := readIntArr(r)
+
+	lastIndexes := make(map[int]int, N)
+	for _, A := range As {
+		lastIndexes[A] = -1
+	}
+
+	minAns := INT_MAX
+	for i := 0; i < N; i++ {
+		A := As[i]
+
+		if lastIndexes[A] != -1 {
+			currentLen := i - lastIndexes[A] + 1
+			minAns = min(minAns, currentLen)
+			lastIndexes[A] = i
+		} else {
+			lastIndexes[A] = i
+		}
+	}
+
+	if minAns == INT_MAX {
+		fmt.Println(-1)
+	} else {
+		fmt.Println(minAns)
+	}
+}
+
 //////////////
 // Libs    //
 /////////////
