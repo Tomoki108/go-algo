@@ -46,7 +46,7 @@ func main() {
 
 	dists := Dijkstra(graph, 0)
 
-	ans := min(dists[N-1], dists[2*N-1]) // Nに到達可能（ansがINFでないこと）が制約で保証されている.
+	ans := min(dists[N-1], dists[2*N-1]) // Nに到達可能（ansがINT_MAXでないこと）が制約で保証されている.
 	fmt.Fprintln(w, ans)
 
 }
