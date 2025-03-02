@@ -2,11 +2,15 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,11 +25,100 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	points := make([]int, N)
+	linedSet := NewIntSetAsc() // 並んでいる人
+	for i := 0; i < N; i++ {
+		linedSet.Insert(i)
+	}
+	pq := NewHeap[pqItem]() // 抜けている人
+
+	for i := 0; i < M; i++ {
+		iarr := readIntArr(r)
+		T, W, S := iarr[0], iarr[1], iarr[2]
+
+		for pq.Len() > 0 {
+			item := pq.PopItem()
+			if item.t <= T {
+				linedSet.Insert(item.node)
+			} else {
+				pq.PushItem(item)
+				break
+			}
+		}
+
+		if linedSet.Size() > 0 {
+			node := linedSet.First().Value()
+			linedSet.Erase(node)
+			points[node] += W
+
+			pq.PushItem(pqItem{node: node, t: T + S})
+		}
+	}
+
+	writeSliceByLine(w, points)
+}
+
+type pqItem struct {
+	node int
+	t    int
+}
+
+func (p pqItem) Priority() int {
+	return p.t
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func NewIntSetAsc() *set.Set[int] {
+	return set.New(comparator.IntComparator)
+}
+
+// 最小ヒープ（小さい値が優先）
+type HeapItem interface {
+	Priority() int
+}
+
+type Heap[T HeapItem] []T
+
+func NewHeap[T HeapItem]() *Heap[T] {
+	return &Heap[T]{}
+}
+
+func (h *Heap[T]) PushItem(item T) {
+	heap.Push(h, item)
+}
+
+func (h *Heap[T]) PopItem() T {
+	return heap.Pop(h).(T)
+}
+
+// to implement sort.Interface
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+
+	*h = append(*h, x.(T))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
 
 //////////////
 // Helpers //

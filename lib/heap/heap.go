@@ -9,6 +9,10 @@ type HeapItem interface {
 
 type Heap[T HeapItem] []T
 
+func NewHeap[T HeapItem]() *Heap[T] {
+	return &Heap[T]{}
+}
+
 func (h *Heap[T]) PushItem(item T) {
 	heap.Push(h, item)
 }
