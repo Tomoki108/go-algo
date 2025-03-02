@@ -1,13 +1,11 @@
 package slwindow
 
-// O(len(sl))
-// 尺取法の実装例 (連続する部分列の和が目標値以上になる最小の長さを求める)
-func SlWindowExample(sl []int, targetSum int) string {
-	// (ex,
-	// sl := []int{1, 2, 29, 4, 11, 6, 2, 9, 9}
-	// targetSum := 17
+// O(|sl|)
+// 尺取法で、連続する部分列の和が目標値以上になる最小の長さを求める
+func SlWindowSum(sl []int, targetSum int) int {
+	minLen := 1<<63 - 1
 
-	// (left, right] の範囲の和を考える
+	// [left, right)
 	left := 0
 	right := 0
 	currentSum := 0
@@ -15,28 +13,23 @@ func SlWindowExample(sl []int, targetSum int) string {
 		currentSum += sl[right]
 		right++
 
-		if currentSum < targetSum {
-			continue
-		}
+		for currentSum >= targetSum {
+			minLen = min(minLen, right-left)
 
-		if currentSum == targetSum {
-			return "found"
-		}
-
-		for currentSum > targetSum {
 			currentSum -= sl[left]
 			left++
-
-			if left == right {
-				currentSum = 0
-				break
-			}
-
-			if currentSum == targetSum {
-				return "found"
-			}
 		}
 	}
 
-	return "not found"
+	if minLen != 1<<63-1 {
+		return minLen
+	}
+	return -1
+}
+
+func min(i, j int) int {
+	if i < j {
+		return i
+	}
+	return j
 }

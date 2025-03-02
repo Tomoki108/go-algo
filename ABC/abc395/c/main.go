@@ -43,7 +43,6 @@ func main() {
 			left++
 			currentMap[As[left-1]]--
 		}
-		continue
 	}
 
 	if minAns == INT_MAX {

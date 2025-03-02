@@ -2,15 +2,15 @@ package slwindow
 
 import "testing"
 
-func TestExampleSlWindow(t *testing.T) {
+func TestSlWindowSum(t *testing.T) {
 
-	r1 := SlWindowExample([]int{1, 2, 29, 4, 11, 6, 2, 9, 9}, 17)
-	if r1 != "found" {
-		t.Fatalf("got %v, expect %v", r1, "found")
+	r1 := SlWindowSum([]int{4, 4, 4, 1, 5, 10, 2}, 17)
+	if r1 != 3 {
+		t.Fatalf("got %v, expect %v", r1, 3)
 	}
 
-	r2 := SlWindowExample([]int{1, 2, 29, 4, 11, 6, 2, 9, 9}, 100)
-	if r2 != "not found" {
-		t.Fatalf("got %v, expect %v", r2, "not found")
+	r2 := SlWindowSum([]int{1, 2, 29, 4, 11, 6, 2, 9, 9}, 100)
+	if r2 != -1 {
+		t.Fatalf("got %v, expect %v", r2, -1)
 	}
 }
