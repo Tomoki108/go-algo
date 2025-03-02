@@ -28,85 +28,56 @@ func main() {
 	iarr := readIntArr(r)
 	N, M, X := iarr[0], iarr[1], iarr[2]
 
-	graph := make([][][2]int, N) // node, flipped
+	graph := make([][][2]int, 2*N) // node, dist
+	for i := 0; i < N; i++ {
+		ir := i + N
+		graph[i] = append(graph[i], [2]int{ir, X})
+		graph[ir] = append(graph[ir], [2]int{i, X})
+	}
 	for i := 0; i < M; i++ {
 		u, v := read2Ints(r)
 		u--
 		v--
-		graph[u] = append(graph[u], [2]int{v, 0})
-		graph[v] = append(graph[v], [2]int{u, 1})
+		ur := u + N
+		vr := v + N
+		graph[u] = append(graph[u], [2]int{v, 1})
+		graph[vr] = append(graph[vr], [2]int{ur, 1})
 	}
 
-	nodeCostNonFlipped := make([]int, N)
-	nodeCostsFlipped := make([]int, N)
-	for i := 0; i < N; i++ {
-		nodeCostNonFlipped[i] = INT_MAX
-		nodeCostsFlipped[i] = INT_MAX
+	dists := make([]int, 2*N)
+	for i := 0; i < 2*N; i++ {
+		dists[i] = INF
 	}
+	fixed := make([]bool, 2*N)
 
-	nodeCostsFlipped[0] = X
-	nodesCosts := [2][]int{nodeCostNonFlipped, nodeCostsFlipped}
-
-	pq := &Heap[pqItem]{}
-	pq.PushItem(pqItem{node: 0, weightSum: 0, flipped: 0})
-	pq.PushItem(pqItem{node: 0, weightSum: X, flipped: 1})
-
-	isFixedNonFlipped := make([]bool, N)
-	isFixedFlipped := make([]bool, N)
-	isFixedNonFlipped[0] = true
-	isFixedFlipped[0] = true
-
-	isFixed := [2][]bool{isFixedNonFlipped, isFixedFlipped}
-
-	for pq.Len() > 0 {
+	pq := Heap[pqItem]{}
+	pq.PushItem(pqItem{0, 0})
+	for len(pq) > 0 {
 		item := pq.PopItem()
-		dump("item: %v\n", item)
-
-		if isFixed[item.flipped][item.node] {
+		if fixed[item.node] {
 			continue
 		}
-		isFixed[item.flipped][item.node] = true
-
-		nodesCosts[item.flipped][item.node] = item.weightSum
+		dists[item.node] = item.distSum
+		fixed[item.node] = true
 
 		adjacents := graph[item.node]
 		for _, adj := range adjacents {
-			newWeightSum := item.weightSum + 1
-			newFlipped := item.flipped
-			if adj[1] != item.flipped {
-				newWeightSum += X
-				newFlipped = adj[1]
-			}
-
-			if nodesCosts[newFlipped][adj[0]] != INT_MAX {
-				nodesCosts[newFlipped][adj[0]] = min(nodesCosts[newFlipped][adj[0]], newWeightSum)
-			} else {
-				nodesCosts[newFlipped][adj[0]] = newWeightSum
-			}
-			pq.PushItem(pqItem{
-				weightSum: newWeightSum,
-				node:      adj[0],
-				flipped:   newFlipped,
-			})
+			pq.PushItem(pqItem{adj[0], item.distSum + adj[1]})
 		}
 	}
 
-	dump("nodesCosts: %v\n", nodesCosts)
+	ans := min(dists[N-1], dists[2*N-1]) // Nに到達可能（ansがINFでないこと）が制約で保証されている.
+	fmt.Fprintln(w, ans)
 
-	costA := nodesCosts[0][N-1]
-	costB := nodesCosts[1][N-1]
-
-	fmt.Fprintln(w, min(costA, costB))
 }
 
 type pqItem struct {
-	weightSum int
-	node      int
-	flipped   int
+	node    int
+	distSum int
 }
 
 func (p pqItem) Priority() int {
-	return p.weightSum
+	return p.distSum
 }
 
 //////////////
