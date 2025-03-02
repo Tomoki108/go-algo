@@ -36,23 +36,7 @@ func main() {
 		}
 	}
 
-	visited := make([]bool, N)
-	ans := make([]int, 0, N)
-
-	var dfs func(node int)
-	dfs = func(node int) {
-		visited[node] = true
-		for _, adj := range graph[node] {
-			if visited[adj] {
-				continue
-			}
-			dfs(adj)
-		}
-		ans = append(ans, node)
-	}
-
-	dfs(0)
-	ans = ans[:len(ans)-1] // 始点の0を削除
+	ans := TopoLogicalSort(graph, 0)
 
 	for i := 0; i < len(ans); i++ {
 		fmt.Fprint(w, ans[i]+1)
@@ -67,6 +51,31 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+// O(V + E) (V: 頂点の数, E: 辺の数)
+// トポロジカルソートを行う
+// graphにはDAG（有向非巡回グラフ）を渡すこと
+func TopoLogicalSort(graph [][]int, startNode int) []int {
+	N := len(graph)
+
+	visited := make([]bool, N)
+	ret := make([]int, 0, N)
+
+	var dfs func(node int)
+	dfs = func(node int) {
+		visited[node] = true
+		for _, adj := range graph[node] {
+			if visited[adj] {
+				continue
+			}
+			dfs(adj)
+		}
+		ret = append(ret, node)
+	}
+	dfs(startNode)
+
+	return ret[:len(ret)-1] // remove startNode
+}
 
 //////////////
 // Helpers //
