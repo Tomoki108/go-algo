@@ -10,8 +10,8 @@ func (p pqItem) Priority() int {
 }
 
 // O(E * log V) (E: 辺の数, V: 頂点の数)
-// ダイクストラ法で、始点から各頂点への最短距離を求める
-// 到達不可能な頂点の最短距離は 1<<63 - 1 になる
+// ダイクストラ法で、始点から各頂点への最短距離を求める (到達不可能な頂点は 1<<63 - 1 )
+// [2]int は {node, dist}
 func Dijkstra(graph [][][2]int, startNode int) (dists []int) {
 	N := len(graph)
 	dists = make([]int, N)

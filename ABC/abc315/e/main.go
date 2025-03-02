@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -27,80 +26,47 @@ func main() {
 
 	N := readInt(r)
 
-	requires := make([][]int, N)
-	for i := 1; i <= N; i++ {
+	graph := make([][]int, N)
+	for i := 0; i < N; i++ {
 		iarr := readIntArr(r)
 		C := iarr[0]
-		if C != 0 {
-			requires[i-1] = iarr[1:]
+
+		for j := 0; j < C; j++ {
+			graph[i] = append(graph[i], iarr[j+1]-1)
 		}
 	}
 
-	q := NewQueue[qItem]()
-	q.Enqueue(qItem{bookNo: 1, depth: 0})
+	visited := make([]bool, N)
+	ans := make([]int, 0, N)
 
-	bookDepthMap := make(map[int]int, N)
-	for !q.IsEmpty() {
-		item, _ := q.Dequeue()
+	var dfs func(node int)
+	dfs = func(node int) {
+		visited[node] = true
+		for _, adj := range graph[node] {
+			if visited[adj] {
+				continue
+			}
+			dfs(adj)
+		}
+		ans = append(ans, node)
+	}
 
-	pres := requires[item.bookNo-1]
+	dfs(0)
+	ans = ans[:len(ans)-1] // 始点の0を削除
 
-}
-
-type qItem struct {
-	bookNo int
-	depth  int
+	for i := 0; i < len(ans); i++ {
+		fmt.Fprint(w, ans[i]+1)
+		if i == len(ans)-1 {
+			fmt.Fprintln(w)
+		} else {
+			fmt.Fprint(w, " ")
+		}
+	}
 }
 
 //////////////
 // Libs    //
 /////////////
-
-type Queue[T any] struct {
-	list *list.List
-}
-
-func NewQueue[T any]() *Queue[T] {
-	return &Queue[T]{
-		list: list.New(),
-	}
-}
-
-func (q *Queue[T]) Enqueue(value T) {
-	q.list.PushBack(value)
-}
-
-func (q *Queue[T]) Dequeue() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	q.list.Remove(front)
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) IsEmpty() bool {
-	return q.list.Len() == 0
-}
-
-func (q *Queue[T]) Size() int {
-	return q.list.Len()
-}
-
-// Peek returns the front element without removing it
-func (q *Queue[T]) Peek() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) Clear() {
-	q.list.Init()
-}
 
 //////////////
 // Helpers //
