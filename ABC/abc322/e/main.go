@@ -32,7 +32,7 @@ func main() {
 	}
 
 	genKey := func(params []int) string {
-		return strings.Join(strings.Fields(fmt.Sprint(params)), "_")
+		return fmt.Sprint(params)
 	}
 
 	ans := AscIntSearch(0, csum, func(costLimt int) bool {
@@ -41,12 +41,6 @@ func main() {
 		var dp func(projectIdx int, current []int, currentCost int) bool
 		dp = func(projectIdx int, current []int, currentCost int) bool {
 			if projectIdx == N {
-				return false
-			}
-
-			key := genKey(current)
-			memoCost, ok := memos[key]
-			if ok && memoCost <= currentCost {
 				return false
 			}
 
@@ -74,6 +68,11 @@ func main() {
 				if achieved {
 					return true
 				} else {
+					key := genKey(newCurrent)
+					memoCost, ok := memos[key]
+					if ok && memoCost <= currentCost {
+						return false
+					}
 					memos[key] = newCost
 					return dp(projectIdx+1, newCurrent, newCost)
 				}
