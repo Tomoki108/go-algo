@@ -21,11 +21,101 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, K, P := iarr[0], iarr[1], iarr[2]
+
+	projects := make([][]int, N)
+	for i := 0; i < N; i++ {
+		projects[i] = readIntArr(r) // cost, A1, A2, ..., AK
+	}
+
+	genKey := func(params []int) string {
+		return strings.Join(strings.Fields(fmt.Sprint(params)), "_")
+	}
+
+	ans := AscIntSearch(0, pow(10, 9), func(costLimt int) bool {
+		memos := make(map[string]int, pow(P, K)) // key => cost
+
+		var dp func(projectIdx int, current []int, currentCost int) bool
+		dp = func(projectIdx int, current []int, currentCost int) bool {
+			if projectIdx == N {
+				return false
+			}
+
+			key := genKey(current)
+			memoCost, ok := memos[key]
+			if ok && memoCost <= currentCost {
+				return false
+			}
+
+			p := projects[projectIdx]
+			cost := p[0]
+
+			// projectを実行しない場合
+			ret := dp(projectIdx+1, current, currentCost)
+			if ret {
+				return true
+			}
+
+			// projectを実行する場合
+			if newCost := currentCost + cost; newCost <= costLimt {
+				ccurrent := make([]int, K)
+				copy(ccurrent, current)
+
+				achieved := true
+				for i := 0; i < K; i++ {
+					ccurrent[i] = min(ccurrent[i]+p[i+1], P)
+					if ccurrent[i] != P {
+						achieved = false
+					}
+				}
+
+				if achieved {
+					return true
+				} else {
+					memos[key] = newCost
+					return dp(projectIdx+1, ccurrent, newCost)
+				}
+			}
+
+			return false
+		}
+
+		return dp(0, make([]int, K), 0)
+	})
+
+	fmt.Println(ans) // 達成できない場合は元々-1が入っている
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(log (high-low))
+// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
+// low~highは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はlow-1を返す
+func AscIntSearch(low, high int, f func(num int) bool) int {
+	initialLow := low
+
+	for low < high {
+		// オーバーフローを防ぐための立式
+		// 中央値はlow側に寄る
+		mid := low + (high-low)/2
+		if f(mid) {
+			high = mid // 条件を満たす場合、よりlow側の範囲を探索
+		} else {
+			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
+		}
+	}
+
+	// 最後に low(=high) が条件を満たしているかを確認
+	if f(low) {
+		return low
+	}
+
+	return initialLow - 1 // 条件を満たす値が見つからない場合
+}
 
 //////////////
 // Helpers //
