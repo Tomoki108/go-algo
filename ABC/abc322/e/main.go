@@ -39,6 +39,7 @@ func main() {
 
 	memos := make(map[int]int, N*pow(P+1, K)+1)
 
+	// メモ化再帰
 	var dp func(projectIdx int, current []int, currentCost int)
 	dp = func(projectIdx int, current []int, currentCost int) {
 		memo, ok := memos[genKey(projectIdx, current)]
