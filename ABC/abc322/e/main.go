@@ -37,10 +37,16 @@ func main() {
 		return ret
 	}
 
-	memos := make(map[int]int, pow(P+1, K))
+	memos := make(map[int]int, N*pow(P+1, K)+1)
 
 	var dp func(projectIdx int, current []int, currentCost int)
 	dp = func(projectIdx int, current []int, currentCost int) {
+		memo, ok := memos[genKey(projectIdx, current)]
+		if ok && memo <= currentCost {
+			return
+		}
+		memos[genKey(projectIdx, current)] = currentCost
+
 		if projectIdx == N {
 			return
 		}
@@ -49,42 +55,17 @@ func main() {
 		cost := p[0]
 
 		// projectを実行しない場合
-		{
-			memo, ok := memos[genKey(projectIdx+1, current)]
-			if !ok || memo > currentCost {
-				memos[genKey(projectIdx+1, current)] = currentCost
-				dp(projectIdx+1, current, currentCost)
-			}
-		}
+		dp(projectIdx+1, current, currentCost)
 
 		// projectを実行する場合
-		{
-			newCost := currentCost + cost
-			newCurrent := make([]int, K)
-
-			achieved := true
-			for i := 0; i < K; i++ {
-				newCurrent[i] = min(current[i]+p[i+1], P)
-				if newCurrent[i] != P {
-					achieved = false
-				}
-			}
-
-			key := genKey(projectIdx+1, newCurrent)
-			memo, ok := memos[key]
-			if !ok || memo > newCost {
-				memos[key] = newCost
-
-				if achieved {
-					return
-				} else {
-					dp(projectIdx+1, newCurrent, newCost)
-				}
-			}
+		newCost := currentCost + cost
+		newCurrent := make([]int, K)
+		for i := 0; i < K; i++ {
+			newCurrent[i] = min(current[i]+p[i+1], P)
 		}
+		dp(projectIdx+1, newCurrent, newCost)
 	}
 
-	memos[genKey(0, make([]int, K))] = 0
 	dp(0, make([]int, K), 0)
 
 	completeParams := make([]int, K)
@@ -111,32 +92,6 @@ func main() {
 //////////////
 // Libs    //
 /////////////
-
-// O(log (high-low))
-// low, low+1, ..., highの範囲で条件を満たす最小の値を二分探索する
-// low~highは条件に対して単調増加性を満たす必要がある
-// 条件を満たす値が見つからない場合はlow-1を返す
-func AscIntSearch(low, high int, f func(num int) bool) int {
-	initialLow := low
-
-	for low < high {
-		// オーバーフローを防ぐための立式
-		// 中央値はlow側に寄る
-		mid := low + (high-low)/2
-		if f(mid) {
-			high = mid // 条件を満たす場合、よりlow側の範囲を探索
-		} else {
-			low = mid + 1 // 条件を満たさない場合、よりhigh側の範囲を探索
-		}
-	}
-
-	// 最後に low(=high) が条件を満たしているかを確認
-	if f(low) {
-		return low
-	}
-
-	return initialLow - 1 // 条件を満たす値が見つからない場合
-}
 
 //////////////
 // Helpers //
