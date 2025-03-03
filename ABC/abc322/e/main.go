@@ -36,13 +36,11 @@ func main() {
 	// 	}
 	// 	return ret
 	// }
-
-	completeParams := make([]int, K)
-	for i := 0; i < K; i++ {
-		completeParams[i] = P
+	genKey := func(pIdx int, params []int) string {
+		return fmt.Sprintf("%d_%v", pIdx, params)
 	}
-	maxKey := genKey(N-1, completeParams)
-	memos := make([]int, maxKey+1)
+
+	memos := make(map[string]int, pow(P+1, K))
 
 	var dp func(projectIdx int, current []int, currentCost int)
 	dp = func(projectIdx int, current []int, currentCost int) {
@@ -50,18 +48,17 @@ func main() {
 			return
 		}
 
-		key := genKey(projectIdx, current)
-		memoCost := memos[key]
-		if memoCost != 0 && memoCost <= currentCost {
-			return
-		}
-		memos[key] = currentCost
-
 		p := projects[projectIdx]
 		cost := p[0]
 
 		// projectを実行しない場合
-		dp(projectIdx+1, current, currentCost)
+		{
+			memo, ok := memos[genKey(projectIdx+1, current)]
+			if !ok || memo > currentCost {
+				memos[genKey(projectIdx+1, current)] = currentCost
+				dp(projectIdx+1, current, currentCost)
+			}
+		}
 
 		// projectを実行する場合
 		{
@@ -76,24 +73,32 @@ func main() {
 				}
 			}
 
-			if achieved {
-				key := genKey(projectIdx+1, newCurrent)
-				if memos[key] == 0 || memos[key] > newCost {
-					memos[key] = newCost
+			key := genKey(projectIdx+1, newCurrent)
+			memo, ok := memos[key]
+			if !ok || memo > newCost {
+				memos[key] = newCost
+
+				if achieved {
+					return
+				} else {
+					dp(projectIdx+1, newCurrent, newCost)
 				}
-				return
-			} else {
-				dp(projectIdx+1, newCurrent, newCost)
 			}
 		}
 	}
 
+	memos[genKey(0, make([]int, K))] = 0
 	dp(0, make([]int, K), 0)
 
+	completeParams := make([]int, K)
+	for i := 0; i < K; i++ {
+		completeParams[i] = P
+	}
+
 	minAns := INT_MAX
-	for i := 0; i < N; i++ {
-		ans := memos[genKey(i, completeParams)]
-		if ans == 0 {
+	for i := 0; i <= N; i++ {
+		ans, ok := memos[genKey(i, completeParams)]
+		if !ok {
 			continue
 		}
 		minAns = min(minAns, ans)
