@@ -41,7 +41,7 @@ func SumOfAllContiguousSubsequences(seq []int) int {
 	n := len(seq)
 	sum := 0
 	for i := 1; i <= n; i++ {
-		// 数列のある要素が登場する連続部分列は、左端を自身以前の要素から選ぶ数 * 右端を自身以降の要素から選ぶ数
+		// 数列のある要素が登場する連続部分列の個数は、左端を自身より前の要素から選ぶ数 * 右端を自身以降の要素から選ぶ数
 		sum += seq[i-1] * i * (n - i + 1)
 	}
 	return sum
