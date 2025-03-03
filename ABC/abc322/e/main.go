@@ -29,18 +29,15 @@ func main() {
 		projects[i] = readIntArr(r) // cost, A1, A2, ..., AK
 	}
 
-	// genKey := func(pIdx int, params []int) int {
-	// 	ret := pIdx * pow(10, K)
-	// 	for i := 0; i < K; i++ {
-	// 		ret += params[i] * pow(10, K-i-1)
-	// 	}
-	// 	return ret
-	// }
-	genKey := func(pIdx int, params []int) string {
-		return fmt.Sprintf("%d_%v", pIdx, params)
+	genKey := func(pIdx int, params []int) int {
+		ret := pIdx * pow(10, K)
+		for i := 0; i < K; i++ {
+			ret += params[i] * pow(10, K-i-1)
+		}
+		return ret
 	}
 
-	memos := make(map[string]int, pow(P+1, K))
+	memos := make(map[int]int, pow(P+1, K))
 
 	var dp func(projectIdx int, current []int, currentCost int)
 	dp = func(projectIdx int, current []int, currentCost int) {
