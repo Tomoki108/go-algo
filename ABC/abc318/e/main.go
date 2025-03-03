@@ -42,11 +42,7 @@ func main() {
 
 	ans := 0
 	for _, cnts := range sandwichCnt {
-		sum := 0
-		for i := 1; i <= len(cnts); i++ {
-			sum += cnts[i-1] * i * (len(cnts) - i + 1)
-		}
-		ans += sum
+		ans += SumOfAllContiguousSubsequences(cnts)
 	}
 
 	fmt.Println(ans)
@@ -56,15 +52,16 @@ func main() {
 // Libs    //
 /////////////
 
-// O(n)
-// 一次元累積和を返す（index0には0を入れる。）
-func PrefixSum(sl []int) []int {
-	n := len(sl)
-	res := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		res[i+1] = res[i] + sl[i]
+// O(|seq|)
+// 数列の、全ての連続部分列の総和の総和を返す
+func SumOfAllContiguousSubsequences(seq []int) int {
+	n := len(seq)
+	sum := 0
+	for i := 1; i <= n; i++ {
+		// 数列のある要素が登場する連続部分列は、左端を自身以前の要素から選ぶ数 * 右端を自身以降の要素から選ぶ数
+		sum += seq[i-1] * i * (n - i + 1)
 	}
-	return res
+	return sum
 }
 
 //////////////

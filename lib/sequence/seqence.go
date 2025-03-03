@@ -35,6 +35,18 @@ func GeometricSequenceSum(seq []int) int {
 	return first * (pow(ratio, n) - 1) / (ratio - 1)
 }
 
+// O(|seq|)
+// 数列の、全ての連続部分列の総和の総和を返す
+func SumOfAllContiguousSubsequences(seq []int) int {
+	n := len(seq)
+	sum := 0
+	for i := 1; i <= n; i++ {
+		// 数列のある要素が登場する連続部分列は、左端を自身以前の要素から選ぶ数 * 右端を自身以降の要素から選ぶ数
+		sum += seq[i-1] * i * (n - i + 1)
+	}
+	return sum
+}
+
 // NOTE: template.goにも存在する関数
 // O(log(exp))
 // 繰り返し二乗法で x^y を計算する関数
