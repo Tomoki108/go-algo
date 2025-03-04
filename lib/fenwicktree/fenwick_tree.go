@@ -1,6 +1,6 @@
 package fenwicktree
 
-// 数列の区間和の取得、一点更新を O(log n) で行うデータ構造
+// 数列の区間和の取得、一点更新、インデックスアクセスを O(log n) で行うデータ構造
 // できることはセグメント木の完全下位互換だが、定数倍が小さい
 type FenwickTree struct {
 	n    int
