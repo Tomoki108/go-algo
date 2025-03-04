@@ -57,6 +57,14 @@ func read2Ints(r *bufio.Reader) (int, int) {
 	return i1, i2
 }
 
+// １行の「整数 文字列」のみの入力を読み込む
+func readIntStr(r *bufio.Reader) (int, string) {
+	input, _ := r.ReadString('\n')
+	strs := strings.Fields(input)
+	i, _ := strconv.Atoi(strs[0])
+	return i, strs[1]
+}
+
 // 一行に複数の文字列が入力される場合、スペース区切りで文字列を読み込む
 func readStrArr(r *bufio.Reader) []string {
 	input, _ := r.ReadString('\n')

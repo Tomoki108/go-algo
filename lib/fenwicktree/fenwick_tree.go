@@ -46,3 +46,9 @@ func (ft *FenwickTree) RangeSum(l, r int) int {
 	}
 	return ft.Sum(r) - ft.Sum(l-1)
 }
+
+// O(log n)
+// index i (0-indexed)の要素を取得する
+func (ft *FenwickTree) At(i int) int {
+	return ft.RangeSum(i, i)
+}

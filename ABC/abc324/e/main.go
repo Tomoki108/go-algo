@@ -21,11 +21,155 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, T := readIntStr(r)
+	Ts := strings.Split(T, "")
+
+	Ss := make([]string, 0, N)
+	for i := 0; i < N; i++ {
+		Ss = append(Ss, readStr(r))
+	}
+
+	ans := 0
+
+	// 自身を二倍したものが条件を満たす場合、ans++
+	for i := 0; i < N; i++ {
+		wSs := Ss[i] + Ss[i]
+		sl := strings.Split(wSs, "")
+
+		matchIdx := -1
+		tIdx := 0
+		for j := 0; j < len(sl); j++ {
+			if sl[j] == Ts[tIdx] {
+				matchIdx++
+				if tIdx == len(Ts)-1 {
+					break
+				}
+				tIdx++
+			}
+		}
+		if matchIdx == len(Ts)-1 {
+			ans++
+		}
+	}
+
+	// 自身より前の要素で、順に結合して条件を満たす組み合わせの数をansに足す
+	solve := func(ss []string) {
+		ft := NewFenwickTree(len(Ts))
+		for i := 0; i < N; i++ {
+			sl := strings.Split(ss[i], "")
+
+			revMatchIdx := len(Ts)
+			revTIdx := len(Ts) - 1
+			for j := len(sl) - 1; j >= 0; j-- {
+				if sl[j] == Ts[revTIdx] {
+					revMatchIdx--
+					if revTIdx == 0 {
+						break
+					}
+					revTIdx--
+				}
+			}
+			if revMatchIdx != len(Ts) {
+				if revMatchIdx == 0 {
+					ans += i
+				} else {
+					pairs := ft.RangeSum(revMatchIdx-1, len(Ts)-1)
+					ans += pairs
+				}
+			} else {
+				ans += ft.At(len(Ts) - 1)
+			}
+
+			matchIdx := -1
+			tIdx := 0
+			for j := 0; j < len(sl); j++ {
+				if sl[j] == Ts[tIdx] {
+					matchIdx++
+					if tIdx == len(Ts)-1 {
+						break
+					}
+					tIdx++
+				}
+			}
+			if matchIdx != -1 {
+				ft.Update(matchIdx, 1)
+			}
+		}
+	}
+
+	solve(Ss)
+	solve(RevSl(Ss))
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+func RevSl[S ~[]E, E any](s S) S {
+	lenS := len(s)
+	revS := make(S, lenS)
+	for i := 0; i < lenS; i++ {
+		revS[i] = s[lenS-1-i]
+	}
+
+	return revS
+}
+
+// 数列の区間和の取得、一点更新を O(log n) で行うデータ構造
+// できることはセグメント木の完全下位互換だが、定数倍が小さい
+type FenwickTree struct {
+	n    int
+	tree []int
+}
+
+// O(n)
+// n+1 の長さのフェンウィック木を作成する.
+// インターフェースでは 0-indexed で、内部では 1-indexed で扱うため+1.
+func NewFenwickTree(n int) *FenwickTree {
+	return &FenwickTree{
+		n:    n,
+		tree: make([]int, n+1),
+	}
+}
+
+// O(log n)
+func (ft *FenwickTree) Update(i int, delta int) {
+	i++ // 内部は 1-indexed として扱うため
+	for i <= ft.n {
+		ft.tree[i] += delta
+		i += i & -i // 次の更新対象のインデックスへ
+	}
+}
+
+// O(log n)
+// 区間 [0, i] (0-indexed) の和を返す
+func (ft *FenwickTree) Sum(i int) int {
+	s := 0
+	i++ // 内部は 1-indexed として扱うため
+	for i > 0 {
+		s += ft.tree[i]
+		i -= i & -i
+	}
+	return s
+}
+
+// O(log n)
+// 区間 [l, r] (0-indexed) の和を返す
+func (ft *FenwickTree) RangeSum(l, r int) int {
+	if l == 0 {
+		return ft.Sum(r)
+	}
+	return ft.Sum(r) - ft.Sum(l-1)
+}
+
+// O(log n)
+// index i (0-indexed)の要素を取得する
+func (ft *FenwickTree) At(i int) int {
+	return ft.RangeSum(i, i)
+}
 
 //////////////
 // Helpers //
@@ -52,6 +196,14 @@ func read2Ints(r *bufio.Reader) (int, int) {
 	i1, _ := strconv.Atoi(strs[0])
 	i2, _ := strconv.Atoi(strs[1])
 	return i1, i2
+}
+
+// １行の「整数 文字列」のみの入力を読み込む
+func readIntStr(r *bufio.Reader) (int, string) {
+	input, _ := r.ReadString('\n')
+	strs := strings.Fields(input)
+	i, _ := strconv.Atoi(strs[0])
+	return i, strs[1]
 }
 
 // 一行に複数の文字列が入力される場合、スペース区切りで文字列を読み込む
