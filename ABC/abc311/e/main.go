@@ -24,11 +24,84 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	H, W, N := iarr[0], iarr[1], iarr[2]
+
+	grid := createGrid(H, W, 0)
+	for i := 0; i < N; i++ {
+		a, b := read2Ints(r)
+		grid[a-1][b-1] = 1
+	}
+
+	psum := PrefixSum2D(grid)
+
+	ans := 0
+	for n := 1; n <= min(H, W); n++ {
+		dump("n: %d\n\n", n)
+		for i := 0; i+n-1 < H; i++ {
+			for j := 0; j+n-1 < W; j++ {
+				holes := SumFrom2DPrefixSum(psum, i+1, i+n, j+1, j+n)
+				if holes == 0 {
+					dump("i: %d, j: %d\n", i, j)
+					dump("i+n-1: %d, j+n-1: %d\n\n", i+n-1, j+n-1)
+					ans++
+				}
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(grid_size)
+// 二次元累積和を返す（各次元のindex0には0を入れる。）
+func PrefixSum2D(grid [][]int) [][]int {
+	H := len(grid) + 1
+	W := len(grid[0]) + 1
+
+	sumGrid := make([][]int, H)
+	for i := 0; i < H; i++ {
+		sumGrid[i] = make([]int, W)
+		if i == 0 {
+			continue
+		}
+		copy(sumGrid[i][1:], grid[i-1])
+	}
+
+	for i := 1; i < H; i++ {
+		for j := 1; j < W; j++ {
+			sumGrid[i][j] += sumGrid[i][j-1]
+		}
+	}
+	for i := 1; i < H; i++ {
+		for j := 1; j < W; j++ {
+			sumGrid[i][j] += sumGrid[i-1][j]
+		}
+	}
+	return sumGrid
+}
+
+// 二次元累積和から、任意の範囲の和を求める
+// sumGridには、x, y, z方向に番兵（余分な空の一行）が含まれているものとする
+// Lx, Rxは、その軸における範囲指定 => x方向には、Rxの累積和からLx-1の累積和を引く
+func SumFrom2DPrefixSum(sumGrid [][]int, Lx, Rx, Ly, Ry int) int {
+	Lx--
+	Ly--
+
+	// 包除原理
+	result := sumGrid[Rx][Ry]
+
+	result -= sumGrid[Lx][Ry]
+	result -= sumGrid[Rx][Ly]
+
+	result += sumGrid[Lx][Ly]
+
+	return result
+}
 
 //////////////
 // Helpers //
