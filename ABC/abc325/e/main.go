@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -21,11 +22,175 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, A, B, C := iarr[0], iarr[1], iarr[2], iarr[3]
+
+	graph := make([][][2]int, 2*N)
+
+	for i := 0; i < N; i++ {
+		Ds := readIntArr(r)
+		for j := 0; j < N; j++ {
+			if i == j {
+				graph[i] = append(graph[i], [2]int{i + N, 0})
+			} else {
+				graph[i] = append(graph[i], [2]int{j, Ds[j] * A})
+				graph[j] = append(graph[j], [2]int{i, Ds[j] * A})
+			}
+
+			graph[i+N] = append(graph[i+N], [2]int{j + N, Ds[j]*B + C})
+			graph[j+N] = append(graph[j+N], [2]int{i + N, Ds[j]*B + C})
+		}
+	}
+
+	dists := Dijkstra(graph, 0)
+	ans := min(dists[N-1], dists[2*N-1])
+	fmt.Println(ans)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type pqItem struct {
+	node    int
+	distSum int
+}
+
+func (p pqItem) Priority() int {
+	return p.distSum
+}
+
+// O(E * log V) (E: 辺の数, V: 頂点の数)
+// ダイクストラ法で、始点から各頂点への最短距離を求める (到達不可能な頂点は 1<<63 - 1 )
+// [2]int は {node, dist}
+func Dijkstra(graph [][][2]int, startNode int) (dists []int) {
+	N := len(graph)
+	dists = make([]int, N)
+
+	for i := 0; i < N; i++ {
+		dists[i] = 1<<63 - 1 // INT_MAX
+	}
+	fixed := make([]bool, N)
+
+	pq := Heap[pqItem]{}
+	pq.PushItem(pqItem{0, 0})
+	for len(pq) > 0 {
+		item := pq.PopItem()
+		if fixed[item.node] {
+			continue
+		}
+		dists[item.node] = item.distSum
+		fixed[item.node] = true
+
+		adjacents := graph[item.node]
+		for _, adj := range adjacents {
+			pq.PushItem(pqItem{adj[0], item.distSum + adj[1]})
+		}
+	}
+
+	return dists
+}
+
+// 最小ヒープ（小さい値が優先）
+type HeapItem interface {
+	Priority() int
+}
+
+type Heap[T HeapItem] []T
+
+func NewHeap[T HeapItem]() *Heap[T] {
+	return &Heap[T]{}
+}
+
+func (h *Heap[T]) PushItem(item T) {
+	heap.Push(h, item)
+}
+
+func (h *Heap[T]) PopItem() T {
+	return heap.Pop(h).(T)
+}
+
+// to implement sort.Interface
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+
+	*h = append(*h, x.(T))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+type IntHeap struct {
+	iarr        []int // iarrは昇順/降順になっているとは限らないため、インデックスアクセスしないこと。
+	IntHeapType IntHeapType
+}
+
+func NewIntHeap(t IntHeapType) *IntHeap {
+	return &IntHeap{
+		iarr:        make([]int, 0),
+		IntHeapType: t,
+	}
+}
+
+type IntHeapType int
+
+const (
+	MinIntHeap IntHeapType = iota // 小さい方が優先して取り出される
+	MaxIntHeap                    // 大きい方が優先して取り出される
+)
+
+// O(logN)
+func (h *IntHeap) PushI(i int) {
+	heap.Push(h, i)
+}
+
+// O(logN)
+func (h *IntHeap) PopI() int {
+	return heap.Pop(h).(int)
+}
+
+// to implement sort.Interface
+func (h *IntHeap) Len() int { return len(h.iarr) }
+func (h *IntHeap) Less(i, j int) bool {
+	if h.IntHeapType == MaxIntHeap {
+		return h.iarr[i] > h.iarr[j]
+	} else {
+		return h.iarr[i] < h.iarr[j]
+	}
+}
+func (h *IntHeap) Swap(i, j int) { h.iarr[i], h.iarr[j] = h.iarr[j], h.iarr[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *IntHeap) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	h.iarr = append(h.iarr, x.(int))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *IntHeap) Pop() any {
+	oldiarr := h.iarr
+	n := len(oldiarr)
+	x := oldiarr[n-1]
+	h.iarr = oldiarr[0 : n-1]
+	return x
+}
 
 //////////////
 // Helpers //
