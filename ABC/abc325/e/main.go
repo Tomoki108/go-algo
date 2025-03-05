@@ -34,11 +34,9 @@ func main() {
 				graph[i] = append(graph[i], [2]int{i + N, 0})
 			} else {
 				graph[i] = append(graph[i], [2]int{j, Ds[j] * A})
-				graph[j] = append(graph[j], [2]int{i, Ds[j] * A})
 			}
 
 			graph[i+N] = append(graph[i+N], [2]int{j + N, Ds[j]*B + C})
-			graph[j+N] = append(graph[j+N], [2]int{i + N, Ds[j]*B + C})
 		}
 	}
 
