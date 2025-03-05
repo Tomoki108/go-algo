@@ -25,6 +25,48 @@ func main() {
 	iarr := readIntArr(r)
 	N, A, B, C := iarr[0], iarr[1], iarr[2], iarr[3]
 
+	Dss := make([][]int, N)
+	for i := 0; i < N; i++ {
+		Dss[i] = readIntArr(r)
+	}
+
+	graph := make([][][2]int, N)
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if i == j {
+				continue
+			}
+			graph[i] = append(graph[i], [2]int{j, Dss[i][j] * A})
+		}
+	}
+
+	rev_graph := make([][][2]int, N)
+	for i := 0; i < N; i++ {
+		for j := 0; j < N; j++ {
+			if i == j {
+				continue
+			}
+			rev_graph[i] = append(rev_graph[i], [2]int{j, Dss[i][j]*B + C})
+		}
+	}
+
+	dists := Dijkstra(graph, 0)
+	rev_dists := Dijkstra(rev_graph, N-1)
+
+	ans := INT_MAX
+	for i := 0; i < N; i++ {
+		ans = min(ans, dists[i]+rev_dists[i])
+	}
+
+	fmt.Println(ans)
+}
+
+func alt() {
+	defer w.Flush()
+
+	iarr := readIntArr(r)
+	N, A, B, C := iarr[0], iarr[1], iarr[2], iarr[3]
+
 	graph := make([][][2]int, 2*N)
 
 	for i := 0; i < N; i++ {
@@ -71,7 +113,7 @@ func Dijkstra(graph [][][2]int, startNode int) (dists []int) {
 	fixed := make([]bool, N)
 
 	pq := Heap[pqItem]{}
-	pq.PushItem(pqItem{0, 0})
+	pq.PushItem(pqItem{startNode, 0})
 	for len(pq) > 0 {
 		item := pq.PopItem()
 		if fixed[item.node] {

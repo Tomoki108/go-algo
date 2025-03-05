@@ -22,7 +22,7 @@ func Dijkstra(graph [][][2]int, startNode int) (dists []int) {
 	fixed := make([]bool, N)
 
 	pq := Heap[pqItem]{}
-	pq.PushItem(pqItem{0, 0})
+	pq.PushItem(pqItem{startNode, 0})
 	for len(pq) > 0 {
 		item := pq.PopItem()
 		if fixed[item.node] {
