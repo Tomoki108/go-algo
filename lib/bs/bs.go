@@ -33,6 +33,8 @@ func AscIntSearch(low, high int, f func(num int) bool) int {
 // high~lowは条件に対して単調増加性を満たす必要がある
 // 条件を満たす値が見つからない場合はhigh+1を返す
 func DescIntSearch(high, low int, f func(num int) bool) int {
+	initialHigh := high
+
 	for low < high {
 		// オーバーフローを防ぐための式.
 		// 中央値はhigh側に寄る（+1しているため）
@@ -49,7 +51,7 @@ func DescIntSearch(high, low int, f func(num int) bool) int {
 		return high
 	}
 
-	return high + 1 // 条件を満たす値が見つからない場合
+	return initialHigh + 1 // 条件を満たす値が見つからない場合
 }
 
 // O(log |sl|)

@@ -36,18 +36,26 @@ func main() {
 	psum := PrefixSum2D(grid)
 
 	ans := 0
-	for n := 1; n <= min(H, W); n++ {
-		dump("n: %d\n\n", n)
-		for i := 0; i+n-1 < H; i++ {
-			for j := 0; j+n-1 < W; j++ {
-				holes := SumFrom2DPrefixSum(psum, i+1, i+n, j+1, j+n)
-				if holes == 0 {
-					dump("i: %d, j: %d\n", i, j)
-					dump("i+n-1: %d, j+n-1: %d\n\n", i+n-1, j+n-1)
-					ans++
+	nMax := min(H, W)
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			// i, jに対してnの二分探索（nが少なくなるほど穴が空いていない可能性が単調増加。（大きすぎるとはみ出し、それもfail））
+			n := DescIntSearch(nMax, 1, func(n int) bool {
+				if i+n-1 >= H || j+n-1 >= W {
+					return false
 				}
+
+				holes := SumFrom2DPrefixSum(psum, i+1, i+n, j+1, j+n)
+				return holes == 0
+			})
+
+			if n == nMax+1 {
+				continue
 			}
+
+			ans += n
 		}
+
 	}
 
 	fmt.Println(ans)
@@ -56,6 +64,32 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+// O(log (high-low))
+// high, high-1, ..., lowの範囲で条件を満たす最大の値を二分探索する
+// high~lowは条件に対して単調増加性を満たす必要がある
+// 条件を満たす値が見つからない場合はhigh+1を返す
+func DescIntSearch(high, low int, f func(num int) bool) int {
+	initialHigh := high
+
+	for low < high {
+		// オーバーフローを防ぐための式.
+		// 中央値はhigh側に寄る（+1しているため）
+		mid := low + (high-low+1)/2
+		if f(mid) {
+			low = mid // 条件を満たす場合、よりhigh側の範囲を探索
+		} else {
+			high = mid - 1 // 条件を満たさない場合、よりlow側の範囲を探索
+		}
+	}
+
+	// 最後に high(=low) が条件を満たしているかを確認
+	if f(high) {
+		return high
+	}
+
+	return initialHigh + 1 // 条件を満たす値が見つからない場合
+}
 
 // O(grid_size)
 // 二次元累積和を返す（各次元のindex0には0を入れる。）
