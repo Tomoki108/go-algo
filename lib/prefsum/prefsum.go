@@ -82,20 +82,23 @@ func PrefixSum3D(cube [][][]int) [][][]int {
 	return sumCube
 }
 
+// O(1)
 // 二次元累積和から、任意の範囲の和を求める
-// sumGridには、x, y, z方向に番兵（余分な空の一行）が含まれているものとする
-// Lx, Rxは、その軸における範囲指定 => x方向には、Rxの累積和からLx-1の累積和を引く
-func SumFrom2DPrefixSum(sumGrid [][]int, Lx, Rx, Ly, Ry int) int {
-	Lx--
-	Ly--
+// 左上(i, j) から 右下(k, l) までの範囲の和を求める.
+// i, j, k, lには累積和グリッドではなく元々のグリッドのものを渡すこと
+func SumFrom2DPrefixSum(sumGrid [][]int, i, j, k, l int) int {
+	// k, lは累積和グリッドのindexに合わせるために+1
+	// i, jはその一つ左下の範囲の累積和を引きたいのでそのまま
+	k++
+	l++
 
 	// 包除原理
-	result := sumGrid[Rx][Ry]
+	result := sumGrid[k][l]
 
-	result -= sumGrid[Lx][Ry]
-	result -= sumGrid[Rx][Ly]
+	result -= sumGrid[i][l]
+	result -= sumGrid[k][j]
 
-	result += sumGrid[Lx][Ly]
+	result += sumGrid[i][j]
 
 	return result
 }
