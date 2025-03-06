@@ -24,11 +24,46 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	devider := 998244353
+
+	// dp[i][j]
+	// i: index i人目まで確定
+	// j: index 0人目と違う数字 or index 0人目と同じ数字
+	// val: その時点での組み合わせ数
+	dp := createGrid(N, 2, 0)
+	dp[0][0] = 0
+	dp[0][1] = M
+
+	for i := 0; i < N-1; i++ {
+		dp[i+1][0] += dp[i][0] * (M - 2) // 前の人とも最初の人とも違う数字が入れられる
+		dp[i+1][0] += dp[i][1] * (M - 1) // 前の人と違う数字が入れられる
+		dp[i+1][0] = Mod(dp[i+1][0], devider)
+
+		dp[i+1][1] += dp[i][0] // 最初の人と同じ数字のみ入れられる
+		// dp[i+1][1] へは dp[i][1]からは遷移できない
+	}
+
+	ans := dp[N-1][0]
+	fmt.Fprintln(w, ans)
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// a割るbの、数学における剰余を返す。
+// a = b * Quotient + RemainderとなるRemainderを返す（Quotientは負でもよく、Remainderは常に0以上という制約がある）
+// goのa%bだと、|a|割るbの剰余にaの符号をつけて返すため、負の数が含まれる場合数学上の剰余とは異なる。
+func Mod(a, b int) int {
+	r := a % b
+	if r < 0 {
+		r += b
+	}
+	return r
+}
 
 //////////////
 // Helpers //
