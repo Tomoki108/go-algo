@@ -30,6 +30,7 @@ func main() {
 	ans := 0
 
 	// index iを末尾とする連続部分列について長さ1に圧縮した時に、0になるものがいくつあるか、1になるものがいくつあるか
+	// (長さ1の連続部分列は、NANDを取らずその要素自体である)
 	var zeroCnt, oneCnt int
 	for i := 0; i < N; i++ {
 		num := atoi(Ss[i])
