@@ -23,7 +23,25 @@ var w = bufio.NewWriter(os.Stdout)
 
 func main() {
 	defer w.Flush()
+	N := readInt(r)
+	S := readStr(r)
+	Ss := strings.Split(S, "")
 
+	ans := 0
+
+	// index iを末尾とする連続部分列について長さ1に圧縮した時に、0になるものがいくつあるか、1になるものがいくつあるか
+	var zeroCnt, oneCnt int
+	for i := 0; i < N; i++ {
+		num := atoi(Ss[i])
+		if num == 0 {
+			zeroCnt, oneCnt = 1, zeroCnt+oneCnt
+		} else {
+			zeroCnt, oneCnt = oneCnt, zeroCnt+1
+		}
+		ans += oneCnt
+	}
+
+	fmt.Fprintln(w, ans)
 }
 
 //////////////
