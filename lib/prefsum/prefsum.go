@@ -103,26 +103,29 @@ func SumFrom2DPrefixSum(sumGrid [][]int, i, j, k, l int) int {
 	return result
 }
 
-// 三次元累積和から、任意の範囲の和を求める
-// sumCubには、x, y, z方向に番兵（余分な空の一行）が含まれているものとする
-// Lx, Rxは、その軸における範囲指定 => x方向には、Rxの累積和からLx-1の累積和を引く
-func SumFrom3DPrefixSum(sumCube [][][]int, Lx, Rx, Ly, Ry, Lz, Rz int) int {
-	Lx--
-	Ly--
-	Lz--
+// O(1)
+// 三次元累積和から、任意の範囲の和を求める.
+// 左上(i, j, k) から 右下(l, m, n) までの範囲の和を求める.
+// i, j, k, l, m, nには累積和グリッドではなく元々のグリッドのものを渡すこと
+func SumFrom3DPrefixSum(sumCube [][][]int, i, j, k, l, m, n int) int {
+	// l, m, nは累積和グリッドのindexに合わせるために+1
+	// i, j, kはその一つ左下の範囲の累積和を引きたいのでそのまま
+	l++
+	m++
+	n++
 
 	// 包除原理
-	result := sumCube[Rx][Ry][Rz]
+	result := sumCube[l][m][n]
 
-	result -= sumCube[Lx][Ry][Rz]
-	result -= sumCube[Rx][Ly][Rz]
-	result -= sumCube[Rx][Ry][Lz]
+	result -= sumCube[i][m][n]
+	result -= sumCube[l][j][n]
+	result -= sumCube[l][m][k]
 
-	result += sumCube[Lx][Ly][Rz]
-	result += sumCube[Lx][Ry][Lz]
-	result += sumCube[Rx][Ly][Lz]
+	result += sumCube[i][j][n]
+	result += sumCube[i][m][k]
+	result += sumCube[l][j][k]
 
-	result -= sumCube[Lx][Ly][Lz]
+	result -= sumCube[i][j][k]
 
 	return result
 }
