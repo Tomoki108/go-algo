@@ -2,7 +2,7 @@ package combination
 
 import "github.com/Tomoki108/go-algo/lib/math"
 
-// NOTE: 計算量の見積もり用
+// NOTE: 計算量の見積もり用. 答えが大きくなる引数の場合、オーバーフローすることに注意.
 // n人を区別のある丁度k個のグループに分ける場合の数（全射の個数）を求める
 func CalcSurjectionNum(n, k int) int {
 	sum := 0
@@ -12,7 +12,7 @@ func CalcSurjectionNum(n, k int) int {
 	return sum
 }
 
-// NOTE: 計算量の見積もり用
+// NOTE: 計算量の見積もり用. 答えが大きくなる引数の場合、オーバーフローすることに注意.
 // n人を区別のない丁度k 個のグループに分ける場合の数（スターリング数）を求める
 func CalcStirlingNum(n, k int) int {
 	kf := math.Factorial(k)
@@ -24,7 +24,7 @@ func CalcStirlingNum(n, k int) int {
 	return sum / kf
 }
 
-// NOTE: 計算量の見積もり用
+// NOTE: 計算量の見積もり用. 答えが大きくなる引数の場合、オーバーフローすることに注意.
 // n人を区別のないk個以下のグループに分ける場合の数（ベル数）を求める
 func CalcBellNum(n, k int) int {
 	sum := 0
