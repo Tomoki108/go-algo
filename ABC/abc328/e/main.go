@@ -33,37 +33,28 @@ func main() {
 		edges = append(edges, [3]int{u, v, w})
 	}
 
-	edgeIndexes := make([]int, 0, M)
-	for i := 0; i < M; i++ {
-		edgeIndexes = append(edgeIndexes, i)
-	}
-
 	ans := INT_MAX
+	ansPtr := &ans
 
-	next := true
-Outer:
-	for next {
+	callback := func(edges [][3]int) {
 		uf := NewUnionFind(N)
 		cost := 0
 
-		useEdgeIndexes := edgeIndexes[:N-1] // 全域木の変数はN-1本
-		for _, edgeIdx := range useEdgeIndexes {
-			edge := edges[edgeIdx]
+		for _, edge := range edges {
 			u, v, w := edge[0], edge[1], edge[2]
 
 			if uf.IsSameRoot(u, v) {
-				next = NextPermutation(edgeIndexes)
-				continue Outer
+				return
 			}
 			uf.Union(u, v)
 			cost += w
 		}
 
 		cost %= K
-		ans = min(ans, cost)
-
-		next = NextPermutation(edgeIndexes)
+		*ansPtr = min(*ansPtr, cost)
 	}
+
+	AllCombination(0, edges, [][3]int{}, N-1, callback)
 
 	fmt.Fprintln(w, ans)
 }
@@ -71,6 +62,33 @@ Outer:
 //////////////
 // Libs    //
 /////////////
+
+// NOTE: 呼び出し側に結果を反映するため、callback内でansポインタの値などを更新すること
+//
+// O(|options| C n)
+// optionsからn個選ぶ組み合わせ全てに対して、callbackを呼び出す
+// idx: 現在考慮するoptionsのidx
+// options: 選択肢
+// current: 現在選ばれている要素
+// n: 選ぶ個数
+// callback: 組み合わせが揃った時に呼び出される関数
+func AllCombination[T any](idx int, options []T, current []T, n int, callback func([]T)) {
+	if len(current) == n {
+		callback(current)
+		return
+	}
+	if len(options)-idx < n-len(current) {
+		return
+	}
+
+	// 選ぶ場合
+	current = append(current, options[idx])
+	AllCombination(idx+1, options, current, n, callback)
+	current = current[:len(current)-1]
+
+	// 選ばない場合
+	AllCombination(idx+1, options, current, n, callback)
+}
 
 type UnionFind struct {
 	parent []int // len(parent)分のノードを考え、各ノードの親を記録している
@@ -151,48 +169,6 @@ func (uf *UnionFind) Roots() []int {
 // O(α(N))
 func (uf *UnionFind) GroupSize(xIdx int) int {
 	return uf.size[uf.Find(xIdx)]
-}
-
-// NOTE:
-// next := true; for next { some(sl); next = NextPermutation(sl); } で使う
-// [重要] 最初の呼び出し時の引数には、昇順ソートしたスライスを渡すこと
-//
-// O(len(sl)*len(sl)!)
-// sl の要素を並び替えて、次の辞書順の順列にする
-func NextPermutation[T ~int | ~string](sl []T) bool {
-	n := len(sl)
-	i := n - 2
-
-	// Step1: 右から左に探索して、「スイッチポイント」を見つける:
-	// 　「スイッチポイント」とは、右から見て初めて「リストの値が減少する場所」です。
-	// 　例: [1, 2, 3, 6, 5, 4] の場合、3 がスイッチポイント。
-	for i >= 0 && sl[i] >= sl[i+1] {
-		i--
-	}
-
-	//　スイッチポイントが見つからない場合、最後の順列に到達しています。
-	if i < 0 {
-		return false
-	}
-
-	// Step2: スイッチポイントの右側の要素から、スイッチポイントより少しだけ大きい値を見つけ、交換します。
-	// 　例: 3 を右側で最小の大きい値 4 と交換。
-	j := n - 1
-	for sl[j] <= sl[i] {
-		j--
-	}
-	sl[i], sl[j] = sl[j], sl[i]
-
-	// Step3: スイッチポイントの右側を反転して、辞書順に次の順列を作ります。
-	// 　例: [1, 2, 4, 6, 5, 3] → [1, 2, 4, 3, 5, 6]。
-	reverse(sl[i+1:])
-	return true
-}
-
-func reverse[T ~int | ~string](sl []T) {
-	for i, j := 0, len(sl)-1; i < j; i, j = i+1, j-1 {
-		sl[i], sl[j] = sl[j], sl[i]
-	}
 }
 
 //////////////
