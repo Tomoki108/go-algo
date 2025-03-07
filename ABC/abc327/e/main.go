@@ -24,20 +24,65 @@ func main() {
 	N := readInt(r)
 	Ps := readIntArr(r)
 
-	nineMultiples := make([]float64, N+1) // [exp] = 0.9^exp
+	nineMultiples := make([]float64, N) // [exp] = 0.9^exp
 	nineMultiples[0] = 1
-	for i := 1; i <= N; i++ {
-		nineMultiples[i] = nineMultiples[i] * 0.9
+	for i := 1; i < N; i++ {
+		nineMultiples[i] = nineMultiples[i-1] * 0.9
 	}
 
-	// dp[i][j] = i番目までのコンテストまで処理し、j個選んでいる時の、最大の得点（-1200/sqrt(K)はしない）
-	dp := createGrid(N+1, N+1, float64(0))
+	dump("nineMultiples: %v\n", nineMultiples)
+
+	PsMultipled := make([][]float64, N) // [i][exp] = Ps[i] * nineMultiples[exp]
 	for i := 0; i < N; i++ {
-		for j := 0; j <= i; j++ {
-			dp[i+1][j] = math.Max(dp[i][j], dp[i][j-1])
+		PsMultipled[i] = make([]float64, N)
+		for j := 0; j < N; j++ {
+			PsMultipled[i][j] = float64(Ps[i]) * nineMultiples[j]
 		}
 	}
 
+	dump("PsMultipled: %v\n", PsMultipled)
+
+	denominators := make([]float64, N+1) // [k] = denominator
+	denominators[1] = 1
+	for k := 2; k <= N; k++ {
+		denominators[k] = denominators[k-1] + nineMultiples[k-1]
+	}
+
+	dump("denominators: %v\n", denominators)
+
+	toSubs := make([]float64, N+1) // [k] = 1200/sqrt(k)
+	for i := 1; i <= N; i++ {
+		toSubs[i] = float64(1200) / math.Sqrt(float64(i))
+	}
+
+	dump("toSubs: %v\n", toSubs)
+
+	ans := math.MaxFloat64 * -1
+
+	for k := 1; k <= N; k++ {
+		// dp[i][j] = i番目までのコンテストまで処理し、j個選んでいる時の、最大のPsMultipledの合計
+		dp := createGrid(N+1, k+1, float64(0))
+		for i := 0; i < N; i++ {
+			for j := 0; j <= k; j++ {
+				if j == 0 {
+					dp[i+1][j] = dp[i][j]
+				} else {
+					dp[i+1][j] = math.Max(dp[i][j], dp[i][j-1]+PsMultipled[i][k-j])
+				}
+			}
+		}
+
+		dump("\nk: %v\n", k)
+		dump("dp: %v\n", dp)
+
+		dump("dp[N][k]: %v\n", dp[N][k])
+		dump("denominators[k]: %v\n", denominators[k])
+		dump("toSubs[k]: %v\n\n", toSubs[k])
+
+		ans = math.Max(ans, dp[N][k]/denominators[k]-toSubs[k])
+	}
+
+	fmt.Println(ans)
 }
 
 //////////////
@@ -47,13 +92,6 @@ func main() {
 //////////////
 // Helpers //
 /////////////
-
-func dump(msg string) {
-	dumpFlag := strings.Contains(strings.Join(os.Args, " "), "-dump")
-	if dumpFlag {
-		fmt.Println(msg)
-	}
-}
 
 // 一行に1文字のみの入力を読み込む
 func readStr(r *bufio.Reader) string {
@@ -230,4 +268,22 @@ func pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+//////////////
+// Debug   //
+/////////////
+
+var dumpFlag bool
+
+func init() {
+	args := os.Args
+	dumpFlag = len(args) > 1 && args[1] == "-dump"
+}
+
+// NOTE: ループの中で使うとわずかに遅くなることに注意
+func dump(format string, a ...interface{}) {
+	if dumpFlag {
+		fmt.Printf(format, a...)
+	}
 }
