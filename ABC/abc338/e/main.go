@@ -5,8 +5,12 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/liyue201/gostl/ds/set"
+	"github.com/liyue201/gostl/utils/comparator"
 )
 
 // 9223372036854775808, 19 digits, 2^63
@@ -21,11 +25,74 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+
+	type edge struct {
+		A, B int
+	}
+	edges := make([]edge, 0, N)
+
+	for i := 0; i < N; i++ {
+		A, B := read2Ints(r)
+		A, B = sort2Ints(A, B)
+		edges = append(edges, edge{A, B})
+	}
+
+	sort.Slice(edges, func(i, j int) bool {
+		if edges[i].A == edges[j].A {
+			return edges[i].B < edges[j].B
+		}
+		return edges[i].A < edges[j].A
+	})
+
+	nodeEdge := make(map[int]edge, N) // key: node, value: そのノードを視点とする辺
+	for i := 0; i < N; i++ {
+		e := edges[i]
+		if _, ok := nodeEdge[e.A]; ok {
+			fmt.Println("Yes")
+			return
+		}
+		nodeEdge[e.A] = e
+	}
+
+	endStartMap := make(map[int]int, N)
+	for i := 0; i < N; i++ {
+		e := edges[i]
+		endStartMap[e.B] = e.A
+	}
+
+	notEndStarts := NewIntSetAsc()
+	for node := 1; node <= 2*N; node++ {
+		start, ok := endStartMap[node]
+		if ok {
+			notEndStarts.Erase(start)
+
+			it := notEndStarts.UpperBound(start)
+			if it.IsValid() {
+				val := it.Value()
+				if val <= node {
+					fmt.Println("Yes")
+					return
+				}
+			}
+		}
+
+		edge, ok := nodeEdge[node]
+		if ok {
+			notEndStarts.Insert(edge.A)
+		}
+	}
+
+	fmt.Println("No")
 }
 
 //////////////
 // Libs    //
 /////////////
+
+func NewIntSetAsc() *set.Set[int] {
+	return set.New(comparator.IntComparator)
+}
 
 //////////////
 // Helpers  //
@@ -177,4 +244,11 @@ func pow(base, exp int) int {
 		exp /= 2
 	}
 	return result
+}
+
+func sort2Ints(a, b int) (int, int) {
+	if a > b {
+		return b, a
+	}
+	return a, b
 }
