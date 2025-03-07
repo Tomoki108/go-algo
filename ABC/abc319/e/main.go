@@ -54,7 +54,7 @@ func main() {
 			if rem == 0 {
 				t += T
 			} else {
-				t += 2*T - rem
+				t += (P - rem) + T
 			}
 		}
 		startTime[start] = t + Y
