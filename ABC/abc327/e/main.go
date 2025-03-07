@@ -63,7 +63,7 @@ func main() {
 		// dp[i][j] = i番目までのコンテストまで処理し、j個選んでいる時の、最大のPsMultipledの合計
 		dp := createGrid(N+1, k+1, float64(0))
 		for i := 0; i < N; i++ {
-			for j := 0; j <= k; j++ {
+			for j := k; j >= 0; j-- {
 				if j == 0 {
 					dp[i+1][j] = dp[i][j]
 				} else {
@@ -72,12 +72,12 @@ func main() {
 			}
 		}
 
-		dump("\nk: %v\n", k)
-		dump("dp: %v\n", dp)
+		// dump("\nk: %v\n", k)
+		// dump("dp: %v\n", dp)
 
-		dump("dp[N][k]: %v\n", dp[N][k])
-		dump("denominators[k]: %v\n", denominators[k])
-		dump("toSubs[k]: %v\n\n", toSubs[k])
+		// dump("dp[N][k]: %v\n", dp[N][k])
+		// dump("denominators[k]: %v\n", denominators[k])
+		// dump("toSubs[k]: %v\n\n", toSubs[k])
 
 		ans = math.Max(ans, dp[N][k]/denominators[k]-toSubs[k])
 	}
