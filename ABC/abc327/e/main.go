@@ -21,6 +21,23 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N := readInt(r)
+	Ps := readIntArr(r)
+
+	nineMultiples := make([]float64, N+1) // [exp] = 0.9^exp
+	nineMultiples[0] = 1
+	for i := 1; i <= N; i++ {
+		nineMultiples[i] = nineMultiples[i] * 0.9
+	}
+
+	// dp[i][j] = i番目までのコンテストまで処理し、j個選んでいる時の、最大の得点（-1200/sqrt(K)はしない）
+	dp := createGrid(N+1, N+1, float64(0))
+	for i := 0; i < N; i++ {
+		for j := 0; j <= i; j++ {
+			dp[i+1][j] = math.Max(dp[i][j], dp[i][j-1])
+		}
+	}
+
 }
 
 //////////////
