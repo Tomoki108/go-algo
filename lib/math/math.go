@@ -79,6 +79,8 @@ func LCM(a, b int) int {
 	return a * b / gcd
 }
 
+// O(log(n))
+// 2^x >= n となる最小のxを返す
 func Log2Ceil(n int) int {
 	// nが1の場合はビット数0 (ただし問題設定に応じて1にすべきかは要考慮)
 	if n <= 1 {

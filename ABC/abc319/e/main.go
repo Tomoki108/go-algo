@@ -21,11 +21,92 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	iarr := readIntArr(r)
+	N, X, Y := iarr[0], iarr[1], iarr[2]
+
+	Ps := make([]int, 0, N-1)
+	Ts := make([]int, 0, N-1)
+
+	pMap := make(map[int]struct{}, N-1)
+	for i := 0; i < N-1; i++ {
+		P, T := read2Ints(r)
+		Ps = append(Ps, P)
+		Ts = append(Ts, T)
+		pMap[P] = struct{}{}
+	}
+
+	lcm := 0
+	for p := range pMap {
+		if lcm == 0 {
+			lcm = p
+		} else {
+			lcm = LCM(lcm, p)
+		}
+	}
+
+	startTime := make(map[int]int, lcm)
+	for start := 0; start < lcm; start++ {
+		t := start + X
+		for i := 0; i < N-1; i++ {
+			P := Ps[i]
+			T := Ts[i]
+			rem := Mod(t, P)
+			if rem == 0 {
+				t += T
+			} else {
+				t += 2*T - rem
+			}
+		}
+		startTime[start] = t + Y
+	}
+
+	dump("startTime: %v\n", startTime)
+
+	Q := readInt(r)
+	for i := 0; i < Q; i++ {
+		q := readInt(r)
+		modQ := q % lcm
+		diff := q - modQ
+
+		fmt.Fprintln(w, diff+startTime[modQ])
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// a割るbの、数学における剰余を返す。
+// a = b * Quotient + RemainderとなるRemainderを返す（Quotientは負でもよく、Remainderは常に0以上という制約がある）
+// goのa%bだと、|a|割るbの剰余にaの符号をつけて返すため、負の数が含まれる場合数学上の剰余とは異なる。
+func Mod(a, b int) int {
+	r := a % b
+	if r < 0 {
+		r += b
+	}
+	return r
+}
+
+// O(log(min(a,b)))
+// 拡張ユークリッドの互除法で、最大公約数(Greatest Common Divisor)を求める
+// （ax + by = gcd(a, b) となるx, yも返す）
+func GCD(a, b int) (gcd, x, y int) {
+	if b == 0 {
+		return a, 1, 0
+	}
+	gcd, x1, y1 := GCD(b, a%b)
+	x2 := y1
+	y2 := x1 - (a/b)*y1
+	return gcd, x2, y2
+}
+
+// O(log(min(a,b)))
+// 最小公倍数（Least Common Multipler）を求める
+func LCM(a, b int) int {
+	gcd, _, _ := GCD(a, b)
+	return a * b / gcd
+}
 
 //////////////
 // Helpers //
