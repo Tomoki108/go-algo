@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -24,11 +25,72 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	stack := NewStack[int]()
+	for i := 0; i < 100; i++ {
+		stack.Push(0)
+	}
+
+	Q := readInt(r)
+	for i := 0; i < Q; i++ {
+		iarr := readIntArr(r)
+		q := iarr[0]
+
+		if q == 1 {
+			x := iarr[1]
+			stack.Push(x)
+		} else {
+			num, _ := stack.Pop()
+			fmt.Fprintln(w, num)
+		}
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+type Stack[T any] struct {
+	list *list.List
+}
+
+func NewStack[T any]() *Stack[T] {
+	return &Stack[T]{
+		list: list.New(),
+	}
+}
+
+func (s *Stack[T]) Push(value T) {
+	s.list.PushBack(value)
+}
+
+func (s *Stack[T]) Pop() (T, bool) {
+	back := s.list.Back()
+	if back == nil {
+		var zero T
+		return zero, false
+	}
+	s.list.Remove(back)
+	return back.Value.(T), true
+}
+
+// Peek returns the back element without removing it
+func (s *Stack[T]) Peek() (T, bool) {
+	back := s.list.Back()
+	if back == nil {
+		var zero T
+		return zero, false
+	}
+	return back.Value.(T), true
+}
+
+func (s *Stack[T]) Len() int {
+	return s.list.Len()
+}
+
+func (s *Stack[T]) Clear() {
+	s.list.Init()
+}
 
 //////////////
 // Helpers //
