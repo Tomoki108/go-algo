@@ -30,9 +30,13 @@ func main() {
 
 	pq := NewHeap[pqItem]()
 
+	refedCnt := make([]int, N)
+
 	for i := 0; i < M; i++ {
 		iarr := readIntArr(r)
 		X, Y, Z := iarr[0]-1, iarr[1]-1, iarr[2]
+		refedCnt[X]++
+		refedCnt[Y]++
 		pq.PushItem(pqItem{X, Y, Z})
 	}
 
@@ -45,6 +49,8 @@ func main() {
 		item := pq.PopItem()
 
 		nodeX, nodeY, z := item.nodeX, item.nodeY, item.z
+
+		dump("nodeX: %d, nodeY: %d, z: %d\n", nodeX, nodeY, z)
 
 		if nodeVals[nodeX] == -1 && nodeVals[nodeY] == -1 {
 			nodeVals[nodeX] = 0
@@ -59,6 +65,9 @@ func main() {
 				return
 			}
 		}
+
+		dump("nodeVals: %v\n\n", nodeVals)
+
 	}
 
 	writeSlice(w, nodeVals)
@@ -69,7 +78,7 @@ type pqItem struct {
 }
 
 func (p pqItem) Priority() int {
-	return min(p.nodeX, p.nodeY)
+	return p.z * -1
 }
 
 //////////////
