@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -24,11 +26,144 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+
+	pq := NewHeap[pqItem]()
+
+	for i := 0; i < M; i++ {
+		iarr := readIntArr(r)
+		X, Y, Z := iarr[0]-1, iarr[1]-1, iarr[2]
+		pq.PushItem(pqItem{X, Y, Z})
+	}
+
+	nodeVals := make([]int, N)
+	for i := 0; i < N; i++ {
+		nodeVals[i] = -1
+	}
+
+	for pq.Len() > 0 {
+		item := pq.PopItem()
+
+		nodeX, nodeY, z := item.nodeX, item.nodeY, item.z
+
+		if nodeVals[nodeX] == -1 && nodeVals[nodeY] == -1 {
+			nodeVals[nodeX] = 0
+			nodeVals[nodeY] = z
+		} else if nodeVals[nodeX] == -1 && nodeVals[nodeY] != -1 {
+			nodeVals[nodeX] = nodeVals[nodeY] ^ z
+		} else if nodeVals[nodeX] != -1 && nodeVals[nodeY] == -1 {
+			nodeVals[nodeY] = nodeVals[nodeX] ^ z
+		} else {
+			if nodeVals[nodeX]^nodeVals[nodeY] != z {
+				fmt.Println(-1)
+				return
+			}
+		}
+	}
+
+	writeSlice(w, nodeVals)
+}
+
+type pqItem struct {
+	nodeX, nodeY, z int
+}
+
+func (p pqItem) Priority() int {
+	return min(p.nodeX, p.nodeY)
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// 最小ヒープ（小さい値が優先）
+type HeapItem interface {
+	Priority() int
+}
+
+type Heap[T HeapItem] []T
+
+func NewHeap[T HeapItem]() *Heap[T] {
+	return &Heap[T]{}
+}
+
+func (h *Heap[T]) PushItem(item T) {
+	heap.Push(h, item)
+}
+
+func (h *Heap[T]) PopItem() T {
+	return heap.Pop(h).(T)
+}
+
+// to implement sort.Interface
+func (h Heap[T]) Len() int           { return len(h) }
+func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
+func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+
+	*h = append(*h, x.(T))
+}
+
+// DO NOT USE DIRECTLY.
+// to implement heap.Interface
+func (h *Heap[T]) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 //////////////
 // Helpers //
