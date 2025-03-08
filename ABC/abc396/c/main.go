@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,11 +25,71 @@ var w = bufio.NewWriter(os.Stdout)
 func main() {
 	defer w.Flush()
 
+	N, M := read2Ints(r)
+	Bs := readIntArr(r)
+	Ws := readIntArr(r)
+
+	sort.Ints(Bs)
+	sort.Ints(Ws)
+
+	idx := sort.Search(N, func(i int) bool {
+		return 0 <= Bs[i]
+	})
+	bLen := N - idx
+
+	idx2 := sort.Search(M, func(i int) bool {
+		return 0 <= Ws[i]
+	})
+	wLen := M - idx2
+
+	bPsum := PrefixSum(Bs)
+	wPsum := PrefixSum(Ws)
+
+	if wLen <= bLen {
+		ans := (bPsum[N] - bPsum[idx]) + (wPsum[M] - wPsum[idx2])
+		fmt.Println(ans)
+		return
+	} else {
+		ans := (bPsum[N] - bPsum[idx]) + (wPsum[M] - wPsum[M-bLen])
+
+		bIdx := idx - 1
+		wIdx := M - bLen - 1
+		for {
+			if bIdx < 0 || wIdx < 0 {
+				break
+			}
+
+			toAdd := Bs[bIdx] + Ws[wIdx]
+			if toAdd <= 0 {
+				break
+			}
+			ans += toAdd
+			bIdx--
+			wIdx--
+		}
+
+		dump("bIdx: %d, wIdx: %d\n", bIdx, wIdx)
+
+		fmt.Println(ans)
+		return
+	}
+
 }
 
 //////////////
 // Libs    //
 /////////////
+
+// O(n)
+// 一次元累積和を返す（index0には0を入れる。）
+func PrefixSum(sl []int) []int {
+	n := len(sl)
+	res := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		res[i+1] = res[i] + sl[i]
+	}
+	return res
+}
 
 //////////////
 // Helpers //
