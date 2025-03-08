@@ -57,29 +57,24 @@ func main() {
 
 	dump("toSubs: %v\n", toSubs)
 
-	ans := math.MaxFloat64 * -1
+	// dp[i][j] = N-i番目までのコンテストまで処理し、j個選んでいる時の、最大のPsMultipledの合計
+	dp := createGrid(N+1, N+1, float64(0))
+	dp[0][0] = 0
 
-	for k := 1; k <= N; k++ {
-		// dp[i][j] = i番目までのコンテストまで処理し、j個選んでいる時の、最大のPsMultipledの合計
-		dp := createGrid(N+1, k+1, float64(0))
-		for i := 0; i < N; i++ {
-			for j := k; j >= 0; j-- {
-				if j == 0 {
-					dp[i+1][j] = dp[i][j]
-				} else {
-					dp[i+1][j] = math.Max(dp[i][j], dp[i][j-1]+PsMultipled[i][k-j])
-				}
+	for i := 0; i < N; i++ {
+		for j := 0; j <= i+1; j++ {
+			if j == 0 {
+				dp[i+1][j] = dp[i][j]
+			} else {
+				dp[i+1][j] = math.Max(dp[i][j], dp[i][j-1]+PsMultipled[N-(i+1)][j-1])
 			}
 		}
+	}
 
-		// dump("\nk: %v\n", k)
-		// dump("dp: %v\n", dp)
-
-		// dump("dp[N][k]: %v\n", dp[N][k])
-		// dump("denominators[k]: %v\n", denominators[k])
-		// dump("toSubs[k]: %v\n\n", toSubs[k])
-
+	ans := math.MaxFloat64 * -1
+	for k := 1; k <= N; k++ {
 		ans = math.Max(ans, dp[N][k]/denominators[k]-toSubs[k])
+
 	}
 
 	fmt.Println(ans)
