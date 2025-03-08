@@ -29,7 +29,6 @@ func main() {
 	for i := 1; i < N; i++ {
 		nineMultiples[i] = nineMultiples[i-1] * 0.9
 	}
-
 	dump("nineMultiples: %v\n", nineMultiples)
 
 	PsMultipled := make([][]float64, N) // [i][exp] = Ps[i] * nineMultiples[exp]
@@ -39,7 +38,6 @@ func main() {
 			PsMultipled[i][j] = float64(Ps[i]) * nineMultiples[j]
 		}
 	}
-
 	dump("PsMultipled: %v\n", PsMultipled)
 
 	denominators := make([]float64, N+1) // [k] = denominator
@@ -47,14 +45,12 @@ func main() {
 	for k := 2; k <= N; k++ {
 		denominators[k] = denominators[k-1] + nineMultiples[k-1]
 	}
-
 	dump("denominators: %v\n", denominators)
 
 	toSubs := make([]float64, N+1) // [k] = 1200/sqrt(k)
 	for i := 1; i <= N; i++ {
 		toSubs[i] = float64(1200) / math.Sqrt(float64(i))
 	}
-
 	dump("toSubs: %v\n", toSubs)
 
 	// dp[i][j] = N-i番目までのコンテストまで処理し、j個選んでいる時の、最大のPsMultipledの合計
