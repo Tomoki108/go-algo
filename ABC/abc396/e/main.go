@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -27,42 +28,11 @@ func main() {
 	N, M := read2Ints(r)
 
 	graph := make([][][2]int, N)
-	edges := make([][3]int, 0, M)
 	for i := 0; i < M; i++ {
 		iarr := readIntArr(r)
 		X, Y, Z := iarr[0]-1, iarr[1]-1, iarr[2]
 		graph[X] = append(graph[X], [2]int{Y, Z})
 		graph[Y] = append(graph[Y], [2]int{X, Z})
-		edges = append(edges, [3]int{X, Y, Z})
-	}
-
-	nodeVals := make([]int, N)
-	for i := 0; i < N; i++ {
-		nodeVals[i] = -1
-	}
-
-	for _, e := range edges {
-		X, Y, Z := e[0], e[1], e[2]
-
-		if nodeVals[X] == -1 && nodeVals[Y] == -1 {
-			nodeVals[X] = 0
-			nodeVals[Y] = Z
-		} else if nodeVals[Y] == -1 {
-			nodeVals[Y] = nodeVals[X] ^ Z
-		} else if nodeVals[X] == -1 {
-			nodeVals[X] = nodeVals[Y] ^ Z
-		} else {
-			if nodeVals[X]^nodeVals[Y] != Z {
-				fmt.Fprintln(w, -1)
-				return
-			}
-		}
-	}
-
-	for i := 0; i < N; i++ {
-		if nodeVals[i] == -1 {
-			nodeVals[i] = 0
-		}
 	}
 
 	visited := make([]bool, N)
@@ -93,6 +63,36 @@ func main() {
 		components = append(components, divComponents(i, component))
 	}
 
+	nodeVals := make([]int, N)
+	for i := 0; i < N; i++ {
+		nodeVals[i] = -1
+	}
+
+	for _, component := range components {
+		start := component[0]
+		nodeVals[start] = 0
+
+		q := NewQueue[int]()
+		q.Enqueue(start)
+
+		for q.Size() > 0 {
+			node, _ := q.Dequeue()
+			for _, edge := range graph[node] {
+				nextNode, z := edge[0], edge[1]
+				if nodeVals[nextNode] == -1 {
+					nodeVals[nextNode] = nodeVals[node] ^ z
+					q.Enqueue(nextNode)
+				} else {
+					// 既に割り当て済みなら矛盾チェック
+					if nodeVals[node]^nodeVals[nextNode] != z {
+						fmt.Fprintln(w, -1)
+						return
+					}
+				}
+			}
+		}
+	}
+
 	for _, component := range components {
 		for i := 0; i <= 30; i++ {
 			zeroCnt := 0
@@ -120,6 +120,52 @@ func main() {
 //////////////
 // Libs    //
 /////////////
+
+type Queue[T any] struct {
+	list *list.List
+}
+
+func NewQueue[T any]() *Queue[T] {
+	return &Queue[T]{
+		list: list.New(),
+	}
+}
+
+func (q *Queue[T]) Enqueue(value T) {
+	q.list.PushBack(value)
+}
+
+func (q *Queue[T]) Dequeue() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	q.list.Remove(front)
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.list.Len() == 0
+}
+
+func (q *Queue[T]) Size() int {
+	return q.list.Len()
+}
+
+// Peek returns the front element without removing it
+func (q *Queue[T]) Peek() (T, bool) {
+	front := q.list.Front()
+	if front == nil {
+		var zero T
+		return zero, false
+	}
+	return front.Value.(T), true
+}
+
+func (q *Queue[T]) Clear() {
+	q.list.Init()
+}
 
 // k桁目のビットが1かどうかを判定（一番右を0桁目とする）
 func IsBitPop(num uint64, k int) bool {
