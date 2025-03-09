@@ -59,11 +59,16 @@ func main() {
 		}
 	}
 
-	visited := make([]bool, N)
-	var divComponents func(node int, component *[]int)
+	for i := 0; i < N; i++ {
+		if nodeVals[i] == -1 {
+			nodeVals[i] = 0
+		}
+	}
 
-	divComponents = func(node int, component *[]int) {
-		*component = append(*component, node)
+	visited := make([]bool, N)
+	var divComponents func(node int, component []int) []int
+	divComponents = func(node int, component []int) []int {
+		component = append(component, node)
 
 		for _, next := range graph[node] {
 			nextNode := next[0]
@@ -72,20 +77,20 @@ func main() {
 			}
 			visited[nextNode] = true
 
-			divComponents(nextNode, component)
+			component = divComponents(nextNode, component)
 		}
+		return component
 	}
 
-	components := make([][]int, 0, N)
+	components := make([][]int, 0)
 	for i := 0; i < N; i++ {
 		if visited[i] {
 			continue
 		}
 		visited[i] = true
 
-		component := make([]int, 0, N)
-		divComponents(i, &component)
-		components = append(components, component)
+		component := make([]int, 0)
+		components = append(components, divComponents(i, component))
 	}
 
 	for _, component := range components {
