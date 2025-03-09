@@ -27,11 +27,13 @@ func main() {
 	N, M := read2Ints(r)
 
 	graph := make([][][2]int, N)
+	edges := make([][3]int, 0, M)
 	for i := 0; i < M; i++ {
 		iarr := readIntArr(r)
 		X, Y, Z := iarr[0]-1, iarr[1]-1, iarr[2]
 		graph[X] = append(graph[X], [2]int{Y, Z})
 		graph[Y] = append(graph[Y], [2]int{X, Z})
+		edges = append(edges, [3]int{X, Y, Z})
 	}
 
 	nodeVals := make([]int, N)
@@ -39,101 +41,70 @@ func main() {
 		nodeVals[i] = -1
 	}
 
-	visited := make([]bool, N)
-	var dfs func(node int) bool
-	dfs = func(node int) bool {
-		for _, adj := range graph[node] {
-			nextNode := adj[0]
-			z := adj[1]
+	for _, e := range edges {
+		X, Y, Z := e[0], e[1], e[2]
 
+		if nodeVals[X] == -1 && nodeVals[Y] == -1 {
+			nodeVals[X] = 0
+			nodeVals[Y] = Z
+		} else if nodeVals[Y] == -1 {
+			nodeVals[Y] = nodeVals[X] ^ Z
+		} else if nodeVals[X] == -1 {
+			nodeVals[X] = nodeVals[Y] ^ Z
+		} else {
+			if nodeVals[X]^nodeVals[Y] != Z {
+				fmt.Fprintln(w, -1)
+				return
+			}
+		}
+	}
+
+	visited := make([]bool, N)
+	var divComponents func(node int, component *[]int)
+
+	divComponents = func(node int, component *[]int) {
+		*component = append(*component, node)
+
+		for _, next := range graph[node] {
+			nextNode := next[0]
 			if visited[nextNode] {
 				continue
 			}
 			visited[nextNode] = true
 
-			if nodeVals[nextNode] == -1 && nodeVals[node] == -1 {
-				nodeVals[node] = 0
-				nodeVals[nextNode] = z
-			} else if nodeVals[nextNode] == -1 {
-				nodeVals[nextNode] = nodeVals[node] ^ z
-			} else if nodeVals[node] == -1 {
-				nodeVals[node] = nodeVals[nextNode] ^ z
-			} else {
-				if nodeVals[node]^z != nodeVals[nextNode] {
-					return false
-				}
-			}
-
-			if !dfs(nextNode) {
-				return false
-			}
+			divComponents(nextNode, component)
 		}
-		return true
 	}
 
+	components := make([][]int, 0, N)
 	for i := 0; i < N; i++ {
 		if visited[i] {
 			continue
 		}
 		visited[i] = true
 
-		result := dfs(i)
-		if !result {
-			fmt.Println("No")
-			return
-		}
+		component := make([]int, 0, N)
+		divComponents(i, &component)
+		components = append(components, component)
 	}
 
-	visited2 := make([]bool, N)
-	var countDfs func(digit, node int, oneCnt, zeroCnt *int)
-	countDfs = func(digit, node int, oneCnt, zeroCnt *int) {
-		if IsBitPop(uint64(nodeVals[node]), digit) {
-			*oneCnt++
-		} else {
-			*zeroCnt++
-		}
-
-		for _, next := range graph[node] {
-			nextNode := next[0]
-
-			if visited2[nextNode] {
-				continue
-			}
-			visited2[nextNode] = true
-
-			countDfs(digit, nextNode, oneCnt, zeroCnt)
-		}
-	}
-
-	visited3 := make([]bool, N)
-	var flipDfs func(digit, node int)
-	flipDfs = func(digit, node int) {
-		nodeVals[node] = int(BitFlip(uint64(nodeVals[node]), digit))
-
-		for _, next := range graph[node] {
-			nextNode := next[0]
-			if visited3[nextNode] {
-				continue
-			}
-			visited3[nextNode] = true
-
-			flipDfs(digit, nextNode)
-		}
-	}
-
-	for i := 0; i < N; i++ {
-		if visited2[i] {
-			continue
-		}
-		visited2[i] = true
-
-		for j := 0; j <= 30; j++ {
-			oneCnt := 0
+	for _, component := range components {
+		for i := 0; i <= 30; i++ {
 			zeroCnt := 0
-			countDfs(0, i, &oneCnt, &zeroCnt)
+			oneCnt := 0
+
+			for _, node := range component {
+				if IsBitPop(uint64(nodeVals[node]), i) {
+					oneCnt++
+				} else {
+					zeroCnt++
+				}
+			}
 
 			if oneCnt > zeroCnt {
-				flipDfs(j, i)
+				for _, node := range component {
+					nodeVals[node] = int(BitFlip(uint64(nodeVals[node]), i))
+				}
 			}
 		}
 	}
