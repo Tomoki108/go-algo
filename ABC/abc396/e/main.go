@@ -2,8 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
-	"container/list"
 	"fmt"
 	"math"
 	"os"
@@ -28,16 +26,12 @@ func main() {
 
 	N, M := read2Ints(r)
 
-	pq := NewHeap[pqItem]()
-
-	refedCnt := make([]int, N)
-
+	graph := make([][][2]int, N)
 	for i := 0; i < M; i++ {
 		iarr := readIntArr(r)
 		X, Y, Z := iarr[0]-1, iarr[1]-1, iarr[2]
-		refedCnt[X]++
-		refedCnt[Y]++
-		pq.PushItem(pqItem{X, Y, Z})
+		graph[X] = append(graph[X], [2]int{Y, Z})
+		graph[Y] = append(graph[Y], [2]int{X, Z})
 	}
 
 	nodeVals := make([]int, N)
@@ -45,133 +39,126 @@ func main() {
 		nodeVals[i] = -1
 	}
 
-	for pq.Len() > 0 {
-		item := pq.PopItem()
+	visited := make([]bool, N)
+	var dfs func(node int) bool
+	dfs = func(node int) bool {
+		for _, adj := range graph[node] {
+			nextNode := adj[0]
+			z := adj[1]
 
-		nodeX, nodeY, z := item.nodeX, item.nodeY, item.z
+			if visited[nextNode] {
+				continue
+			}
+			visited[nextNode] = true
 
-		dump("nodeX: %d, nodeY: %d, z: %d\n", nodeX, nodeY, z)
+			if nodeVals[nextNode] == -1 && nodeVals[node] == -1 {
+				nodeVals[node] = 0
+				nodeVals[nextNode] = z
+			} else if nodeVals[nextNode] == -1 {
+				nodeVals[nextNode] = nodeVals[node] ^ z
+			} else if nodeVals[node] == -1 {
+				nodeVals[node] = nodeVals[nextNode] ^ z
+			} else {
+				if nodeVals[node]^z != nodeVals[nextNode] {
+					return false
+				}
+			}
 
-		if nodeVals[nodeX] == -1 && nodeVals[nodeY] == -1 {
-			nodeVals[nodeX] = 0
-			nodeVals[nodeY] = z
-		} else if nodeVals[nodeX] == -1 && nodeVals[nodeY] != -1 {
-			nodeVals[nodeX] = nodeVals[nodeY] ^ z
-		} else if nodeVals[nodeX] != -1 && nodeVals[nodeY] == -1 {
-			nodeVals[nodeY] = nodeVals[nodeX] ^ z
-		} else {
-			if nodeVals[nodeX]^nodeVals[nodeY] != z {
-				fmt.Println(-1)
-				return
+			if !dfs(nextNode) {
+				return false
 			}
 		}
+		return true
+	}
 
-		dump("nodeVals: %v\n\n", nodeVals)
+	for i := 0; i < N; i++ {
+		if visited[i] {
+			continue
+		}
+		visited[i] = true
 
+		result := dfs(i)
+		if !result {
+			fmt.Println("No")
+			return
+		}
+	}
+
+	visited2 := make([]bool, N)
+	var countDfs func(digit, node int, oneCnt, zeroCnt *int)
+	countDfs = func(digit, node int, oneCnt, zeroCnt *int) {
+		if IsBitPop(uint64(nodeVals[node]), digit) {
+			*oneCnt++
+		} else {
+			*zeroCnt++
+		}
+
+		for _, next := range graph[node] {
+			nextNode := next[0]
+
+			if visited2[nextNode] {
+				continue
+			}
+			visited2[nextNode] = true
+
+			countDfs(digit, nextNode, oneCnt, zeroCnt)
+		}
+	}
+
+	visited3 := make([]bool, N)
+	var flipDfs func(digit, node int)
+	flipDfs = func(digit, node int) {
+		nodeVals[node] = int(BitFlip(uint64(nodeVals[node]), digit))
+
+		for _, next := range graph[node] {
+			nextNode := next[0]
+			if visited3[nextNode] {
+				continue
+			}
+			visited3[nextNode] = true
+
+			flipDfs(digit, nextNode)
+		}
+	}
+
+	for i := 0; i < N; i++ {
+		if visited2[i] {
+			continue
+		}
+		visited2[i] = true
+
+		for j := 0; j <= 30; j++ {
+			oneCnt := 0
+			zeroCnt := 0
+			countDfs(0, i, &oneCnt, &zeroCnt)
+
+			if oneCnt > zeroCnt {
+				flipDfs(j, i)
+			}
+		}
 	}
 
 	writeSlice(w, nodeVals)
-}
-
-type pqItem struct {
-	nodeX, nodeY, z int
-}
-
-func (p pqItem) Priority() int {
-	return p.z * -1
 }
 
 //////////////
 // Libs    //
 /////////////
 
-// 最小ヒープ（小さい値が優先）
-type HeapItem interface {
-	Priority() int
+// k桁目のビットが1かどうかを判定（一番右を0桁目とする）
+func IsBitPop(num uint64, k int) bool {
+	// 1 << k はビットマスク。1をk桁左にシフトすることで、k桁目のみが1で他の桁が0の二進数を作る。
+	// numとビットマスクの論理積（各桁について、numとビットマスクが両方trueならtrue）を作り、その結果が0でないかどうかで判定できる
+	return (num & (1 << k)) != 0
 }
 
-type Heap[T HeapItem] []T
-
-func NewHeap[T HeapItem]() *Heap[T] {
-	return &Heap[T]{}
-}
-
-func (h *Heap[T]) PushItem(item T) {
-	heap.Push(h, item)
-}
-
-func (h *Heap[T]) PopItem() T {
-	return heap.Pop(h).(T)
-}
-
-// to implement sort.Interface
-func (h Heap[T]) Len() int           { return len(h) }
-func (h Heap[T]) Less(i, j int) bool { return h[i].Priority() < h[j].Priority() }
-func (h Heap[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-// DO NOT USE DIRECTLY.
-// to implement heap.Interface
-func (h *Heap[T]) Push(x any) {
-	// Push and Pop use pointer receivers because they modify the slice's length,
-	// not just its contents.
-
-	*h = append(*h, x.(T))
-}
-
-// DO NOT USE DIRECTLY.
-// to implement heap.Interface
-func (h *Heap[T]) Pop() any {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-	return x
-}
-
-type Queue[T any] struct {
-	list *list.List
-}
-
-func NewQueue[T any]() *Queue[T] {
-	return &Queue[T]{
-		list: list.New(),
+// k桁目のビットが立っていれば0に、立っていなければ1にする（一番右を0桁目とする）
+func BitFlip(num uint64, k int) uint64 {
+	if IsBitPop(num, k) {
+		return num & ^(1 << k) // &^ はビットクリア演算子。A &^ Bは、AからBのビットが立っている桁を0にしたものを返す。
+	} else {
+		return num | (1 << k) // | は論理和演算子。A | Bは、少なくともどちらか一方のビットが立っている桁を1にしたものを返す。
 	}
-}
-
-func (q *Queue[T]) Enqueue(value T) {
-	q.list.PushBack(value)
-}
-
-func (q *Queue[T]) Dequeue() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	q.list.Remove(front)
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) IsEmpty() bool {
-	return q.list.Len() == 0
-}
-
-func (q *Queue[T]) Size() int {
-	return q.list.Len()
-}
-
-// Peek returns the front element without removing it
-func (q *Queue[T]) Peek() (T, bool) {
-	front := q.list.Front()
-	if front == nil {
-		var zero T
-		return zero, false
-	}
-	return front.Value.(T), true
-}
-
-func (q *Queue[T]) Clear() {
-	q.list.Init()
 }
 
 //////////////
