@@ -170,7 +170,8 @@ func NextPermutation[T ~int | ~string](sl []T) bool {
 	sl[i], sl[j] = sl[j], sl[i]
 
 	// Step3: スイッチポイントの右側を反転して、辞書順に次の順列を作ります。
-	// 　例: [1, 2, 4, 6, 5, 3] → [1, 2, 4, 3, 5, 6]。
+	//  例: [1, 2, 4, 6, 5, 3] -> [1, 2, 4, 6, 5, 3] -> [1, 2, 4, 3, 5, 6]。
+	//  Goの1.21以上ならslices(sl[i+1:])でいい。
 	reverse(sl[i+1:])
 	return true
 }
