@@ -61,9 +61,9 @@ cd a # move problem dir
 
 acct # test by samples
 
-accs # test by samples && submit
-
-accss # just submit
+# currently unable to submit by cli due to AtCoder's update
+# accs # test by samples && submit
+# accss # just submit
 ```
 
 - update Go template file (sync file registered atocoder-cli with `./template.go`)
