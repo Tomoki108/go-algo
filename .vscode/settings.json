@@ -1,6 +1,5 @@
 {
   "makefile.configureOnOpen": false,
-  "go.goroot": "~/.goenv/versions/1.20.14",
   "workbench.colorCustomizations": {
     "activityBar.activeBackground": "#ffffff",
     "activityBar.background": "#ffffff",

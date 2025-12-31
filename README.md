@@ -13,9 +13,9 @@ npm install -g atcoder-cli
 brew update
 brew install goenv
 
-# actual atcoder's go version is 1.20.6, but using 1.20.14 to use statick check
-# https://img.atcoder.jp/file/language-update/language-list.html
-goenv install 1.20.14
+# NOTE: I was usign go 1.20.14 till abc397
+# current version: https://img.atcoder.jp/file/language-update/2025-10/language-list.html?_gl=1*2e4isk*_ga*Mjc0MTk1OTUxLjE3NjAyNDc5ODA.*_ga_RC512FD18N*czE3NjcxNTkwNjQkbzYkZzEkdDE3NjcxNTkxNDgkajYwJGwwJGgw
+goenv install 1.25.1
 
 # install compatible version of gopls(language server) and dlv(debug tool).
 go install golang.org/x/tools/gopls@v0.15.3
@@ -35,12 +35,12 @@ vi template.json # then copy and paste ./template.json
 vi main.go # then copy and paste ./template.go
 ```
 
-- add go/goenv setting and alias to `~/.bashrc` or `~/.zshrc`
+- add goenv setting and alias to `~/.bashrc` or `~/.zshrc`
 
 ```sh
-# go, goenv
+# goenv
 eval "$(goenv init -)"
-export PATH=$PATH:$GOPATH/bin
+export PATH="$HOME/.goenv/shims:$PATH"
 
 # AtCoder
 alias acct='oj t -c "go run main.go"'
@@ -61,7 +61,7 @@ cd a # move problem dir
 
 acct # test by samples
 
-# currently unable to submit by cli due to AtCoder's update
+# currently unable to submit by cli due to AtCoder's update (ref: https://github.com/Tatamo/atcoder-cli/issues/68)
 # accs # test by samples && submit
 # accss # just submit
 ```
